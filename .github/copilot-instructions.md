@@ -1,15 +1,15 @@
-# GitHub Copilot Instructions — H-DNA Hunter
+# GitHub Copilot Instructions — HSeeker
 
-This file provides Copilot with deep context about the H-DNA Hunter codebase so that it can suggest accurate, idiomatic changes. Read this before proposing any modifications.
+This file provides Copilot with deep context about the HSeeker codebase so that it can suggest accurate, idiomatic changes. Read this before proposing any modifications.
 
 ---
 
 ## Project at a glance
 
-**H-DNA Hunter** (`hdna-hunter` on PyPI) detects H-DNA / triplex mirror repeat structures in DNA sequences. It is a Python package whose computational core is a **compiled CPython C extension** (`_hdna.c`). The Python layer provides a clean API and a CLI that is a drop-in replacement for the original `findHDNA` binary from MirrorHunter / TriplexDetector.
+**HSeeker** (`hseeker` on PyPI) detects H-DNA / triplex mirror repeat structures in DNA sequences. It is a Python package whose computational core is a **compiled CPython C extension** (`_hdna.c`). The Python layer provides a clean API and a CLI that is a drop-in replacement for the original `findHDNA` binary from MirrorHunter / TriplexDetector.
 
 - Repository: https://github.com/Georgakopoulos-Soares-lab/HDNAhunter
-- PyPI: https://pypi.org/project/hdna-hunter/
+- PyPI: https://pypi.org/project/hseeker/
 - Python 3.9–3.13, Linux / macOS / Windows
 - MIT license
 
@@ -18,9 +18,9 @@ This file provides Copilot with deep context about the H-DNA Hunter codebase so 
 ## Repository structure
 
 ```
-hdna_hunter/
+hseeker/
 ├── src/
-│   └── hdna_hunter/
+│   └── hseeker/
 │       ├── _hdna.c          ← C extension (DO NOT refactor lightly)
 │       ├── __init__.py      ← Public Python API
 │       ├── __main__.py      ← CLI entry point
@@ -37,7 +37,7 @@ hdna_hunter/
 
 ---
 
-## The C extension (`src/hdna_hunter/_hdna.c`)
+## The C extension (`src/hseeker/_hdna.c`)
 
 ### Architecture
 
@@ -72,7 +72,7 @@ The C file has a `#ifdef STANDALONE` guard so it can be compiled either as:
 
 ---
 
-## Python API (`src/hdna_hunter/__init__.py`)
+## Python API (`src/hseeker/__init__.py`)
 
 ### Public surface
 
@@ -90,10 +90,10 @@ The Python parameter names (`minrep`, `maxrep`, `maxspacer`, `purity`, `mismatch
 
 ---
 
-## CLI (`src/hdna_hunter/__main__.py`)
+## CLI (`src/hseeker/__main__.py`)
 
-- Entry point: `hdna-hunter` (declared in `pyproject.toml` under `[project.scripts]`).
-- Also callable as `python -m hdna_hunter`.
+- Entry point: `hseeker` (declared in `pyproject.toml` under `[project.scripts]`).
+- Also callable as `python -m hseeker`.
 - Output: `<prefix>_HDNA.tsv` — a tab-separated file with the column order defined in `fieldnames` in `main()`.
 - The CLI flag `-skipoverlap` **inverts** the Python `remove_overlaps` parameter (i.e. passing `-skipoverlap` sets `remove_overlaps=False`).
 - All progress/diagnostic output goes to `stderr`; only the TSV header/rows go to the output file.
@@ -137,8 +137,8 @@ The invariant `start + total_length - 1 == end` always holds. Tests verify this.
 3. Run the diagnostic snippet below if you are unsure what the algorithm actually returns for your sequence:
 
 ```python
-import hdna_hunter
-print(hdna_hunter.scan_sequence("YOUR_SEQ", minrep=6, remove_overlaps=False))
+import hseeker
+print(hseeker.scan_sequence("YOUR_SEQ", minrep=6, remove_overlaps=False))
 ```
 
 ### Critical known values (do not change without re-running diagnostics)
@@ -165,7 +165,7 @@ print(hdna_hunter.scan_sequence("YOUR_SEQ", minrep=6, remove_overlaps=False))
 | File | Role |
 |---|---|
 | `pyproject.toml` | Project metadata, dependencies, setuptools config, cibuildwheel config, pytest config |
-| `setup.py` | `Extension("hdna_hunter._hdna", sources=["src/hdna_hunter/_hdna.c"])` |
+| `setup.py` | `Extension("hseeker._hdna", sources=["src/hseeker/_hdna.c"])` |
 | `MANIFEST.in` | Ensures `_hdna.c` is included in the sdist |
 
 Build backend: `setuptools.build_meta` (NOT the legacy backend). This is declared in `[build-system]` in `pyproject.toml` — never change it to `setuptools.build_meta:__legacy__`.

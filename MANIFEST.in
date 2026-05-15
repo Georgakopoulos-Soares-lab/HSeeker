@@ -1,5 +1,5 @@
 # Include the C source so that sdist recipients can compile from source
-recursive-include src/hdna_hunter *.c *.h
+recursive-include src/hseeker *.c *.h
 
 # Standard files
 include README.md

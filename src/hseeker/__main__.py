@@ -1,11 +1,11 @@
 """
-CLI entry point for hdna-hunter.
+CLI entry point for hseeker.
 
 Invoked as:
-    hdna-hunter -seq genome.fa -out results [options]
+    hseeker -seq genome.fa -out results [options]
 
 or equivalently:
-    python -m hdna_hunter -seq genome.fa -out results [options]
+    python -m hseeker -seq genome.fa -out results [options]
 
 The output is a TSV file at <out>_HDNA.tsv with the same column layout as
 the original findHDNA binary, making it a drop-in replacement.
@@ -17,21 +17,21 @@ import csv
 import sys
 from pathlib import Path
 
-import hdna_hunter
+import hseeker
 
 
 def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(
-        prog="hdna-hunter",
-        description="H-DNA / Triplex Mirror Repeat Detector",
+        prog="hseeker",
+        description="HSeeker — H-DNA / Triplex Mirror Repeat Detector",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Examples:\n"
-            "  hdna-hunter -seq test.fa -out test\n"
-            "  hdna-hunter -seq genome.fa -out genome -purity 1.0 -mismatch 0.0\n"
-            "  hdna-hunter -seq genome.fa -out genome -minrep 10 -purity 0.85 -v\n"
+            "  hseeker -seq test.fa -out test\n"
+            "  hseeker -seq genome.fa -out genome -purity 1.0 -mismatch 0.0\n"
+            "  hseeker -seq genome.fa -out genome -minrep 10 -purity 0.85 -v\n"
         ),
     )
 
@@ -66,7 +66,7 @@ def main() -> None:
     ]
 
     print(
-        f"hdna-hunter v{hdna_hunter.__version__} — H-DNA / Triplex Mirror Repeat Detector\n"
+        f"hseeker v{hseeker.__version__} — H-DNA / Triplex Mirror Repeat Detector\n"
         f"  Input : {args.seq}\n"
         f"  Output: {out_path}\n"
         f"  minrep={args.minrep}  maxrep={args.maxrep}  maxspacer={args.maxspacer}\n"
@@ -86,7 +86,7 @@ def main() -> None:
         )
         writer.writeheader()
 
-        for seq_id, seq, offset in hdna_hunter.parse_fasta(args.seq):
+        for seq_id, seq, offset in hseeker.parse_fasta(args.seq):
             total_records += 1
             if args.v:
                 print(
@@ -94,7 +94,7 @@ def main() -> None:
                     file=sys.stderr,
                 )
 
-            hits = hdna_hunter.scan_sequence(
+            hits = hseeker.scan_sequence(
                 seq,
                 minrep=args.minrep,
                 maxrep=args.maxrep,

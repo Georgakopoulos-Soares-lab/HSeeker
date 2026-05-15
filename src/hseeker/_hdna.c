@@ -5,7 +5,7 @@
  * Original algorithm inspired by non-B_gfa (Cer et al., Nucleic Acids Res. 2013).
  *
  * When compiled via setup.py / pip install, this becomes the
- * Python C extension module  hdna_hunter._hdna.
+ * Python C extension module  hseeker._hdna.
  *
  * When compiled with -DSTANDALONE it behaves as the original CLI binary:
  *   gcc -DSTANDALONE -O2 -Wall -o findHDNA _hdna.c -lm
@@ -520,7 +520,7 @@ static PyMethodDef HdnaMethods[] = {
 
 PyDoc_STRVAR(module_doc,
 "_hdna — low-level C extension for H-DNA / Triplex Mirror Repeat detection.\n\n"
-"Use hdna_hunter.scan_sequence() or hdna_hunter.scan_fasta() instead of\n"
+"Use hseeker.scan_sequence() or hseeker.scan_fasta() instead of\n"
 "calling this module directly.\n"
 );
 

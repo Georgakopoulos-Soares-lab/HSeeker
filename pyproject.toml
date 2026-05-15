@@ -3,16 +3,16 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "hdna-hunter"
+name = "hseeker"
 version = "0.1.0"
-description = "H-DNA / Triplex Mirror Repeat Detector — fast C core with Python API"
+description = "HSeeker — H-DNA / Triplex Mirror Repeat Detector — fast C core with Python API"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.9"
 dependencies = [
     "pandas>=1.5",
 ]
-keywords = ["bioinformatics", "hdna", "triplex", "mirror-repeat", "genomics", "non-b-dna"]
+keywords = ["bioinformatics", "hseeker", "hdna", "triplex", "mirror-repeat", "genomics", "non-b-dna"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
@@ -41,7 +41,7 @@ dev = [
 ]
 
 [project.scripts]
-hdna-hunter = "hdna_hunter.__main__:main"
+hseeker = "hseeker.__main__:main"
 
 [project.urls]
 Homepage   = "https://github.com/Georgakopoulos-Soares-lab/HDNAhunter"
@@ -52,7 +52,7 @@ Issues     = "https://github.com/Georgakopoulos-Soares-lab/HDNAhunter/issues"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"hdna_hunter" = ["_hdna.c"]
+"hseeker" = ["_hdna.c"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

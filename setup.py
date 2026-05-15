@@ -15,9 +15,9 @@ Build commands:
 from setuptools import Extension, setup
 
 hdna_ext = Extension(
-    # The module will be importable as  hdna_hunter._hdna
-    name="hdna_hunter._hdna",
-    sources=["src/hdna_hunter/_hdna.c"],
+    # The module will be importable as  hseeker._hdna
+    name="hseeker._hdna",
+    sources=["src/hseeker/_hdna.c"],
     extra_compile_args=[
         "-O2",    # optimise — same flag used by the original Makefile
         "-Wall",  # keep warnings on to catch regressions

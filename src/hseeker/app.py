@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-app.py — Streamlit web UI for hdna-hunter.
+app.py — Streamlit web UI for hseeker.
 
 Run:
-    streamlit run src/hdna_hunter/app.py
+    streamlit run src/hseeker/app.py
 
 This is a self-contained Streamlit application.  The heavy lifting is
-performed by the hdna_hunter Python API (which calls the compiled C
+performed by the hseeker Python API (which calls the compiled C
 extension internally).  No subprocess calls or external binaries are
 required.
 """
@@ -21,7 +21,7 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 
-import hdna_hunter
+import hseeker
 
 # ---------------------------------------------------------------------------
 # Page config
@@ -49,7 +49,7 @@ st.markdown("""
 st.markdown('<p class="main-title">🧬 H-DNA Hunter</p>', unsafe_allow_html=True)
 st.markdown(
     '<p class="subtitle">H-DNA / Triplex Mirror Repeat Detector — '
-    f'imperfect repeat support · v{hdna_hunter.__version__}</p>',
+    f'imperfect repeat support · v{hseeker.__version__}</p>',
     unsafe_allow_html=True,
 )
 
@@ -170,7 +170,7 @@ def _run_scan(fasta_text: str) -> pd.DataFrame:
         fh.write(fasta_text)
         tmp_path = fh.name
 
-    hits = hdna_hunter.scan_fasta(
+    hits = hseeker.scan_fasta(
         tmp_path,
         minrep=minrep,
         maxrep=maxrep,

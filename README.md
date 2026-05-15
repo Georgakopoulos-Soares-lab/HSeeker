@@ -1,9 +1,9 @@
-# H-DNA Hunter
+# HSeeker
 
-**H-DNA Hunter** is a fast, cross-platform Python package for detecting **H-DNA (intramolecular triplex DNA)** and **mirror repeat** structures in genomic sequences. It ships a compiled C extension (`_hdna`) as its computational core and exposes both a clean Python API and a drop-in CLI replacement for the original `findHDNA` binary.
+**HSeeker** is a fast, cross-platform Python package for detecting **H-DNA (intramolecular triplex DNA)** and **mirror repeat** structures in genomic sequences. It ships a compiled C extension (`_hdna`) as its computational core and exposes both a clean Python API and a drop-in CLI replacement for the original `findHDNA` binary.
 
-[![PyPI version](https://img.shields.io/pypi/v/hdna-hunter)](https://pypi.org/project/hdna-hunter/)
-[![Python](https://img.shields.io/pypi/pyversions/hdna-hunter)](https://pypi.org/project/hdna-hunter/)
+[![PyPI version](https://img.shields.io/pypi/v/hseeker)](https://pypi.org/project/hseeker/)
+[![Python](https://img.shields.io/pypi/pyversions/hseeker)](https://pypi.org/project/hseeker/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![CI — Build Wheels](https://github.com/Georgakopoulos-Soares-lab/HDNAhunter/actions/workflows/build_wheels.yml/badge.svg)](https://github.com/Georgakopoulos-Soares-lab/HDNAhunter/actions/workflows/build_wheels.yml)
 
@@ -58,7 +58,7 @@ H-DNA is found throughout eukaryotic and prokaryotic genomes and has been associ
 
 ## 2. Algorithm Overview
 
-H-DNA Hunter implements a **center-outward biologically informed heuristic** that supports imperfect mirrors and compositional tolerance, enabling detection of biologically realistic H-DNA candidates.
+HSeeker implements a **center-outward biologically informed heuristic** that supports imperfect mirrors and compositional tolerance, enabling detection of biologically realistic H-DNA candidates.
 
 ### How it works
 
@@ -93,7 +93,7 @@ A hit is classified as `is_perfect = True` only when:
 ### From PyPI (recommended)
 
 ```bash
-pip install hdna-hunter
+pip install hseeker
 ```
 
 Binary wheels are provided for CPython 3.9–3.13 on Linux (x86_64, aarch64), macOS (x86_64, arm64, universal2), and Windows (AMD64). No compiler is needed.
@@ -130,10 +130,10 @@ This installs pytest, build, twine, and cibuildwheel in addition to the package 
 ### In Python
 
 ```python
-import hdna_hunter
+import hseeker
 
 # Scan a raw sequence string
-hits = hdna_hunter.scan_sequence(
+hits = hseeker.scan_sequence(
     "GGGAAAGGGTTTTCCCAAACCC",
     minrep=6,
     maxspacer=7,
@@ -144,7 +144,7 @@ for h in hits:
     print(h["start"], h["end"], h["arm_length"], h["is_perfect"])
 
 # Scan an entire FASTA file
-for hit_dict in hdna_hunter.scan_fasta("genome.fa", minrep=10, purity=0.85):
+for hit_dict in hseeker.scan_fasta("genome.fa", minrep=10, purity=0.85):
     print(hit_dict)
 ```
 
@@ -152,26 +152,26 @@ for hit_dict in hdna_hunter.scan_fasta("genome.fa", minrep=10, purity=0.85):
 
 ```bash
 # Minimal — scan test.fa and write test_HDNA.tsv
-hdna-hunter -seq test.fa -out test
+hseeker -seq test.fa -out test
 
 # Strict mode — exact mirror, 100 % pure
-hdna-hunter -seq genome.fa -out strict -purity 1.0 -mismatch 0.0
+hseeker -seq genome.fa -out strict -purity 1.0 -mismatch 0.0
 
 # Relaxed mode — allow up to 20 % mismatch, 80 % purity
-hdna-hunter -seq genome.fa -out relaxed -purity 0.80 -mismatch 0.20
+hseeker -seq genome.fa -out relaxed -purity 0.80 -mismatch 0.20
 
 # Verbose output, longer arms only
-hdna-hunter -seq genome.fa -out long -minrep 10 -maxrep 50 -v
+hseeker -seq genome.fa -out long -minrep 10 -maxrep 50 -v
 ```
 
 ---
 
 ## 5. Python API
 
-### `hdna_hunter.scan_sequence`
+### `hseeker.scan_sequence`
 
 ```python
-hdna_hunter.scan_sequence(
+hseeker.scan_sequence(
     seq: str,
     *,
     minrep: int = 6,
@@ -192,10 +192,10 @@ Scan a single DNA string for H-DNA mirror repeat motifs. The C core runs with th
 
 ---
 
-### `hdna_hunter.scan_fasta`
+### `hseeker.scan_fasta`
 
 ```python
-hdna_hunter.scan_fasta(
+hseeker.scan_fasta(
     path: str | Path,
     *,
     minrep: int = 6,
@@ -214,13 +214,13 @@ Scan every record in a FASTA file. Adds a `seq_id` key to each hit dict. Genomic
 ## 6. Command-Line Interface
 
 ```
-hdna-hunter -seq <FASTA> -out <PREFIX> [options]
+hseeker -seq <FASTA> -out <PREFIX> [options]
 ```
 
 or equivalently:
 
 ```
-python -m hdna_hunter -seq <FASTA> -out <PREFIX> [options]
+python -m hseeker -seq <FASTA> -out <PREFIX> [options]
 ```
 
 ### Positional / required arguments
@@ -246,24 +246,24 @@ python -m hdna_hunter -seq <FASTA> -out <PREFIX> [options]
 
 ```bash
 # 1. Basic scan
-hdna-hunter -seq genome.fa -out results
+hseeker -seq genome.fa -out results
 
 # 2. Strict mode — exact mirror, 100 % pure
-hdna-hunter -seq genome.fa -out strict -purity 1.0 -mismatch 0.0
+hseeker -seq genome.fa -out strict -purity 1.0 -mismatch 0.0
 
 # 3. Whole-genome scan with minimum arm length 10 for high confidence
-hdna-hunter -seq hg38.fa -out hg38_hdna -minrep 10 -purity 0.85 -v
+hseeker -seq hg38.fa -out hg38_hdna -minrep 10 -purity 0.85 -v
 
 # 4. Exploratory scan — very permissive, keep all raw hits
-hdna-hunter -seq region.fa -out explore -purity 0.60 -mismatch 0.30 \
+hseeker -seq region.fa -out explore -purity 0.60 -mismatch 0.30 \
             -minrep 6 -maxspacer 10 -skipoverlap
 
 # 5. Long perfect H-DNA only
-hdna-hunter -seq genome.fa -out perfect -purity 1.0 -mismatch 0.0 \
+hseeker -seq genome.fa -out perfect -purity 1.0 -mismatch 0.0 \
             -minrep 12 -maxspacer 3
 
 # 6. Verbose output to monitor progress on a large genome
-hdna-hunter -seq hg38.fa -out hg38 -minrep 8 -v 2>progress.log
+hseeker -seq hg38.fa -out hg38 -minrep 8 -v 2>progress.log
 ```
 
 ---
@@ -400,12 +400,12 @@ The test suite covers:
 ### Project structure
 
 ```
-hdna_hunter/
+hseeker/
 ├── src/
-│   └── hdna_hunter/
+│   └── hseeker/
 │       ├── _hdna.c          # C extension — core algorithm
 │       ├── __init__.py      # Python API (scan_sequence, scan_fasta)
-│       └── __main__.py      # CLI entry point (hdna-hunter / python -m hdna_hunter)
+│       └── __main__.py      # CLI entry point (hseeker / python -m hseeker)
 ├── tests/
 │   └── test_hdna.py         # 110 comprehensive tests (pytest)
 ├── .github/
@@ -437,10 +437,10 @@ Tests live in `tests/test_hdna.py`. Each section focuses on one concern. Add new
 
 ## 12. Citation
 
-If you use H-DNA Hunter in published research, please cite:
+If you use HSeeker in published research, please cite:
 
 > Georgakopoulos-Soares Lab, UT Austin.  
-> **H-DNA Hunter**: fast, cross-platform detection of H-DNA and mirror repeat structures in genomic sequences.  
+> **HSeeker**: fast, cross-platform detection of H-DNA and mirror repeat structures in genomic sequences.  
 > https://github.com/Georgakopoulos-Soares-lab/HDNAhunter
 
 ---

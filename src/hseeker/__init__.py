@@ -1,14 +1,14 @@
 """
-hdna_hunter — H-DNA / Triplex Mirror Repeat Detector
-=====================================================
+hseeker — H-DNA / Triplex Mirror Repeat Detector
+=================================================
 
 Fast C core wrapped in a clean Python API.
 
 Quick start
 -----------
->>> import hdna_hunter
->>> hits = hdna_hunter.scan_sequence("GAGAGAGAGAGAGAGAGAGAGAGAGAGA", minrep=6)
->>> hits = hdna_hunter.scan_fasta("genome.fa", minrep=10, purity=0.85)
+>>> import hseeker
+>>> hits = hseeker.scan_sequence("GAGAGAGAGAGAGAGAGAGAGAGAGAGA", minrep=6)
+>>> hits = hseeker.scan_fasta("genome.fa", minrep=10, purity=0.85)
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ import re
 from pathlib import Path
 from typing import Generator
 
-from hdna_hunter import _hdna  # compiled C extension
+from hseeker import _hdna  # compiled C extension
 
 __version__: str = "0.1.0"
 __all__ = ["scan_sequence", "scan_fasta", "parse_fasta", "__version__"]
