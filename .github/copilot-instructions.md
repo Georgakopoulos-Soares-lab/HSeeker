@@ -24,7 +24,6 @@ hdna_hunter/
 │       ├── _hdna.c          ← C extension (DO NOT refactor lightly)
 │       ├── __init__.py      ← Public Python API
 │       ├── __main__.py      ← CLI entry point
-│       └── app.py           ← Streamlit web UI
 ├── tests/
 │   └── test_hdna.py         ← 110 pytest tests
 ├── .github/
@@ -62,7 +61,7 @@ The C file has a `#ifdef STANDALONE` guard so it can be compiled either as:
 3. **`is_perfect`** is true iff `(best_ga == 1.0 || best_ct == 1.0) && best_mir == 1.0` — this is checked using `float` equality against `1.0f`. Do not change this to a threshold comparison.
 4. **Coordinates are 1-based inclusive** — `start = left_start + 1 + (seq_offset - 1)`.
 5. **N bases terminate arm extension** — `if (lb == 'n' || rb == 'n') break;`
-6. **Overlap removal** keeps the longest arm; among ties it keeps the shorter spacer. This is identical to the original non-B_gfa behaviour.
+6. **Overlap removal** keeps the longest arm; among ties it keeps the shorter spacer.
 
 ### When editing `_hdna.c`
 
@@ -83,17 +82,11 @@ scan_sequence(seq, *, minrep=6, maxrep=50, maxspacer=7,
               remove_overlaps=True, seq_offset=1) -> list[dict]
 
 scan_fasta(path, *, minrep=6, ...) -> list[dict]
-
-parse_fasta(path) -> Generator[tuple[str, str, int], None, None]
 ```
 
 ### Parameter naming contract
 
 The Python parameter names (`minrep`, `maxrep`, `maxspacer`, `purity`, `mismatch`) are the **canonical names** used everywhere — in `__init__.py`, `__main__.py`, the C extension, the test file, and the README. Never rename them without updating all five locations.
-
-### `parse_fasta` offset parsing
-
-Headers of the form `>seqid:start-end` (UCSC / Ensembl region extracts) are parsed to extract the genomic `start` as the offset. Any other header format defaults to offset 1.
 
 ---
 
