@@ -1,0 +1,8 @@
+# Include the C source so that sdist recipients can compile from source
+recursive-include src/hdna_hunter *.c *.h
+
+# Standard files
+include README.md
+include LICENSE
+include pyproject.toml
+include setup.py

@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hdna-hunter"
+version = "0.1.0"
+description = "H-DNA / Triplex Mirror Repeat Detector — fast C core with Python API"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+dependencies = [
+    "pandas>=1.5",
+]
+keywords = ["bioinformatics", "hdna", "triplex", "mirror-repeat", "genomics", "non-b-dna"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: C",
+    "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+app = [
+    "streamlit>=1.30",
+    "plotly>=5.0",
+]
+dev = [
+    "pytest>=7.0",
+    "cibuildwheel>=2.19",
+    "build",
+    "twine",
+]
+
+[project.scripts]
+hdna-hunter = "hdna_hunter.__main__:main"
+
+[project.urls]
+Homepage   = "https://github.com/Georgakopoulos-Soares-lab/HDNAhunter"
+Repository = "https://github.com/Georgakopoulos-Soares-lab/HDNAhunter"
+Issues     = "https://github.com/Georgakopoulos-Soares-lab/HDNAhunter/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"hdna_hunter" = ["_hdna.c"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts   = "-v"
+
+[tool.cibuildwheel]
+# Build CPython 3.9-3.13 on all platforms
+build = "cp39-* cp310-* cp311-* cp312-* cp313-*"
+# Skip 32-bit and musl libc builds
+skip  = "*-win32 *-manylinux_i686 *-musllinux*"
+
+test-requires = ["pytest", "pandas"]
+test-command  = "pytest {project}/tests -v"
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64", "aarch64"]
+manylinux-x86_64-image   = "manylinux2014"
+manylinux-aarch64-image  = "manylinux2014"
+
+[tool.cibuildwheel.macos]
+archs = ["x86_64", "arm64", "universal2"]
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64"]

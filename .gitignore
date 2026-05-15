@@ -1,0 +1,65 @@
+# ──────────────────────────────────────────────
+# Python
+# ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+
+# Distribution / packaging
+dist/
+build/
+wheels/
+wheelhouse/
+*.egg-info/
+.eggs/
+RECORD
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# ──────────────────────────────────────────────
+# C / compiled artifacts
+# ──────────────────────────────────────────────
+*.o
+*.a
+*.dylib
+*.dll
+src/hdna_hunter/*.so
+src/hdna_hunter/*.pyd
+
+# ──────────────────────────────────────────────
+# Test / coverage
+# ──────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+
+# ──────────────────────────────────────────────
+# Build / CI artefacts
+# ──────────────────────────────────────────────
+*.whl
+*.tar.gz
+
+# ──────────────────────────────────────────────
+# Editor / OS
+# ──────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ──────────────────────────────────────────────
+# Agentic / migration files (not for distribution)
+# ──────────────────────────────────────────────
+MIGRATION.md
