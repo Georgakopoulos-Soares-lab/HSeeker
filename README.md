@@ -72,11 +72,11 @@ H-DNA Hunter implements a **center-outward biologically informed heuristic** —
    - Arm composition (fraction GA or CT) is tracked continuously.
 3. **Threshold evaluation** — After every base pair beyond `minrep`, the algorithm evaluates:
 
-$$\text{mirror\_identity} = 1 - \frac{\text{mismatches}}{k}$$
+$$\text{mirror identity} = 1 - \frac{\text{mismatches}}{k}$$
 
-$$\text{purity} = \max\left(\frac{\text{GA count}}{k},\, \frac{\text{CT count}}{k}\right)$$
+$$\text{purity} = \max\!\left(\frac{\text{GA count}}{k},\ \frac{\text{CT count}}{k}\right)$$
 
-If both `mirror_identity ≥ 1 − \texttt{mismatch}` and `purity ≥ \texttt{purity}`, the current arm length is recorded as a valid candidate.
+If both $\text{mirror identity} \geq 1 - \texttt{mismatch}$ and $\text{purity} \geq \texttt{purity}$, the current arm length is recorded as a valid candidate.
 
 4. **Longest-arm retention** — For each `(ctr, sp)` pair, only the longest valid arm is kept. This ensures no redundant shorter arms at the same position.
 5. **Overlap removal** — After scanning the full sequence, overlapping hits are resolved by keeping the **longest arm first**; ties are broken by **shorter spacer**. This is the behaviour of the original non-B_gfa suite.
