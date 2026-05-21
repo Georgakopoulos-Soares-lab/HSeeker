@@ -60,6 +60,12 @@ Thumbs.db
 *~
 
 # ──────────────────────────────────────────────
+# Benchmark generated data
+# ──────────────────────────────────────────────
+benchmarks/data/
+OPTIMIZATIONS.md
+
+# ──────────────────────────────────────────────
 # Agentic / migration files (not for distribution)
 # ──────────────────────────────────────────────
 MIGRATION.md

@@ -29,10 +29,6 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-app = [
-    "streamlit>=1.30",
-    "plotly>=5.0",
-]
 dev = [
     "pytest>=7.0",
     "cibuildwheel>=2.19",

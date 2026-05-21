@@ -25,7 +25,10 @@ hseeker/
 │       ├── __init__.py      ← Public Python API
 │       ├── __main__.py      ← CLI entry point
 ├── tests/
-│   └── test_hdna.py         ← 110 pytest tests
+│   └── test_hdna.py         ← 120 pytest tests
+├── benchmarks/
+│   ├── benchmark.py         ← performance benchmark suite
+│   └── data/                ← generated FASTA files (gitignored)
 ├── .github/
 │   ├── copilot-instructions.md   ← this file
 │   └── workflows/
@@ -82,6 +85,10 @@ scan_sequence(seq, *, minrep=6, maxrep=50, maxspacer=7,
               remove_overlaps=True, seq_offset=1) -> list[dict]
 
 scan_fasta(path, *, minrep=6, ...) -> list[dict]
+
+scan_fasta_iter(path, *, minrep=6, ...) -> Generator[dict, None, None]
+
+scan_fasta_parallel(path, *, minrep=6, ..., workers=None) -> list[dict]
 ```
 
 ### Parameter naming contract
@@ -130,7 +137,7 @@ The invariant `start + total_length - 1 == end` always holds. Tests verify this.
 
 ## Test suite (`tests/test_hdna.py`)
 
-110 tests across 23 sections. Before adding a new test:
+120 tests across 25 sections. Before adding a new test:
 
 1. Read the section it belongs to and follow the existing naming pattern.
 2. Add reference sequences as **module-level constants** (e.g., `MY_SEQ = "AAAGGGAAAGGG"`).
@@ -189,6 +196,39 @@ The workflow:
 6. Uploads all artifacts; on tag events, publishes to PyPI via OIDC Trusted Publishing.
 
 To trigger a release: create and push an annotated tag `vX.Y.Z`.
+
+---
+
+## Benchmarks (`benchmarks/benchmark.py`)
+
+Self-contained performance benchmark suite. Generates synthetic FASTA datasets and measures wall time, peak RAM, CPU utilisation, and parallelism speedup for all public API paths.
+
+### Running
+
+```bash
+# Small tier only (30 MB, ~3–5 min) — recommended default
+python benchmarks/benchmark.py --no-cli
+
+# Include medium tier (300 MB)
+python benchmarks/benchmark.py --medium --no-cli
+
+# Benchmark a real FASTA file
+python benchmarks/benchmark.py --real path/to/genome.fa --no-cli
+
+# Save results as JSON
+python benchmarks/benchmark.py --no-cli --json results.json
+
+# Parallelism scaling table
+python benchmarks/benchmark.py --scaling --no-cli
+```
+
+### Key facts
+
+- Generated FASTA files are cached in `benchmarks/data/` (gitignored). Pass `--no-cache` to regenerate.
+- Three sequence profiles: `uniform` (sparse hits, baseline), `ga_biased` (dense hits, stresses buffer), `realistic` (medium density, mimics human chromosomes).
+- Three size tiers: `small` (30 MB, default), `medium` (300 MB, `--medium`), `large` (3 GB, `--large`).
+- Do NOT commit anything under `benchmarks/data/`.
+- When editing `benchmark.py`, do not change the `DatasetSpec` field names — they are used as JSON keys in `--json` output.
 
 ---
 

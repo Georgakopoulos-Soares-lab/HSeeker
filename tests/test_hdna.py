@@ -347,6 +347,120 @@ def test_scan_fasta_offset_propagates_to_coordinates():
 
 
 # ===========================================================================
+# 6b. scan_fasta_iter() — streaming generator
+# ===========================================================================
+
+def test_scan_fasta_iter_is_generator():
+    """scan_fasta_iter must return a generator, not a list."""
+    import types
+    path = fasta_to_tmp([("s", GAMIR_SEQ)])
+    try:
+        result = hseeker.scan_fasta_iter(str(path), minrep=6)
+        assert isinstance(result, types.GeneratorType), \
+            f"Expected GeneratorType, got {type(result)}"
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def test_scan_fasta_iter_matches_scan_fasta():
+    """Collecting scan_fasta_iter into a list must equal scan_fasta output."""
+    path = fasta_to_tmp([("r1", GAMIR_SEQ), ("r2", CTMIR_SEQ)])
+    try:
+        iter_hits  = list(hseeker.scan_fasta_iter(str(path), minrep=6))
+        fasta_hits = hseeker.scan_fasta(str(path), minrep=6)
+        assert iter_hits == fasta_hits
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def test_scan_fasta_iter_seq_id_set_on_each_hit():
+    """Every yielded hit must carry the correct seq_id from its FASTA record."""
+    path = fasta_to_tmp([("seq_A", PURE_GA * 3), ("seq_B", CTMIR_SEQ)])
+    try:
+        hits = list(hseeker.scan_fasta_iter(str(path), minrep=6))
+        assert len(hits) > 0
+        ids = {h["seq_id"] for h in hits}
+        assert "seq_A" in ids
+        assert "seq_B" in ids
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def test_scan_fasta_iter_all_n_yields_nothing():
+    """All-N FASTA record must yield zero hits."""
+    path = fasta_to_tmp([("empty", "N" * 80)])
+    try:
+        hits = list(hseeker.scan_fasta_iter(str(path), minrep=6))
+        assert hits == []
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def test_scan_fasta_iter_in_all():
+    """scan_fasta_iter must be listed in hseeker.__all__."""
+    assert "scan_fasta_iter" in hseeker.__all__
+
+
+# ===========================================================================
+# 6c. scan_fasta_parallel() — thread-parallel FASTA scan
+# ===========================================================================
+
+def test_scan_fasta_parallel_matches_scan_fasta():
+    """scan_fasta_parallel must return the same hits as scan_fasta."""
+    records = [("chr1", GAMIR_SEQ * 3), ("chr2", CTMIR_SEQ * 3)]
+    path = fasta_to_tmp(records)
+    try:
+        expected = hseeker.scan_fasta(str(path), minrep=6)
+        actual   = hseeker.scan_fasta_parallel(str(path), minrep=6)
+        assert actual == expected
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def test_scan_fasta_parallel_preserves_record_order():
+    """Hits from chr1 must appear before hits from chr2."""
+    records = [("chr1", GAMIR_SEQ * 3), ("chr2", CTMIR_SEQ * 3)]
+    path = fasta_to_tmp(records)
+    try:
+        hits = hseeker.scan_fasta_parallel(str(path), minrep=6)
+        seq_ids = [h["seq_id"] for h in hits]
+        chr1_indices = [i for i, s in enumerate(seq_ids) if s == "chr1"]
+        chr2_indices = [i for i, s in enumerate(seq_ids) if s == "chr2"]
+        if chr1_indices and chr2_indices:
+            assert max(chr1_indices) < min(chr2_indices)
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def test_scan_fasta_parallel_explicit_workers():
+    """workers=1 must produce the same result as the default."""
+    records = [("seq1", PERFECT_SEQ * 5), ("seq2", PURE_GA)]
+    path = fasta_to_tmp(records)
+    try:
+        default_hits  = hseeker.scan_fasta_parallel(str(path), minrep=6)
+        workers1_hits = hseeker.scan_fasta_parallel(str(path), minrep=6, workers=1)
+        assert workers1_hits == default_hits
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def test_scan_fasta_parallel_empty_records_yields_empty():
+    """A FASTA file with only N-bases should produce no hits."""
+    records = [("all_n", "N" * 50), ("also_n", "N" * 50)]
+    path = fasta_to_tmp(records)
+    try:
+        hits = hseeker.scan_fasta_parallel(str(path), minrep=6)
+        assert hits == []
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def test_scan_fasta_parallel_in_all():
+    """scan_fasta_parallel must be listed in hseeker.__all__."""
+    assert "scan_fasta_parallel" in hseeker.__all__
+
+
+# ===========================================================================
 # 7. Overlap removal
 # ===========================================================================
 
