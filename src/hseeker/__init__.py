@@ -9,9 +9,6 @@ Quick start
 >>> import hseeker
 >>> hits = hseeker.scan_sequence("GAGAGAGAGAGAGAGAGAGAGAGAGAGA", minrep=6)
 >>> hits = hseeker.scan_fasta("genome.fa", minrep=10, purity=0.85)
->>> # memory-efficient streaming alternative:
->>> for hit in hseeker.scan_fasta_iter("genome.fa", minrep=10):
-...     print(hit["start"], hit["end"])
 """
 
 from __future__ import annotations
@@ -25,7 +22,14 @@ from typing import Generator
 from hseeker import _hdna  # compiled C extension
 
 __version__: str = "0.1.0"
-__all__ = ["scan_sequence", "scan_fasta", "scan_fasta_iter", "scan_fasta_parallel", "parse_fasta", "__version__"]
+__all__ = [
+    "scan_sequence",
+    "scan_fasta",
+    "scan_fasta_iter",
+    "scan_fasta_parallel",
+    "parse_fasta",
+    "__version__",
+]
 
 
 # ---------------------------------------------------------------------------
@@ -134,52 +138,6 @@ def parse_fasta(path: str | Path) -> Generator[tuple[str, str, int], None, None]
         yield seq_id, "".join(parts), offset
 
 
-def scan_fasta_iter(
-    path: str | Path,
-    *,
-    minrep: int = 6,
-    maxrep: int = 50,
-    maxspacer: int = 7,
-    purity: float = 0.80,
-    mismatch: float = 0.20,
-    remove_overlaps: bool = True,
-) -> Generator[dict, None, None]:
-    """Stream H-DNA hits from every record in a FASTA file one at a time.
-
-    This is the memory-efficient alternative to :func:`scan_fasta`.  Only
-    a single record's worth of hits is held in RAM at any moment.  For a
-    24-chromosome genome this reduces peak memory by up to 24× compared
-    to :func:`scan_fasta`.
-
-    Parameters
-    ----------
-    path : str | Path
-        Path to a FASTA file (may contain multiple records).
-    minrep, maxrep, maxspacer, purity, mismatch, remove_overlaps :
-        Same as :func:`scan_sequence`.
-
-    Yields
-    ------
-    dict
-        One hit dict per yield, with the same keys as
-        :func:`scan_sequence` plus ``seq_id``.
-    """
-    for seq_id, seq, offset in parse_fasta(path):
-        hits = scan_sequence(
-            seq,
-            minrep=minrep,
-            maxrep=maxrep,
-            maxspacer=maxspacer,
-            purity=purity,
-            mismatch=mismatch,
-            remove_overlaps=remove_overlaps,
-            seq_offset=offset,
-        )
-        for h in hits:
-            h["seq_id"] = seq_id
-            yield h
-
-
 def scan_fasta(
     path: str | Path,
     *,
@@ -212,63 +170,8 @@ def scan_fasta(
         All hits from all records.  Each dict has the same keys as
         :func:`scan_sequence` plus ``seq_id``.
     """
-    return list(
-        scan_fasta_iter(
-            path,
-            minrep=minrep,
-            maxrep=maxrep,
-            maxspacer=maxspacer,
-            purity=purity,
-            mismatch=mismatch,
-            remove_overlaps=remove_overlaps,
-        )
-    )
-
-
-def scan_fasta_parallel(
-    path: str | Path,
-    *,
-    minrep: int = 6,
-    maxrep: int = 50,
-    maxspacer: int = 7,
-    purity: float = 0.80,
-    mismatch: float = 0.20,
-    remove_overlaps: bool = True,
-    workers: int | None = None,
-) -> list[dict]:
-    """Scan all FASTA records in parallel using threads.
-
-    The C scan releases the GIL (``Py_BEGIN_ALLOW_THREADS`` in ``_hdna.c``),
-    so threads achieve true parallelism on the heavy C work.  For a
-    24-chromosome genome on a 12-core machine this is roughly 10× faster
-    than the sequential :func:`scan_fasta`.
-
-    Parameters
-    ----------
-    path : str | Path
-        Path to a FASTA file (may contain multiple records).
-    minrep, maxrep, maxspacer, purity, mismatch, remove_overlaps :
-        Same as :func:`scan_sequence`.
-    workers : int | None
-        Number of worker threads.  ``None`` (default) uses
-        ``os.cpu_count()``.
-
-    Returns
-    -------
-    list[dict]
-        All hits from all records in record order.  Each dict has the same
-        keys as :func:`scan_fasta`.
-    """
-    records = list(parse_fasta(path))
-    if not records:
-        return []
-
-    n_workers = workers if workers is not None else (os.cpu_count() or 1)
-
-    def _scan_record(
-        record: tuple[str, str, int],
-    ) -> list[dict]:
-        seq_id, seq, offset = record
+    results: list[dict] = []
+    for seq_id, seq, offset in parse_fasta(path):
         hits = scan_sequence(
             seq,
             minrep=minrep,
@@ -281,14 +184,145 @@ def scan_fasta_parallel(
         )
         for h in hits:
             h["seq_id"] = seq_id
+        results.extend(hits)
+    return results
+
+
+def scan_fasta_iter(
+    path: str | Path,
+    *,
+    minrep: int = 6,
+    maxrep: int = 50,
+    maxspacer: int = 7,
+    purity: float = 0.80,
+    mismatch: float = 0.20,
+    remove_overlaps: bool = True,
+) -> Generator[dict, None, None]:
+    """Scan a FASTA file and yield hits one at a time (streaming).
+
+    Identical to :func:`scan_fasta` but returns a generator instead of a
+    list, so peak RAM is proportional to the largest single record rather
+    than the total number of hits.
+
+    Yields
+    ------
+    dict
+        Same keys as :func:`scan_fasta`.
+    """
+    for seq_id, seq, offset in parse_fasta(path):
+        hits = scan_sequence(
+            seq,
+            minrep=minrep,
+            maxrep=maxrep,
+            maxspacer=maxspacer,
+            purity=purity,
+            mismatch=mismatch,
+            remove_overlaps=remove_overlaps,
+            seq_offset=offset,
+        )
+        for h in hits:
+            h["seq_id"] = seq_id
+            yield h
+
+
+def scan_fasta_parallel(
+    path: str | Path,
+    *,
+    minrep: int = 6,
+    maxrep: int = 50,
+    maxspacer: int = 7,
+    purity: float = 0.80,
+    mismatch: float = 0.20,
+    remove_overlaps: bool = True,
+    workers: int | None = None,
+    chunk_size: int = 5_000_000,
+) -> list[dict]:
+    """Scan a FASTA file using a thread pool with intra-record chunk parallelism.
+
+    Records shorter than *chunk_size* are scanned as a single task.  Longer
+    records are split into overlapping chunks and scanned in parallel; hits
+    that fall in the overlap zone are assigned exclusively to the chunk that
+    owns them, so no hit is counted twice.
+
+    The C extension releases the GIL during each scan, so true CPU parallelism
+    is achieved across chunks and records.
+
+    Parameters
+    ----------
+    workers : int | None
+        Number of worker threads (default: ``os.cpu_count()``).
+    chunk_size : int
+        Target bases per chunk for large records (default 5,000,000).
+
+    Returns
+    -------
+    list[dict]
+        All hits from all records.  Each dict has the same keys as
+        :func:`scan_sequence` plus ``seq_id``.
+    """
+    n_workers = workers if workers is not None else (os.cpu_count() or 1)
+
+    # Overlap must cover the largest possible hit that can straddle a chunk
+    # boundary: left-arm start just before the boundary, right-arm end at
+    # most maxrep bases into the next chunk.  Formula: 2*maxrep + maxspacer + 1.
+    overlap = 2 * maxrep + maxspacer + 1
+
+    def _build_tasks(
+        seq_id: str, seq: str, genomic_offset: int
+    ) -> list[tuple[str, str, int, int | None]]:
+        """Split one record into (seq_id, chunk_seq, chunk_offset, excl_end) tasks.
+
+        *excl_end* is the exclusive upper bound on the genomic start coordinate
+        of hits that this chunk owns.  Hits with start >= excl_end are in the
+        overlap region and will be found (and owned) by the next chunk.
+        None means 'keep everything' (last/only chunk).
+        """
+        seqlen = len(seq)
+        if seqlen <= chunk_size:
+            return [(seq_id, seq, genomic_offset, None)]
+
+        tasks: list[tuple[str, str, int, int | None]] = []
+        pos = 0
+        while pos < seqlen:
+            is_last = (pos + chunk_size >= seqlen)
+            if is_last:
+                tasks.append((seq_id, seq[pos:], genomic_offset + pos, None))
+            else:
+                # Include overlap bases beyond the exclusive zone so that hits
+                # starting near the right edge of this chunk are still complete.
+                chunk_seq = seq[pos : pos + chunk_size + overlap]
+                excl_end = genomic_offset + pos + chunk_size
+                tasks.append((seq_id, chunk_seq, genomic_offset + pos, excl_end))
+            pos += chunk_size
+        return tasks
+
+    def _scan_chunk(
+        task: tuple[str, str, int, int | None],
+    ) -> list[dict]:
+        seq_id, chunk_seq, chunk_offset, excl_end = task
+        hits = scan_sequence(
+            chunk_seq,
+            minrep=minrep,
+            maxrep=maxrep,
+            maxspacer=maxspacer,
+            purity=purity,
+            mismatch=mismatch,
+            remove_overlaps=remove_overlaps,
+            seq_offset=chunk_offset,
+        )
+        for h in hits:
+            h["seq_id"] = seq_id
+        if excl_end is not None:
+            hits = [h for h in hits if h["start"] < excl_end]
         return hits
 
-    results: list[dict] = []
-    with ThreadPoolExecutor(max_workers=n_workers) as pool:
-        # submit all records; collect futures in submission order to
-        # preserve deterministic record ordering in the output.
-        futures = [pool.submit(_scan_record, r) for r in records]
-        for fut in futures:
-            results.extend(fut.result())
+    # Flatten all records into a list of chunk tasks
+    all_tasks: list[tuple[str, str, int, int | None]] = []
+    for seq_id, seq, offset in parse_fasta(path):
+        all_tasks.extend(_build_tasks(seq_id, seq, offset))
 
+    results: list[dict] = []
+    with ThreadPoolExecutor(max_workers=n_workers) as executor:
+        for hits in executor.map(_scan_chunk, all_tasks):
+            results.extend(hits)
     return results

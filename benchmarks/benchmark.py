@@ -47,7 +47,9 @@ import argparse
 import contextlib
 import gc
 import json
+import datetime
 import os
+import platform
 import random
 import subprocess
 import sys
@@ -80,9 +82,13 @@ GEN_CHUNK  = 10_000_000  # bases generated per numpy call (≈10 MB in RAM)
 # ACGT weights: (A, C, G, T)
 _PROFILES: dict[str, tuple[float, float, float, float]] = {
     "uniform":   (0.25,  0.25,  0.25,  0.25),
-    "ga_biased": (0.05,  0.05,  0.45,  0.45),  # 90 % purine → very dense hits
+    "ga_biased": (0.05,  0.05,  0.45,  0.45),  # 90 % purine    → dense GA-mirror hits
+    "ct_biased": (0.05,  0.45,  0.05,  0.45),  # 90 % pyrimidine → dense CT-mirror hits
     "realistic": (0.295, 0.205, 0.205, 0.295),  # ~41 % GC, like human chr
 }
+
+# minrep values used in the optional parameter-sensitivity sweep
+MINREP_SWEEP_VALUES: list[int] = [6, 8, 10, 15, 20]
 
 # H-DNA motifs embedded at regular intervals — chosen to produce real hits
 # at minrep=6 with default purity/mismatch settings
@@ -163,6 +169,29 @@ def _write_fasta(
                 genome_offset += chunk
 
 
+# ---------------------------------------------------------------------------
+# Seed manifest — tracks which seed was used per dataset so that a seed
+# change triggers automatic regeneration of the affected file.
+# ---------------------------------------------------------------------------
+
+_SEED_MANIFEST_PATH = DATA_DIR / "SEED_MANIFEST.json"
+
+
+def _load_seed_manifest() -> dict[str, int]:
+    """Load {dataset_name: seed} mapping from disk; return {} on any error."""
+    if _SEED_MANIFEST_PATH.exists():
+        try:
+            return json.loads(_SEED_MANIFEST_PATH.read_text())
+        except Exception:
+            return {}
+    return {}
+
+
+def _save_seed_manifest(manifest: dict[str, int]) -> None:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    _SEED_MANIFEST_PATH.write_text(json.dumps(manifest, indent=2, sort_keys=True))
+
+
 def _ensure_dataset(
     name: str,
     n_records: int,
@@ -171,10 +200,20 @@ def _ensure_dataset(
     seed: int,
     force: bool = False,
 ) -> Path:
-    """Return path to cached FASTA file, generating it if absent."""
+    """Return path to cached FASTA file, generating it if absent or seed changed."""
     path = DATA_DIR / f"{name}.fa"
-    if path.exists() and not force:
+    manifest = _load_seed_manifest()
+    seed_changed = manifest.get(name) != seed
+
+    if path.exists() and not force and not seed_changed:
         return path
+
+    if seed_changed and path.exists() and not force:
+        print(
+            f"  seed changed for {name} "
+            f"(was {manifest.get(name)!r} → {seed}) — regenerating",
+            flush=True,
+        )
 
     total_mb = n_records * record_length / 1e6
     print(
@@ -188,6 +227,8 @@ def _ensure_dataset(
     size_mb = path.stat().st_size / 1e6
     print(f"    → {size_mb:.1f} MB written in {elapsed:.1f} s  "
           f"({size_mb / elapsed:.0f} MB/s)")
+    manifest[name] = seed
+    _save_seed_manifest(manifest)
     return path
 
 
@@ -299,22 +340,35 @@ class DatasetSpec:
 
 
 # fmt: off
+# Seeds are stable — changing a seed triggers automatic regeneration via
+# SEED_MANIFEST.json.   Small: 1xxx  |  Medium: 2xxx  |  Large: 3xxx
 SMALL_DATASETS: list[DatasetSpec] = [
-    DatasetSpec("small_uniform_5rec",    5,  6_000_000, "uniform",   seed=1),
-    DatasetSpec("small_ga_biased_5rec",  5,  6_000_000, "ga_biased", seed=2),
-    DatasetSpec("small_realistic_24rec", 24, 1_250_000, "realistic", seed=3),
+    # 5 records × 6 MB ≈ 30 MB — baseline throughput per profile
+    DatasetSpec("small_uniform_5rec",      5,  6_000_000, "uniform",   seed=1001),
+    # Dense GA purine content — stresses hit buffer and overlap removal
+    DatasetSpec("small_ga_biased_5rec",    5,  6_000_000, "ga_biased", seed=1002),
+    # Dense CT pyrimidine content — mirrors ga_biased for CT-mirror hits
+    DatasetSpec("small_ct_biased_5rec",    5,  6_000_000, "ct_biased", seed=1003),
+    # 24 realistic records × 1.25 MB — tests multi-record parallelism benefit
+    DatasetSpec("small_realistic_24rec",  24,  1_250_000, "realistic", seed=1004),
+    # Single long record (30 MB) — tests per-record latency (no parallel benefit)
+    DatasetSpec("small_realistic_1rec",    1, 30_000_000, "realistic", seed=1005),
 ]
 
 MEDIUM_DATASETS: list[DatasetSpec] = [
-    DatasetSpec("medium_uniform_5rec",    5,  60_000_000, "uniform",   seed=4),
-    DatasetSpec("medium_ga_biased_5rec",  5,  60_000_000, "ga_biased", seed=5),
-    DatasetSpec("medium_realistic_24rec", 24, 12_500_000, "realistic", seed=6),
+    DatasetSpec("medium_uniform_5rec",     5,  60_000_000, "uniform",   seed=2001),
+    DatasetSpec("medium_ga_biased_5rec",   5,  60_000_000, "ga_biased", seed=2002),
+    DatasetSpec("medium_ct_biased_5rec",   5,  60_000_000, "ct_biased", seed=2003),
+    DatasetSpec("medium_realistic_24rec", 24,  12_500_000, "realistic", seed=2004),
+    DatasetSpec("medium_realistic_1rec",   1, 300_000_000, "realistic", seed=2005),
 ]
 
 LARGE_DATASETS: list[DatasetSpec] = [
-    DatasetSpec("large_uniform_5rec",    5,  600_000_000, "uniform",   seed=7),
-    DatasetSpec("large_ga_biased_5rec",  5,  600_000_000, "ga_biased", seed=8),
-    DatasetSpec("large_realistic_24rec", 24, 125_000_000, "realistic", seed=9),
+    DatasetSpec("large_uniform_5rec",      5,  600_000_000, "uniform",   seed=3001),
+    DatasetSpec("large_ga_biased_5rec",    5,  600_000_000, "ga_biased", seed=3002),
+    DatasetSpec("large_ct_biased_5rec",    5,  600_000_000, "ct_biased", seed=3003),
+    DatasetSpec("large_realistic_24rec",  24,  125_000_000, "realistic", seed=3004),
+    DatasetSpec("large_realistic_1rec",    1, 3_000_000_000, "realistic", seed=3005),
 ]
 # fmt: on
 
@@ -444,6 +498,410 @@ def _print_scaling_table(
 
 
 # ---------------------------------------------------------------------------
+# System info
+# ---------------------------------------------------------------------------
+
+def _get_system_info() -> dict[str, Any]:
+    """Collect hardware/software facts for the benchmark report header."""
+    info: dict[str, Any] = {
+        "os":               platform.platform(),
+        "python":           sys.version.split()[0],
+        "hseeker":          hseeker.__version__,
+        "numpy":            np.__version__,
+        "cpu_cores_logical": os.cpu_count(),
+    }
+
+    # CPU brand string (macOS → sysctl; Linux → /proc/cpuinfo)
+    for cmd in (
+        ["sysctl", "-n", "machdep.cpu.brand_string"],
+        ["grep", "-m1", "model name", "/proc/cpuinfo"],
+    ):
+        try:
+            out = subprocess.run(cmd, capture_output=True, text=True, timeout=3)
+            if out.returncode == 0 and out.stdout.strip():
+                brand = out.stdout.strip()
+                if "model name" in brand:
+                    brand = brand.split(":", 1)[1].strip()
+                info["cpu_brand"] = brand
+                break
+        except Exception:
+            pass
+
+    if _HAS_PSUTIL:
+        vm = psutil.virtual_memory()
+        info["ram_total_gb"]     = round(vm.total    / 1e9, 1)
+        info["ram_available_gb"] = round(vm.available / 1e9, 1)
+        info["cpu_cores_physical"] = psutil.cpu_count(logical=False)
+        try:
+            freq = psutil.cpu_freq()
+            if freq and freq.max and freq.max > 0:
+                info["cpu_freq_max_ghz"] = round(freq.max / 1000, 2)
+        except Exception:
+            pass
+        try:
+            info["disk_free_gb"] = round(psutil.disk_usage(str(DATA_DIR.parent)).free / 1e9, 1)
+        except Exception:
+            pass
+
+    return info
+
+
+# ---------------------------------------------------------------------------
+# minrep sensitivity sweep
+# ---------------------------------------------------------------------------
+
+def _run_minrep_sweep(
+    spec: DatasetSpec,
+    path: Path,
+    minrep_values: list[int],
+) -> list[dict[str, Any]]:
+    """Run scan_fasta with multiple minrep values; return timing + hit count rows."""
+    file_mb = path.stat().st_size / 1e6
+    rows: list[dict[str, Any]] = []
+    for mr in minrep_values:
+        print(f"    minrep={mr:>2} … ", end="", flush=True)
+        with _measure() as r:
+            hits = hseeker.scan_fasta(str(path), minrep=mr)
+        r["minrep"] = mr
+        r["hits"]   = len(hits)
+        r["throughput_mbps"] = file_mb / r["wall_s"] if r["wall_s"] > 0 else 0.0
+        rows.append(r)
+        print(f"{r['wall_s']:.2f}s  {r['hits']:,} hits")
+    return rows
+
+
+# ---------------------------------------------------------------------------
+# Markdown report generation
+# ---------------------------------------------------------------------------
+
+def _generate_markdown_report(
+    sys_info:      dict[str, Any],
+    all_output:    list[dict[str, Any]],
+    completed:     list[tuple[DatasetSpec, Path, dict]],
+    workers:       int,
+    minrep:        int,
+    minrep_sweep:  dict[str, list[dict[str, Any]]] | None = None,
+) -> str:
+    lines: list[str] = []
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # ── Title ────────────────────────────────────────────────────────────
+    lines += [
+        "# HSeeker Performance Benchmark Report",
+        "",
+        f"**Date**: {now}  ",
+        f"**hseeker version**: `{sys_info.get('hseeker', 'unknown')}`  ",
+        f"**Workers**: {workers}  ",
+        f"**minrep**: {minrep}  ",
+        "",
+    ]
+
+    # ── System specs ──────────────────────────────────────────────────────
+    lines += ["## System Specifications", "", "| Property | Value |", "|---|---|"]
+    if "cpu_brand" in sys_info:
+        lines.append(f"| CPU | {sys_info['cpu_brand']} |")
+    phys = sys_info.get("cpu_cores_physical", "—")
+    logi = sys_info.get("cpu_cores_logical",  "—")
+    lines.append(f"| CPU cores | {phys} physical / {logi} logical |")
+    if sys_info.get("cpu_freq_max_ghz"):
+        lines.append(f"| CPU max clock | {sys_info['cpu_freq_max_ghz']} GHz |")
+    if "ram_total_gb" in sys_info:
+        lines.append(f"| RAM (total) | {sys_info['ram_total_gb']} GB |")
+    if "ram_available_gb" in sys_info:
+        lines.append(f"| RAM (available) | {sys_info['ram_available_gb']} GB |")
+    lines.append(f"| OS | {sys_info.get('os', '—')} |")
+    lines.append(f"| Python | {sys_info.get('python', '—')} |")
+    lines.append(f"| NumPy | {sys_info.get('numpy', '—')} |")
+    if "disk_free_gb" in sys_info:
+        lines.append(f"| Disk free (benchmark dir) | {sys_info['disk_free_gb']} GB |")
+    lines.append("")
+
+    # ── Methodology ───────────────────────────────────────────────────────
+    lines += [
+        "## Methodology",
+        "",
+        "Synthetic FASTA files are generated deterministically with a fixed NumPy/Python "
+        "random seed stored in `benchmarks/data/SEED_MANIFEST.json`. "
+        "Re-running with `--no-cache` regenerates the same files bit-for-bit.",
+        "",
+        "### Sequence profiles",
+        "",
+        "| Profile | Composition | Purpose |",
+        "|---|---|---|",
+        "| `uniform` | 25% each ACGT | Sparse H-DNA; baseline throughput |",
+        "| `ga_biased` | 45% G + 45% A (90% purine) | Dense GA-mirror hits; stresses hit buffer |",
+        "| `ct_biased` | 45% C + 45% T (90% pyrimidine) | Dense CT-mirror hits; mirror of ga_biased |",
+        "| `realistic` | ~41% GC, AT-biased | Human-chromosome-like density and composition |",
+        "",
+        "### Record layout scenarios",
+        "",
+        "| Scenario | Records | Record length | Purpose |",
+        "|---|---|---|---|",
+        "| `5rec` | 5 | 6 MB each | Multi-record parallelism baseline |",
+        "| `24rec` | 24 | 1.25 MB each | Maximum parallelism benefit |",
+        "| `1rec` | 1 | 30 MB | Per-record latency; validates chunk-level parallelism |",
+        "",
+        "### API paths benchmarked",
+        "",
+        "| Method | Description |",
+        "|---|---|",
+        "| `scan_fasta` | Sequential scan returning a full list |",
+        "| `scan_fasta_iter` | Sequential streaming generator (lower peak RAM) |",
+        "| `parallel_1w` | `scan_fasta_parallel(workers=1)` — overhead baseline |",
+        f"| `parallel_{workers}w` | `scan_fasta_parallel(workers={workers})` — full parallelism |",
+        "| `cli` | End-to-end `python -m hseeker` including TSV disk write |",
+        "",
+        "Timing: `time.perf_counter()` (wall), `time.process_time()` (CPU).  ",
+        "Peak RAM: `tracemalloc` new allocations; RSS delta via `psutil`.  ",
+        "",
+    ]
+
+    # ── Dataset summary ───────────────────────────────────────────────────
+    lines += [
+        "## Dataset Summary",
+        "",
+        "| Dataset | Profile | Records | Record length | Disk size | Seed |",
+        "|---|---|---|---|---|---|",
+    ]
+    for spec, path, _ in completed:
+        size_mb = path.stat().st_size / 1e6
+        lines.append(
+            f"| `{spec.name}` | {spec.profile} | {spec.n_records} | "
+            f"{spec.record_length / 1e6:.1f} MB | {size_mb:.1f} MB | {spec.seed} |"
+        )
+    lines += [
+        "",
+        "> Seeds are fixed per dataset (see `SEED_MANIFEST.json`). "
+        "Re-run with `--no-cache` to reproduce the exact same files.",
+        "",
+    ]
+
+    # ── Per-dataset results ───────────────────────────────────────────────
+    lines += ["## Benchmark Results by Dataset", ""]
+    for spec, path, results in completed:
+        file_mb = path.stat().st_size / 1e6
+        lines += [
+            f"### {spec.name}",
+            "",
+            f"**Profile**: `{spec.profile}` &nbsp;|&nbsp; "
+            f"**Records**: {spec.n_records} × {spec.record_length / 1e6:.1f} MB &nbsp;|&nbsp; "
+            f"**On disk**: {file_mb:.1f} MB",
+            "",
+            "| Method | Wall (s) | CPU (s) | Peak RAM (MB) | Hits | Throughput (MB/s) |",
+            "|---|---|---|---|---|---|",
+        ]
+        for method, r in results.items():
+            if "wall_s" not in r:
+                continue
+            tp = file_mb / r["wall_s"] if r["wall_s"] > 0 else 0.0
+            hits_s = f"{r['hits']:,}" if isinstance(r.get("hits"), int) else "—"
+            lines.append(
+                f"| `{method}` | {r['wall_s']:.3f} | {r['cpu_s']:.3f} | "
+                f"{r['peak_ram_mb']:.1f} | {hits_s} | {tp:.1f} |"
+            )
+        if "cli" in results:
+            c = results["cli"]
+            if c.get("returncode") == 0:
+                lines.append(
+                    f"| `cli` | {c['wall_s']:.3f} | — | — | — | "
+                    f"{c['throughput_mbps']:.1f} |"
+                )
+        lines.append("")
+
+    # ── Parallelism analysis ──────────────────────────────────────────────
+    lines += [
+        "## Parallelism Analysis",
+        "",
+        f"Comparing sequential `scan_fasta` vs `scan_fasta_parallel(workers={workers})`.",
+        "",
+        f"| Dataset | Sequential (s) | Parallel {workers}w (s) | Speedup | Efficiency |",
+        "|---|---|---|---|---|",
+    ]
+    for spec, path, results in completed:
+        seq = results.get("scan_fasta")
+        par = results.get(f"parallel_{workers}w")
+        if not seq or not par or par["wall_s"] <= 0:
+            continue
+        speedup    = seq["wall_s"] / par["wall_s"]
+        efficiency = speedup / workers * 100
+        lines.append(
+            f"| `{spec.name}` | {seq['wall_s']:.3f} | {par['wall_s']:.3f} | "
+            f"{speedup:.2f}× | {efficiency:.0f}% |"
+        )
+    lines.append("")
+
+    # ── Memory analysis ───────────────────────────────────────────────────
+    lines += [
+        "## Memory Efficiency: `scan_fasta` vs `scan_fasta_iter`",
+        "",
+        "| Dataset | scan_fasta peak (MB) | scan_fasta_iter peak (MB) | Saving (MB) |",
+        "|---|---|---|---|",
+    ]
+    for spec, path, results in completed:
+        seq = results.get("scan_fasta")
+        it  = results.get("scan_fasta_iter")
+        if not seq or not it:
+            continue
+        saving = seq["peak_ram_mb"] - it["peak_ram_mb"]
+        lines.append(
+            f"| `{spec.name}` | {seq['peak_ram_mb']:.1f} | "
+            f"{it['peak_ram_mb']:.1f} | {saving:+.1f} |"
+        )
+    lines.append("")
+
+    # ── CLI disk I/O ──────────────────────────────────────────────────────
+    cli_rows = [
+        (s, p, r) for s, p, r in completed
+        if "cli" in r and r["cli"].get("returncode") == 0
+    ]
+    if cli_rows:
+        lines += [
+            "## CLI Throughput (FASTA → TSV)",
+            "",
+            "| Dataset | FASTA (MB) | TSV output (MB) | FASTA/TSV ratio | Throughput (MB/s) |",
+            "|---|---|---|---|---|",
+        ]
+        for spec, path, results in cli_rows:
+            c = results["cli"]
+            lines.append(
+                f"| `{spec.name}` | {path.stat().st_size / 1e6:.1f} | "
+                f"{c['output_mb']:.1f} | {c['compression_ratio']:.1f}× | "
+                f"{c['throughput_mbps']:.1f} |"
+            )
+        lines.append("")
+
+    # ── minrep sweep ──────────────────────────────────────────────────────
+    if minrep_sweep:
+        lines += [
+            "## Parameter Sensitivity: `minrep` Sweep",
+            "",
+            "Effect of minimum arm length (`minrep`) on hit count and scan throughput.",
+            "",
+        ]
+        for dataset_name, rows in minrep_sweep.items():
+            # find the file size for throughput
+            file_mb_map = {s.name: p.stat().st_size / 1e6 for s, p, _ in completed}
+            fm = file_mb_map.get(dataset_name, 0.0)
+            lines += [
+                f"### {dataset_name}",
+                "",
+                "| minrep | Hits | Wall (s) | Throughput (MB/s) |",
+                "|---|---|---|---|",
+            ]
+            for row in rows:
+                lines.append(
+                    f"| {row['minrep']} | {row['hits']:,} | "
+                    f"{row['wall_s']:.3f} | {row['throughput_mbps']:.1f} |"
+                )
+            lines.append("")
+
+    # ── Profile comparison ────────────────────────────────────────────────
+    lines += [
+        "## Profile Comparison (Sequential Throughput)",
+        "",
+        "Throughput (MB/s) of `scan_fasta` across sequence profiles for 5-record small datasets.",
+        "",
+        "| Profile | Wall (s) | Hits | Throughput (MB/s) |",
+        "|---|---|---|---|",
+    ]
+    profile_order = ["small_uniform_5rec", "small_ga_biased_5rec",
+                     "small_ct_biased_5rec", "small_realistic_24rec"]
+    for spec, path, results in completed:
+        if spec.name not in profile_order:
+            continue
+        r = results.get("scan_fasta")
+        if not r:
+            continue
+        tp = path.stat().st_size / 1e6 / r["wall_s"] if r["wall_s"] > 0 else 0.0
+        lines.append(
+            f"| `{spec.profile}` ({spec.name}) | {r['wall_s']:.3f} | "
+            f"{r.get('hits', '—'):,} | {tp:.1f} |"
+        )
+    lines.append("")
+
+    # ── Key observations ──────────────────────────────────────────────────
+    lines += ["## Key Observations", ""]
+
+    # Throughput range
+    throughputs = {
+        s.name: p.stat().st_size / 1e6 / r["scan_fasta"]["wall_s"]
+        for s, p, r in completed
+        if "scan_fasta" in r and r["scan_fasta"]["wall_s"] > 0
+    }
+    if throughputs:
+        hi = max(throughputs, key=throughputs.__getitem__)
+        lo = min(throughputs, key=throughputs.__getitem__)
+        lines += [
+            f"- **Highest sequential throughput**: `{hi}` at "
+            f"**{throughputs[hi]:.1f} MB/s** "
+            f"(sparse hits → minimal post-processing).",
+            f"- **Lowest sequential throughput**: `{lo}` at "
+            f"**{throughputs[lo]:.1f} MB/s** "
+            f"(dense hits require more overlap-removal work).",
+        ]
+
+    # Parallelism best case
+    speedups = {}
+    for spec, path, results in completed:
+        seq = results.get("scan_fasta")
+        par = results.get(f"parallel_{workers}w")
+        if seq and par and par["wall_s"] > 0:
+            speedups[spec.name] = seq["wall_s"] / par["wall_s"]
+    if speedups:
+        best = max(speedups, key=speedups.__getitem__)
+        lines.append(
+            f"- **Best parallelism speedup**: `{best}` at "
+            f"**{speedups[best]:.2f}×** with {workers} workers."
+        )
+        # Single-record case
+        single = [n for n in speedups if "1rec" in n]
+        if single:
+            lines.append(
+                f"- **Single-record parallelism**: `{single[0]}` shows "
+                f"**{speedups[single[0]]:.2f}×** speedup via chunk-level parallel scan "
+                f"within one record."
+            )
+
+    # Memory saving
+    for spec, path, results in completed:
+        seq = results.get("scan_fasta")
+        it  = results.get("scan_fasta_iter")
+        if seq and it:
+            saving = seq["peak_ram_mb"] - it["peak_ram_mb"]
+            if saving > 0.5:
+                lines.append(
+                    f"- **`scan_fasta_iter` saves {saving:.1f} MB** peak RAM vs "
+                    f"`scan_fasta` on `{spec.name}`."
+                )
+                break
+
+    # Hit density comment
+    ga_hits = next(
+        (r["scan_fasta"].get("hits", 0) for s, p, r in completed
+         if "ga_biased" in s.name and "5rec" in s.name and "scan_fasta" in r), 0
+    )
+    uni_hits = next(
+        (r["scan_fasta"].get("hits", 0) for s, p, r in completed
+         if "uniform" in s.name and "5rec" in s.name and "scan_fasta" in r), 0
+    )
+    if ga_hits and uni_hits:
+        ratio = ga_hits / uni_hits if uni_hits else 0
+        lines.append(
+            f"- **GA-biased sequences produce ~{ratio:.0f}× more hits** than uniform "
+            f"sequences ({ga_hits:,} vs {uni_hits:,} hits at minrep={minrep}), "
+            f"directly impacting scan time."
+        )
+
+    lines += [
+        "",
+        "---",
+        f"*Generated by HSeeker benchmark suite — {now}*",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -487,6 +945,19 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument(
         "--scaling", action="store_true",
         help="Run parallelism scaling table on the largest dataset of each tier",
+    )
+    p.add_argument(
+        "--minrep-sweep", action="store_true", dest="minrep_sweep",
+        help="Run minrep sensitivity sweep on select datasets",
+    )
+    p.add_argument(
+        "--minrep-values", type=int, nargs="+", metavar="N",
+        dest="minrep_values", default=None,
+        help="minrep values for the sweep (default: 6 8 10 15 20)",
+    )
+    p.add_argument(
+        "--report", metavar="FILE",
+        help="Write a detailed Markdown performance report to FILE",
     )
     return p.parse_args()
 
@@ -543,24 +1014,29 @@ def main() -> None:
     workers = args.workers or os.cpu_count() or 1
 
     # ── header ────────────────────────────────────────────────────────────
-    import datetime
+    sys_info = _get_system_info()
     _print_separator("=")
     print("  HSeeker Performance Benchmark".center(_W))
     print(datetime.datetime.now().strftime("  %Y-%m-%d %H:%M:%S").center(_W))
     _print_separator("=")
-    print(f"  hseeker    : {hseeker.__version__}")
-    print(f"  Python     : {sys.version.split()[0]}")
-    print(f"  CPU cores  : {os.cpu_count()}")
+    print(f"  hseeker    : {sys_info['hseeker']}")
+    print(f"  Python     : {sys_info['python']}")
+    if "cpu_brand" in sys_info:
+        print(f"  CPU        : {sys_info['cpu_brand']}")
+    phys = sys_info.get("cpu_cores_physical", "?")
+    logi = sys_info.get("cpu_cores_logical",  "?")
+    print(f"  CPU cores  : {logi} logical / {phys} physical")
+    if "cpu_freq_max_ghz" in sys_info:
+        print(f"  CPU freq   : {sys_info['cpu_freq_max_ghz']} GHz (max)")
     print(f"  Workers    : {workers}")
     print(f"  minrep     : {args.minrep}")
-    if _HAS_PSUTIL:
-        vm = psutil.virtual_memory()
+    if "ram_total_gb" in sys_info:
         print(
-            f"  RAM        : {vm.total / 1e9:.1f} GB total, "
-            f"{vm.available / 1e9:.1f} GB available"
+            f"  RAM        : {sys_info['ram_total_gb']} GB total, "
+            f"{sys_info.get('ram_available_gb', '?')} GB available"
         )
     else:
-        print("  RAM        : install psutil for RSS delta measurements")
+        print("  RAM        : install psutil for memory measurements")
     if not args.no_cli:
         print("  CLI bench  : yes (measures TSV disk-write throughput)")
     print()
@@ -711,11 +1187,47 @@ def main() -> None:
                 f"{c['throughput_mbps']:>10.1f}"
             )
 
+    # ── minrep sweep ──────────────────────────────────────────────────────
+    minrep_sweep: dict[str, list[dict[str, Any]]] = {}
+    if args.minrep_sweep:
+        print("\n\n── minrep Sensitivity Sweep ─────────────────────────────────────")
+        sweep_target_names = {
+            "small_realistic_24rec", "small_ga_biased_5rec", "small_ct_biased_5rec",
+        }
+        mv = args.minrep_values if args.minrep_values else MINREP_SWEEP_VALUES
+        for spec, path, _results in completed:
+            if spec.name in sweep_target_names:
+                print(f"\n[{spec.name}]")
+                minrep_sweep[spec.name] = _run_minrep_sweep(spec, path, mv)
+
     # ── JSON output ───────────────────────────────────────────────────────
     if args.json:
         out = Path(args.json)
-        out.write_text(json.dumps(all_output, indent=2, default=str))
+        payload = {
+            "system_info": sys_info,
+            "workers":     workers,
+            "minrep":      args.minrep,
+            "datasets":    all_output,
+            "minrep_sweep": {
+                k: [
+                    {kk: vv for kk, vv in row.items() if kk != "hits" or True}
+                    for row in rows
+                ]
+                for k, rows in minrep_sweep.items()
+            },
+        }
+        out.write_text(json.dumps(payload, indent=2, default=str))
         print(f"\n  Results saved → {out}")
+
+    # ── Markdown report ───────────────────────────────────────────────────
+    if args.report:
+        report_path = Path(args.report)
+        report_text = _generate_markdown_report(
+            sys_info, all_output, completed, workers, args.minrep,
+            minrep_sweep if minrep_sweep else None,
+        )
+        report_path.write_text(report_text, encoding="utf-8")
+        print(f"\n  Markdown report → {report_path}")
 
     _print_separator("=")
     print("  Done.")

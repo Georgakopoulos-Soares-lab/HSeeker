@@ -37,22 +37,11 @@
 /* ------------------------------------------------------------------ */
 
 /*
- * Hard cap on hits returned per scan_sequence() call.
- * If this is exceeded, a RuntimeWarning is issued and partial results
- * are returned.  For whole-chromosome scans, call scan_sequence once per
- * contig (as scan_fasta() does) rather than concatenating chromosomes.
+ * Initial capacity of the per-call hits buffer in py_scan_sequence().
+ * The buffer doubles automatically via realloc as hits accumulate, so
+ * there is no hard cap — only available heap memory limits the count.
  */
-#define DEFAULT_MAX_HITS  1000000
-
-/* ------------------------------------------------------------------ */
-/*  Opt 2.2 — tolower lookup table                                     */
-/*                                                                     */
-/* Initialized once in PyInit__hdna (CPython mode).  In STANDALONE     */
-/* mode it is initialized at the top of main().  Each entry maps an    */
-/* ASCII byte to its lowercase equivalent — single array index, no     */
-/* locale check, auto-vectorized by the compiler at -O2.               */
-/* ------------------------------------------------------------------ */
-static unsigned char lc_table[256];
+#define INITIAL_HIT_CAPACITY  65536
 
 /* Standalone CLI only: large static buffers to avoid stack overflow */
 #ifdef STANDALONE
@@ -112,8 +101,8 @@ typedef struct {
  * ----------
  * dna          : lowercase DNA string (ACGTn)
  * total_bases  : length of dna
- * hits         : pre-allocated output array (at least max_hits elements)
- * max_hits     : capacity of hits[]
+ * p_hits       : pointer to a malloc'd HDNA_HIT array; may be realloc'd on overflow
+ * p_capacity   : pointer to current buffer capacity; updated on realloc
  * minrep       : minimum arm length
  * maxrep       : maximum arm length
  * maxspacer    : maximum spacer between arms
@@ -123,25 +112,18 @@ typedef struct {
  *
  * Returns
  * -------
- * Number of hits written to hits[].  If equal to max_hits, the capacity
- * was reached and the caller should issue a warning.
+ * Number of hits written.  Returns -1 on allocation failure (OOM); the
+ * buffer at *p_hits is still valid and the caller must free it.
  */
 static int findHDNA_core(
     const char *dna, int total_bases,
-    HDNA_HIT   *hits, int max_hits,
+    HDNA_HIT **p_hits, int *p_capacity,
     int   minrep, int maxrep, int maxspacer,
     float purity_thresh, float mismatch_tol,
     long  seq_offset)
 {
     int   ndx           = 0;
     float min_mirror_id = 1.0f - mismatch_tol;
-
-    /* Opt 2.3: mismatch_budget is constant for the entire scan
-     * (depends only on mismatch_tol and maxrep, not on ctr or sp).
-     * Computing it once avoids a float multiply + truncation on every
-     * inner-loop iteration, which executes billions of times at genome
-     * scale. */
-    int mismatch_budget = (int)(mismatch_tol * maxrep);
 
     for (int ctr = minrep - 1; ctr <= total_bases - minrep - 1; ctr++) {
 
@@ -191,8 +173,8 @@ static int findHDNA_core(
                         best_ct  = ct_f;
                     }
 
-                    /* Opt 2.3: use pre-computed budget (hoisted above) */
-                    if (mismatches > mismatch_budget) break;
+                    /* early exit: mismatch budget exhausted even at maxrep */
+                    if (mismatches > (int)(mismatch_tol * maxrep)) break;
                 }
 
                 left_i--;
@@ -200,12 +182,20 @@ static int findHDNA_core(
             }
 
             if (best_k >= minrep) {
-                if (ndx >= max_hits) return ndx; /* cap reached */
+                /* grow buffer on overflow */
+                if (ndx >= *p_capacity) {
+                    int new_cap = (*p_capacity) * 2;
+                    HDNA_HIT *new_buf = (HDNA_HIT *)realloc(
+                        *p_hits, sizeof(HDNA_HIT) * (size_t)new_cap);
+                    if (!new_buf) return -1;  /* OOM; caller must free *p_hits */
+                    *p_hits    = new_buf;
+                    *p_capacity = new_cap;
+                }
 
                 int left_start  = ctr - best_k + 1;
                 int right_start = ctr + sp + 1;
 
-                HDNA_HIT *h     = &hits[ndx];
+                HDNA_HIT *h     = &(*p_hits)[ndx];
                 h->arm_len          = best_k;
                 h->spacer_len       = sp;
                 h->start            = (long)(left_start + 1) + (seq_offset - 1);
@@ -229,77 +219,63 @@ static int findHDNA_core(
 /*  Overlap removal                                                    */
 /* ------------------------------------------------------------------ */
 
-/* ------------------------------------------------------------------ */
-/*  Opt 2.1 — O(n log n) overlap removal                              */
-/*                                                                     */
-/* Replacement for the original O(n²) all-pairs scan.                 */
-/*                                                                     */
-/* Algorithm:                                                           */
-/*   1. Sort hits by (start ASC, arm_len DESC, spacer_len ASC).        */
-/*      This places the "preferred" candidate first within any cluster  */
-/*      of hits that share the same start coordinate, and ensures that  */
-/*      a longer-arm hit encountered later in start order still wins    */
-/*      over a shorter-arm hit that started earlier.                    */
-/*   2. Greedy forward sweep with a single "last-kept" pointer.         */
-/*      For each hit:                                                   */
-/*        - No overlap with last kept → keep it (append).              */
-/*        - Overlaps last kept → keep whichever has the longer arm      */
-/*          (tiebreak: shorter spacer).  If the incoming hit wins,      */
-/*          replace the last kept entry in-place.                       */
-/*                                                                       */
-/* Equivalence with the original O(n²) pass:                            */
-/*   The original pass marks-and-compacts using "arm_len = -1".  The    */
-/*   greedy sweep produces the same winning set because:                 */
-/*   (a) Hits are sorted so the best candidate in any cluster is seen   */
-/*       first.                                                          */
-/*   (b) The replace logic handles the case where a later hit (higher   */
-/*       start, longer arm) beats the current last-kept hit.             */
-/*   (c) The tiebreak policy (longer arm, then shorter spacer) is        */
-/*       preserved exactly.                                              */
-/*                                                                       */
-/* Complexity: O(n log n) sort + O(n) sweep = O(n log n) overall.       */
-/* ------------------------------------------------------------------ */
-
-/* qsort comparator: (start ASC, arm_len DESC, spacer_len ASC) */
-static int cmp_hits(const void *a, const void *b)
+/*
+ * remove_overlaps_core
+ *
+ * For overlapping hits, keep the one with the longer arm; break ties by
+ * keeping the shorter spacer.  Identical semantics to the original algorithm.
+ *
+ * O(n log n) implementation: sort by genomic start (longest arm first on
+ * ties), then a single linear sweep that greedily keeps the best hit in
+ * each overlap group.
+ *
+ * Returns the compacted hit count.
+ */
+static int hit_cmp_start(const void *a, const void *b)
 {
     const HDNA_HIT *ha = (const HDNA_HIT *)a;
     const HDNA_HIT *hb = (const HDNA_HIT *)b;
-    if (ha->start != hb->start)
-        return (ha->start < hb->start) ? -1 : 1;
-    if (ha->arm_len != hb->arm_len)
-        return (ha->arm_len > hb->arm_len) ? -1 : 1; /* longer arm first */
-    if (ha->spacer_len != hb->spacer_len)
-        return (ha->spacer_len < hb->spacer_len) ? -1 : 1; /* shorter spacer first */
-    return 0;
+    if (ha->start < hb->start) return -1;
+    if (ha->start > hb->start) return  1;
+    /* equal start: longer arm first so the greedy sweep picks it immediately */
+    if (ha->arm_len > hb->arm_len) return -1;
+    if (ha->arm_len < hb->arm_len) return  1;
+    /* equal arm: shorter spacer first */
+    return ha->spacer_len - hb->spacer_len;
 }
 
 static int remove_overlaps_core(HDNA_HIT *hits, int nhits)
 {
     if (nhits <= 1) return nhits;
 
-    /* Step 1: sort so the preferred candidate leads each overlap cluster */
-    qsort(hits, (size_t)nhits, sizeof(HDNA_HIT), cmp_hits);
+    /* O(n log n) sort by genomic start */
+    qsort(hits, (size_t)nhits, sizeof(HDNA_HIT), hit_cmp_start);
 
-    /* Step 2: greedy forward sweep */
-    int n = 1; /* hits[0] is always kept */
-    for (int i = 1; i < nhits; i++) {
-        HDNA_HIT *prev = &hits[n - 1];
-        HDNA_HIT *cur  = &hits[i];
-
-        if (prev->start <= cur->end && cur->start <= prev->end) {
-            /* intervals overlap — keep the better one */
-            if (cur->arm_len > prev->arm_len ||
-               (cur->arm_len == prev->arm_len &&
-                cur->spacer_len < prev->spacer_len)) {
-                /* cur wins: replace last kept entry in-place */
-                *prev = *cur;
-            }
-            /* else prev wins: discard cur (do nothing) */
-        } else {
-            /* no overlap: append cur */
-            hits[n++] = *cur;
+    /*
+     * Linear sweep:
+     *   - If the current hit does not overlap the last kept hit, always keep it.
+     *   - If it overlaps, replace the last kept hit only when the current hit
+     *     has a longer arm (or equal arm and shorter spacer).
+     * When we replace, we update last->end so the overlap zone shrinks or
+     * expands correctly for subsequent hits.
+     */
+    int n = 0;
+    for (int i = 0; i < nhits; i++) {
+        if (n == 0) {
+            hits[n++] = hits[i];
+            continue;
         }
+        HDNA_HIT *last = &hits[n - 1];
+        if (hits[i].start > last->end) {
+            /* no overlap — always keep */
+            hits[n++] = hits[i];
+        } else if (hits[i].arm_len > last->arm_len ||
+                   (hits[i].arm_len == last->arm_len &&
+                    hits[i].spacer_len < last->spacer_len)) {
+            /* overlaps but is strictly better — replace in place */
+            *last = hits[i];
+        }
+        /* else: overlaps and is not better — discard */
     }
     return n;
 }
@@ -357,18 +333,12 @@ py_scan_sequence(PyObject *self, PyObject *args, PyObject *kwargs)
             &do_overlap, &seq_offset))
         return NULL;
 
-    /* parameter validation
-     * Upper bounds on maxrep / maxspacer prevent integer-overflow in
-     * allocation-size arithmetic (opt 1.4).  100 000 bp arms are
-     * biologically unrealistic and would produce absurdly large buffers.
-     */
-    if (minrep < 1 || maxrep < minrep || maxrep > 100000 ||
-        maxspacer < 0 || maxspacer > 100000 ||
+    /* parameter validation */
+    if (minrep < 1 || maxrep < minrep || maxspacer < 0 ||
         purity  < 0.0 || purity  > 1.0 ||
         mismatch < 0.0 || mismatch > 1.0) {
         PyErr_SetString(PyExc_ValueError,
-            "Invalid parameters: minrep>=1, maxrep>=minrep, "
-            "maxrep<=100000, maxspacer>=0, maxspacer<=100000, "
+            "Invalid parameters: minrep>=1, maxrep>=minrep, maxspacer>=0, "
             "0<=purity<=1, 0<=mismatch<=1");
         return NULL;
     }
@@ -376,119 +346,58 @@ py_scan_sequence(PyObject *self, PyObject *args, PyObject *kwargs)
     if (raw_len == 0)
         return PyList_New(0);
 
-    /* ----------------------------------------------------------------
-     * Allocate working buffers
-     *
-     * Opt 1.3: all extension-internal buffers use PyMem_Malloc /
-     *          PyMem_Free so they are visible to Python memory tools
-     *          (tracemalloc, valgrind wrappers, custom allocators).
-     *
-     * Opt 1.2: intermediate arm/spacer C string buffers are eliminated;
-     *          arm strings are built directly from dna[] slices when
-     *          constructing Python objects, so no extra heap allocation
-     *          is needed here.
-     * ---------------------------------------------------------------- */
+    /* ---- allocate working buffers ---- */
 
-    /* Opt 2.2 + 1.3: lowercase copy via lookup table (PyMem_Malloc).
-     * lc_table[c] == tolower(c) for all c in 0..255, initialized once
-     * at module load.  Single array index per byte — no locale check,
-     * compiler-auto-vectorizable at -O2. */
-    char *dna = (char *)PyMem_Malloc((size_t)raw_len + 1);
+    /* lowercase copy of input */
+    char *dna = (char *)malloc((size_t)raw_len + 1);
     if (!dna) { PyErr_NoMemory(); return NULL; }
     for (Py_ssize_t i = 0; i < raw_len; i++)
-        dna[i] = (char)lc_table[(unsigned char)raw_seq[i]];
+        dna[i] = (char)tolower((unsigned char)raw_seq[i]);
     dna[raw_len] = '\0';
 
-    /* ----------------------------------------------------------------
-     * Opt 1.1: dynamic hit buffer — start with a length-proportional
-     * capacity, grow by 2× as needed up to DEFAULT_MAX_HITS.
-     *
-     * Previous code: malloc(sizeof(HDNA_HIT) * 1 000 000) = ~52 MB
-     * unconditionally on every call, even for tiny inputs.
-     *
-     * Opt 1.1 (revised): initial capacity = raw_len / 32, clamped to
-     * [HITS_MIN_CAP, DEFAULT_MAX_HITS].  For a 6 MB sequence this gives
-     * ~187 000 entries (9.7 MB) which covers typical hit densities
-     * (5–20 hits/KB) in a single findHDNA_core pass, eliminating the
-     * re-scan overhead that previously caused 3–4× slowdown on genome-
-     * scale inputs.  For short sequences the floor (HITS_MIN_CAP = 4096)
-     * keeps the allocation negligible.
-     *
-     * Opt 1.3: PyMem_Raw* instead of PyMem_*; see note below.
-     * ---------------------------------------------------------------- */
-#define HITS_MIN_CAP   4096    /*  4 k × ~52 bytes ≈  208 KB — short seqs  */
-#define HITS_GROW_FAC  2
+    /* hits array — starts small and doubles inside findHDNA_core as needed */
+    int hit_capacity = INITIAL_HIT_CAPACITY;
+    HDNA_HIT *hits = (HDNA_HIT *)malloc(sizeof(HDNA_HIT) * (size_t)hit_capacity);
+    if (!hits) { free(dna); PyErr_NoMemory(); return NULL; }
 
-    /* length / 32 ≈ 1 entry per 32 bp — covers 5–20 hits/KB in one pass */
-    int hits_cap = (int)((size_t)raw_len >> 5);
-    if (hits_cap < HITS_MIN_CAP)    hits_cap = HITS_MIN_CAP;
-    if (hits_cap > DEFAULT_MAX_HITS) hits_cap = DEFAULT_MAX_HITS;
-    /* Opt 1.3 note: hits uses PyMem_Raw* (malloc/realloc/free directly)
-     * because it is reallocated inside Py_BEGIN_ALLOW_THREADS where the
-     * GIL is released.  PyMem_Realloc internally calls
-     * _PyInterpreterState_GET() which dereferences the thread state;
-     * that pointer is NULL without the GIL, causing a SEGV on CPython
-     * 3.12+.  PyMem_Raw* bypasses the interpreter state entirely. */
-    HDNA_HIT *hits = (HDNA_HIT *)PyMem_RawMalloc(
-                         sizeof(HDNA_HIT) * (size_t)hits_cap);
-    if (!hits) { PyMem_Free(dna); PyErr_NoMemory(); return NULL; }
+    /* arm / spacer extraction buffers (sized to worst-case arm length) */
+    size_t arm_sz    = (size_t)(maxrep + 2);
+    size_t spacer_sz = (size_t)(maxspacer + 2);
+    size_t full_sz   = arm_sz * 2 + spacer_sz + 2;
+
+    char *left_arm_buf  = (char *)malloc(arm_sz);
+    char *spacer_buf    = (char *)malloc(spacer_sz);
+    char *right_arm_buf = (char *)malloc(arm_sz);
+    char *full_seq_buf  = (char *)malloc(full_sz);
+
+    if (!left_arm_buf || !spacer_buf || !right_arm_buf || !full_seq_buf) {
+        free(left_arm_buf); free(spacer_buf);
+        free(right_arm_buf); free(full_seq_buf);
+        free(hits); free(dna);
+        PyErr_NoMemory();
+        return NULL;
+    }
 
     /* ---- run C computation (GIL released) ---- */
     int nhits;
-    int hit_cap_reached = 0;
 
     Py_BEGIN_ALLOW_THREADS
-        /* Grow the hits buffer if findHDNA_core fills it, then re-scan.
-         * Re-scanning is free because findHDNA_core is deterministic and
-         * the sequence is already lowercased.  In practice re-scanning
-         * only occurs for pathologically repetitive sequences. */
-        for (;;) {
-            nhits = findHDNA_core(
-                dna, (int)raw_len,
-                hits, hits_cap,
-                minrep, maxrep, maxspacer,
-                (float)purity, (float)mismatch,
-                seq_offset);
+        nhits = findHDNA_core(
+            dna, (int)raw_len,
+            &hits, &hit_capacity,
+            minrep, maxrep, maxspacer,
+            (float)purity, (float)mismatch,
+            seq_offset);
 
-            if (nhits < hits_cap || hits_cap >= DEFAULT_MAX_HITS)
-                break; /* buffer was sufficient, or hard cap reached */
-
-            /* buffer was too small — grow and retry */
-            int new_cap = hits_cap * HITS_GROW_FAC;
-            if (new_cap > DEFAULT_MAX_HITS) new_cap = DEFAULT_MAX_HITS;
-            HDNA_HIT *tmp = (HDNA_HIT *)PyMem_RawRealloc(
-                                hits, sizeof(HDNA_HIT) * (size_t)new_cap);
-            if (!tmp) break; /* allocation failed: keep what we have */
-            hits     = tmp;
-            hits_cap = new_cap;
-        }
-
-        if (nhits >= DEFAULT_MAX_HITS) hit_cap_reached = 1;
-
-        if (do_overlap && nhits > 1)
+        if (nhits >= 0 && do_overlap && nhits > 1)
             nhits = remove_overlaps_core(hits, nhits);
     Py_END_ALLOW_THREADS
 
-#undef HITS_MIN_CAP
-#undef HITS_GROW_FAC
-
-    /* Opt 1.2: full_sequence needs a contiguous buffer (concatenation of
-     * up to 3 slices).  The other arm/spacer strings are built directly
-     * from dna[] in the loop below — no heap allocation required.
-     *
-     * Maximum full_sequence length = 2*maxrep + maxspacer.
-     * With the upper-bound validation (opt 1.4) maxrep <= 100 000 and
-     * maxspacer <= 100 000, so the worst-case is 200 001 bytes.  We
-     * allocate this once here and reuse it across all hits.
-     *
-     * Overflow-safe size computation (opt 1.4): validated parameters
-     * guarantee maxrep <= 100 000, so 2*maxrep+maxspacer+2 <= 300 002,
-     * well within size_t range on any supported platform.
-     */
-    size_t full_sz = (size_t)maxrep * 2 + (size_t)maxspacer + 2;
-    char  *full_seq_buf = (char *)PyMem_Malloc(full_sz);
-    if (!full_seq_buf) {
-        PyMem_RawFree(hits); PyMem_Free(dna);
+    if (nhits < 0) {
+        /* realloc failed inside findHDNA_core; hits is still the last valid ptr */
+        free(hits); free(dna);
+        free(left_arm_buf); free(spacer_buf);
+        free(right_arm_buf); free(full_seq_buf);
         PyErr_NoMemory();
         return NULL;
     }
@@ -500,23 +409,29 @@ py_scan_sequence(PyObject *self, PyObject *args, PyObject *kwargs)
     for (int i = 0; i < nhits; i++) {
         HDNA_HIT *h = &hits[i];
 
-        /* Opt 1.2: build full_sequence directly in full_seq_buf from dna[]
-         * slices — no intermediate heap buffers, no strncpy per arm.
-         * left_arm and right_arm Python strings are created directly from
-         * dna[] using PyUnicode_FromStringAndSize (one copy, not two). */
-        int arm  = h->arm_len;
-        int sp   = h->spacer_len;
-        int total_len = arm * 2 + sp;
+        /* extract arm / spacer sequences from the dna buffer */
+        strncpy(left_arm_buf,  dna + h->left_start_idx,  (size_t)h->arm_len);
+        left_arm_buf[h->arm_len] = '\0';
 
-        /* Assemble full_sequence in the reusable stack-like buffer.
-         * Buffer is sized to 2*maxrep + maxspacer + 2 (allocated above). */
-        char *p = full_seq_buf;
-        memcpy(p, dna + h->left_start_idx,  (size_t)arm); p += arm;
-        if (sp > 0) {
-            memcpy(p, dna + h->spacer_start_idx, (size_t)sp); p += sp;
+        if (h->spacer_len > 0) {
+            strncpy(spacer_buf, dna + h->spacer_start_idx, (size_t)h->spacer_len);
+            spacer_buf[h->spacer_len] = '\0';
+        } else {
+            spacer_buf[0] = '.';
+            spacer_buf[1] = '\0';
         }
-        memcpy(p, dna + h->right_start_idx, (size_t)arm); p += arm;
-        *p = '\0';
+
+        strncpy(right_arm_buf, dna + h->right_start_idx, (size_t)h->arm_len);
+        right_arm_buf[h->arm_len] = '\0';
+
+        if (h->spacer_len > 0)
+            snprintf(full_seq_buf, full_sz, "%s%s%s",
+                     left_arm_buf, spacer_buf, right_arm_buf);
+        else
+            snprintf(full_seq_buf, full_sz, "%s%s",
+                     left_arm_buf, right_arm_buf);
+
+        int total_len = h->arm_len * 2 + h->spacer_len;
 
         /* build hit dict */
         PyObject *d = PyDict_New();
@@ -537,56 +452,34 @@ py_scan_sequence(PyObject *self, PyObject *args, PyObject *kwargs)
 
         _SET("start",           PyLong_FromLong(h->start));
         _SET("end",             PyLong_FromLong(h->end));
-        _SET("arm_length",      PyLong_FromLong((long)arm));
-        _SET("spacer_length",   PyLong_FromLong((long)sp));
+        _SET("arm_length",      PyLong_FromLong((long)h->arm_len));
+        _SET("spacer_length",   PyLong_FromLong((long)h->spacer_len));
         _SET("total_length",    PyLong_FromLong((long)total_len));
         _SET("ga_pct",          PyFloat_FromDouble((double)h->ga_pct));
         _SET("ct_pct",          PyFloat_FromDouble((double)h->ct_pct));
         _SET("mirror_identity", PyFloat_FromDouble((double)h->mirror_id));
         _SET("is_perfect",      PyBool_FromLong((long)h->is_perfect));
-        /* Opt 1.2: direct slice into dna[] — one copy instead of two */
-        _SET("left_arm",  PyUnicode_FromStringAndSize(
-                              dna + h->left_start_idx,  (Py_ssize_t)arm));
-        _SET("spacer",    (sp > 0)
-                              ? PyUnicode_FromStringAndSize(
-                                    dna + h->spacer_start_idx, (Py_ssize_t)sp)
-                              : PyUnicode_FromStringAndSize(".", 1));
-        _SET("right_arm", PyUnicode_FromStringAndSize(
-                              dna + h->right_start_idx, (Py_ssize_t)arm));
-        _SET("full_sequence", PyUnicode_FromStringAndSize(
-                              full_seq_buf, (Py_ssize_t)total_len));
+        _SET("left_arm",        PyUnicode_FromString(left_arm_buf));
+        _SET("spacer",          PyUnicode_FromString(spacer_buf));
+        _SET("right_arm",       PyUnicode_FromString(right_arm_buf));
+        _SET("full_sequence",   PyUnicode_FromString(full_seq_buf));
 
 #undef _SET
 
         PyList_SET_ITEM(result, (Py_ssize_t)i, d); /* steals ref to d */
     }
 
-    /* free working buffers before potentially triggering a Python warning
-     * Opt 1.3: hits uses PyMem_RawFree (matches PyMem_RawMalloc above);
-     * dna and full_seq_buf use PyMem_Free (matches PyMem_Malloc). */
-    PyMem_Free(full_seq_buf);
-    PyMem_RawFree(hits);
-    PyMem_Free(dna);
-
-    if (hit_cap_reached) {
-        if (PyErr_WarnFormat(PyExc_RuntimeWarning, 1,
-                "scan_sequence: hit capacity reached (DEFAULT_MAX_HITS=%d); "
-                "results may be incomplete. Consider splitting the input "
-                "or recompiling with a larger DEFAULT_MAX_HITS.",
-                DEFAULT_MAX_HITS) < 0) {
-            Py_DECREF(result);
-            return NULL;
-        }
-    }
+    /* free working buffers before potentially triggering a Python warning */
+    free(left_arm_buf); free(spacer_buf);
+    free(right_arm_buf); free(full_seq_buf);
+    free(hits); free(dna);
 
     return result;
 
 cleanup_err:
-    /* Opt 1.3: hits uses PyMem_RawFree; others use PyMem_Free.
-     * PyMem_RawFree(NULL) and PyMem_Free(NULL) are both no-ops. */
-    PyMem_Free(full_seq_buf);
-    PyMem_RawFree(hits);
-    PyMem_Free(dna);
+    free(left_arm_buf); free(spacer_buf);
+    free(right_arm_buf); free(full_seq_buf);
+    free(hits); free(dna);
     return NULL;
 }
 
@@ -659,13 +552,9 @@ static struct PyModuleDef hdna_module = {
 PyMODINIT_FUNC
 PyInit__hdna(void)
 {
-    /* Opt 2.2: populate tolower lookup table once at module load */
-    for (int i = 0; i < 256; i++)
-        lc_table[i] = (unsigned char)tolower(i);
-
     PyObject *m = PyModule_Create(&hdna_module);
     if (!m) return NULL;
-    PyModule_AddIntConstant(m, "DEFAULT_MAX_HITS", DEFAULT_MAX_HITS);
+    PyModule_AddIntConstant(m, "INITIAL_HIT_CAPACITY", INITIAL_HIT_CAPACITY);
     PyModule_AddStringConstant(m, "__version__", "0.1.0");
     return m;
 }
@@ -676,7 +565,8 @@ PyInit__hdna(void)
 #else  /* STANDALONE */
 
 static char      sa_dna[MAX_DNA_STANDALONE + 1];
-static HDNA_HIT  sa_hits[MAX_HITS_STANDALONE];
+static HDNA_HIT *sa_hits     = NULL;
+static int       sa_hits_cap = 0;
 static char      sa_seq_id[MAX_SEQ_ID];
 static long      sa_seq_offset;
 
@@ -720,7 +610,7 @@ static int sa_read_fasta(FILE *fp) {
         if (base == '>') { ungetc(base, fp); break; }
         if (isalpha(base)) {
             if (n < MAX_DNA_STANDALONE)
-                sa_dna[n++] = (char)lc_table[(unsigned char)base];
+                sa_dna[n++] = (char)tolower(base);
             else if (!truncated) {
                 fprintf(stderr, "WARNING: '%s' truncated at %d bases.\n",
                         sa_seq_id, MAX_DNA_STANDALONE);
@@ -782,10 +672,6 @@ static void sa_usage(const char *prog) {
 }
 
 int main(int argc, char *argv[]) {
-    /* Opt 2.2: populate tolower lookup table once before first use */
-    for (int i = 0; i < 256; i++)
-        lc_table[i] = (unsigned char)tolower(i);
-
     char seq_fn[512] = {0}, out_pre[512] = {0}, out_fn[520] = {0};
     int  minrep = 6, maxrep = 50, maxspacer = 7, do_overlap = 1, verbose = 0;
     float purity = 0.80f, mismatch = 0.20f;
@@ -808,6 +694,10 @@ int main(int argc, char *argv[]) {
 
     if (!seq_fn[0])  { fprintf(stderr, "ERROR: -seq required\n"); return 1; }
     if (!out_pre[0]) { fprintf(stderr, "ERROR: -out required\n"); return 1; }
+
+    sa_hits = (HDNA_HIT *)malloc(sizeof(HDNA_HIT) * MAX_HITS_STANDALONE);
+    if (!sa_hits) { fprintf(stderr, "ERROR: out of memory\n"); return 4; }
+    sa_hits_cap = MAX_HITS_STANDALONE;
 
     FILE *fq = fopen(seq_fn, "r");
     if (!fq) { fprintf(stderr, "ERROR: Cannot open %s\n", seq_fn); return 2; }
@@ -832,8 +722,12 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "Processing %s (%d bases, offset %ld)...\n",
                     sa_seq_id, bases, sa_seq_offset);
         int nhits = findHDNA_core(
-            sa_dna, bases, sa_hits, MAX_HITS_STANDALONE,
+            sa_dna, bases, &sa_hits, &sa_hits_cap,
             minrep, maxrep, maxspacer, purity, mismatch, sa_seq_offset);
+        if (nhits < 0) {
+            fprintf(stderr, "ERROR: out of memory during scan of '%s'\n", sa_seq_id);
+            fclose(fq); fclose(fo); free(sa_hits); return 5;
+        }
         if (do_overlap && nhits > 1)
             nhits = remove_overlaps_core(sa_hits, nhits);
         if (verbose) fprintf(stderr, "  %d hits\n", nhits);
@@ -841,7 +735,7 @@ int main(int argc, char *argv[]) {
         total_hits += nhits;
     }
 
-    fclose(fq); fclose(fo);
+    fclose(fq); fclose(fo); free(sa_hits);
     fprintf(stderr,
         "\nDone.\n  Records: %d\n  Hits: %d\n  Output: %s\n",
         total_records, total_hits, out_fn);
