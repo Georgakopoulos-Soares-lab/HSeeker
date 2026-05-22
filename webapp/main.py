@@ -536,6 +536,11 @@ async def index(request: Request):
     return templates.TemplateResponse(request, "index.html")
 
 
+@app.get("/about", response_class=HTMLResponse)
+async def about(request: Request):
+    return templates.TemplateResponse(request, "about.html")
+
+
 @app.post("/submit")
 async def submit(
     request: Request,

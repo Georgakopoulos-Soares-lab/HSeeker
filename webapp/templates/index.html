@@ -13,22 +13,7 @@
       repeat structures across genomic sequences. Covers GA-rich, CT-rich, and
       mixed purine–pyrimidine motifs genome-wide.
     </p>
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <span class="hero-stat-val">GA&nbsp;·&nbsp;CT</span>
-        <span class="hero-stat-lbl">purity profiles</span>
-      </div>
-      <div class="hero-stat-divider"></div>
-      <div class="hero-stat">
-        <span class="hero-stat-val">≥ 6 bp</span>
-        <span class="hero-stat-lbl">arm length</span>
-      </div>
-      <div class="hero-stat-divider"></div>
-      <div class="hero-stat">
-        <span class="hero-stat-val">0 – 7 bp</span>
-        <span class="hero-stat-lbl">spacer / loop</span>
-      </div>
-    </div>
+
   </div>
 </section>
 
@@ -37,9 +22,15 @@
   <div class="upload-card" x-data="uploadForm()" :data-mode="inputMode">
 
     <!-- Input mode toggle -->
-    <div class="input-mode-tabs">
-      <button type="button" class="mode-tab" :class="{active: inputMode==='file'}" @click="inputMode='file'">Upload File</button>
-      <button type="button" class="mode-tab" :class="{active: inputMode==='text'}" @click="inputMode='text'">Paste FASTA</button>
+    <div class="input-mode-bar">
+      <div class="input-mode-tabs">
+        <button type="button" class="mode-tab" :class="{active: inputMode==='file'}" @click="inputMode='file'">Upload File</button>
+        <button type="button" class="mode-tab" :class="{active: inputMode==='text'}" @click="inputMode='text'">Paste FASTA</button>
+      </div>
+      <button type="button" class="example-tab-btn" @click="loadExample()">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        Load example
+      </button>
     </div>
 
     <form id="upload-form" action="/submit" method="post" enctype="multipart/form-data"
@@ -88,13 +79,6 @@
       <!-- Paste zone (text mode) -->
       <div class="input-section input-section--text paste-zone">
         <div class="paste-toolbar">
-          <button type="button" class="preset-btn paste-example-btn"
-                  @click="loadExample()">
-            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" style="vertical-align:-2px;margin-right:4px">
-              <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
-            </svg>
-            Load validation example
-          </button>
           <button type="button" class="preset-btn" @click="seqText=''"
                   x-show="seqText.trim()">
             Clear
@@ -221,7 +205,7 @@
                 d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/>
         </svg>
       </div>
-      <h4>Precise Detection</h4>
+      <h4>Accurate Detection</h4>
       <p>Scans every candidate center and spacer position, extending mirror arms
          while enforcing user-defined GA/CT purity and mirror-identity thresholds.</p>
     </div>

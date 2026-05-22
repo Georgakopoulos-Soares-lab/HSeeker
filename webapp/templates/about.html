@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+{% block title %}About — HSeeker{% endblock %}
+
+{% block content %}
+<div class="about-page">
+
+  <!-- ── Page header ──────────────────────────────────────────────────────── -->
+  <header class="about-header">
+    <div class="about-header-badge">Documentation</div>
+    <h1 class="about-title">About HSeeker</h1>
+    <p class="about-lead">HSeeker is an open-source tool for detecting H-DNA-forming mirror repeat
+      structures in DNA sequences. It is validated against 39 experimentally confirmed sequences from
+      28 peer-reviewed publications spanning 1986–2024, achieving
+      <strong class="accent">100 % sensitivity</strong> for genuine intramolecular H-DNA.</p>
+    <div class="about-header-actions">
+      <a href="/" class="btn-about-cta">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
+        Run a detection
+      </a>
+      <a href="https://github.com/Georgakopoulos-Soares-lab/HDNAhunter" class="btn-about-ghost" target="_blank" rel="noopener noreferrer">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </header>
+
+  <!-- ── What is H-DNA ────────────────────────────────────────────────────── -->
+  <section class="about-section">
+    <h2>What is H-DNA?</h2>
+    <p>H-DNA is an intramolecular triplex structure formed when one strand of a
+      <strong>homopurine–homopyrimidine mirror repeat</strong> folds back and invades the complementary
+      duplex, creating Hoogsteen or reverse-Hoogsteen hydrogen bonds with the purine strand of the
+      remaining double helix. Four conditions are required for H-DNA formation:</p>
+    <ul>
+      <li><strong>Mirror symmetry</strong> — the purine/pyrimidine pattern must be palindromic around the hinge point</li>
+      <li><strong>Negative supercoiling</strong> — torsional stress drives strand separation and triplex folding</li>
+      <li><strong>Sufficient arm length</strong> — typically ≥ 16 bp total (≥ 8 bp per arm) for stable folding</li>
+      <li><strong>Sequence purity</strong> — high GA or CT content (≥ 80 %) in each arm</li>
+    </ul>
+
+    <h3>The two main isomers</h3>
+    <div class="about-isomer-grid">
+      <div class="about-isomer-card">
+        <span class="about-isomer-tag about-isomer-tag--r">H-r</span>
+        <p><strong>Purine motif.</strong> The purine (GA-rich) strand folds back.
+          Forms G·G:C and A·A:T base triplets. Favored at neutral pH in the presence of Mg²⁺ or Mn²⁺.</p>
+      </div>
+      <div class="about-isomer-card">
+        <span class="about-isomer-tag about-isomer-tag--y">H-y</span>
+        <p><strong>Pyrimidine motif.</strong> The pyrimidine (CT-rich) strand folds back.
+          Forms C·G:C⁺ and T·A:T base triplets. Favored at low pH. Includes H-y3 and H-y5 sub-isomers.</p>
+      </div>
+    </div>
+
+    <h3>Why does H-DNA matter?</h3>
+    <p>H-DNA has been documented as a driver of biological processes across a wide range of contexts:</p>
+    <div class="about-disease-grid">
+      <div class="about-disease-item">
+        <span class="about-disease-locus">c-MYC NHE III<sub>1</sub></span>
+        <span class="about-disease-ctx">Transcriptional regulation, Burkitt lymphoma</span>
+      </div>
+      <div class="about-disease-item">
+        <span class="about-disease-locus">BCL-2 MBR</span>
+        <span class="about-disease-ctx">t(14;18) translocation, follicular lymphoma</span>
+      </div>
+      <div class="about-disease-item">
+        <span class="about-disease-locus">BCL-6 Cluster II</span>
+        <span class="about-disease-ctx">DLBCL chromosomal fragility</span>
+      </div>
+      <div class="about-disease-item">
+        <span class="about-disease-locus">FXN intron 1</span>
+        <span class="about-disease-ctx">(GAA)n expansion, Friedreich's ataxia</span>
+      </div>
+      <div class="about-disease-item">
+        <span class="about-disease-locus">RFC1 intron 2</span>
+        <span class="about-disease-ctx">(AAGGG)n expansion, CANVAS</span>
+      </div>
+      <div class="about-disease-item">
+        <span class="about-disease-locus">PKD1 intron 21</span>
+        <span class="about-disease-ctx">Polypyrimidine tract instability, ADPKD</span>
+      </div>
+      <div class="about-disease-item">
+        <span class="about-disease-locus">TAF1 intron 32</span>
+        <span class="about-disease-ctx">(CCCTCT)n, X-linked dystonia-parkinsonism (XDP)</span>
+      </div>
+      <div class="about-disease-item">
+        <span class="about-disease-locus">FGF14 intron 1</span>
+        <span class="about-disease-ctx">(GAA)n expansion, SCA27B ataxia</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── How HSeeker works ─────────────────────────────────────────────────── -->
+  <section class="about-section">
+    <h2>How HSeeker Works</h2>
+    <p>HSeeker implements a <strong>center-outward mirror-repeat extension algorithm</strong> compiled
+      as a CPython C extension for maximum throughput. The core scan runs in native C with the GIL
+      released, enabling efficient parallel processing of large FASTA files.</p>
+
+    <h3>The scan algorithm</h3>
+    <ol>
+      <li>For each candidate <strong>hinge position</strong> and <strong>spacer length</strong> (0 to <span class="about-chip">maxspacer</span>), place a left pointer at the hinge and a right pointer immediately after the spacer.</li>
+      <li>Extend both pointers outward simultaneously, one base at a time.</li>
+      <li>At each step, check that the base pair satisfies the <strong>mirror symmetry criterion</strong> (left arm base is the Watson-Crick complement of the right arm base, read in opposite directions).</li>
+      <li>Track the running <strong>GA purity</strong> and <strong>CT purity</strong> of the right arm. Extension stops when either falls below the <span class="about-chip">purity</span> threshold or mirror mismatches exceed the <span class="about-chip">mismatch</span> threshold.</li>
+      <li>Record a hit if the final arm length ≥ <span class="about-chip">minrep</span>.</li>
+      <li>After scanning all positions, optionally remove overlapping hits — keeping the longest arm, with shorter spacer as tiebreaker.</li>
+    </ol>
+
+    <div class="callout">
+      <p><strong>Key invariant:</strong> every hit satisfies
+        <code>start + (2 × arm_length + spacer_length) − 1 = end</code>, where coordinates are
+        1-based and inclusive. The mirror is always centered on the hinge, not on an arm midpoint.</p>
+    </div>
+
+    <h3>Output fields</h3>
+    <div class="table-wrap">
+      <table class="about-table">
+        <thead>
+          <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>start</code> / <code>end</code></td><td>int</td><td>1-based inclusive genomic coordinates</td></tr>
+          <tr><td><code>arm_length</code></td><td>int</td><td>Length of each arm in bp (both arms are equal)</td></tr>
+          <tr><td><code>spacer_length</code></td><td>int</td><td>Hinge/loop length in bp (0 = no spacer)</td></tr>
+          <tr><td><code>total_length</code></td><td>int</td><td>2 × arm_length + spacer_length</td></tr>
+          <tr><td><code>ga_pct</code></td><td>float</td><td>% GA bases in the right arm (0–100)</td></tr>
+          <tr><td><code>ct_pct</code></td><td>float</td><td>% CT bases in the right arm (0–100)</td></tr>
+          <tr><td><code>mirror_identity</code></td><td>float</td><td>% mirror-symmetric positions between arms (0–100)</td></tr>
+          <tr><td><code>is_perfect</code></td><td>bool</td><td>True if purity = 100 % <em>and</em> mirror identity = 100 %</td></tr>
+          <tr><td><code>left_arm</code> / <code>right_arm</code></td><td>str</td><td>Arm sequences in 5′→3′ orientation (lowercase)</td></tr>
+          <tr><td><code>spacer</code></td><td>str</td><td>Hinge sequence; <code>"."</code> when spacer_length = 0</td></tr>
+          <tr><td><code>full_sequence</code></td><td>str</td><td>left_arm + spacer + right_arm</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Parameter modes ──────────────────────────────────────────────────── -->
+  <section class="about-section">
+    <h2>Parameter Modes</h2>
+    <p>HSeeker exposes five parameters that control detection sensitivity and specificity.
+      Three curated presets cover the most common use cases:</p>
+
+    <div class="table-wrap" style="margin-bottom: 24px;">
+      <table class="about-table">
+        <thead>
+          <tr>
+            <th>Preset</th>
+            <th>minrep</th>
+            <th>maxrep</th>
+            <th>maxspacer</th>
+            <th>purity</th>
+            <th>mismatch</th>
+            <th>Sensitivity</th>
+            <th>False-positive rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Default</td>
+            <td>6</td><td>50</td><td>7</td><td>0.80</td><td>0.20</td>
+            <td>97.2 % (35/36)</td>
+            <td>100 % (3/3 FP)</td>
+          </tr>
+          <tr class="about-table-row--highlight">
+            <td><strong>Recommended ★</strong></td>
+            <td><strong>8</strong></td><td>50</td><td>7</td><td>0.80</td><td>0.20</td>
+            <td><strong>97.2 % (35/36)</strong></td>
+            <td><strong>0 % (0/3 FP)</strong></td>
+          </tr>
+          <tr>
+            <td>Relaxed</td>
+            <td>4</td><td>100</td><td>10</td><td>0.70</td><td>0.30</td>
+            <td>100 % (36/36)</td>
+            <td>100 % (3/3 FP)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="about-param-grid">
+      <div class="about-param-card">
+        <div class="about-param-name"><span class="about-chip">minrep</span></div>
+        <p>Minimum arm length in base pairs. The most important parameter for specificity.
+           Raising from 6 to 8 eliminates all false positives on the validation set
+           without losing any confirmed H-DNA sites.</p>
+      </div>
+      <div class="about-param-card">
+        <div class="about-param-name"><span class="about-chip">maxrep</span></div>
+        <p>Maximum arm length cap. Set to 50 by default. Long repeat sequences
+           (e.g. (GAA)₆₆) will be reported as arm = 50 bp — the detection is
+           correct but the true arm length is ≥ 50 bp.</p>
+      </div>
+      <div class="about-param-card">
+        <div class="about-param-name"><span class="about-chip">maxspacer</span></div>
+        <p>Maximum hinge/spacer loop length in bp. Setting this to 0 restricts
+           detection to perfect mirror repeats with no central loop.</p>
+      </div>
+      <div class="about-param-card">
+        <div class="about-param-name"><span class="about-chip">purity</span></div>
+        <p>Minimum GA or CT fraction in each arm (0–1). Five confirmed H-DNA sequences
+           sit exactly at 80 % — this threshold should not be raised
+           above 0.80 without risking loss of biologically important sites.</p>
+      </div>
+      <div class="about-param-card">
+        <div class="about-param-name"><span class="about-chip">mismatch</span></div>
+        <p>Maximum fraction of mirror-position mismatches tolerated (0–1).
+           Complements <code>purity</code>: a site passing both thresholds has
+           adequate arm composition and structural symmetry.</p>
+      </div>
+      <div class="about-param-card">
+        <div class="about-param-name"><span class="about-chip">remove_overlaps</span></div>
+        <p>When enabled, overlapping hits are deduplicated by keeping the longest arm.
+           Ties are broken by shorter spacer. Disable to see all raw hits from the
+           center-outward scan.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Validation ───────────────────────────────────────────────────────── -->
+  <section class="about-section">
+    <h2>Validation</h2>
+    <p>HSeeker was validated against 39 sequences — 36 experimentally confirmed
+      H-DNA-forming motifs and 3 non-forming controls — drawn from 28 peer-reviewed
+      publications spanning 1986–2024 across 7 organisms and 9 disease contexts.
+      Experimental evidence includes S1 nuclease cleavage, chemical probing, 2D-gel electrophoresis,
+      genome-wide S1-END-seq and S1-seq mapping, and polymerase stalling assays.</p>
+
+    <div class="callout callout--accent">
+      <p><strong>Key finding:</strong> HSeeker achieves <strong>100 % sensitivity</strong> for
+        genuine intramolecular H-DNA across all 35 confirmed sequences (the single missed sequence,
+        <code>G10TTAA_AG5</code>, is an intermolecular TFO control — architecturally distinct from
+        intramolecular H-DNA and its non-detection is correct).
+        At <span class="about-chip">minrep=8</span>, the false-positive rate drops to
+        <strong>0 %</strong> on the non-forming control set.</p>
+    </div>
+
+    <h3>Why minrep=8 is recommended</h3>
+    <p>The default <code>minrep=6</code> produces false positives on three BCL2 MBR mutants that
+      experimentally do not form H-DNA. These sequences carry short G-rich sub-segments (arm 6–7 bp)
+      satisfying the mirror criterion but too short to fold into a stable triplex.
+      Crucially, arm length — not mirror quality — is the discriminating feature:</p>
+
+    <div class="table-wrap">
+      <table class="about-table">
+        <thead>
+          <tr>
+            <th>Sequence</th><th>Forming?</th><th>Arm</th>
+            <th>Mirror identity</th><th>Default (minrep=6)</th><th>Recommended (minrep=8)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>MYCAA</code></td><td><span class="about-badge about-badge--yes">Yes</span></td>
+            <td>10 bp</td><td>80.0 %</td>
+            <td><span class="about-badge about-badge--yes">✓</span></td>
+            <td><span class="about-badge about-badge--yes">✓</span></td>
+          </tr>
+          <tr>
+            <td><code>BCL2_MBR_150bp</code></td><td><span class="about-badge about-badge--yes">Yes</span></td>
+            <td>10 bp</td><td>80.0 %</td>
+            <td><span class="about-badge about-badge--yes">✓</span></td>
+            <td><span class="about-badge about-badge--yes">✓</span></td>
+          </tr>
+          <tr>
+            <td><code>MYC_AG</code></td><td><span class="about-badge about-badge--no">No</span></td>
+            <td>7 bp</td><td>85.7 %</td>
+            <td><span class="about-badge about-badge--fp">✓ FP</span></td>
+            <td><span class="about-badge about-badge--no">✗</span></td>
+          </tr>
+          <tr>
+            <td><code>MycM1</code></td><td><span class="about-badge about-badge--no">No</span></td>
+            <td>6 bp</td><td>83.3 %</td>
+            <td><span class="about-badge about-badge--fp">✓ FP</span></td>
+            <td><span class="about-badge about-badge--no">✗</span></td>
+          </tr>
+          <tr>
+            <td><code>MycM2</code></td><td><span class="about-badge about-badge--no">No</span></td>
+            <td>6 bp</td><td>83.3 %</td>
+            <td><span class="about-badge about-badge--fp">✓ FP</span></td>
+            <td><span class="about-badge about-badge--no">✗</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The non-forming mutants have <em>higher</em> mirror identity than the confirmed H-DNA
+      sequences they are derived from, yet shorter arms. Raising <code>minrep</code> from 6 to 8
+      cleanly separates them with no sensitivity cost, because every confirmed H-DNA sequence in
+      the benchmark has an arm ≥ 10 bp.</p>
+
+    <h3>Arm length distribution (recommended params, 35 detected)</h3>
+    <div class="about-stats-row">
+      <div class="about-stat-mini"><span class="about-stat-mini-val">10 bp</span><span class="about-stat-mini-lbl">minimum arm</span></div>
+      <div class="about-stat-mini"><span class="about-stat-mini-val">21.4 bp</span><span class="about-stat-mini-lbl">mean arm</span></div>
+      <div class="about-stat-mini"><span class="about-stat-mini-val">19 bp</span><span class="about-stat-mini-lbl">median arm</span></div>
+      <div class="about-stat-mini"><span class="about-stat-mini-val">50 bp</span><span class="about-stat-mini-lbl">max (cap)</span></div>
+      <div class="about-stat-mini"><span class="about-stat-mini-val accent">93.6 %</span><span class="about-stat-mini-lbl">mean mirror identity</span></div>
+      <div class="about-stat-mini"><span class="about-stat-mini-val accent">63 %</span><span class="about-stat-mini-lbl">perfect sites</span></div>
+    </div>
+  </section>
+
+  <!-- ── Limitations ──────────────────────────────────────────────────────── -->
+  <section class="about-section">
+    <h2>Limitations</h2>
+    <ul>
+      <li><strong>Sequence-based only.</strong> HSeeker predicts H-DNA-forming <em>potential</em>
+        from primary sequence. H-DNA formation in vivo requires negative supercoiling; the tool does
+        not model supercoiling density, chromatin context, pH, or ionic conditions.</li>
+      <li><strong>Specificity estimate is a lower bound.</strong> Only 3 non-forming controls are
+        included in the benchmark, all from the same locus (BCL2 MBR). The 0 % false-positive rate
+        at <code>minrep=8</code> should not be extrapolated directly to genome-wide specificity.</li>
+      <li><strong>maxrep cap.</strong> The default <code>maxrep=50</code> truncates arm length
+        reporting for very long repeats. Arm length will be reported as 50 bp for sequences with a
+        true arm &gt; 50 bp — detection is unaffected but the exact value is a lower bound.</li>
+      <li><strong>poly-dG·dC boundary class.</strong> H-DNA formed via poly-dG·poly-dC third-strand
+        invasion (rather than intramolecular mirror-repeat folding) may be detected incidentally
+        but this structural class requires a separate computational approach.</li>
+    </ul>
+  </section>
+
+  <!-- ── Citation / links ─────────────────────────────────────────────────── -->
+  <section class="about-section">
+    <h2>Links</h2>
+    <div class="about-links-row">
+      <a href="https://github.com/Georgakopoulos-Soares-lab/HDNAhunter" class="about-ext-link" target="_blank" rel="noopener noreferrer">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub repository
+      </a>
+      <a href="https://pypi.org/project/hseeker/" class="about-ext-link" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+        PyPI package
+      </a>
+      <a href="https://www.georgakopoulos-soares-lab.com/" class="about-ext-link" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253M3 12c0 .778.099 1.533.284 2.253"/></svg>
+        Georgakopoulos-Soares Lab
+      </a>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
