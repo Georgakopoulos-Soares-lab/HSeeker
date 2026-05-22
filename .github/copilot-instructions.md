@@ -247,10 +247,10 @@ python benchmarks/benchmark.py --scaling --no-cli
 
 ## Environment
 
-The maintainers use the `biomni_e1` conda environment. Run tests with:
+The maintainers use the `hseeker_bench` conda environment. Run tests with:
 
 ```bash
-conda run -n biomni_e1 pytest -v tests/
+conda run -n hseeker_bench pytest -v tests/
 ```
 
 or after activating the environment:
@@ -286,10 +286,10 @@ pytest -v tests/
 
 ### Developer / local install (recommended)
 
-The project uses a `biomni_e1` conda environment. All dev commands should be run inside it.
+The project uses a `hseeker_bench` conda environment. All dev commands should be run inside it.
 
 ```bash
-conda activate biomni_e1
+conda activate hseeker_bench
 
 # Install hseeker + dev extras (compiles _hdna.c automatically)
 pip install -e ".[dev]"
@@ -312,7 +312,7 @@ pip install -r webapp/requirements.txt
 ### Running the webapp locally
 
 ```bash
-conda run -n biomni_e1 uvicorn webapp.main:app --reload --port 8000
+conda run -n hseeker_bench uvicorn webapp.main:app --reload --port 8000
 # or after activating:
 uvicorn webapp.main:app --reload --port 8000
 ```
@@ -484,7 +484,7 @@ Update it there, then also update `src/hseeker/__init__.py` if it defines `__ver
 ### Local build verification
 
 ```bash
-conda activate biomni_e1
+conda activate hseeker_bench
 
 # Recompile and run tests
 pip install -e ".[dev]"
