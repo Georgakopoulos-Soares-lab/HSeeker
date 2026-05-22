@@ -1,0 +1,44 @@
+# Python caches
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Development / editor
+.git/
+.github/
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Tests & benchmarks
+tests/
+benchmarks/
+
+# Data files
+*.fa
+*.fasta
+*.fna
+*.tsv
+*.csv
+
+# Docs
+*.md
+LICENSE
+
+# Misc
+.DS_Store
+.env
+*.log

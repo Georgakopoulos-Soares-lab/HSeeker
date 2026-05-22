@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% block title %}HSeeker — H-DNA Mirror Repeat Detection{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">Bioinformatics · Non-B DNA · Triplex Structures</div>
+    <h1 class="hero-title">H-DNA Mirror Repeat<br>Detection Engine</h1>
+    <p class="hero-sub">
+      Paste or upload a FASTA file to identify triplex-forming H-DNA / mirror
+      repeat structures across genomic sequences. Covers GA-rich, CT-rich, and
+      mixed purine–pyrimidine motifs genome-wide.
+    </p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="hero-stat-val">GA&nbsp;·&nbsp;CT</span>
+        <span class="hero-stat-lbl">purity profiles</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-val">≥ 6 bp</span>
+        <span class="hero-stat-lbl">arm length</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-val">0 – 7 bp</span>
+        <span class="hero-stat-lbl">spacer / loop</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Upload card -->
+<section class="upload-section">
+  <div class="upload-card" x-data="uploadForm()" :data-mode="inputMode">
+
+    <!-- Input mode toggle -->
+    <div class="input-mode-tabs">
+      <button type="button" class="mode-tab" :class="{active: inputMode==='file'}" @click="inputMode='file'">Upload File</button>
+      <button type="button" class="mode-tab" :class="{active: inputMode==='text'}" @click="inputMode='text'">Paste FASTA</button>
+    </div>
+
+    <form id="upload-form" action="/submit" method="post" enctype="multipart/form-data"
+          @submit.prevent="handleSubmit($event)">
+
+      <!-- Drop zone (file mode) -->
+      <div class="input-section input-section--file">
+        <div class="drop-zone"
+             :class="{ 'drop-zone--active': isDragging, 'drop-zone--filled': selectedFile }"
+             @dragover.prevent="isDragging = true"
+             @dragleave.prevent="isDragging = false"
+             @drop.prevent="handleDrop($event)"
+             @click="$refs.fileInput.click()">
+
+          <input type="file" name="file" x-ref="fileInput"
+                 accept=".fa,.fasta,.fna,.fas,.txt"
+                 class="sr-only"
+                 @change="handleSelect($event)">
+
+          <div x-show="!selectedFile" class="drop-zone-prompt">
+            <div class="drop-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+              </svg>
+            </div>
+            <p class="drop-title">Drop FASTA file here or click to browse</p>
+            <p class="drop-hint">.fa &nbsp;·&nbsp; .fasta &nbsp;·&nbsp; .fna &nbsp;·&nbsp; max 200 MB</p>
+          </div>
+
+          <div x-show="selectedFile" class="drop-file-info">
+            <svg class="file-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+            </svg>
+            <div>
+              <p class="file-name" x-text="selectedFile ? selectedFile.name : ''"></p>
+              <p class="file-size" x-text="selectedFile ? fmtBytes(selectedFile.size) : ''"></p>
+            </div>
+            <button type="button" class="file-clear" @click.stop="clearFile()"
+                    title="Remove file">&times;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Paste zone (text mode) -->
+      <div class="input-section input-section--text paste-zone">
+        <div class="paste-toolbar">
+          <button type="button" class="preset-btn paste-example-btn"
+                  @click="loadExample()">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" style="vertical-align:-2px;margin-right:4px">
+              <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+            Load validation example
+          </button>
+          <button type="button" class="preset-btn" @click="seqText=''"
+                  x-show="seqText.trim()">
+            Clear
+          </button>
+        </div>
+        <textarea name="seq_text" x-model="seqText"
+                  class="seq-textarea"
+                  placeholder=">seq1&#10;GAAGAAGAAGAAGAAGAAGAAGAAGAAGAA&#10;&gt;seq2&#10;CCCTCCCCACCCTCCCC..."
+                  rows="10" spellcheck="false"></textarea>
+        <p class="drop-hint" style="margin-top:6px">FASTA format — one or more records. Max 200 MB of text.</p>
+      </div>
+
+      <!-- Parameters -->
+      <div class="params-section">
+        <h3 class="params-heading">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+          </svg>
+          Detection Parameters
+        </h3>
+        <div class="params-grid">
+          <div class="param-group">
+            <label class="param-label" for="minrep">Min arm length
+              <span class="param-code">minrep</span>
+            </label>
+            <input id="minrep" type="number" name="minrep" value="6"
+                   min="4" max="100" class="param-input">
+            <span class="param-hint">Minimum arm length in bp (≥ 4)</span>
+          </div>
+          <div class="param-group">
+            <label class="param-label" for="maxrep">Max arm length
+              <span class="param-code">maxrep</span>
+            </label>
+            <input id="maxrep" type="number" name="maxrep" value="50"
+                   min="6" max="500" class="param-input">
+            <span class="param-hint">Maximum arm length in bp</span>
+          </div>
+          <div class="param-group">
+            <label class="param-label" for="maxspacer">Max spacer
+              <span class="param-code">maxspacer</span>
+            </label>
+            <input id="maxspacer" type="number" name="maxspacer" value="7"
+                   min="0" max="100" class="param-input">
+            <span class="param-hint">Maximum hinge loop length in bp</span>
+          </div>
+          <div class="param-group">
+            <label class="param-label" for="purity">GA/CT purity
+              <span class="param-code">purity</span>
+            </label>
+            <input id="purity" type="number" name="purity" value="0.80"
+                   min="0.0" max="1.0" step="0.05" class="param-input">
+            <span class="param-hint">Min purine/pyrimidine fraction (0 – 1)</span>
+          </div>
+          <div class="param-group">
+            <label class="param-label" for="mismatch">Mirror mismatch
+              <span class="param-code">mismatch</span>
+            </label>
+            <input id="mismatch" type="number" name="mismatch" value="0.20"
+                   min="0.0" max="1.0" step="0.05" class="param-input">
+            <span class="param-hint">Max mirror-position mismatch fraction</span>
+          </div>
+          <div class="param-group">
+            <label class="param-label" for="remove_overlaps">Overlap handling</label>
+            <select id="remove_overlaps" name="remove_overlaps" class="param-input">
+              <option value="1" selected>Remove overlaps (keep longest arm)</option>
+              <option value="0">Keep all raw hits</option>
+            </select>
+            <span class="param-hint">Overlap removal keeps the longest non-overlapping arm</span>
+          </div>
+        </div>
+
+        <!-- Preset buttons -->
+        <div class="presets">
+          <span class="presets-label">Presets:</span>
+          <button type="button" class="preset-btn"
+                  @click="applyPreset({minrep:6,maxrep:50,maxspacer:7,purity:0.80,mismatch:0.20})">
+            Default
+          </button>
+          <button type="button" class="preset-btn"
+                  @click="applyPreset({minrep:6,maxrep:50,maxspacer:7,purity:1.0,mismatch:0.0})">
+            Strict (100% pure)
+          </button>
+          <button type="button" class="preset-btn"
+                  @click="applyPreset({minrep:10,maxrep:50,maxspacer:7,purity:0.85,mismatch:0.15})">
+            Conservative
+          </button>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="submit-row">
+        <button type="submit" class="btn-submit"
+                :disabled="(inputMode==='file' ? !selectedFile : !seqText.trim()) || submitting">
+          <template x-if="!submitting">
+            <span class="btn-submit-inner">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+              </svg>
+              Detect H-DNA Sites
+            </span>
+          </template>
+          <template x-if="submitting">
+            <span class="btn-submit-inner">
+              <span class="btn-spinner"></span>
+              Submitting…
+            </span>
+          </template>
+        </button>
+        <p class="submit-note"
+           x-show="inputMode==='file' ? !selectedFile : !seqText.trim()"
+           x-text="inputMode==='file' ? 'Select a FASTA file to enable submission.' : 'Paste FASTA sequence text to enable submission.'">
+        </p>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Feature cards -->
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon feature-icon--teal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/>
+        </svg>
+      </div>
+      <h4>Precise Detection</h4>
+      <p>Scans every candidate center and spacer position, extending mirror arms
+         while enforcing user-defined GA/CT purity and mirror-identity thresholds.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon feature-icon--purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+        </svg>
+      </div>
+      <h4>Rich Visualizations</h4>
+      <p>Locus maps, GA/CT composition profiles, arm × spacer density heatmaps,
+         and mirror-identity distributions — all interactive and exportable.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon feature-icon--blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+        </svg>
+      </div>
+      <h4>TSV Export</h4>
+      <p>Download results as a tab-separated file compatible with standard
+         downstream bioinformatics pipelines.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+function uploadForm() {
+  return {
+    inputMode: 'file',
+    selectedFile: null,
+    seqText: '',
+    isDragging: false,
+    submitting: false,
+
+    handleDrop(e) {
+      this.isDragging = false;
+      const f = e.dataTransfer.files[0];
+      if (f) this.setFile(f);
+    },
+    handleSelect(e) {
+      const f = e.target.files[0];
+      if (f) this.setFile(f);
+    },
+    setFile(f) {
+      this.selectedFile = f;
+      const dt = new DataTransfer();
+      dt.items.add(f);
+      this.$refs.fileInput.files = dt.files;
+    },
+    clearFile() {
+      this.selectedFile = null;
+      this.$refs.fileInput.value = '';
+    },
+    async loadExample() {
+      try {
+        const r = await fetch('/static/hseeker_validation_motifs.fasta');
+        this.seqText = await r.text();
+        this.inputMode = 'text';
+      } catch(e) {
+        console.error('Failed to load example:', e);
+      }
+    },
+    handleSubmit(e) {
+      const ready = this.inputMode === 'file' ? !!this.selectedFile : !!this.seqText.trim();
+      if (!ready) return;
+      this.submitting = true;
+      e.target.submit();
+    },
+    applyPreset(p) {
+      document.getElementById('minrep').value    = p.minrep;
+      document.getElementById('maxrep').value    = p.maxrep;
+      document.getElementById('maxspacer').value = p.maxspacer;
+      document.getElementById('purity').value    = p.purity.toFixed(2);
+      document.getElementById('mismatch').value  = p.mismatch.toFixed(2);
+    },
+    fmtBytes(b) {
+      if (b < 1024)        return b + ' B';
+      if (b < 1048576)     return (b / 1024).toFixed(1) + ' KB';
+      return (b / 1048576).toFixed(1) + ' MB';
+    },
+  };
+}
+</script>
+
+{% endblock %}

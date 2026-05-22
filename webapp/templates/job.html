@@ -1,0 +1,453 @@
+{% extends "base.html" %}
+{% block title %}{{ job.filename }} — HSeeker{% endblock %}
+
+{% block content %}
+
+<div class="job-page">
+
+  <!-- ── Job header ────────────────────────────────────────────────────── -->
+  <div class="job-header">
+    <div class="job-title-row">
+      <div class="job-title-block">
+        <span class="job-filename-label">Analysis</span>
+        <h1 class="job-filename">{{ job.filename }}</h1>
+      </div>
+      {% if job.status == "complete" %}
+      <div class="job-actions">
+        <a href="/job/{{ job.id }}/download" class="btn-download">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+          Download TSV
+        </a>
+        <a href="/" class="btn-ghost">← New analysis</a>
+      </div>
+      {% elif job.status in ("pending", "running") %}
+      <a href="/" class="btn-ghost">← Back</a>
+      {% endif %}
+    </div>
+
+    <!-- Parameter pills -->
+    {% set p = job.params %}
+    <div class="param-pills">
+      <span class="pill">minrep = {{ p.minrep }}</span>
+      <span class="pill">maxrep = {{ p.maxrep }}</span>
+      <span class="pill">maxspacer = {{ p.maxspacer }}</span>
+      <span class="pill">purity = {{ "%.2f"|format(p.purity) }}</span>
+      <span class="pill">mismatch = {{ "%.2f"|format(p.mismatch) }}</span>
+      <span class="pill pill--{{ 'teal' if p.remove_overlaps else 'orange' }}">
+        {{ "overlaps removed" if p.remove_overlaps else "all hits" }}
+      </span>
+    </div>
+  </div>
+
+  <!-- ── Pending / Running ──────────────────────────────────────────────── -->
+  {% if job.status in ("pending", "running") %}
+  <div id="running-panel"
+       x-data="jobPoller('{{ job.id }}', '{{ job.status }}')"
+       x-init="start()">
+    <div class="status-panel">
+      <div class="spinner-wrap">
+        <div class="spinner"></div>
+      </div>
+      <p class="status-title">Scanning for H-DNA motifs…</p>
+      <p class="status-sub" x-text="statusText">Initialising…</p>
+      <div class="status-bar-wrap">
+        <div class="status-bar-pulse"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  function jobPoller(jobId, initial) {
+    return {
+      statusText: initial === 'pending' ? 'Waiting to start…' : 'Scanning sequences…',
+      timer: null,
+      start() {
+        this.timer = setInterval(() => this.poll(), 2000);
+      },
+      async poll() {
+        try {
+          const r = await fetch(`/api/job/${jobId}/status`);
+          if (!r.ok) return;
+          const d = await r.json();
+          const recs = d.processed_records;
+          const hits = d.total_hits.toLocaleString();
+          this.statusText = recs > 0
+            ? `${recs} sequence${recs === 1 ? '' : 's'} processed · ${hits} H-DNA sites found so far`
+            : 'Initialising scanner…';
+          if (d.status === 'complete' || d.status === 'failed') {
+            clearInterval(this.timer);
+            window.location.reload();
+          }
+        } catch (_) {}
+      },
+    };
+  }
+  </script>
+  {% endif %}
+
+  <!-- ── Failed ──────────────────────────────────────────────────────────── -->
+  {% if job.status == "failed" %}
+  <div class="error-panel">
+    <div class="error-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+      </svg>
+    </div>
+    <h3 class="error-title">Analysis failed</h3>
+    <p class="error-msg">{{ job.error or "An unexpected error occurred." }}</p>
+    <a href="/" class="btn-primary">← Try again</a>
+  </div>
+  {% endif %}
+
+  <!-- ── Complete ────────────────────────────────────────────────────────── -->
+  {% if job.status == "complete" %}
+  {% set s = stats %}
+
+  <!-- Summary stat cards -->
+  <div class="stats-grid">
+    <div class="stat-card stat-card--highlight">
+      <div class="stat-val">{{ "{:,}".format(s.total_hits) }}</div>
+      <div class="stat-lbl">H-DNA Sites</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ "{:,}".format(s.n_perfect) }}</div>
+      <div class="stat-lbl">Perfect Sites</div>
+      <div class="stat-sub">{{ s.pct_perfect }}% of total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ s.n_sequences }}</div>
+      <div class="stat-lbl">Sequences Scanned</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ s.mean_arm_length }}</div>
+      <div class="stat-lbl">Mean Arm Length (bp)</div>
+      <div class="stat-sub">range {{ s.min_arm_length }} – {{ s.max_arm_length }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ s.mean_spacer_length }}</div>
+      <div class="stat-lbl">Mean Spacer (bp)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val">{{ s.mean_mirror_identity }}%</div>
+      <div class="stat-lbl">Mean Mirror Identity</div>
+    </div>
+  </div>
+
+  {% if s.total_hits == 0 %}
+  <div class="empty-state">
+    <p class="empty-title">No H-DNA sites detected</p>
+    <p class="empty-sub">
+      Try relaxing the parameters — lower <code>purity</code>, increase <code>mismatch</code>,
+      or reduce <code>minrep</code>.
+    </p>
+    <a href="/" class="btn-primary">← Adjust parameters</a>
+  </div>
+  {% else %}
+
+  <!-- Tab navigation + panels -->
+  <div class="tabs-root">
+    <div class="tab-bar" role="tablist">
+      <button class="tab-btn active" data-tab="data"         onclick="switchTab('data')"         role="tab">Data Table</button>
+      <button class="tab-btn"        data-tab="locus"        onclick="switchTab('locus')"        role="tab">Locus Map</button>
+      <button class="tab-btn"        data-tab="structure"    onclick="switchTab('structure')"    role="tab">Structure</button>
+      <button class="tab-btn"        data-tab="composition"  onclick="switchTab('composition')"  role="tab">Composition</button>
+    </div>
+
+    <!-- Locus map tab -->
+    <div class="tab-panel" id="tab-locus" role="tabpanel">
+      <div class="chart-row">
+        <div class="chart-card chart-card--wide">
+          <div class="hits-seq-scroll">
+            <div id="chart-hits-per-seq" class="chart-target"></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div id="chart-perfect-donut" class="chart-target"></div>
+        </div>
+      </div>
+      <div class="chart-card chart-card--full">
+        <p class="chart-desc">
+          Each row is a sequence; dots represent H-DNA sites coloured and sized by arm length.
+          Hover a dot for site details.
+        </p>
+        <div id="chart-locus-map" class="chart-target"></div>
+      </div>
+    </div>
+
+    <!-- Structure tab -->
+    <div class="tab-panel" id="tab-structure" role="tabpanel">
+      <div class="chart-row">
+        <div class="chart-card">
+          <div id="chart-arm-length" class="chart-target"></div>
+        </div>
+        <div class="chart-card">
+          <div id="chart-spacer-dist" class="chart-target"></div>
+        </div>
+      </div>
+      <div class="chart-card chart-card--full">
+        <p class="chart-desc">
+          2-D density of arm length vs spacer length — darker cells indicate more H-DNA sites
+          at that (arm, spacer) combination.
+        </p>
+        <div id="chart-arm-spacer-heatmap" class="chart-target"></div>
+      </div>
+    </div>
+
+    <!-- Composition tab -->
+    <div class="tab-panel" id="tab-composition" role="tabpanel">
+      <div class="chart-row">
+        <div class="chart-card chart-card--wide">
+          <p class="chart-desc">
+            Each point is one H-DNA site. The dotted line shows GA% + CT% = 100%.
+            Perfect sites (100% pure + 100% mirror) appear in teal.
+          </p>
+          <div id="chart-composition" class="chart-target"></div>
+        </div>
+        <div class="chart-card">
+          <p class="chart-desc">
+            Distribution of mirror identity scores. The dashed line marks the
+            threshold used (1 − mismatch).
+          </p>
+          <div id="chart-mirror-dist" class="chart-target"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data table tab (default active) -->
+    <div class="tab-panel active" id="tab-data" role="tabpanel"
+         x-data="dataTable('{{ job.id }}')" x-init="fetchPage(1)">
+
+      <div class="table-toolbar">
+        <input type="text" x-model="query"
+               @input.debounce.400ms="fetchPage(1)"
+               placeholder="Filter by sequence ID…"
+               class="table-search"
+               aria-label="Filter hits by sequence ID">
+        <button class="filter-toggle-btn" @click="filtersOpen = !filtersOpen"
+                :aria-expanded="filtersOpen.toString()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Filters
+          <span class="filter-count-badge" x-show="activeFilterCount() > 0" x-text="activeFilterCount()"></span>
+          <svg class="filter-chevron" :class="{'filter-chevron--open': filtersOpen}" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <span class="table-count" x-text="totalHits.toLocaleString() + ' hits'"></span>
+      </div>
+
+      <div class="filter-panel" x-show="filtersOpen" x-transition.opacity.duration.150ms style="display:none">
+        <div class="filter-grid">
+          <div class="filter-field">
+            <span class="filter-label">Arm length (bp)</span>
+            <div class="filter-range-row">
+              <input class="filter-input filter-input--sm" type="number" x-model.number="filters.minArm"
+                     @input.debounce.400ms="fetchPage(1)" placeholder="min" min="1" max="500">
+              <span class="filter-range-sep">–</span>
+              <input class="filter-input filter-input--sm" type="number" x-model.number="filters.maxArm"
+                     @input.debounce.400ms="fetchPage(1)" placeholder="max" min="1" max="500">
+            </div>
+          </div>
+          <div class="filter-field">
+            <span class="filter-label">Mirror % ≥</span>
+            <input class="filter-input filter-input--md" type="number" x-model.number="filters.minMirror"
+                   @input.debounce.400ms="fetchPage(1)" placeholder="0" min="0" max="100" step="5">
+          </div>
+          <div class="filter-field">
+            <span class="filter-label">Sequence type</span>
+            <select class="filter-input filter-input--md" x-model="filters.seqType" @change="fetchPage(1)">
+              <option value="">Any</option>
+              <option value="ga">GA-rich (≥80%)</option>
+              <option value="ct">CT-rich (≥80%)</option>
+            </select>
+          </div>
+          <div class="filter-field filter-field--check">
+            <label class="filter-check-label">
+              <input type="checkbox" x-model="filters.perfectOnly" @change="fetchPage(1)" class="filter-check-input">
+              Perfect sites only
+            </label>
+          </div>
+        </div>
+        <button class="filter-reset-btn" x-show="activeFilterCount() > 0" @click="resetFilters()">&#8635; Reset filters</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="hits-table">
+          <thead>
+            <tr>
+              <th>Seq ID</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Arm (bp)</th>
+              <th>Spacer (bp)</th>
+              <th>Total (bp)</th>
+              <th>GA%</th>
+              <th>CT%</th>
+              <th>Mirror%</th>
+              <th>Perfect</th>
+              <th>Full Sequence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="(h, i) in hits" :key="i + '_' + h.seq_id + '_' + h.start + '_' + h.arm_length">
+              <tr>
+                <td class="mono td-seqid" x-text="h.seq_id"></td>
+                <td x-text="h.start.toLocaleString()"></td>
+                <td x-text="h.end.toLocaleString()"></td>
+                <td x-text="h.arm_length"></td>
+                <td x-text="h.spacer_length"></td>
+                <td x-text="h.total_length"></td>
+                <td x-text="h.ga_pct.toFixed(1)"></td>
+                <td x-text="h.ct_pct.toFixed(1)"></td>
+                <td x-text="h.mirror_identity.toFixed(1)"></td>
+                <td>
+                  <span class="badge"
+                        :class="h.is_perfect ? 'badge--teal' : 'badge--dim'"
+                        x-text="h.is_perfect ? '✓' : '—'"></span>
+                </td>
+                <td class="mono td-seq"
+                    :title="h.full_sequence.toUpperCase()"
+                    x-html="colorSeq(h.full_sequence)"></td>
+              </tr>
+            </template>
+            <tr x-show="hits.length === 0 && !loading">
+              <td colspan="11" class="table-empty">No hits match your filter.</td>
+            </tr>
+            <tr x-show="loading">
+              <td colspan="11" class="table-empty">Loading…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <button class="page-btn" :disabled="page <= 1" @click="fetchPage(page - 1)">
+          ← Prev
+        </button>
+        <span class="page-info" x-text="`Page ${page} of ${totalPages}`"></span>
+        <button class="page-btn" :disabled="page >= totalPages" @click="fetchPage(page + 1)">
+          Next →
+        </button>
+      </div>
+    </div><!-- /tab-data -->
+  </div><!-- /tabs-root -->
+
+  {% endif %}{# end total_hits > 0 #}
+  {% endif %}{# end complete #}
+
+</div><!-- /job-page -->
+
+<!-- ── Chart data + rendering ─────────────────────────────────────────── -->
+{% if job.status == "complete" and stats.total_hits > 0 %}
+<script id="chart-data" type="application/json">{{ charts_json | safe }}</script>
+<script>
+/* ── Tab switching + lazy chart rendering ───────────────────────────── */
+const _rendered = new Set();
+
+const _tabCharts = {
+  locus:       [['chart-hits-per-seq','hits_per_seq'],['chart-perfect-donut','perfect_donut'],['chart-locus-map','locus_map']],
+  structure:   [['chart-arm-length','arm_length_dist'],['chart-spacer-dist','spacer_dist'],['chart-arm-spacer-heatmap','arm_spacer_heatmap']],
+  composition: [['chart-composition','composition_scatter'],['chart-mirror-dist','mirror_dist']],
+  data:        [],
+};
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === name);
+    b.setAttribute('aria-selected', b.dataset.tab === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'tab-' + name);
+  });
+  // Lazy-render charts for this tab
+  setTimeout(() => {
+    (_tabCharts[name] || []).forEach(([divId, key]) => {
+      if (_rendered.has(divId)) {
+        const el = document.getElementById(divId);
+        if (el && el._fullLayout) Plotly.relayout(el, { autosize: true });
+      } else {
+        render(divId, key);
+        _rendered.add(divId);
+      }
+    });
+  }, 40);
+}
+
+/* ── Render charts ───────────────────────────────────────────────────── */
+const _charts = JSON.parse(document.getElementById('chart-data').textContent);
+const _cfg = { responsive: true, displayModeBar: true, displaylogo: false,
+               modeBarButtonsToRemove: ['sendDataToCloud', 'lasso2d', 'select2d'] };
+
+function render(divId, key) {
+  const spec = _charts[key];
+  if (!spec) return;
+  const cfg = divId === 'chart-hits-per-seq'
+    ? { ..._cfg, responsive: false }
+    : _cfg;
+  Plotly.newPlot(divId, spec.data, spec.layout, cfg);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  // No eager rendering — charts render lazily when their tab is first opened
+});
+
+/* ── Data table Alpine component ─────────────────────────────────────── */
+function colorSeq(s) {
+  const MAP = { A:'nt-A', C:'nt-C', G:'nt-G', T:'nt-T' };
+  const display = s.length > 32 ? s.slice(0, 30) + '…' : s;
+  return display.toUpperCase().split('').map(c =>
+    MAP[c] ? `<span class="${MAP[c]}">${c}</span>` : c
+  ).join('');
+}
+function dataTable(jobId) {
+  return {
+    hits: [],
+    page: 1,
+    totalPages: 1,
+    totalHits: 0,
+    query: '',
+    loading: false,
+    filtersOpen: false,
+    filters: { minArm: '', maxArm: '', minMirror: '', perfectOnly: false, seqType: '' },
+    activeFilterCount() {
+      let n = 0;
+      if (this.filters.minArm !== '') n++;
+      if (this.filters.maxArm !== '') n++;
+      if (this.filters.minMirror !== '') n++;
+      if (this.filters.perfectOnly) n++;
+      if (this.filters.seqType) n++;
+      return n;
+    },
+    resetFilters() {
+      this.filters = { minArm: '', maxArm: '', minMirror: '', perfectOnly: false, seqType: '' };
+      this.fetchPage(1);
+    },
+    async fetchPage(p) {
+      this.loading = true;
+      this.page = p;
+      try {
+        let url = `/api/job/${jobId}/hits?page=${p}&per_page=50`;
+        if (this.query) url += `&q=${encodeURIComponent(this.query)}`;
+        if (this.filters.minArm !== '') url += `&min_arm=${this.filters.minArm}`;
+        if (this.filters.maxArm !== '') url += `&max_arm=${this.filters.maxArm}`;
+        if (this.filters.minMirror !== '') url += `&min_mirror=${this.filters.minMirror}`;
+        if (this.filters.perfectOnly) url += `&perfect_only=1`;
+        if (this.filters.seqType) url += `&seq_type=${this.filters.seqType}`;
+        const r = await fetch(url);
+        if (!r.ok) throw new Error(r.statusText);
+        const d = await r.json();
+        this.hits = d.hits;
+        this.totalHits = d.total;
+        this.totalPages = d.pages;
+      } catch (e) {
+        console.error('Failed to load hits:', e);
+      } finally {
+        this.loading = false;
+      }
+    },
+  };
+}
+</script>
+{% endif %}
+
+{% endblock %}
