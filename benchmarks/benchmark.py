@@ -82,6 +82,11 @@ import hseeker
 
 DATA_DIR          = Path(__file__).parent / "data"
 ZENODO_RECORD_FILE = Path(__file__).parent / "zenodo_record.json"
+
+# hg38 chromosome 16 from UCSC Genome Browser (~90 MB uncompressed, ~30 MB gzip)
+CHR16_FASTA_URL  = "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr16.fa.gz"
+CHR16_LOCAL_NAME = "hg38_chr16.fa"
+
 LINE_WIDTH = 60          # bases per FASTA line
 GEN_CHUNK  = 10_000_000  # bases generated per numpy call (≈10 MB in RAM)
 
@@ -279,6 +284,45 @@ def _download_from_zenodo(name: str, record: dict) -> Path | None:
     gz_path.unlink()   # remove .gz; keep only .fa
     size_fa = fa_path.stat().st_size / 1e6
     print(f"{size_fa:.1f} MB ({time.perf_counter() - t1:.1f}s)")
+    return fa_path
+
+
+def _download_chr16(force: bool = False) -> "Path | None":
+    """Download hg38 chr16 FASTA from UCSC and decompress to DATA_DIR/hg38_chr16.fa.
+
+    Returns the local .fa path on success, None on failure.  The .gz file is
+    removed after decompression; only the .fa is kept as the local cache.
+    """
+    fa_path = DATA_DIR / CHR16_LOCAL_NAME
+    if fa_path.exists() and not force:
+        print(f"  cached: {fa_path.name}  ({fa_path.stat().st_size / 1e6:.1f} MB)")
+        return fa_path
+
+    gz_path = DATA_DIR / (CHR16_LOCAL_NAME + ".gz")
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    print("  downloading hg38 chr16 from UCSC (~30 MB) … ", end="", flush=True)
+    t0 = time.perf_counter()
+    try:
+        req = urllib.request.Request(
+            CHR16_FASTA_URL,
+            headers={"User-Agent": "hseeker-benchmark/1.0"},
+        )
+        with urllib.request.urlopen(req, timeout=300) as resp, \
+                open(gz_path, "wb") as out:
+            shutil.copyfileobj(resp, out)
+    except Exception as exc:
+        print(f"FAILED ({exc})")
+        gz_path.unlink(missing_ok=True)
+        return None
+    print(f"{time.perf_counter() - t0:.1f}s")
+
+    print("  decompressing … ", end="", flush=True)
+    t1 = time.perf_counter()
+    with gzip.open(gz_path, "rb") as f_in, open(fa_path, "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    gz_path.unlink()
+    print(f"{fa_path.stat().st_size / 1e6:.1f} MB ({time.perf_counter() - t1:.1f}s)")
     return fa_path
 
 
@@ -1042,6 +1086,14 @@ def _parse_args() -> argparse.Namespace:
         help="Also benchmark against this existing FASTA file",
     )
     p.add_argument(
+        "--chr16", action="store_true",
+        help=(
+            "Download hg38 chromosome 16 from UCSC (~90 MB) and run the full "
+            "benchmark suite on it as a real-genome validation dataset. "
+            "The file is cached in benchmarks/data/hg38_chr16.fa."
+        ),
+    )
+    p.add_argument(
         "--workers", type=int, default=None,
         help="Thread count for parallel scan (default: os.cpu_count())",
     )
@@ -1202,6 +1254,27 @@ def main() -> None:
             "workers":   workers,
             "results":   results,
         })
+
+    # ── optional: hg38 chr16 ─────────────────────────────────────────────
+    if args.chr16:
+        print("\n── Downloading hg38 chr16 ──────────────────────────────────────")
+        chr16_path = _download_chr16(force=args.no_cache)
+        if chr16_path:
+            chr16_mb = chr16_path.stat().st_size / 1e6
+            print(f"\n[hg38_chr16]  {chr16_mb:.1f} MB")
+            for label, fn in [
+                ("scan_fasta",
+                 lambda: bench_scan_fasta(chr16_path, args.minrep)),
+                ("scan_fasta_iter",
+                 lambda: bench_scan_fasta_iter(chr16_path, args.minrep)),
+                ("parallel_1w",
+                 lambda: bench_scan_fasta_parallel(chr16_path, 1, args.minrep)),
+                (f"parallel_{workers}w",
+                 lambda: bench_scan_fasta_parallel(chr16_path, workers, args.minrep)),
+            ]:
+                print(f"    {label} … ", end="", flush=True)
+                r = fn()
+                print(f"{r['wall_s']:.2f}s  ({r.get('hits', '?'):,} hits)")
 
     # ── optional: real FASTA ──────────────────────────────────────────────
     if args.real:
