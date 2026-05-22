@@ -29,6 +29,19 @@ hseeker/
 ├── benchmarks/
 │   ├── benchmark.py         ← performance benchmark suite
 │   └── data/                ← generated FASTA files (gitignored)
+├── webapp/
+│   ├── main.py              ← FastAPI application
+│   ├── requirements.txt     ← webapp-only dependencies
+│   ├── templates/
+│   │   ├── base.html        ← shared nav/footer layout
+│   │   ├── index.html       ← upload / paste page
+│   │   ├── job.html         ← job results dashboard
+│   │   └── about.html       ← informational page
+│   └── static/
+│       ├── css/style.css    ← dark theme styles
+│       └── hseeker_validation_motifs.fasta  ← 39-sequence example
+├── Dockerfile               ← multi-stage build (builder → runtime)
+├── railway.toml             ← Railway deployment config
 ├── .github/
 │   ├── copilot-instructions.md   ← this file
 │   └── workflows/
@@ -266,3 +279,256 @@ pytest -v tests/
 | Forgetting to recompile after editing `_hdna.c` | Run `pip install -e .` before running tests. |
 | Using `build-backend = "setuptools.build_meta:__legacy__"` | Always use `"setuptools.build_meta"` (no `:__legacy__` suffix). |
 | Passing `seq_offset` as a positional argument | All `scan_sequence` parameters after `seq` are keyword-only (`*,`). |
+
+---
+
+## Installation
+
+### Developer / local install (recommended)
+
+The project uses a `biomni_e1` conda environment. All dev commands should be run inside it.
+
+```bash
+conda activate biomni_e1
+
+# Install hseeker + dev extras (compiles _hdna.c automatically)
+pip install -e ".[dev]"
+
+# Verify
+python -c "import hseeker; print(hseeker.__version__)"
+pytest -v tests/
+```
+
+The `[dev]` extra installs `pytest`, `cibuildwheel`, `build`, and `twine`.
+
+### Webapp install (separate requirement set)
+
+The webapp has its own `requirements.txt` because `fastapi`, `uvicorn`, `plotly`, `pandas`, and `numpy` are **not** listed as `hseeker` package dependencies. Install them separately inside the same conda environment:
+
+```bash
+pip install -r webapp/requirements.txt
+```
+
+### Running the webapp locally
+
+```bash
+conda run -n biomni_e1 uvicorn webapp.main:app --reload --port 8000
+# or after activating:
+uvicorn webapp.main:app --reload --port 8000
+```
+
+The `--reload` flag auto-reloads on Python source changes. Template and static file changes are picked up immediately without reload.
+
+---
+
+## Webapp (`webapp/`)
+
+### Architecture
+
+- **FastAPI** application in `webapp/main.py`.
+- **Jinja2** templates in `webapp/templates/`.
+- **Alpine.js 3.14.1** (CDN) for all client-side reactivity.
+- **Plotly.js 2.35.2** (CDN) for chart rendering. Charts are generated server-side via `plotly.graph_objects` → `fig.to_json()`, embedded as `<script type="application/json">` in `job.html`, and rendered client-side lazily.
+- **No database** — jobs are stored in a Python dict (`_jobs`) in process memory, protected by `threading.Lock`. Jobs expire after `JOB_TTL_SECONDS` (default 2 h). This means **all jobs are lost on restart**.
+
+### Routes
+
+| Method | Path | Purpose |
+|---|---|---|
+| `GET` | `/` | Upload / paste page (`index.html`) |
+| `GET` | `/about` | Informational page (`about.html`) |
+| `POST` | `/submit` | Accept upload or pasted FASTA; create job; redirect to `/job/{id}` |
+| `GET` | `/job/{job_id}` | Job status + results page (`job.html`) |
+| `GET` | `/api/job/{job_id}/status` | JSON status polling (used by `job.html` Alpine component) |
+| `GET` | `/api/job/{job_id}/hits` | Paginated + filtered hit data (JSON) |
+| `GET` | `/job/{job_id}/download` | Download results as TSV |
+| `GET` | `/health` | Health check — returns `{"status":"ok","version":"..."}` |
+
+### Job processing
+
+1. `POST /submit` writes the upload to a temp file, creates a job dict, and spawns a `threading.Thread` running `_run_job()`.
+2. `_run_job()` calls `hseeker.parse_fasta()` record by record, calls `hseeker.scan_sequence()` for each, accumulates hits, then calls `compute_stats()`, `generate_charts()`, and `_write_tsv()`.
+3. Charts are generated **once** at job completion and stored in `job["charts"]` as Plotly figure dicts. They are serialised with `json.dumps` and injected into `job.html` at render time.
+4. The temp FASTA file is deleted in the `finally` block of `_run_job()` regardless of success or failure.
+
+### `/api/job/{job_id}/hits` filter parameters
+
+| Param | Type | Default | Effect |
+|---|---|---|---|
+| `page` | int | 1 | Page number |
+| `per_page` | int | 50 | Rows per page |
+| `q` | str | `""` | Substring match against `seq_id` |
+| `min_arm` | int | 0 | `arm_length >= min_arm` |
+| `max_arm` | int | 9999 | `arm_length <= max_arm` |
+| `min_mirror` | float | 0.0 | `mirror_identity >= min_mirror` |
+| `perfect_only` | bool | false | Keep only `is_perfect == true` |
+| `seq_type` | str | `""` | `"ga"` → `ga_pct >= 80`; `"ct"` → `ct_pct >= 80` |
+
+### Charts
+
+Eight charts are generated in `generate_charts()`, keyed by name:
+
+| Key | Type | Notes |
+|---|---|---|
+| `hits_per_seq` | Horizontal bar | Top 25 sequences by hit count; height scales with row count |
+| `perfect_donut` | Pie/donut | Perfect vs Imperfect; `plot_bgcolor="#000000"` required for label contrast |
+| `arm_length_dist` | Bar | Arm length value counts |
+| `spacer_dist` | Bar | Spacer length value counts |
+| `mirror_dist` | Bar | 50-bin histogram; dashed vline at mismatch threshold |
+| `composition_scatter` | Scatter | GA% vs CT% (right arm); up to 4,000 points sampled |
+| `arm_spacer_heatmap` | Heatmap | 2-D density of arm × spacer lengths |
+| `locus_map` | Scatter | Top 15 sequences; backbone line + marker per site; up to 600 sites sampled per sequence |
+
+**Critical**: `_base_layout()` returns a dict that already contains `xaxis`, `yaxis`, and `margin` keys. Do **not** pass those keys again as kwargs to `fig.update_layout(**_base_layout(), xaxis=..., yaxis=...)` — it causes a `TypeError`. Use `fig.update_xaxes()` / `fig.update_yaxes()` separately.
+
+### Templates
+
+| File | Role |
+|---|---|
+| `base.html` | Nav (logo, About link, GitHub, PyPI, version badge), footer, CDN scripts (Alpine.js, Plotly.js, Inter font), global CSS link |
+| `index.html` | Input form: file upload tab + paste textarea tab. "Load 39-sequence validation example" button in `.input-mode-bar` — always visible in both modes. Clicking loads the example into textarea and switches to Paste mode via `loadExample()`. Parameter accordion. |
+| `job.html` | Status poller (Alpine `dataTable(jobId)` component). Stats bar. Four tabs: Data Table, Locus Map, Structure, Composition. Collapsible filter panel (`filtersOpen: false` default). Nucleotide coloring via `colorSeq(s)` (`nt-A`/`nt-C`/`nt-G`/`nt-T` CSS classes). TSV download button. |
+| `about.html` | Static page: What is H-DNA → How HSeeker Works → Parameter Modes → Validation → Limitations → Links |
+
+### Alpine.js constraints
+
+- **Never** use `<template x-if>` inside an Alpine-managed scope (especially `<tbody>`). Use `<tr x-show>` instead — `<template x-if>` causes `_x_dataStack` null errors.
+- `hseeker_version` is injected into all templates as a global Jinja2 variable via `templates.env.globals["hseeker_version"]`.
+
+### CSS design tokens (`webapp/static/css/style.css`)
+
+| Variable | Value | Usage |
+|---|---|---|
+| `--accent` | `#39d5ab` | Primary teal — buttons, highlights |
+| `--bg` | `#0d1117` | Page background |
+| `--surface` | `#161b22` | Card background |
+| `--surface2` | `#1c2128` | Nested surfaces |
+| `--border` | `#30363d` | Default borders |
+| `--border2` | `#21262d` | Subtle borders |
+| `--text` | `#c9d1d9` | Body text |
+| `--text2` | `#e6edf3` | Headings |
+| `--text-sub` | `#7d8590` | Secondary / muted text |
+
+Nucleotide color classes: `.nt-A {#4caf50}` `.nt-C {#ff9800}` `.nt-G {#ef5350}` `.nt-T {#64b5f6}`.
+
+### Environment variables
+
+| Variable | Default | Effect |
+|---|---|---|
+| `MAX_UPLOAD_MB` | `200` | Max upload file size in MB |
+| `JOB_TTL_SECONDS` | `7200` | How long job results are kept in memory (2 h) |
+| `PORT` | `8000` | Uvicorn listen port (set by Railway automatically) |
+
+---
+
+## Deployment
+
+### Docker (local)
+
+```bash
+# Build
+docker build -t hseeker-webapp .
+
+# Run (maps port 8000)
+docker run -p 8000:8000 hseeker-webapp
+
+# Custom limits
+docker run -p 8000:8000 -e MAX_UPLOAD_MB=500 -e JOB_TTL_SECONDS=3600 hseeker-webapp
+```
+
+The `Dockerfile` is a two-stage build:
+1. **builder** (`python:3.11-slim`): installs `gcc` + `python3-dev`, compiles the C extension via `pip install ".[app]"`, installs webapp requirements.
+2. **runtime** (`python:3.11-slim`): copies installed packages from builder, copies `webapp/` only, runs as non-root `appuser`.
+
+The entrypoint is:
+```
+CMD uvicorn webapp.main:app --host 0.0.0.0 --port "${PORT:-8000}"
+```
+
+### Railway
+
+The `railway.toml` declares:
+```toml
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+```
+
+To deploy:
+1. Push to `main` — Railway auto-deploys on any push.
+2. Railway injects `PORT` automatically; no manual port configuration needed.
+3. Health checks hit `/health` which returns `{"status":"ok","version":"..."}`.
+
+**Important**: Railway does not mount persistent volumes by default. All in-memory jobs and generated TSV files are lost on redeploy/restart. This is by design — jobs are ephemeral.
+
+---
+
+## Package updating and releasing to PyPI
+
+### Updating the version
+
+The version is declared once in `pyproject.toml`:
+```toml
+[project]
+version = "0.1.0"
+```
+
+Update it there, then also update `src/hseeker/__init__.py` if it defines `__version__` manually (check that file). Keep them in sync.
+
+### Local build verification
+
+```bash
+conda activate biomni_e1
+
+# Recompile and run tests
+pip install -e ".[dev]"
+pytest -v tests/
+
+# Build source distribution and wheel
+python -m build
+
+# Check the distribution
+twine check dist/*
+```
+
+### Releasing to PyPI (automated via CI)
+
+The GitHub Actions workflow (`.github/workflows/build_wheels.yml`) handles all PyPI publishing automatically via OIDC Trusted Publishing — no tokens or secrets needed.
+
+**To trigger a release:**
+```bash
+git tag -a v0.2.0 -m "Release v0.2.0"
+git push origin v0.2.0
+```
+
+The workflow will:
+1. Build wheels for Linux (x86_64 + aarch64), macOS, Windows across Python 3.9–3.13 using `cibuildwheel`.
+2. Build an sdist.
+3. Publish everything to PyPI.
+
+**Do not** push to PyPI manually with `twine upload` — use the tag workflow.
+
+### Updating webapp dependencies
+
+The webapp dependencies in `webapp/requirements.txt` are **not** part of the `hseeker` package distribution. To update them:
+
+```bash
+# Edit webapp/requirements.txt with new versions
+# Then reinstall
+pip install -r webapp/requirements.txt
+
+# Test the webapp still works
+uvicorn webapp.main:app --reload --port 8000
+```
+
+The Docker image will pick up the new versions automatically on the next `docker build`.
+
+### Updating the `[app]` extra in `pyproject.toml`
+
+The `[project.optional-dependencies]` section has an `app` extra (currently `streamlit` and `plotly`) that is used by the Dockerfile's first stage (`pip install ".[app]"`). This is separate from `webapp/requirements.txt`. If you add a new Python import to `webapp/main.py`, add the package to **both** `webapp/requirements.txt` (for local dev) and the `[app]` extra in `pyproject.toml` (for Docker builds).
