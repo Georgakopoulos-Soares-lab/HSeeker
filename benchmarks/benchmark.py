@@ -46,16 +46,21 @@ from __future__ import annotations
 import argparse
 import contextlib
 import gc
+import gzip
+import hashlib
 import json
 import datetime
 import os
 import platform
 import random
+import shutil
 import subprocess
 import sys
 import tempfile
 import time
 import tracemalloc
+import urllib.error
+import urllib.request
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Any, Generator
@@ -75,7 +80,8 @@ import hseeker
 # Constants
 # ---------------------------------------------------------------------------
 
-DATA_DIR   = Path(__file__).parent / "data"
+DATA_DIR          = Path(__file__).parent / "data"
+ZENODO_RECORD_FILE = Path(__file__).parent / "zenodo_record.json"
 LINE_WIDTH = 60          # bases per FASTA line
 GEN_CHUNK  = 10_000_000  # bases generated per numpy call (≈10 MB in RAM)
 
@@ -192,6 +198,94 @@ def _save_seed_manifest(manifest: dict[str, int]) -> None:
     _SEED_MANIFEST_PATH.write_text(json.dumps(manifest, indent=2, sort_keys=True))
 
 
+# ---------------------------------------------------------------------------
+# Zenodo download helpers
+# ---------------------------------------------------------------------------
+
+
+def _read_zenodo_record() -> dict | None:
+    """Load benchmarks/zenodo_record.json; return None if not populated."""
+    if not ZENODO_RECORD_FILE.exists():
+        return None
+    try:
+        data = json.loads(ZENODO_RECORD_FILE.read_text())
+    except Exception:
+        return None
+    if not data.get("record_id"):
+        return None
+    return data
+
+
+def _verify_md5(path: Path, expected: str) -> bool:
+    h = hashlib.md5()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest() == expected
+
+
+def _download_from_zenodo(name: str, record: dict) -> Path | None:
+    """
+    Download <name>.fa.gz from a published Zenodo record and decompress to
+    DATA_DIR/<name>.fa.  Returns the local .fa path on success, None if the
+    file is not listed in the record manifest.
+    """
+    remote_name = f"{name}.fa.gz"
+    entry = next((f for f in record.get("files", []) if f["name"] == remote_name), None)
+    if entry is None:
+        return None
+
+    base_url  = record.get("base_url", "https://zenodo.org").rstrip("/")
+    record_id = record["record_id"]
+    dl_url    = f"{base_url}/records/{record_id}/files/{remote_name}?download=1"
+
+    gz_path  = DATA_DIR / remote_name
+    fa_path  = DATA_DIR / f"{name}.fa"
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    size_mb = entry.get("size_bytes", 0) / 1e6
+    print(
+        f"  downloading {remote_name} ({size_mb:.1f} MB) from Zenodo … ",
+        end="", flush=True,
+    )
+    t0 = time.perf_counter()
+    try:
+        req = urllib.request.Request(
+            dl_url,
+            headers={"User-Agent": f"hseeker-benchmark/1.0"},
+        )
+        with urllib.request.urlopen(req) as resp, open(gz_path, "wb") as out:
+            shutil.copyfileobj(resp, out)
+    except Exception as exc:
+        print(f"FAILED ({exc})")
+        gz_path.unlink(missing_ok=True)
+        return None
+
+    elapsed = time.perf_counter() - t0
+    print(f"{elapsed:.1f}s")
+
+    # Verify MD5 if available
+    expected_md5 = entry.get("md5")
+    if expected_md5 and not _verify_md5(gz_path, expected_md5):
+        print(f"  ERROR: MD5 mismatch for {remote_name} — file may be corrupt.")
+        gz_path.unlink(missing_ok=True)
+        return None
+
+    # Decompress
+    print(f"  decompressing {remote_name} … ", end="", flush=True)
+    t1 = time.perf_counter()
+    with gzip.open(gz_path, "rb") as f_in, open(fa_path, "wb") as f_out:
+        shutil.copyfileobj(f_in, f_out)
+    gz_path.unlink()   # remove .gz; keep only .fa
+    size_fa = fa_path.stat().st_size / 1e6
+    print(f"{size_fa:.1f} MB ({time.perf_counter() - t1:.1f}s)")
+    return fa_path
+
+
+# ---------------------------------------------------------------------------
+# Dataset caching with optional Zenodo fallback
+# ---------------------------------------------------------------------------
+
 def _ensure_dataset(
     name: str,
     n_records: int,
@@ -199,8 +293,16 @@ def _ensure_dataset(
     profile: str,
     seed: int,
     force: bool = False,
+    from_zenodo: bool = False,
 ) -> Path:
-    """Return path to cached FASTA file, generating it if absent or seed changed."""
+    """Return path to cached FASTA file.
+
+    Resolution order:
+    1. Local cache (benchmarks/data/<name>.fa) — reused if seed matches.
+    2. If --from-zenodo: download from the Zenodo record listed in
+       benchmarks/zenodo_record.json.
+    3. Generate locally (always available as last resort).
+    """
     path = DATA_DIR / f"{name}.fa"
     manifest = _load_seed_manifest()
     seed_changed = manifest.get(name) != seed
@@ -215,6 +317,23 @@ def _ensure_dataset(
             flush=True,
         )
 
+    # ── Try Zenodo download ────────────────────────────────────────────────
+    if from_zenodo and not force:
+        record = _read_zenodo_record()
+        if record is None:
+            print(
+                f"  WARNING: benchmarks/zenodo_record.json has no record_id; "
+                f"falling back to local generation for {name}."
+            )
+        else:
+            dl = _download_from_zenodo(name, record)
+            if dl is not None:
+                manifest[name] = seed
+                _save_seed_manifest(manifest)
+                return dl
+            print(f"  Zenodo download failed for {name}; falling back to local generation.")
+
+    # ── Generate locally ───────────────────────────────────────────────────
     total_mb = n_records * record_length / 1e6
     print(
         f"  generating {name}.fa  "
@@ -959,6 +1078,14 @@ def _parse_args() -> argparse.Namespace:
         "--report", metavar="FILE",
         help="Write a detailed Markdown performance report to FILE",
     )
+    p.add_argument(
+        "--from-zenodo", action="store_true", dest="from_zenodo",
+        help=(
+            "Download benchmark FASTA files from Zenodo instead of generating "
+            "them locally. Requires benchmarks/zenodo_record.json to contain a "
+            "valid record_id (populated by benchmarks/zenodo_upload.py)."
+        ),
+    )
     return p.parse_args()
 
 
@@ -968,10 +1095,11 @@ def _run_dataset(
     minrep: int,
     force: bool,
     cli: bool,
+    from_zenodo: bool = False,
 ) -> tuple[Path, dict[str, dict[str, Any]]]:
     path    = _ensure_dataset(
         spec.name, spec.n_records, spec.record_length,
-        spec.profile, spec.seed, force=force,
+        spec.profile, spec.seed, force=force, from_zenodo=from_zenodo,
     )
     results: dict[str, dict[str, Any]] = {}
 
@@ -1062,7 +1190,8 @@ def main() -> None:
         print(f"\n[{spec.name}]  profile={spec.profile}  "
               f"{spec.total_mb:.0f} MB total")
         path, results = _run_dataset(
-            spec, workers, args.minrep, args.no_cache, not args.no_cli
+            spec, workers, args.minrep, args.no_cache, not args.no_cli,
+            from_zenodo=args.from_zenodo,
         )
         completed.append((spec, path, results))
         all_output.append({

@@ -1,0 +1,10 @@
+{
+  "_comment": "Populated by benchmarks/zenodo_upload.py after the first upload. Commit this file so CI and contributors can run benchmark.py --from-zenodo.",
+  "record_id": null,
+  "doi": null,
+  "record_url": null,
+  "base_url": "https://zenodo.org",
+  "sandbox": false,
+  "uploaded_at": null,
+  "files": []
+}
