@@ -83,6 +83,8 @@ from benchmark import (  # noqa: E402
     MEDIUM_DATASETS,
     DatasetSpec,
     _ensure_dataset,
+    _download_chr16,
+    CHR16_LOCAL_NAME,
 )
 
 RECORD_FILE = _BENCH_DIR / "zenodo_record.json"
@@ -226,6 +228,13 @@ def _parse_args() -> argparse.Namespace:
         "--no-publish", action="store_true",
         help="Upload files but leave the deposit as a draft (do not publish)",
     )
+    p.add_argument(
+        "--chr16", action="store_true",
+        help=(
+            "Download hg38 chr16 from NCBI (~90 MB) and include it in the "
+            "Zenodo upload as a real-genome benchmark dataset."
+        ),
+    )
     return p.parse_args()
 
 
@@ -262,7 +271,15 @@ def main() -> None:
                 spec.profile, spec.seed, force=False,
             )
         print("Generation complete.\n")
-
+    # ── 2b. Download hg38 chr16 if requested ─────────────────────────────
+    include_chr16 = False
+    if args.chr16:
+        print("Downloading hg38 chr16 from NCBI…")
+        chr16_path = _download_chr16()
+        if chr16_path is None:
+            sys.exit("ERROR: chr16 download failed. Aborting upload.")
+        include_chr16 = True
+        print()
     # ── 3. Compress files into a staging directory ─────────────────────────
     gz_dir = DATA_DIR / "_gz"
     gz_dir.mkdir(parents=True, exist_ok=True)
@@ -295,14 +312,44 @@ def main() -> None:
         shutil.copy2(manifest_src, manifest_dst)
         gz_files.append((manifest_dst, "SEED_MANIFEST.json"))
 
+    # Include chr16 if downloaded
+    if include_chr16:
+        chr16_src = DATA_DIR / CHR16_LOCAL_NAME
+        chr16_gz  = gz_dir / (CHR16_LOCAL_NAME + ".gz")
+        if chr16_gz.exists():
+            print(f"  {chr16_gz.name}  already compressed ({chr16_gz.stat().st_size / 1e6:.1f} MB)")
+        else:
+            print(f"  compressing {CHR16_LOCAL_NAME} … ", end="", flush=True)
+            _gzip_file(chr16_src, chr16_gz)
+            ratio = chr16_src.stat().st_size / chr16_gz.stat().st_size
+            print(f"{chr16_gz.stat().st_size / 1e6:.1f} MB  ({ratio:.1f}× compression)")
+        gz_files.append((chr16_gz, chr16_gz.name))
+
     print(f"\n{len(gz_files)} file(s) ready to upload.\n")
 
     # ── 4. Create or retrieve Zenodo deposit ──────────────────────────────
-    if args.record_id and args.new_version:
-        print(f"Creating new version of record {args.record_id}…")
+    # Resolve which record to target.
+    # Priority: --record-id CLI arg > zenodo_record.json > create brand-new deposit.
+    record_id_to_use = args.record_id
+    if not record_id_to_use and RECORD_FILE.exists():
+        try:
+            existing = json.loads(RECORD_FILE.read_text())
+            if existing.get("record_id"):
+                record_id_to_use = str(existing["record_id"])
+                print(
+                    f"Found existing record {record_id_to_use} in zenodo_record.json — "
+                    f"will create a new version.\n"
+                    f"  (Pass --record-id to override, or delete zenodo_record.json "
+                    f"to force a brand-new deposit.)"
+                )
+        except Exception:
+            pass
+
+    if record_id_to_use and args.new_version:
+        print(f"Creating new version of record {record_id_to_use}…")
         dep = _api_request(
             "POST",
-            f"{api_base}/deposit/depositions/{args.record_id}/actions/newversion",
+            f"{api_base}/deposit/depositions/{record_id_to_use}/actions/newversion",
             token,
         )
         # The new-version response links to the latest draft
@@ -312,17 +359,23 @@ def main() -> None:
         bucket_url    = dep["links"]["bucket"]
         print(f"  new-version draft ID: {deposition_id}")
 
-    elif args.record_id:
-        print(f"Using existing draft deposit {args.record_id}…")
+    elif record_id_to_use:
+        # Auto-detect: if the deposit is already published, create a new version.
         dep = _api_request(
-            "GET", f"{api_base}/deposit/depositions/{args.record_id}", token
+            "GET", f"{api_base}/deposit/depositions/{record_id_to_use}", token
         )
         if dep.get("submitted"):
-            sys.exit(
-                f"ERROR: deposit {args.record_id} is already published.\n"
-                "Pass --new-version to create a new version, or create a "
-                "fresh deposit by omitting --record-id."
+            print(f"Record {record_id_to_use} is published — creating new version…")
+            dep = _api_request(
+                "POST",
+                f"{api_base}/deposit/depositions/{record_id_to_use}/actions/newversion",
+                token,
             )
+            new_url = dep["links"]["latest_draft"]
+            dep = _api_request("GET", new_url, token)
+            print(f"  new-version draft ID: {dep['id']}")
+        else:
+            print(f"Using existing draft deposit {record_id_to_use}…")
         deposition_id = dep["id"]
         bucket_url    = dep["links"]["bucket"]
 

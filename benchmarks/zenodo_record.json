@@ -1,10 +1,60 @@
 {
-  "_comment": "Populated by benchmarks/zenodo_upload.py after the first upload. Commit this file so CI and contributors can run benchmark.py --from-zenodo.",
-  "record_id": null,
-  "doi": null,
-  "record_url": null,
+  "_comment": "Populated by benchmarks/zenodo_upload.py. Commit this file so contributors can run: python benchmarks/benchmark.py --from-zenodo",
+  "record_id": "20347348",
+  "doi": "10.5281/zenodo.20347348",
+  "record_url": "https://zenodo.org/record/20347348",
   "base_url": "https://zenodo.org",
   "sandbox": false,
-  "uploaded_at": null,
-  "files": []
+  "uploaded_at": "2026-05-22T17:21:26Z",
+  "files": [
+    {
+      "name": "small_uniform_5rec.fa.gz",
+      "dataset": "small_uniform_5rec",
+      "size_bytes": 9442687,
+      "md5": "592f0905bda0a786b1cc28df5bbc91cf",
+      "checksum": "md5:592f0905bda0a786b1cc28df5bbc91cf"
+    },
+    {
+      "name": "small_ga_biased_5rec.fa.gz",
+      "dataset": "small_ga_biased_5rec",
+      "size_bytes": 7876981,
+      "md5": "6b93495d4c55654ca18b2ec1a4cfdd9e",
+      "checksum": "md5:6b93495d4c55654ca18b2ec1a4cfdd9e"
+    },
+    {
+      "name": "small_ct_biased_5rec.fa.gz",
+      "dataset": "small_ct_biased_5rec",
+      "size_bytes": 7876318,
+      "md5": "44fd5c4bfd573e04ba93a570ff12f779",
+      "checksum": "md5:44fd5c4bfd573e04ba93a570ff12f779"
+    },
+    {
+      "name": "small_realistic_24rec.fa.gz",
+      "dataset": "small_realistic_24rec",
+      "size_bytes": 9363887,
+      "md5": "9f6350f92b64476630df6490805f958a",
+      "checksum": "md5:9f6350f92b64476630df6490805f958a"
+    },
+    {
+      "name": "small_realistic_1rec.fa.gz",
+      "dataset": "small_realistic_1rec",
+      "size_bytes": 9456288,
+      "md5": "3f1633dcc5665613b4e0910d1c24a20c",
+      "checksum": "md5:3f1633dcc5665613b4e0910d1c24a20c"
+    },
+    {
+      "name": "SEED_MANIFEST.json",
+      "dataset": "SEED_MANIFEST.json",
+      "size_bytes": 161,
+      "md5": "94c7da519ffdae28cc2fbd0978cc1749",
+      "checksum": "md5:94c7da519ffdae28cc2fbd0978cc1749"
+    },
+    {
+      "name": "hg38_chr16.fa.gz",
+      "dataset": "hg38_chr16",
+      "size_bytes": 23873810,
+      "md5": "ebdbd4ca4e2590239ace18cb50196f5a",
+      "checksum": "md5:ebdbd4ca4e2590239ace18cb50196f5a"
+    }
+  ]
 }

@@ -83,8 +83,12 @@ import hseeker
 DATA_DIR          = Path(__file__).parent / "data"
 ZENODO_RECORD_FILE = Path(__file__).parent / "zenodo_record.json"
 
-# hg38 chromosome 16 from UCSC Genome Browser (~90 MB uncompressed, ~30 MB gzip)
-CHR16_FASTA_URL  = "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/chromosomes/chr16.fa.gz"
+# hg38 chromosome 16 from NCBI FTP (GRCh38 / GCA_000001405.15, ~90 MB uncompressed)
+CHR16_FASTA_URL = (
+    "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/001/405/"
+    "GCA_000001405.15_GRCh38/GCA_000001405.15_GRCh38_assembly_structure/"
+    "Primary_Assembly/assembled_chromosomes/FASTA/chr16.fna.gz"
+)
 CHR16_LOCAL_NAME = "hg38_chr16.fa"
 
 LINE_WIDTH = 60          # bases per FASTA line
@@ -301,7 +305,7 @@ def _download_chr16(force: bool = False) -> "Path | None":
     gz_path = DATA_DIR / (CHR16_LOCAL_NAME + ".gz")
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    print("  downloading hg38 chr16 from UCSC (~30 MB) … ", end="", flush=True)
+    print("  downloading hg38 chr16 from NCBI (~30 MB) … ", end="", flush=True)
     t0 = time.perf_counter()
     try:
         req = urllib.request.Request(
