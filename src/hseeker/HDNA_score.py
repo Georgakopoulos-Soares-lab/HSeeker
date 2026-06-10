@@ -45,7 +45,7 @@ class Farmer:
                 'd': 2,
                 'dv': 2,
                 'MS': 50,
-                'm': 3,
+                'm': 2,
                 'min_al': 8
                 }
     def __init__(self, d = None, dv = None, min_al = None, MS = None, m = None):
@@ -201,7 +201,7 @@ class Farmer:
         for i in range(al-avalance):
             prefix_sum += score_list[i]
         max_prefix = prefix_sum
-        excl = al
+        excl = al - avalance
         for i in range(al-avalance, al, 1):
             prefix_sum += score_list[i]
             if prefix_sum > max_prefix:
@@ -361,8 +361,33 @@ if __name__ == "__main__":
 
            ("CCCGCGGGGGGGGGGGGGCCCGGGGGGGGGGGGGGGGCCCGGGGGGGGGGGGGCGCCC", None),
 
-            ("CCCGCGAGAGAGAGAGAGCCCGGGGGGGGGGGGGGGGCCCGAGAGAGAGAGAGCGCCC", None)]
-
+            ("CCCGCGAGAGAGAGAGAGCCCGGGGGGGGGGGGGGGGCCCGAGAGAGAGAGAGCGCCC", None),
+            
+            ("CCCCCCCCCCCGGGTATGGGCCCCCCCCCCC", None)]
+    seq = [
+            ("CCCGCGAGAGAGAGAGAGCCCGGGGGGGGGGGGGGGGCCCGAGAGAGAGAGAGCGCCC", None),
+            ("AAGGGAGAAGCGGTATAGGGCGAAGAGGGAA", None),
+            ("AAGGGAGAAGCCGGTATAGGGCCGAAGAGGGAA", None),
+            ("AAGGGAGAAGCCGGTATAGGGCCGAAGAGGGAA", None),
+            ("AAGGGAGAAGGGGTATAGGGGAAGAGGGAA", None),
+            ("AAGGGAGAAAGGGTATAGGGGAAGAGGGAA", 13),
+            ("GGGAGGGGCGCTTATGGGGAGGG", None),
+            ("GGGGGAGGCGCTTATGGAGGGGG", None),
+            ("GGGAGGGGCGCTTATGGAGGGGG", 8),
+            ("GGAGGGGCGCTTATGGAGGGGG", 7),
+            ("GGAGGGGCGCTTATGGAGGGTG", 7),
+            ("AAGGGAGAAGGGGCCTCGCCGGGGAAGAGGGAA", 15),
+            ("AAGGGAGAAGGGGCTCGCGGGGAAGAGGGAA", 14),
+            ("AAAAAAAGGGAGACAGGCGGCCCGGTCGGGCCCGGCGGACAGAGGGAAAAAAA", 24),
+            ("AAAAAAAGGGAGACAGGCGGCCCGGTCGGGCCCGGCGGATAGAGGGAAAAAAA", 24),
+            ("AACAAAAGGGAGACAGGCGGCCCGGTCGGGCCCGGCGGATAGAGGCAAAAAAA", 24),
+            ("CCCCCCCCCCCGGGTATGGGCCCCCCCCCCC", None),
+            ("GCGGGTTGGGCG", None),
+            ("CGCCGGGCCCGGGGGAAGGGGGCCCGGGCCGC", None),
+            ("CCCGCGGGGGGGGGGGGGCCCGGGGGGGGGGGGGGGGCCCGGGGGGGGGGGGGCGCCC", None),
+            ("CCCGCGAGAGAGAGAGAGCCCGGGGGGGGGGGGGGGGCCCGAGAGAGAGAGAGCGCCC", None),
+        ]
+    
     for s1, al in seq:
         print()
         data = Farmer().stability(s1, al)
