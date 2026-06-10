@@ -125,11 +125,11 @@ class Farmer:
         rev = lambda seq: str(Seq(seq).reverse_complement())
         s = s.upper()
         if al:
-            s1, s2, s3 = s[:al], s[-al:], s[al:-al]
+            s1, _, _ = s[:al], s[-al:], s[al:-al]
         else:
-            s1, s2, s3 = self.decouple(s)
+            s1, _, _ = self.decouple(s)
             al = len(s1)
-        if s.count("C") + s.count("T") > s.count("G") + s.count("A"):
+        if s1.count("C") + s1.count("T") > s1.count("G") + s1.count("A"):
             s = rev(s)
         if al:
             s1, s2, s3 = s[:al], s[-al:], s[al:-al]
@@ -353,7 +353,6 @@ if __name__ == "__main__":
 
         ]
     seq = [
-        
            ("CCCCCCCCCCCGGGTATGGGCCCCCCCCCCC", None),
            
            ("GCGGGTTGGGCG", None),
