@@ -978,6 +978,16 @@ code {
 .badge--teal { background: rgba(57,213,171,.12); color: var(--accent); }
 .badge--dim  { background: var(--surface2); color: var(--text-sub); }
 
+/* Score badge in data table */
+.score-badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 /* Pagination */
 .pagination {
   display: flex;

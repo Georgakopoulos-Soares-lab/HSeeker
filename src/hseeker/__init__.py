@@ -7,8 +7,8 @@ Fast C core wrapped in a clean Python API.
 Quick start
 -----------
 >>> import hseeker
->>> hits = hseeker.scan_sequence("GAGAGAGAGAGAGAGAGAGAGAGAGAGA", minrep=6)
->>> hits = hseeker.scan_fasta("genome.fa", minrep=10, purity=0.85)
+>>> hits = hseeker.scan_sequence("GAGAGAGAGAGAGAGAGAGAGAGAGAGA", minrep=8)
+>>> hits = hseeker.scan_fasta("genome.fa", minrep=10, purity=0.90)
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Generator
 
 from hseeker import _hdna  # compiled C extension
+from hseeker._scoring import score_hit
 
 __version__: str = "0.1.0"
 __all__ = [
@@ -28,8 +29,38 @@ __all__ = [
     "scan_fasta_iter",
     "scan_fasta_parallel",
     "parse_fasta",
+    "score_hit",
     "__version__",
 ]
+
+
+# ---------------------------------------------------------------------------
+# Scoring helper
+# ---------------------------------------------------------------------------
+
+_SCORE_KEYS = ("stacking_score", "pairing_score", "total_score", "putative_triplex")
+
+
+def _apply_scoring(hits: list[dict]) -> list[dict]:
+    """Apply thermodynamic stability scoring to each hit in-place.
+
+    Adds ``stacking_score``, ``pairing_score``, ``total_score``, and
+    ``putative_triplex`` keys.  If scoring fails for a hit the fields
+    are set to ``None`` / ``""``.
+    """
+    for h in hits:
+        result = score_hit(
+            h["left_arm"],  h["spacer"], h["right_arm"], h["arm_length"]
+        )
+        if result is not None:
+            for k in _SCORE_KEYS:
+                h[k] = result[k]
+        else:
+            h["stacking_score"] = None
+            h["pairing_score"] = None
+            h["total_score"] = None
+            h["putative_triplex"] = ""
+    return hits
 
 
 # ---------------------------------------------------------------------------
@@ -39,13 +70,14 @@ __all__ = [
 def scan_sequence(
     seq: str,
     *,
-    minrep: int = 6,
-    maxrep: int = 50,
-    maxspacer: int = 7,
-    purity: float = 0.80,
-    mismatch: float = 0.20,
+    minrep: int = 8,
+    maxrep: int = 3000,
+    maxspacer: int = 20,
+    purity: float = 0.90,
+    mismatch: float = 0.10,
     remove_overlaps: bool = True,
     seq_offset: int = 1,
+    score: bool = True,
 ) -> list[dict]:
     """Scan a raw DNA string for H-DNA / triplex mirror repeat motifs.
 
@@ -57,22 +89,26 @@ def scan_sequence(
     seq : str
         DNA sequence (ACGTN; case-insensitive).  'N' bases break arm extension.
     minrep : int
-        Minimum arm length in bases (default 6).
+        Minimum arm length in bases (default 8).
     maxrep : int
-        Maximum arm length in bases (default 50).
+        Maximum arm length in bases (default 3000).
     maxspacer : int
-        Maximum spacer between arms in bases (default 7).
+        Maximum spacer between arms in bases (default 20).
     purity : float
-        Minimum fraction of GA or CT bases required in each arm (default 0.80).
+        Minimum fraction of GA or CT bases required in each arm (default 0.90).
         Set to 1.0 to reproduce strict non-B_gfa mirror-repeat results.
     mismatch : float
-        Maximum fraction of mirror-position mismatches allowed (default 0.20).
+        Maximum fraction of mirror-position mismatches allowed (default 0.10).
         Set to 0.0 for exact mirror only.
     remove_overlaps : bool
         Remove overlapping hits, keeping the longest arm (default True).
     seq_offset : int
         1-based genomic start coordinate of ``seq[0]`` (default 1).
         Pass the chromosomal start when ``seq`` is a genomic slice.
+    score : bool
+        Apply thermodynamic stability scoring to each hit (default True).
+        Adds ``stacking_score``, ``pairing_score``, ``total_score``, and
+        ``putative_triplex`` keys.
 
     Returns
     -------
@@ -80,10 +116,12 @@ def scan_sequence(
         Each dict has keys: ``start``, ``end``, ``arm_length``,
         ``spacer_length``, ``total_length``, ``ga_pct``, ``ct_pct``,
         ``mirror_identity``, ``is_perfect``, ``left_arm``, ``spacer``,
-        ``right_arm``, ``full_sequence``.
+        ``right_arm``, ``full_sequence``, and (if ``score=True``)
+        ``stacking_score``, ``pairing_score``, ``total_score``,
+        ``putative_triplex``.
         Coordinates are 1-based and inclusive.
     """
-    return _hdna.scan_sequence(
+    hits = _hdna.scan_sequence(
         seq,
         minrep=minrep,
         maxrep=maxrep,
@@ -93,6 +131,9 @@ def scan_sequence(
         remove_overlaps=remove_overlaps,
         seq_offset=seq_offset,
     )
+    if score and hits:
+        _apply_scoring(hits)
+    return hits
 
 
 def parse_fasta(path: str | Path) -> Generator[tuple[str, str, int], None, None]:
@@ -141,12 +182,13 @@ def parse_fasta(path: str | Path) -> Generator[tuple[str, str, int], None, None]
 def scan_fasta(
     path: str | Path,
     *,
-    minrep: int = 6,
-    maxrep: int = 50,
-    maxspacer: int = 7,
-    purity: float = 0.80,
-    mismatch: float = 0.20,
+    minrep: int = 8,
+    maxrep: int = 3000,
+    maxspacer: int = 20,
+    purity: float = 0.90,
+    mismatch: float = 0.10,
     remove_overlaps: bool = True,
+    score: bool = True,
 ) -> list[dict]:
     """Scan every record in a FASTA file for H-DNA motifs.
 
@@ -161,7 +203,7 @@ def scan_fasta(
     ----------
     path : str | Path
         Path to a FASTA file (may contain multiple records).
-    minrep, maxrep, maxspacer, purity, mismatch, remove_overlaps :
+    minrep, maxrep, maxspacer, purity, mismatch, remove_overlaps, score :
         Same as :func:`scan_sequence`.
 
     Returns
@@ -181,22 +223,26 @@ def scan_fasta(
             mismatch=mismatch,
             remove_overlaps=remove_overlaps,
             seq_offset=offset,
+            score=False,  # defer scoring to collect phase
         )
         for h in hits:
             h["seq_id"] = seq_id
         results.extend(hits)
+    if score and results:
+        _apply_scoring(results)
     return results
 
 
 def scan_fasta_iter(
     path: str | Path,
     *,
-    minrep: int = 6,
-    maxrep: int = 50,
-    maxspacer: int = 7,
-    purity: float = 0.80,
-    mismatch: float = 0.20,
+    minrep: int = 8,
+    maxrep: int = 3000,
+    maxspacer: int = 20,
+    purity: float = 0.90,
+    mismatch: float = 0.10,
     remove_overlaps: bool = True,
+    score: bool = True,
 ) -> Generator[dict, None, None]:
     """Scan a FASTA file and yield hits one at a time (streaming).
 
@@ -219,6 +265,7 @@ def scan_fasta_iter(
             mismatch=mismatch,
             remove_overlaps=remove_overlaps,
             seq_offset=offset,
+            score=score,  # score per-record for streaming
         )
         for h in hits:
             h["seq_id"] = seq_id
@@ -228,14 +275,15 @@ def scan_fasta_iter(
 def scan_fasta_parallel(
     path: str | Path,
     *,
-    minrep: int = 6,
-    maxrep: int = 50,
-    maxspacer: int = 7,
-    purity: float = 0.80,
-    mismatch: float = 0.20,
+    minrep: int = 8,
+    maxrep: int = 3000,
+    maxspacer: int = 20,
+    purity: float = 0.90,
+    mismatch: float = 0.10,
     remove_overlaps: bool = True,
     workers: int | None = None,
-    chunk_size: int = 5_000_000,
+    chunk_size: int = 1_000_000,
+    score: bool = True,
 ) -> list[dict]:
     """Scan a FASTA file using a thread pool with intra-record chunk parallelism.
 
@@ -252,7 +300,7 @@ def scan_fasta_parallel(
     workers : int | None
         Number of worker threads (default: ``os.cpu_count()``).
     chunk_size : int
-        Target bases per chunk for large records (default 5,000,000).
+        Target bases per chunk for large records (default 1,000,000).
 
     Returns
     -------
@@ -300,6 +348,10 @@ def scan_fasta_parallel(
         task: tuple[str, str, int, int | None],
     ) -> list[dict]:
         seq_id, chunk_seq, chunk_offset, excl_end = task
+        # If this is a chunk (excl_end set), defer overlap removal to the
+        # global pass.  If it's a whole record (excl_end is None), use
+        # the C extension's built-in removal (faster and exactly matches
+        # serial behaviour).
         hits = scan_sequence(
             chunk_seq,
             minrep=minrep,
@@ -307,7 +359,7 @@ def scan_fasta_parallel(
             maxspacer=maxspacer,
             purity=purity,
             mismatch=mismatch,
-            remove_overlaps=remove_overlaps,
+            remove_overlaps=(remove_overlaps and excl_end is None),
             seq_offset=chunk_offset,
         )
         for h in hits:
@@ -325,4 +377,23 @@ def scan_fasta_parallel(
     with ThreadPoolExecutor(max_workers=n_workers) as executor:
         for hits in executor.map(_scan_chunk, all_tasks):
             results.extend(hits)
+
+    # Cross-chunk overlap removal: each chunk's overlap removal is
+    # independent, so hits from different chunks of the same record
+    # can still overlap.  Run a global pass to resolve these.
+    if remove_overlaps and results:
+        results.sort(key=lambda h: (-h["arm_length"], h["spacer_length"]))
+        kept: list[dict] = []
+        for h in results:
+            s, e, sid = h["start"], h["end"], h["seq_id"]
+            if not any(
+                k["seq_id"] == sid and s <= k["end"] and e >= k["start"]
+                for k in kept
+            ):
+                kept.append(h)
+        results = kept
+
+    if score and results:
+        _apply_scoring(results)
+
     return results

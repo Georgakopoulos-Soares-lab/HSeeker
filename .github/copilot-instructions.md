@@ -22,6 +22,7 @@ hseeker/
 ├── src/
 │   └── hseeker/
 │       ├── _hdna.c          ← C extension (DO NOT refactor lightly)
+│       ├── _scoring.py      ← Thermodynamic stability scoring (no external deps)
 │       ├── __init__.py      ← Public Python API
 │       ├── __main__.py      ← CLI entry point
 ├── tests/
@@ -86,6 +87,28 @@ The C file has a `#ifdef STANDALONE` guard so it can be compiled either as:
 - The `DEFAULT_MAX_HITS` constant (1,000,000) is a safety cap, not a target. Do not lower it without a compelling reason.
 - Memory for `hits[]` is allocated in `py_scan_sequence()` with `PyMem_Malloc`. Ensure any added code does not leak on error paths (all error paths goto `cleanup:`).
 
+### Performance-critical optimizations in `findHDNA_core`
+
+The inner loop has been hand-tuned for throughput. Do not regress these:
+
+1. **Base-type lookup table `BT[256]`** — maps any byte to 1 (GA), 2 (CT), or 0 (other).
+   A single table lookup replaces four character comparisons (`rb=='g'||rb=='a'` etc.).
+2. **Reciprocal multiplication** — `float inv_k = 1.0f / k` followed by multiplications
+   replaces three float divisions per inner iteration.
+3. **Integer threshold checks** — `ga_count * 100 >= purity_thresh_int * k` replaces
+   `(float)ga_count / k >= purity_thresh`, eliminating all float divisions from the hot path.
+4. **Float computation deferred** — `best_ga`, `best_ct`, `best_mir` are computed only
+   for winning candidates (the rare case), not per iteration.
+5. **N-center skip** — `if (BT[(unsigned char)dna[ctr]] == 0) continue;` before the spacer
+   loop skips center positions where the base is N or non-ACGT.
+6. **`PyMem_Malloc` → `malloc` for per-call buffers** — the `hits[]` buffer and `dna[]`
+   copy are allocated with `malloc`/`PyMem_Malloc` and freed in `cleanup:`.
+
+### Compiler flags
+
+Compiled with `-O3 -march=native -Wall` (declared in `setup.py`).
+Previously used `-O2`.
+
 ---
 
 ## Python API (`src/hseeker/__init__.py`)
@@ -93,20 +116,54 @@ The C file has a `#ifdef STANDALONE` guard so it can be compiled either as:
 ### Public surface
 
 ```python
-scan_sequence(seq, *, minrep=6, maxrep=50, maxspacer=7,
-              purity=0.80, mismatch=0.20,
-              remove_overlaps=True, seq_offset=1) -> list[dict]
+scan_sequence(seq, *, minrep=8, maxrep=3000, maxspacer=20,
+              purity=0.90, mismatch=0.10,
+              remove_overlaps=True, seq_offset=1,
+              score=True) -> list[dict]
 
-scan_fasta(path, *, minrep=6, ...) -> list[dict]
+scan_fasta(path, *, minrep=8, ..., score=True) -> list[dict]
 
-scan_fasta_iter(path, *, minrep=6, ...) -> Generator[dict, None, None]
+scan_fasta_iter(path, *, minrep=8, ..., score=True) -> Generator[dict, None, None]
 
-scan_fasta_parallel(path, *, minrep=6, ..., workers=None) -> list[dict]
+scan_fasta_parallel(path, *, minrep=8, ..., workers=None,
+                    chunk_size=1_000_000, score=True) -> list[dict]
 ```
+
+`scan_fasta_parallel` uses `chunk_size=1_000_000` by default so that even
+single-chromosome genomes like E. coli (4.6 Mb) are split into multiple
+overlapping chunks and achieve true thread-level parallelism. Previously
+the default was 5_000_000, which meant genomes < 5 Mb ran as a single
+chunk (no parallelism benefit).
+
+### Cross-chunk overlap removal
+
+`scan_fasta_parallel` defers per-chunk overlap removal when records are
+chunked (`excl_end` is set). A global cross-chunk overlap removal pass
+resolves overlaps between hits that originated from different chunks of
+the same record. Single-chunk records (no chunking) use the C extension's
+built-in overlap removal for exact serial equivalence.
 
 ### Parameter naming contract
 
-The Python parameter names (`minrep`, `maxrep`, `maxspacer`, `purity`, `mismatch`) are the **canonical names** used everywhere — in `__init__.py`, `__main__.py`, the C extension, the test file, and the README. Never rename them without updating all five locations.
+The Python parameter names (`minrep`, `maxrep`, `maxspacer`, `purity`, `mismatch`, `score`) are the **canonical names** used everywhere — in `__init__.py`, `__main__.py`, the test file, and the README. Never rename them without updating all five locations.
+
+---
+
+## Scoring module (`src/hseeker/_scoring.py`)
+
+A self-contained scoring module with **zero external dependencies**. Contains the `score_hit()` function that evaluates thermodynamic stability of a detected H-DNA triplex.
+
+```python
+score_hit(left_arm, spacer, right_arm, arm_length) -> dict | None
+```
+
+Returns `{stacking_score, pairing_score, total_score, putative_triplex}` or `None` if the sequence is not scorable (non-ACGT bases). The scorer re-optimises arm/spacer boundaries for maximal score; the result is exposed via `putative_triplex`.
+
+When `score=True` (default), every hit from the Python API is post-processed through `score_hit()` after the C-core detection and overlap removal are complete. The four scoring keys are merged into each hit dict.
+
+- `score_hit()` is exposed at the package level as `hseeker.score_hit()`.
+- The scoring code **must not** depend on `BioPython`, `attrs`, or any other third-party package — this constraint is enforced deliberately.
+- Disable scoring with `score=False` in Python or `-no-score` on the CLI.
 
 ---
 
@@ -116,6 +173,7 @@ The Python parameter names (`minrep`, `maxrep`, `maxspacer`, `purity`, `mismatch
 - Also callable as `python -m hseeker`.
 - Output: `<prefix>_HDNA.tsv` — a tab-separated file with the column order defined in `fieldnames` in `main()`.
 - The CLI flag `-skipoverlap` **inverts** the Python `remove_overlaps` parameter (i.e. passing `-skipoverlap` sets `remove_overlaps=False`).
+- The CLI flag `-score` is **on by default**; pass `-no-score` to disable stability scoring.
 - All progress/diagnostic output goes to `stderr`; only the TSV header/rows go to the output file.
 
 ---
@@ -139,18 +197,35 @@ Every hit (from `scan_sequence` or `scan_fasta`) has these keys:
 | `spacer` | str | Hinge loop sequence |
 | `right_arm` | str | Right arm sequence (5′→3′) |
 | `full_sequence` | str | `left_arm + spacer + right_arm` |
+| `stacking_score` | float or None | Stacking energy score (None if scoring disabled) |
+| `pairing_score` | float or None | Pairing energy score (None if scoring disabled) |
+| `total_score` | float or None | Combined stacking + pairing score (None if scoring disabled) |
+| `putative_triplex` | str | Adjusted triplex in `left_arm[spacer]right_arm` notation after score-based boundary optimisation |
 
 `scan_fasta` additionally adds:
 - `seq_id` — FASTA record identifier.
 - `source` — always `"findHDNA"`.
 
+`scan_sequence` adds the four scoring keys when `score=True` (default).
+
 The invariant `start + total_length - 1 == end` always holds. Tests verify this.
+
+### Disabling scoring
+
+```python
+hits = hseeker.scan_sequence(seq, score=False)       # no score fields
+hits = hseeker.scan_fasta(path, score=False)
+```
+
+```bash
+hseeker -seq genome.fa -out results -no-score
+```
 
 ---
 
-## Test suite (`tests/test_hdna.py`)
+## Test suite (`tests/test_hdna.py` + `tests/test_parallel_edges.py`)
 
-120 tests across 25 sections. Before adding a new test:
+134 tests across 25+ sections. Before adding a new test:
 
 1. Read the section it belongs to and follow the existing naming pattern.
 2. Add reference sequences as **module-level constants** (e.g., `MY_SEQ = "AAAGGGAAAGGG"`).
@@ -158,7 +233,7 @@ The invariant `start + total_length - 1 == end` always holds. Tests verify this.
 
 ```python
 import hseeker
-print(hseeker.scan_sequence("YOUR_SEQ", minrep=6, remove_overlaps=False))
+print(hseeker.scan_sequence("YOUR_SEQ", minrep=8, remove_overlaps=False))
 ```
 
 ### Critical known values (do not change without re-running diagnostics)
@@ -279,6 +354,8 @@ pytest -v tests/
 | Forgetting to recompile after editing `_hdna.c` | Run `pip install -e .` before running tests. |
 | Using `build-backend = "setuptools.build_meta:__legacy__"` | Always use `"setuptools.build_meta"` (no `:__legacy__` suffix). |
 | Passing `seq_offset` as a positional argument | All `scan_sequence` parameters after `seq` are keyword-only (`*,`). |
+| Expecting `scan_fasta_parallel` to parallelize single-chromosome genomes | With the default `chunk_size=1_000_000`, even single chromosomes are split into overlapping chunks for thread-level parallelism. |
+| Relying on per-chunk overlap removal in `scan_fasta_parallel` | Per-chunk overlap removal is disabled for chunked records. A global cross-chunk overlap removal pass resolves overlaps between chunks. |
 
 ---
 

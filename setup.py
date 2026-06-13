@@ -19,8 +19,9 @@ hdna_ext = Extension(
     name="hseeker._hdna",
     sources=["src/hseeker/_hdna.c"],
     extra_compile_args=[
-        "-O2",    # optimise — same flag used by the original Makefile
-        "-Wall",  # keep warnings on to catch regressions
+        "-O3",
+        "-march=native",
+        "-Wall",
     ],
     libraries=["m"],  # link libm for math.h (no-op on Windows/MSVC)
 )

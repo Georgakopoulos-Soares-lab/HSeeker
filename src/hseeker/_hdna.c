@@ -11,8 +11,8 @@
  *   gcc -DSTANDALONE -O2 -Wall -o findHDNA _hdna.c -lm
  *
  * Python API exposed by this module:
- *   scan_sequence(seq, *, minrep=6, maxrep=50, maxspacer=7,
- *                 purity=0.80, mismatch=0.20, remove_overlaps=True,
+ *   scan_sequence(seq, *, minrep=8, maxrep=3000, maxspacer=20,
+ *                 purity=0.90, mismatch=0.10, remove_overlaps=True,
  *                 seq_offset=1) -> list[dict]
  *
  * Output dict keys per hit:
@@ -35,6 +35,29 @@
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
 /* ------------------------------------------------------------------ */
+
+/*
+ * Base-type lookup table — maps any byte to:
+ *   1  = GA (A or G, upper or lower)
+ *   2  = CT (C or T, upper or lower)
+ *   0  = other (N, n, or any non-ACGT character)
+ *
+ * Using a single table lookup in the inner loop eliminates multiple
+ * character comparisons and reduces branch mispredictions.
+ */
+static const unsigned char BT[256] = {
+    ['A']=1, ['a']=1, ['G']=1, ['g']=1,
+    ['C']=2, ['c']=2, ['T']=2, ['t']=2,
+};
+
+/* ── profiling counters (zeroed per call, exposed via Python) ──────────── */
+static long long prof_inner_iters = 0;     /* total inner while-body executions  */
+static long long prof_ctr_sp_pairs = 0;    /* how many (ctr, sp) pairs explored */
+
+static void prof_reset(void) {
+    prof_inner_iters  = 0;
+    prof_ctr_sp_pairs = 0;
+}
 
 /*
  * Initial capacity of the per-call hits buffer in py_scan_sequence().
@@ -122,16 +145,25 @@ static int findHDNA_core(
     float purity_thresh, float mismatch_tol,
     long  seq_offset)
 {
-    int   ndx           = 0;
-    float min_mirror_id = 1.0f - mismatch_tol;
+    int   ndx             = 0;
+    float min_mirror_id   = 1.0f - mismatch_tol;
+    int   mismatch_budget = (int)(mismatch_tol * maxrep);  /* loop-invariant */
+    /* integer-scaled thresholds (×100) — eliminate float division from inner loop */
+    int   purity_thresh_int = (int)(purity_thresh  * 100.0f + 0.5f);
+    int   mismatch_tol_int  = (int)(mismatch_tol   * 100.0f + 0.5f);
+
+    prof_reset();
 
     for (int ctr = minrep - 1; ctr <= total_bases - minrep - 1; ctr++) {
+        /* skip centers that are N or non-ACGT — no sp can succeed */
+        if (BT[(unsigned char)dna[ctr]] == 0) continue;
 
         int max_sp = (ctr + maxspacer < total_bases - minrep)
                       ? maxspacer
                       : (total_bases - minrep - ctr - 1);
 
         for (int sp = 0; sp <= max_sp; sp++) {
+            prof_ctr_sp_pairs++;
 
             int   left_i    = ctr;
             int   right_j   = ctr + sp + 1;
@@ -148,33 +180,34 @@ static int findHDNA_core(
             while (left_i >= 0 && right_j < total_bases && k < maxrep) {
 
                 char lb = dna[left_i];
-                char rb = dna[right_j];
+                unsigned char bt_rb = BT[(unsigned char)dna[right_j]];
 
-                /* N bases cannot participate in H-DNA — stop extending */
-                if (lb == 'n' || rb == 'n') break;
+                /* N/other bases cannot participate in H-DNA — stop extending */
+                if (bt_rb == 0) break;
 
-                if (lb != rb) mismatches++;
+                if (lb != dna[right_j]) mismatches++;
                 k++;
 
                 /* track composition of the right arm (read forward) */
-                if (rb == 'g' || rb == 'a') ga_count++;
-                if (rb == 'c' || rb == 't') ct_count++;
+                if (bt_rb == 1) ga_count++; else ct_count++;
 
                 if (k >= minrep) {
-                    float mir_id = 1.0f - (float)mismatches / k;
-                    float ga_f   = (float)ga_count / k;
-                    float ct_f   = (float)ct_count / k;
+                    /* integer threshold checks — no float divisions */
+                    int ga_ok = ga_count * 100 >= purity_thresh_int * k;
+                    int ct_ok = ct_count * 100 >= purity_thresh_int * k;
 
-                    if (mir_id >= min_mirror_id &&
-                        (ga_f >= purity_thresh || ct_f >= purity_thresh)) {
-                        best_k   = k;
-                        best_mir = mir_id;
-                        best_ga  = ga_f;
-                        best_ct  = ct_f;
+                    if ((ga_ok || ct_ok) &&
+                        mismatches * 100 <= mismatch_tol_int * k) {
+                        best_k = k;
+                        /* compute floats only for the winning candidate */
+                        float inv_k = 1.0f / k;
+                        best_mir = 1.0f - (float)mismatches * inv_k;
+                        best_ga  = (float)ga_count * inv_k;
+                        best_ct  = (float)ct_count * inv_k;
                     }
 
-                    /* early exit: mismatch budget exhausted even at maxrep */
-                    if (mismatches > (int)(mismatch_tol * maxrep)) break;
+                    /* early exit: mismatch budget already fully consumed */
+                    if (mismatches > mismatch_budget) break;
                 }
 
                 left_i--;
@@ -291,11 +324,11 @@ static int remove_overlaps_core(HDNA_HIT *hits, int nhits)
  *
  * Python signature:
  *   scan_sequence(seq: str, *,
- *                 minrep: int = 6,
- *                 maxrep: int = 50,
- *                 maxspacer: int = 7,
- *                 purity: float = 0.80,
- *                 mismatch: float = 0.20,
+ *                 minrep: int = 8,
+ *                 maxrep: int = 3000,
+ *                 maxspacer: int = 20,
+ *                 purity: float = 0.90,
+ *                 mismatch: float = 0.10,
  *                 remove_overlaps: bool = True,
  *                 seq_offset: int = 1) -> list[dict]
  *
@@ -307,11 +340,11 @@ py_scan_sequence(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     const char *raw_seq   = NULL;
     Py_ssize_t  raw_len   = 0;
-    int         minrep    = 6;
-    int         maxrep    = 50;
-    int         maxspacer = 7;
-    double      purity    = 0.80;
-    double      mismatch  = 0.20;
+    int         minrep    = 8;
+    int         maxrep    = 3000;
+    int         maxspacer = 20;
+    double      purity    = 0.90;
+    double      mismatch  = 0.10;
     int         do_overlap = 1;
     long        seq_offset = 1;
 
@@ -488,8 +521,8 @@ cleanup_err:
 /* ------------------------------------------------------------------ */
 
 PyDoc_STRVAR(scan_sequence_doc,
-"scan_sequence(seq, *, minrep=6, maxrep=50, maxspacer=7,\n"
-"              purity=0.80, mismatch=0.20, remove_overlaps=True,\n"
+"scan_sequence(seq, *, minrep=8, maxrep=3000, maxspacer=20,\n"
+"              purity=0.90, mismatch=0.10, remove_overlaps=True,\n"
 "              seq_offset=1) -> list[dict]\n"
 "\n"
 "Scan a raw DNA string for H-DNA / triplex mirror repeat motifs.\n"
@@ -525,12 +558,29 @@ PyDoc_STRVAR(scan_sequence_doc,
 "    Coordinates are 1-based and inclusive.\n"
 );
 
+/* expose profiling counters to Python for diagnosis */
+static PyObject *
+py_profiling_info(PyObject *self, PyObject *noargs)
+{
+    (void)self;
+    (void)noargs;
+    return Py_BuildValue("{s:L, s:L}",
+        "inner_iters",  prof_inner_iters,
+        "ctr_sp_pairs", prof_ctr_sp_pairs);
+}
+
 static PyMethodDef HdnaMethods[] = {
     {
         "scan_sequence",
         (PyCFunction)py_scan_sequence,
         METH_VARARGS | METH_KEYWORDS,
         scan_sequence_doc,
+    },
+    {
+        "profiling_info",
+        (PyCFunction)py_profiling_info,
+        METH_NOARGS,
+        "Return dict with {inner_iters, ctr_sp_pairs} since last reset."
     },
     { NULL, NULL, 0, NULL }
 };
@@ -662,19 +712,19 @@ static void sa_print_hits(FILE *fp, int nhits) {
 static void sa_usage(const char *prog) {
     fprintf(stderr,
         "\nUsage: %s -seq <fasta> -out <prefix> [options]\n\n"
-        "  -minrep    <int>    Minimum arm length       (default: 6)\n"
-        "  -maxrep    <int>    Maximum arm length       (default: 50)\n"
-        "  -maxspacer <int>    Maximum spacer length    (default: 7)\n"
-        "  -purity    <float>  Min GA or CT fraction    (default: 0.80)\n"
-        "  -mismatch  <float>  Max mismatch fraction    (default: 0.20)\n"
+        "  -minrep    <int>    Minimum arm length       (default: 8)\n"
+        "  -maxrep    <int>    Maximum arm length       (default: 3000)\n"
+        "  -maxspacer <int>    Maximum spacer length    (default: 20)\n"
+        "  -purity    <float>  Min GA or CT fraction    (default: 0.90)\n"
+        "  -mismatch  <float>  Max mismatch fraction    (default: 0.10)\n"
         "  -skipoverlap        Skip overlap removal\n"
         "  -v                  Verbose\n\n", prog);
 }
 
 int main(int argc, char *argv[]) {
     char seq_fn[512] = {0}, out_pre[512] = {0}, out_fn[520] = {0};
-    int  minrep = 6, maxrep = 50, maxspacer = 7, do_overlap = 1, verbose = 0;
-    float purity = 0.80f, mismatch = 0.20f;
+    int  minrep = 8, maxrep = 3000, maxspacer = 20, do_overlap = 1, verbose = 0;
+    float purity = 0.90f, mismatch = 0.10f;
 
     if (argc == 1) { sa_usage(argv[0]); return 1; }
 

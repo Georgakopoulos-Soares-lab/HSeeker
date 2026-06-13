@@ -131,9 +131,29 @@
           <tr><td><code>left_arm</code> / <code>right_arm</code></td><td>str</td><td>Arm sequences in 5′→3′ orientation (lowercase)</td></tr>
           <tr><td><code>spacer</code></td><td>str</td><td>Hinge sequence; <code>"."</code> when spacer_length = 0</td></tr>
           <tr><td><code>full_sequence</code></td><td>str</td><td>left_arm + spacer + right_arm</td></tr>
+          <tr><td><code>stacking_score</code></td><td>float</td><td>Stacking energy from consecutive GA–GA dinucleotide stacks</td></tr>
+          <tr><td><code>pairing_score</code></td><td>float</td><td>Hoogsteen pairing score (G–G and A–A matches)</td></tr>
+          <tr><td><code>total_score</code></td><td>float</td><td>Combined stacking + pairing score; higher = more stable</td></tr>
+          <tr><td><code>putative_triplex</code></td><td>str</td><td>Adjusted triplex in <code>left_arm[spacer]right_arm</code> notation</td></tr>
         </tbody>
       </table>
     </div>
+
+    <h3>Stability scoring</h3>
+    <p>When scoring is enabled (default), each detected hit is evaluated through a thermodynamic
+      stability model that computes two energetic components:</p>
+    <ul>
+      <li><strong>Pairing score</strong> — rewards Hoogsteen-complementary base pairs (G–G and A–A
+        at mirror positions contribute +7.6 and +3.83 respectively; mismatches incur a penalty)</li>
+      <li><strong>Stacking score</strong> — rewards consecutive GA–GA dinucleotide stacks (each
+        consecutive pair contributes +5.0; interruptions incur a geometrically discounted penalty)</li>
+    </ul>
+    <p>The scorer also re-optimises the arm/spacer boundary of each hit to maximise the combined
+      score, removing poorly scoring terminal positions and, if beneficial, absorbing part of the
+      arm into the spacer. The result is reported as the <code>putative_triplex</code> — the
+      triplex structure with the most favourable energetic boundary.</p>
+    <p>Scoring can be disabled by unchecking <em>"Compute stability scores"</em> on the submission
+      form, which removes the four scoring columns from the results and speeds up processing.</p>
   </section>
 
   <!-- ── Parameter modes ──────────────────────────────────────────────────── -->

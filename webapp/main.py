@@ -256,7 +256,7 @@ def generate_charts(
             df["mirror_identity"].values, bins=50, range=(0.0, 100.0)
         )
         centers = ((edges[:-1] + edges[1:]) / 2).tolist()
-        min_mirror = (1.0 - params.get("mismatch", 0.20)) * 100.0
+        min_mirror = (1.0 - params.get("mismatch", 0.10)) * 100.0
         fig = go.Figure(go.Bar(
             x=centers,
             y=mir_hist.tolist(),
@@ -352,7 +352,71 @@ def generate_charts(
     except Exception:
         pass
 
-    # ── 8. Locus map (top sequences) ─────────────────────────────────────────
+    # ── 8. Score distribution ──────────────────────────────────────────────────
+    try:
+        scores = df["total_score"].dropna().values
+        if len(scores) > 0:
+            score_hist, sedges = np.histogram(scores, bins=50)
+            scenters = ((sedges[:-1] + sedges[1:]) / 2).tolist()
+            fig = go.Figure(go.Bar(
+                x=scenters,
+                y=score_hist.tolist(),
+                marker=dict(color=_TEAL, line_width=0),
+                hovertemplate="score <b>%{{x:.1f}}</b>: %{{y:,}} sites<extra></extra>",
+            ))
+            fig.add_vline(
+                x=50.0,
+                line_dash="dash", line_color=_ORANGE, line_width=1.5,
+                annotation_text="stable ≥ 50",
+                annotation_font=dict(color=_ORANGE, size=10),
+                annotation_position="top right",
+            )
+            fig.update_layout(
+                **_base_layout(height=310),
+                title=_title("Total Score Distribution"),
+                xaxis_title="Total Score",
+                yaxis_title="Count",
+                bargap=0.05,
+            )
+            charts["score_dist"] = _to_dict(fig)
+    except Exception:
+        pass
+
+    # ── 9. Score vs Mirror Identity scatter ────────────────────────────────────
+    try:
+        df_sc = df.dropna(subset=["total_score"])
+        if len(df_sc) > 0:
+            n_sample = min(len(df_sc), 4000)
+            sample_sc = df_sc.sample(n_sample, random_state=42) if len(df_sc) > n_sample else df_sc
+            fig = go.Figure(go.Scatter(
+                x=sample_sc["mirror_identity"].tolist(),
+                y=sample_sc["total_score"].tolist(),
+                mode="markers",
+                marker=dict(
+                    color=_PURPLE,
+                    size=3,
+                    opacity=0.55,
+                    line_width=0,
+                ),
+                hovertemplate=(
+                    "mirror=%{{x:.1f}}%  score=%{{y:.1f}}<br>"
+                    "<extra></extra>"
+                ),
+            ))
+            fig.update_layout(
+                **_base_layout(height=375),
+                title=_title(
+                    f"Score vs Mirror Identity"
+                    + (f" (n = {n_sample:,} sampled)" if len(df_sc) > n_sample else "")
+                ),
+                xaxis_title="Mirror Identity (%)",
+                yaxis_title="Total Score",
+            )
+            charts["score_vs_mirror"] = _to_dict(fig)
+    except Exception:
+        pass
+
+    # ── 10. Locus map (top sequences) ────────────────────────────────────────
     try:
         top_seqs = df["seq_id"].value_counts().head(15).index.tolist()
         arm_min = int(df["arm_length"].min())
@@ -381,6 +445,7 @@ def generate_charts(
                 f"arm = {r['arm_length']} bp \u00a0 spacer = {r['spacer_length']} bp<br>"
                 f"GA = {r['ga_pct']:.1f}% \u00a0 CT = {r['ct_pct']:.1f}%<br>"
                 f"mirror = {r['mirror_identity']:.1f}%<br>"
+                + (f"score = {r['total_score']:.1f}<br>" if r.get('total_score') is not None else "")
                 + (_perf_span if r['is_perfect'] else 'imperfect')
                 for _, r in display.iterrows()
             ]
@@ -439,11 +504,18 @@ def compute_stats(hits: list[dict]) -> dict:
         total_hits=0, n_perfect=0, n_imperfect=0, pct_perfect=0.0,
         n_sequences=0, mean_arm_length=0.0, mean_spacer_length=0.0,
         mean_mirror_identity=0.0, max_arm_length=0, min_arm_length=0,
+        mean_total_score=0.0, max_total_score=0.0, n_scored=0,
     )
     if not hits:
         return empty
     df = pd.DataFrame(hits)
     n_perfect = int(df["is_perfect"].sum())
+    # Scoring stats — handle hits where scoring is None (disabled or failed)
+    scores = [h.get("total_score") for h in hits if h.get("total_score") is not None]
+    scored_count = len(scores)
+    mean_score = round(float(np.mean(scores)), 1) if scores else 0.0
+    max_score = round(float(np.max(scores)), 1) if scores else 0.0
+    n_stable = sum(1 for s in scores if s >= 50)
     return dict(
         total_hits=len(hits),
         n_perfect=n_perfect,
@@ -455,6 +527,10 @@ def compute_stats(hits: list[dict]) -> dict:
         mean_mirror_identity=round(float(df["mirror_identity"].mean()), 1),
         max_arm_length=int(df["arm_length"].max()),
         min_arm_length=int(df["arm_length"].min()),
+        mean_total_score=mean_score,
+        max_total_score=max_score,
+        n_scored=scored_count,
+        n_stable=n_stable,
     )
 
 
@@ -465,6 +541,8 @@ _TSV_FIELDS = [
     "arm_length", "spacer_length", "total_length",
     "ga_pct", "ct_pct", "mirror_identity", "is_perfect",
     "left_arm", "spacer", "right_arm", "full_sequence",
+    "stacking_score", "pairing_score", "total_score",
+    "putative_triplex",
 ]
 
 
@@ -502,6 +580,7 @@ def _run_job(job_id: str, fasta_path: str) -> None:
                 mismatch=params["mismatch"],
                 remove_overlaps=params["remove_overlaps"],
                 seq_offset=offset,
+                score=params.get("score", True),
             )
             for h in hits:
                 h["seq_id"] = seq_id
@@ -546,12 +625,13 @@ async def submit(
     request: Request,
     file: Optional[UploadFile] = File(None),
     seq_text: str = Form(""),
-    minrep: int = Form(6),
-    maxrep: int = Form(50),
-    maxspacer: int = Form(7),
-    purity: float = Form(0.80),
-    mismatch: float = Form(0.20),
+    minrep: int = Form(8),
+    maxrep: int = Form(3000),
+    maxspacer: int = Form(20),
+    purity: float = Form(0.90),
+    mismatch: float = Form(0.10),
     remove_overlaps: int = Form(1),
+    score: int = Form(1),
 ):
     has_file = file is not None and bool(file.filename)
     has_text = bool(seq_text.strip())
@@ -606,6 +686,7 @@ async def submit(
         purity=purity,
         mismatch=mismatch,
         remove_overlaps=bool(remove_overlaps),
+        score=bool(score),
     )
     job_id = _new_job(filename, params)
     threading.Thread(target=_run_job, args=(job_id, tmp_path), daemon=True).start()
@@ -644,6 +725,7 @@ async def job_hits(
     min_mirror: float = 0.0,
     perfect_only: bool = False,
     seq_type: str = "",
+    min_score: float = 0.0,
 ):
     job = _get_job(job_id)
     if job["status"] != "complete":
@@ -664,6 +746,8 @@ async def job_hits(
         hits = [h for h in hits if h["ga_pct"] >= 80]
     elif seq_type == "ct":
         hits = [h for h in hits if h["ct_pct"] >= 80]
+    if min_score > 0:
+        hits = [h for h in hits if h.get("total_score") is not None and h["total_score"] >= min_score]
     total = len(hits)
     start = (page - 1) * per_page
     return {

@@ -103,10 +103,10 @@ _PROFILES: dict[str, tuple[float, float, float, float]] = {
 }
 
 # minrep values used in the optional parameter-sensitivity sweep
-MINREP_SWEEP_VALUES: list[int] = [6, 8, 10, 15, 20]
+MINREP_SWEEP_VALUES: list[int] = [8, 10, 15, 20, 30]
 
 # H-DNA motifs embedded at regular intervals — chosen to produce real hits
-# at minrep=6 with default purity/mismatch settings
+# at minrep=8 with default purity/mismatch settings
 _MOTIFS: list[bytes] = [
     b"GAGAGAGAGAGAGAGA",      # pure GA 8-mer, is_perfect candidate
     b"GGGAAAGGGTTTTCCCAAACCC",# mixed GA, arm≈10
@@ -435,14 +435,14 @@ def _measure() -> Generator[dict[str, Any], None, None]:
 # Benchmark runners
 # ---------------------------------------------------------------------------
 
-def bench_scan_fasta(path: Path, minrep: int = 6) -> dict[str, Any]:
+def bench_scan_fasta(path: Path, minrep: int = 8) -> dict[str, Any]:
     with _measure() as r:
         hits = hseeker.scan_fasta(str(path), minrep=minrep)
     r["hits"] = len(hits)
     return r
 
 
-def bench_scan_fasta_iter(path: Path, minrep: int = 6) -> dict[str, Any]:
+def bench_scan_fasta_iter(path: Path, minrep: int = 8) -> dict[str, Any]:
     with _measure() as r:
         hits = list(hseeker.scan_fasta_iter(str(path), minrep=minrep))
     r["hits"] = len(hits)
@@ -452,17 +452,19 @@ def bench_scan_fasta_iter(path: Path, minrep: int = 6) -> dict[str, Any]:
 def bench_scan_fasta_parallel(
     path: Path,
     workers: int,
-    minrep: int = 6,
+    minrep: int = 8,
+    chunk_size: int = 1_000_000,
 ) -> dict[str, Any]:
     with _measure() as r:
         hits = hseeker.scan_fasta_parallel(
-            str(path), minrep=minrep, workers=workers
+            str(path), minrep=minrep, workers=workers,
+            chunk_size=chunk_size,
         )
     r["hits"] = len(hits)
     return r
 
 
-def bench_cli(path: Path, minrep: int = 6) -> dict[str, Any]:
+def bench_cli(path: Path, minrep: int = 8) -> dict[str, Any]:
     """End-to-end CLI benchmark including TSV disk write."""
     with tempfile.TemporaryDirectory() as tmp:
         out_prefix = str(Path(tmp) / "bench")
@@ -1102,8 +1104,12 @@ def _parse_args() -> argparse.Namespace:
         help="Thread count for parallel scan (default: os.cpu_count())",
     )
     p.add_argument(
-        "--minrep", type=int, default=6,
-        help="Minimum arm length passed to hseeker (default 6)",
+        "--chunk-size", type=int, default=1_000_000,
+        help="Chunk size for intra-record parallelism (default: 1_000_000)",
+    )
+    p.add_argument(
+        "--minrep", type=int, default=8,
+        help="Minimum arm length passed to hseeker (default 8)",
     )
     p.add_argument(
         "--no-cli", action="store_true",
@@ -1128,7 +1134,7 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument(
         "--minrep-values", type=int, nargs="+", metavar="N",
         dest="minrep_values", default=None,
-        help="minrep values for the sweep (default: 6 8 10 15 20)",
+        help="minrep values for the sweep (default: 8 10 15 20 30)",
     )
     p.add_argument(
         "--report", metavar="FILE",
@@ -1152,6 +1158,7 @@ def _run_dataset(
     force: bool,
     cli: bool,
     from_zenodo: bool = False,
+    chunk_size: int = 1_000_000,
 ) -> tuple[Path, dict[str, dict[str, Any]]]:
     path    = _ensure_dataset(
         spec.name, spec.n_records, spec.record_length,
@@ -1162,7 +1169,7 @@ def _run_dataset(
     for label, fn in [
         ("scan_fasta",      lambda: bench_scan_fasta(path, minrep)),
         ("scan_fasta_iter", lambda: bench_scan_fasta_iter(path, minrep)),
-        ("parallel_1w",     lambda: bench_scan_fasta_parallel(path, 1, minrep)),
+        ("parallel_1w",     lambda: bench_scan_fasta_parallel(path, 1, minrep, chunk_size)),
     ]:
         print(f"    {label} … ", end="", flush=True)
         r = fn()
@@ -1172,7 +1179,7 @@ def _run_dataset(
     if workers > 1:
         label = f"parallel_{workers}w"
         print(f"    {label} … ", end="", flush=True)
-        r = bench_scan_fasta_parallel(path, workers, minrep)
+        r = bench_scan_fasta_parallel(path, workers, minrep, chunk_size)
         results[label] = r
         print(f"{r['wall_s']:.2f}s")
 
@@ -1247,7 +1254,7 @@ def main() -> None:
               f"{spec.total_mb:.0f} MB total")
         path, results = _run_dataset(
             spec, workers, args.minrep, args.no_cache, not args.no_cli,
-            from_zenodo=args.from_zenodo,
+            from_zenodo=args.from_zenodo, chunk_size=args.chunk_size,
         )
         completed.append((spec, path, results))
         all_output.append({

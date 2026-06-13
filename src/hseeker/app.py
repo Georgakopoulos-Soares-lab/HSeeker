@@ -85,11 +85,11 @@ TCCCCGACTTTGTTTTTCGATTGTTTTGTCCCTTGAGATT
 with st.sidebar:
     st.markdown("## ⚙️ Parameters")
 
-    minrep    = st.number_input("Min arm length (minrep)",  min_value=4,   max_value=100, value=10, step=1)
-    maxrep    = st.number_input("Max arm length (maxrep)",  min_value=4,   max_value=200, value=50, step=1)
-    maxspacer = st.number_input("Max spacer length",        min_value=0,   max_value=50,  value=7,  step=1)
+    minrep    = st.number_input("Min arm length (minrep)",  min_value=4,   max_value=100, value=8, step=1)
+    maxrep    = st.number_input("Max arm length (maxrep)",  min_value=4,   max_value=5000, value=3000, step=1)
+    maxspacer = st.number_input("Max spacer length",        min_value=0,   max_value=50,  value=20,  step=1)
     purity    = st.number_input(
-        "Purity threshold", min_value=0.0, max_value=1.0, value=0.80,
+        "Purity threshold", min_value=0.0, max_value=1.0, value=0.90,
         step=0.05, format="%.2f",
         help="Min fraction of GA or CT bases in each arm. Use 1.0 for strict mode.",
     )

@@ -524,15 +524,20 @@ def test_bad_parameters_raise_value_error(kwargs):
 # ===========================================================================
 
 def _gamir_hit():
-    """Return the surviving hit from GAMIR_SEQ (arm=7 after overlap removal)."""
-    hits = hseeker.scan_sequence(GAMIR_SEQ, minrep=6)
+    """Return the surviving hit from GAMIR_SEQ (arm=7 after overlap removal).
+
+    Uses purity=0.80 / mismatch=0.20 (the pre-v0.2.0 defaults) because
+    GAMIR_SEQ's best arm has 85.71 % GA purity — detected by the relaxed
+    threshold but not by the current default of 0.90.
+    """
+    hits = hseeker.scan_sequence(GAMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20)
     arm7 = [h for h in hits if h["arm_length"] == 7]
     assert arm7, f"Expected arm=7 hit on GAMIR_SEQ, got: {hits}"
     return arm7[0]
 
 
 def test_gamir_hit_exists():
-    assert len(hseeker.scan_sequence(GAMIR_SEQ, minrep=6)) > 0
+    assert len(hseeker.scan_sequence(GAMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20)) > 0
 
 
 def test_gamir_arm_length():
@@ -601,14 +606,15 @@ def test_gamir_full_sequence_composition():
 # ===========================================================================
 
 def _ctmir_hit():
-    hits = hseeker.scan_sequence(CTMIR_SEQ, minrep=6)
+    """arm=7 hit on CTMIR_SEQ (ct_pct=85.71% — needs purity=0.80)."""
+    hits = hseeker.scan_sequence(CTMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20)
     arm7 = [h for h in hits if h["arm_length"] == 7]
     assert arm7, f"Expected arm=7 hit on CTMIR_SEQ, got: {hits}"
     return arm7[0]
 
 
 def test_ct_arm_detected():
-    assert len(hseeker.scan_sequence(CTMIR_SEQ, minrep=6)) > 0
+    assert len(hseeker.scan_sequence(CTMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20)) > 0
 
 
 def test_ct_arm_ct_pct():
@@ -808,7 +814,7 @@ FLANKED = "N" * N_PAD + GAMIR_SEQ + "N" * 30
 
 
 def _flanked_hit():
-    hits = hseeker.scan_sequence(FLANKED, minrep=6)
+    hits = hseeker.scan_sequence(FLANKED, minrep=6, purity=0.80, mismatch=0.20)
     arm7 = [h for h in hits if h["arm_length"] == 7]
     assert arm7, "Expected arm=7 hit inside N-flanked sequence"
     return arm7[0]
@@ -829,8 +835,8 @@ def test_flanking_n_correct_end_coordinate():
 
 
 def test_flanking_n_arm_sequences_identical_to_unflanked():
-    base_arm7    = [h for h in hseeker.scan_sequence(GAMIR_SEQ, minrep=6) if h["arm_length"] == 7]
-    flanked_arm7 = [h for h in hseeker.scan_sequence(FLANKED, minrep=6)   if h["arm_length"] == 7]
+    base_arm7    = [h for h in hseeker.scan_sequence(GAMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20) if h["arm_length"] == 7]
+    flanked_arm7 = [h for h in hseeker.scan_sequence(FLANKED, minrep=6, purity=0.80, mismatch=0.20)   if h["arm_length"] == 7]
     assert base_arm7[0]["left_arm"]  == flanked_arm7[0]["left_arm"]
     assert base_arm7[0]["right_arm"] == flanked_arm7[0]["right_arm"]
     assert base_arm7[0]["spacer"]    == flanked_arm7[0]["spacer"]
@@ -844,13 +850,13 @@ DUAL_SEQ = GAMIR_SEQ + "N" * 20 + CTMIR_SEQ
 
 
 def test_two_motifs_both_detected():
-    hits = hseeker.scan_sequence(DUAL_SEQ, minrep=6)
+    hits = hseeker.scan_sequence(DUAL_SEQ, minrep=6, purity=0.80, mismatch=0.20)
     assert len(hits) >= 2
 
 
 def test_two_motifs_have_distinct_purity_profiles():
     """GA mirror has ga_pct > ct_pct; CT mirror has ct_pct > ga_pct."""
-    arm7 = [h for h in hseeker.scan_sequence(DUAL_SEQ, minrep=6) if h["arm_length"] == 7]
+    arm7 = [h for h in hseeker.scan_sequence(DUAL_SEQ, minrep=6, purity=0.80, mismatch=0.20) if h["arm_length"] == 7]
     ga_dominant = [h for h in arm7 if h["ga_pct"] > h["ct_pct"]]
     ct_dominant = [h for h in arm7 if h["ct_pct"] > h["ga_pct"]]
     assert len(ga_dominant) >= 1, "Expected a GA-dominant hit"
@@ -986,7 +992,7 @@ def test_embedded_motif_has_correct_genomic_coordinates():
     tmp.close()
     path = Path(tmp.name)
     try:
-        hits = hseeker.scan_fasta(str(path), minrep=6)
+        hits = hseeker.scan_fasta(str(path), minrep=6, purity=0.80, mismatch=0.20)
         arm7 = [h for h in hits if h["arm_length"] == 7]
         assert arm7, "Expected arm=7 hit for GAMIR_SEQ embedded at offset 99"
         h = arm7[0]

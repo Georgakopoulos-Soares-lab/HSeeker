@@ -38,6 +38,9 @@
       <span class="pill pill--{{ 'teal' if p.remove_overlaps else 'orange' }}">
         {{ "overlaps removed" if p.remove_overlaps else "all hits" }}
       </span>
+      <span class="pill pill--{{ 'teal' if p.score else 'orange' }}">
+        {{ "scoring: on" if p.score else "scoring: off" }}
+      </span>
     </div>
   </div>
 
@@ -134,6 +137,17 @@
       <div class="stat-val">{{ s.mean_mirror_identity }}%</div>
       <div class="stat-lbl">Mean Mirror Identity</div>
     </div>
+    <div class="stat-card stat-card--highlight">
+      <div class="stat-val">{{ "{:.1f}".format(s.mean_total_score) }}</div>
+      <div class="stat-lbl">Mean Score</div>
+      <div class="stat-sub">max {{ "{:.1f}".format(s.max_total_score) }}</div>
+    </div>
+    {% if s.n_stable > 0 %}
+    <div class="stat-card">
+      <div class="stat-val">{{ "{:,}".format(s.n_stable) }}</div>
+      <div class="stat-lbl">Stable Sites (score ≥ 50)</div>
+    </div>
+    {% endif %}
   </div>
 
   {% if s.total_hits == 0 %}
@@ -214,6 +228,22 @@
           <div id="chart-mirror-dist" class="chart-target"></div>
         </div>
       </div>
+      <div class="chart-row">
+        <div class="chart-card">
+          <p class="chart-desc">
+            Distribution of thermodynamic stability scores. The dashed line
+            marks the stable threshold (≥ 50).
+          </p>
+          <div id="chart-score-dist" class="chart-target"></div>
+        </div>
+        <div class="chart-card">
+          <p class="chart-desc">
+            Relationship between mirror identity and stability score —
+            higher scores indicate more stable triplex candidates.
+          </p>
+          <div id="chart-score-vs-mirror" class="chart-target"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Data table tab (default active) -->
@@ -267,6 +297,11 @@
               Perfect sites only
             </label>
           </div>
+          <div class="filter-field">
+            <span class="filter-label">Score ≥</span>
+            <input class="filter-input filter-input--md" type="number" x-model.number="filters.minScore"
+                   @input.debounce.400ms="fetchPage(1)" placeholder="0" min="0" step="10">
+          </div>
         </div>
         <button class="filter-reset-btn" x-show="activeFilterCount() > 0" @click="resetFilters()">&#8635; Reset filters</button>
       </div>
@@ -285,6 +320,7 @@
               <th>CT%</th>
               <th>Mirror%</th>
               <th>Perfect</th>
+              <th>Score</th>
               <th>Full Sequence</th>
             </tr>
           </thead>
@@ -304,6 +340,11 @@
                   <span class="badge"
                         :class="h.is_perfect ? 'badge--teal' : 'badge--dim'"
                         x-text="h.is_perfect ? '✓' : '—'"></span>
+                </td>
+                <td>
+                  <span x-show="h.total_score != null" class="score-badge"
+                        :style="scoreColor(h.total_score)" x-text="h.total_score.toFixed(1)"></span>
+                  <span x-show="h.total_score == null" class="badge badge--dim">—</span>
                 </td>
                 <td class="mono td-seq"
                     :title="h.full_sequence.toUpperCase()"
@@ -347,7 +388,7 @@ const _rendered = new Set();
 const _tabCharts = {
   locus:       [['chart-hits-per-seq','hits_per_seq'],['chart-perfect-donut','perfect_donut'],['chart-locus-map','locus_map']],
   structure:   [['chart-arm-length','arm_length_dist'],['chart-spacer-dist','spacer_dist'],['chart-arm-spacer-heatmap','arm_spacer_heatmap']],
-  composition: [['chart-composition','composition_scatter'],['chart-mirror-dist','mirror_dist']],
+  composition: [['chart-composition','composition_scatter'],['chart-mirror-dist','mirror_dist'],['chart-score-dist','score_dist'],['chart-score-vs-mirror','score_vs_mirror']],
   data:        [],
 };
 
@@ -399,6 +440,14 @@ function colorSeq(s) {
     MAP[c] ? `<span class="${MAP[c]}">${c}</span>` : c
   ).join('');
 }
+function scoreColor(score) {
+  // teal (low) → purple (high), capped at 150
+  const t = Math.min(score / 150, 1);
+  const r = Math.round(57 + (155 - 57) * t);
+  const g = Math.round(213 + (141 - 213) * (1 - t));
+  const b = Math.round(171 + (255 - 171) * (1 - t));
+  return `background:rgba(${r},${g},${b},0.2); color:rgb(${r},${g},${b})`;
+}
 function dataTable(jobId) {
   return {
     hits: [],
@@ -408,7 +457,7 @@ function dataTable(jobId) {
     query: '',
     loading: false,
     filtersOpen: false,
-    filters: { minArm: '', maxArm: '', minMirror: '', perfectOnly: false, seqType: '' },
+    filters: { minArm: '', maxArm: '', minMirror: '', perfectOnly: false, seqType: '', minScore: '' },
     activeFilterCount() {
       let n = 0;
       if (this.filters.minArm !== '') n++;
@@ -416,10 +465,11 @@ function dataTable(jobId) {
       if (this.filters.minMirror !== '') n++;
       if (this.filters.perfectOnly) n++;
       if (this.filters.seqType) n++;
+      if (this.filters.minScore !== '') n++;
       return n;
     },
     resetFilters() {
-      this.filters = { minArm: '', maxArm: '', minMirror: '', perfectOnly: false, seqType: '' };
+      this.filters = { minArm: '', maxArm: '', minMirror: '', perfectOnly: false, seqType: '', minScore: '' };
       this.fetchPage(1);
     },
     async fetchPage(p) {
@@ -433,6 +483,7 @@ function dataTable(jobId) {
         if (this.filters.minMirror !== '') url += `&min_mirror=${this.filters.minMirror}`;
         if (this.filters.perfectOnly) url += `&perfect_only=1`;
         if (this.filters.seqType) url += `&seq_type=${this.filters.seqType}`;
+        if (this.filters.minScore !== '') url += `&min_score=${this.filters.minScore}`;
         const r = await fetch(url);
         if (!r.ok) throw new Error(r.statusText);
         const d = await r.json();
