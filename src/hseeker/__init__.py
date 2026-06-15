@@ -317,41 +317,42 @@ def scan_fasta_parallel(
 
     def _build_tasks(
         seq_id: str, seq: str, genomic_offset: int
-    ) -> list[tuple[str, str, int, int | None]]:
-        """Split one record into (seq_id, chunk_seq, chunk_offset, excl_end) tasks.
+    ) -> list[tuple[str, str, int, int | None, bool]]:
+        """Split one record into (seq_id, chunk_seq, chunk_offset, excl_end, defer_ovl) tasks.
 
         *excl_end* is the exclusive upper bound on the genomic start coordinate
         of hits that this chunk owns.  Hits with start >= excl_end are in the
         overlap region and will be found (and owned) by the next chunk.
-        None means 'keep everything' (last/only chunk).
-        """
+        *defer_ovl* is True when overlap removal should be deferred to the
+        global cross-chunk pass (all non-last chunks, plus the last chunk of
+        any multi-chunk record).  Single-chunk records use the fast C-extension
+        overlap removal."""
         seqlen = len(seq)
         if seqlen <= chunk_size:
-            return [(seq_id, seq, genomic_offset, None)]
+            return [(seq_id, seq, genomic_offset, None, False)]
 
-        tasks: list[tuple[str, str, int, int | None]] = []
+        tasks: list[tuple[str, str, int, int | None, bool]] = []
         pos = 0
         while pos < seqlen:
             is_last = (pos + chunk_size >= seqlen)
             if is_last:
-                tasks.append((seq_id, seq[pos:], genomic_offset + pos, None))
+                # Last chunk of a multi-chunk record: defer overlap removal
+                # to the global pass so that secondary hits that survive
+                # cross-chunk overlap resolution are not lost.
+                tasks.append((seq_id, seq[pos:], genomic_offset + pos, None, True))
             else:
-                # Include overlap bases beyond the exclusive zone so that hits
-                # starting near the right edge of this chunk are still complete.
                 chunk_seq = seq[pos : pos + chunk_size + overlap]
                 excl_end = genomic_offset + pos + chunk_size
-                tasks.append((seq_id, chunk_seq, genomic_offset + pos, excl_end))
+                tasks.append((seq_id, chunk_seq, genomic_offset + pos, excl_end, True))
             pos += chunk_size
         return tasks
 
     def _scan_chunk(
-        task: tuple[str, str, int, int | None],
+        task: tuple[str, str, int, int | None, bool],
     ) -> list[dict]:
-        seq_id, chunk_seq, chunk_offset, excl_end = task
-        # If this is a chunk (excl_end set), defer overlap removal to the
-        # global pass.  If it's a whole record (excl_end is None), use
-        # the C extension's built-in removal (faster and exactly matches
-        # serial behaviour).
+        seq_id, chunk_seq, chunk_offset, excl_end, defer_ovl = task
+        # Defer overlap removal to the global pass for all chunks except
+        # single-chunk records (those with defer_ovl=False).
         hits = scan_sequence(
             chunk_seq,
             minrep=minrep,
@@ -359,7 +360,7 @@ def scan_fasta_parallel(
             maxspacer=maxspacer,
             purity=purity,
             mismatch=mismatch,
-            remove_overlaps=(remove_overlaps and excl_end is None),
+            remove_overlaps=(remove_overlaps and not defer_ovl),
             seq_offset=chunk_offset,
         )
         for h in hits:
@@ -369,7 +370,7 @@ def scan_fasta_parallel(
         return hits
 
     # Flatten all records into a list of chunk tasks
-    all_tasks: list[tuple[str, str, int, int | None]] = []
+    all_tasks: list[tuple[str, str, int, int | None, bool]] = []
     for seq_id, seq, offset in parse_fasta(path):
         all_tasks.extend(_build_tasks(seq_id, seq, offset))
 
