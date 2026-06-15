@@ -145,7 +145,7 @@
     {% if s.n_stable > 0 %}
     <div class="stat-card">
       <div class="stat-val">{{ "{:,}".format(s.n_stable) }}</div>
-      <div class="stat-lbl">Stable Sites (score ≥ 50)</div>
+      <div class="stat-lbl">Stable Sites (score ≥ 60)</div>
     </div>
     {% endif %}
   </div>
@@ -232,7 +232,7 @@
         <div class="chart-card">
           <p class="chart-desc">
             Distribution of thermodynamic stability scores. The dashed line
-            marks the stable threshold (≥ 50).
+            marks the stable threshold (≥ 60).
           </p>
           <div id="chart-score-dist" class="chart-target"></div>
         </div>

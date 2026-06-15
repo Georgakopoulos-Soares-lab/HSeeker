@@ -365,9 +365,9 @@ def generate_charts(
                 hovertemplate="score <b>%{{x:.1f}}</b>: %{{y:,}} sites<extra></extra>",
             ))
             fig.add_vline(
-                x=50.0,
+                x=60.0,
                 line_dash="dash", line_color=_ORANGE, line_width=1.5,
-                annotation_text="stable ≥ 50",
+                annotation_text="stable ≥ 60",
                 annotation_font=dict(color=_ORANGE, size=10),
                 annotation_position="top right",
             )
@@ -515,7 +515,7 @@ def compute_stats(hits: list[dict]) -> dict:
     scored_count = len(scores)
     mean_score = round(float(np.mean(scores)), 1) if scores else 0.0
     max_score = round(float(np.max(scores)), 1) if scores else 0.0
-    n_stable = sum(1 for s in scores if s >= 50)
+    n_stable = sum(1 for s in scores if s >= 60)
     return dict(
         total_hits=len(hits),
         n_perfect=n_perfect,
@@ -625,9 +625,9 @@ async def submit(
     request: Request,
     file: Optional[UploadFile] = File(None),
     seq_text: str = Form(""),
-    minrep: int = Form(8),
-    maxrep: int = Form(3000),
-    maxspacer: int = Form(20),
+    minrep: int = Form(10),
+    maxrep: int = Form(1000),
+    maxspacer: int = Form(10),
     purity: float = Form(0.90),
     mismatch: float = Form(0.10),
     remove_overlaps: int = Form(1),

@@ -208,9 +208,9 @@
       </div>
       <div class="about-param-card">
         <div class="about-param-name"><span class="about-chip">maxrep</span></div>
-        <p>Maximum arm length cap. Set to 50 by default. Long repeat sequences
-           (e.g. (GAA)₆₆) will be reported as arm = 50 bp — the detection is
-           correct but the true arm length is ≥ 50 bp.</p>
+        <p>Maximum arm length cap. Set to 1000 by default. Long repeat sequences
+           (e.g. (GAA)<unicode>₆₆</unicode>) will be reported as arm = 1000 bp — the detection is
+           correct but the true arm length is ≥ 1000 bp.</p>
       </div>
       <div class="about-param-card">
         <div class="about-param-name"><span class="about-chip">maxspacer</span></div>
@@ -330,9 +330,9 @@
       <li><strong>Specificity estimate is a lower bound.</strong> Only 3 non-forming controls are
         included in the benchmark, all from the same locus (BCL2 MBR). The 0 % false-positive rate
         at <code>minrep=8</code> should not be extrapolated directly to genome-wide specificity.</li>
-      <li><strong>maxrep cap.</strong> The default <code>maxrep=50</code> truncates arm length
-        reporting for very long repeats. Arm length will be reported as 50 bp for sequences with a
-        true arm &gt; 50 bp — detection is unaffected but the exact value is a lower bound.</li>
+      <li><strong>maxrep cap.</strong> The default <code>maxrep=1000</code> truncates arm length
+        reporting for very long repeats. Arm length will be reported as 1000 bp for sequences with a
+        true arm &gt; 1000 bp — detection is unaffected but the exact value is a lower bound.</li>
       <li><strong>poly-dG·dC boundary class.</strong> H-DNA formed via poly-dG·poly-dC third-strand
         invasion (rather than intramolecular mirror-repeat folding) may be detected incidentally
         but this structural class requires a separate computational approach.</li>

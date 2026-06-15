@@ -21,7 +21,7 @@ OUT_PNG = ROOT / "parallel_workers_time_ram.png"
 OUT_SVG = ROOT / "parallel_workers_time_ram.svg"
 
 WORKERS = [1, 4, 7, 10, 14]
-MINREP = 8
+MINREP = 10
 
 
 def measure_one(path: Path, workers: int) -> dict:
@@ -159,7 +159,7 @@ def main() -> None:
 
     fig.suptitle(
         "HSeeker Parallel Scaling: Execution Time and RAM by Dataset\n"
-        "(scan_fasta_parallel only, minrep=8)",
+        "(scan_fasta_parallel only, minrep=10)",
         fontsize=16,
     )
 

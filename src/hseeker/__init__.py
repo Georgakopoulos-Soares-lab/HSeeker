@@ -7,7 +7,7 @@ Fast C core wrapped in a clean Python API.
 Quick start
 -----------
 >>> import hseeker
->>> hits = hseeker.scan_sequence("GAGAGAGAGAGAGAGAGAGAGAGAGAGA", minrep=8)
+>>> hits = hseeker.scan_sequence("GAGAGAGAGAGAGAGAGAGAGAGAGAGA", minrep=10)
 >>> hits = hseeker.scan_fasta("genome.fa", minrep=10, purity=0.90)
 """
 
@@ -70,9 +70,9 @@ def _apply_scoring(hits: list[dict]) -> list[dict]:
 def scan_sequence(
     seq: str,
     *,
-    minrep: int = 8,
-    maxrep: int = 3000,
-    maxspacer: int = 20,
+    minrep: int = 10,
+    maxrep: int = 1000,
+    maxspacer: int = 10,
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
@@ -89,11 +89,11 @@ def scan_sequence(
     seq : str
         DNA sequence (ACGTN; case-insensitive).  'N' bases break arm extension.
     minrep : int
-        Minimum arm length in bases (default 8).
+        Minimum arm length in bases (default 10).
     maxrep : int
-        Maximum arm length in bases (default 3000).
+        Maximum arm length in bases (default 1000).
     maxspacer : int
-        Maximum spacer between arms in bases (default 20).
+        Maximum spacer between arms in bases (default 10).
     purity : float
         Minimum fraction of GA or CT bases required in each arm (default 0.90).
         Set to 1.0 to reproduce strict non-B_gfa mirror-repeat results.
@@ -182,9 +182,9 @@ def parse_fasta(path: str | Path) -> Generator[tuple[str, str, int], None, None]
 def scan_fasta(
     path: str | Path,
     *,
-    minrep: int = 8,
-    maxrep: int = 3000,
-    maxspacer: int = 20,
+    minrep: int = 10,
+    maxrep: int = 1000,
+    maxspacer: int = 10,
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
@@ -236,9 +236,9 @@ def scan_fasta(
 def scan_fasta_iter(
     path: str | Path,
     *,
-    minrep: int = 8,
-    maxrep: int = 3000,
-    maxspacer: int = 20,
+    minrep: int = 10,
+    maxrep: int = 1000,
+    maxspacer: int = 10,
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
@@ -275,9 +275,9 @@ def scan_fasta_iter(
 def scan_fasta_parallel(
     path: str | Path,
     *,
-    minrep: int = 8,
-    maxrep: int = 3000,
-    maxspacer: int = 20,
+    minrep: int = 10,
+    maxrep: int = 1000,
+    maxspacer: int = 10,
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,

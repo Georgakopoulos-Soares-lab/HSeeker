@@ -136,8 +136,8 @@ import hseeker
 # Scan a raw sequence string
 hits = hseeker.scan_sequence(
     "GGGAAAGGGTTTTCCCAAACCC",
-    minrep=8,
-    maxspacer=20,
+    minrep=10,
+    maxspacer=10,
     purity=0.90,
     mismatch=0.10,
 )
@@ -169,7 +169,7 @@ hseeker -seq genome.fa -out strict -purity 1.0 -mismatch 0.0
 hseeker -seq genome.fa -out relaxed -purity 0.90 -mismatch 0.10
 
 # Verbose output, longer arms only
-hseeker -seq genome.fa -out long -minrep 10 -maxrep 3000 -v
+hseeker -seq genome.fa -out long -minrep 10 -maxrep 1000 -v
 ```
 
 ---
@@ -182,9 +182,9 @@ hseeker -seq genome.fa -out long -minrep 10 -maxrep 3000 -v
 hseeker.scan_sequence(
     seq: str,
     *,
-    minrep: int = 8,
-    maxrep: int = 3000,
-    maxspacer: int = 20,
+    minrep: int = 10,
+    maxrep: int = 1000,
+    maxspacer: int = 10,
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
@@ -207,9 +207,9 @@ Scan a single DNA string for H-DNA mirror repeat motifs. The C core runs with th
 hseeker.scan_fasta(
     path: str | Path,
     *,
-    minrep: int = 8,
-    maxrep: int = 3000,
-    maxspacer: int = 20,
+    minrep: int = 10,
+    maxrep: int = 1000,
+    maxspacer: int = 10,
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
@@ -227,9 +227,9 @@ Scan every record in a FASTA file. Adds a `seq_id` key to each hit dict. Genomic
 hseeker.scan_fasta_iter(
     path: str | Path,
     *,
-    minrep: int = 8,
-    maxrep: int = 3000,
-    maxspacer: int = 20,
+    minrep: int = 10,
+    maxrep: int = 1000,
+    maxspacer: int = 10,
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
@@ -247,9 +247,9 @@ Streaming alternative to `scan_fasta`. Yields one hit dict at a time, keeping on
 hseeker.scan_fasta_parallel(
     path: str | Path,
     *,
-    minrep: int = 8,
-    maxrep: int = 3000,
-    maxspacer: int = 20,
+    minrep: int = 10,
+    maxrep: int = 1000,
+    maxspacer: int = 10,
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
@@ -297,9 +297,9 @@ python -m hseeker -seq <FASTA> -out <PREFIX> [options]
 
 | Argument | Type | Default | Description |
 |---|---|---|---|
-| `-minrep INT` | int | `8` | **Minimum arm length** in base pairs. Arms shorter than this are not reported, even if they satisfy all other criteria. Increasing this value reduces noise and focuses on structurally stable, longer H-DNA elements (recommended ≥ 10 for whole-genome scans). |
-| `-maxrep INT` | int | `3000` | **Maximum arm length** cap. The algorithm stops extending an arm beyond this length. Set higher for repetitive regions; setting it very high increases runtime without improving sensitivity for typical H-DNA. |
-| `-maxspacer INT` | int | `20` | **Maximum spacer / hinge loop length** in base pairs. The spacer is the single-stranded loop between the two mirror arms. H-DNA with spacers > 10 bp is thermodynamically unfavourable in vivo; the default of 20 captures longer hinge loops. Setting this to 0 requires the two arms to be immediately adjacent. |
+| `-minrep INT` | int | `10` | **Minimum arm length** in base pairs. Arms shorter than this are not reported, even if they satisfy all other criteria. Increasing this value reduces noise and focuses on structurally stable, longer H-DNA elements (recommended ≥ 10 for whole-genome scans). |
+| `-maxrep INT` | int | `1000` | **Maximum arm length** cap. The algorithm stops extending an arm beyond this length. Set higher for repetitive regions; setting it very high increases runtime without improving sensitivity for typical H-DNA. |
+| `-maxspacer INT` | int | `10` | **Maximum spacer / hinge loop length** in base pairs. The spacer is the single-stranded loop between the two mirror arms. H-DNA with spacers > 10 bp is thermodynamically unfavourable in vivo; the default of 10 captures biologically realistic hinge loops. Setting this to 0 requires the two arms to be immediately adjacent. |
 | `-purity FLOAT` | float | `0.90` | **Minimum compositional purity** of each arm (0.0–1.0). The arm must be ≥ `purity` fraction GA (purine) **or** ≥ `purity` fraction CT (pyrimidine). Set to `1.0` to require a perfectly pure homopurine/homopyrimidine arm. Lower values (e.g. `0.80`) increase sensitivity at the cost of more false positives. |
 | `-mismatch FLOAT` | float | `0.10` | **Maximum mirror mismatch fraction** (0.0–1.0). Fraction of base positions in the arm where `dna[left] ≠ dna[right]` (i.e. the mirror is broken). `0.0` requires a perfect mirror; `0.10` allows 1 mismatch per 10 bp. This parameter is independent of purity — both must be satisfied simultaneously. |
 | `-skipoverlap` | flag | *(off)* | **Skip overlap removal**. By default, overlapping hits are collapsed to the longest arm (ties broken by shortest spacer). Pass this flag to disable overlap removal and receive every raw hit at every `(center, spacer)` combination that passes the thresholds. Useful for statistical analyses or when you want to inspect the full hit landscape. |
@@ -320,7 +320,7 @@ hseeker -seq hg38.fa -out hg38_hdna -minrep 10 -purity 0.85 -v
 
 # 4. Exploratory scan — very permissive, keep all raw hits
 hseeker -seq region.fa -out explore -purity 0.80 -mismatch 0.20 \
-            -minrep 8 -maxspacer 20 -skipoverlap
+            -minrep 8 -maxspacer 10 -skipoverlap
 
 # 5. Long perfect H-DNA only
 hseeker -seq genome.fa -out perfect -purity 1.0 -mismatch 0.0 \
@@ -371,9 +371,9 @@ chr1    findHDNA  1001   1020  7           6              20            85.71   
 
 | Parameter | API name | CLI flag | Type | Default | Valid range | Notes |
 |---|---|---|---|---|---|---|
-| Minimum arm length | `minrep` | `-minrep` | int | 8 | ≥ 1 | Arms shorter than this are discarded entirely |
-| Maximum arm length | `maxrep` | `-maxrep` | int | 3000 | ≥ `minrep` | Hard cap on extension; rarely needs changing |
-| Maximum spacer | `maxspacer` | `-maxspacer` | int | 20 | ≥ 0 | Set to 0 for zero-loop (adjacent arms) only |
+| Minimum arm length | `minrep` | `-minrep` | int | 10 | ≥ 1 | Arms shorter than this are discarded entirely |
+| Maximum arm length | `maxrep` | `-maxrep` | int | 1000 | ≥ `minrep` | Hard cap on extension; rarely needs changing |
+| Maximum spacer | `maxspacer` | `-maxspacer` | int | 10 | ≥ 0 | Set to 0 for zero-loop (adjacent arms) only |
 | Purity threshold | `purity` | `-purity` | float | 0.90 | 0.0–1.0 | Fraction GA or CT required in arm |
 | Mismatch tolerance | `mismatch` | `-mismatch` | float | 0.10 | 0.0–1.0 | Fraction of arm positions allowed to mismatch the mirror |
 | Overlap removal | `remove_overlaps` | `--skipoverlap` (inverts) | bool | True | — | When True, keeps only the longest non-overlapping hit |
@@ -384,12 +384,12 @@ chr1    findHDNA  1001   1020  7           6              20            85.71   
 
 **Genome-wide survey (high confidence)**
 ```
-minrep=10, maxrep=3000, maxspacer=20, purity=0.90, mismatch=0.10
+minrep=10, maxrep=1000, maxspacer=10, purity=0.90, mismatch=0.10
 ```
 
 **Exploratory / maximum sensitivity**
 ```
-minrep=8, maxrep=3000, maxspacer=20, purity=0.80, mismatch=0.20
+minrep=8, maxrep=1000, maxspacer=10, purity=0.80, mismatch=0.20
 ```
 
 **Downstream ML or statistical analysis (all raw candidates)**
@@ -422,7 +422,7 @@ These are the most likely candidates for stable H-DNA structures.
 
 ### Scoring results (`stacking_score`, `pairing_score`, `total_score`)
 
-When scoring is enabled (default), each hit is passed through a thermodynamic stability model that evaluates the energetic favourability of triplex formation. The model assigns a **pairing score** based on Hoogsteen base-pair complementarity (G–G and A–A matches contribute positively; mismatches incur a penalty) and a **stacking score** that rewards consecutive GA–GA dinucleotide stacks. The two components are summed to produce a **total score**; higher values indicate more stable candidate triplexes.
+When scoring is enabled (default), each hit is passed through a thermodynamic stability model that evaluates the energetic favourability of triplex formation. The model assigns a **pairing score** based on Hoogsteen base-pair complementarity (G–G and A–A matches contribute positively; mismatches incur a penalty) and a **stacking score** that rewards consecutive GA–GA dinucleotide stacks. The two components are summed to produce a **total score**; higher values indicate more stable candidate triplexes. A **total score ≥ 60** is the recommended threshold for filtering to high-confidence, thermodynamically stable H-DNA candidates.
 
 The scoring pass also produces a `putative_triplex` field — the motif sequence in `left_arm[spacer]right_arm` notation — whose arm/spacer boundaries may differ from the original detection because the scorer re-optimises the boundary to maximise the combined stacking and pairing signal.
 

@@ -116,16 +116,16 @@ Previously used `-O2`.
 ### Public surface
 
 ```python
-scan_sequence(seq, *, minrep=8, maxrep=3000, maxspacer=20,
+scan_sequence(seq, *, minrep=10, maxrep=1000, maxspacer=10,
               purity=0.90, mismatch=0.10,
               remove_overlaps=True, seq_offset=1,
               score=True) -> list[dict]
 
-scan_fasta(path, *, minrep=8, ..., score=True) -> list[dict]
+scan_fasta(path, *, minrep=10, ..., score=True) -> list[dict]
 
-scan_fasta_iter(path, *, minrep=8, ..., score=True) -> Generator[dict, None, None]
+scan_fasta_iter(path, *, minrep=10, ..., score=True) -> Generator[dict, None, None]
 
-scan_fasta_parallel(path, *, minrep=8, ..., workers=None,
+scan_fasta_parallel(path, *, minrep=10, ..., workers=None,
                     chunk_size=1_000_000, score=True) -> list[dict]
 ```
 
@@ -233,7 +233,7 @@ hseeker -seq genome.fa -out results -no-score
 
 ```python
 import hseeker
-print(hseeker.scan_sequence("YOUR_SEQ", minrep=8, remove_overlaps=False))
+print(hseeker.scan_sequence("YOUR_SEQ", minrep=10, remove_overlaps=False))
 ```
 
 ### Critical known values (do not change without re-running diagnostics)

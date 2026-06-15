@@ -24,7 +24,7 @@ def _key(h):
     return (h["seq_id"], h["start"], h["end"], h["arm_length"])
 
 
-PARAMS = dict(minrep=8, maxrep=3000, maxspacer=20, purity=0.90, mismatch=0.10)
+PARAMS = dict(minrep=10, maxrep=1000, maxspacer=10, purity=0.90, mismatch=0.10)
 
 
 # ═══════════════════════════════════════════════════════════════════

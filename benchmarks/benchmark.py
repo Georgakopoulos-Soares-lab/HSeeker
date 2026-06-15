@@ -103,10 +103,10 @@ _PROFILES: dict[str, tuple[float, float, float, float]] = {
 }
 
 # minrep values used in the optional parameter-sensitivity sweep
-MINREP_SWEEP_VALUES: list[int] = [8, 10, 15, 20, 30]
+MINREP_SWEEP_VALUES: list[int] = [10, 15, 20, 30, 40]
 
 # H-DNA motifs embedded at regular intervals — chosen to produce real hits
-# at minrep=8 with default purity/mismatch settings
+# at minrep=10 with default purity/mismatch settings
 _MOTIFS: list[bytes] = [
     b"GAGAGAGAGAGAGAGA",      # pure GA 8-mer, is_perfect candidate
     b"GGGAAAGGGTTTTCCCAAACCC",# mixed GA, arm≈10
@@ -435,14 +435,14 @@ def _measure() -> Generator[dict[str, Any], None, None]:
 # Benchmark runners
 # ---------------------------------------------------------------------------
 
-def bench_scan_fasta(path: Path, minrep: int = 8) -> dict[str, Any]:
+def bench_scan_fasta(path: Path, minrep: int = 10) -> dict[str, Any]:
     with _measure() as r:
         hits = hseeker.scan_fasta(str(path), minrep=minrep)
     r["hits"] = len(hits)
     return r
 
 
-def bench_scan_fasta_iter(path: Path, minrep: int = 8) -> dict[str, Any]:
+def bench_scan_fasta_iter(path: Path, minrep: int = 10) -> dict[str, Any]:
     with _measure() as r:
         hits = list(hseeker.scan_fasta_iter(str(path), minrep=minrep))
     r["hits"] = len(hits)
@@ -452,7 +452,7 @@ def bench_scan_fasta_iter(path: Path, minrep: int = 8) -> dict[str, Any]:
 def bench_scan_fasta_parallel(
     path: Path,
     workers: int,
-    minrep: int = 8,
+    minrep: int = 10,
     chunk_size: int = 1_000_000,
 ) -> dict[str, Any]:
     with _measure() as r:
@@ -464,7 +464,7 @@ def bench_scan_fasta_parallel(
     return r
 
 
-def bench_cli(path: Path, minrep: int = 8) -> dict[str, Any]:
+def bench_cli(path: Path, minrep: int = 10) -> dict[str, Any]:
     """End-to-end CLI benchmark including TSV disk write."""
     with tempfile.TemporaryDirectory() as tmp:
         out_prefix = str(Path(tmp) / "bench")
@@ -1108,8 +1108,8 @@ def _parse_args() -> argparse.Namespace:
         help="Chunk size for intra-record parallelism (default: 1_000_000)",
     )
     p.add_argument(
-        "--minrep", type=int, default=8,
-        help="Minimum arm length passed to hseeker (default 8)",
+        "--minrep", type=int, default=10,
+        help="Minimum arm length passed to hseeker (default 10)",
     )
     p.add_argument(
         "--no-cli", action="store_true",
@@ -1134,7 +1134,7 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument(
         "--minrep-values", type=int, nargs="+", metavar="N",
         dest="minrep_values", default=None,
-        help="minrep values for the sweep (default: 8 10 15 20 30)",
+        help="minrep values for the sweep (default: 10 15 20 30 40)",
     )
     p.add_argument(
         "--report", metavar="FILE",

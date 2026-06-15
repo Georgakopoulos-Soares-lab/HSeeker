@@ -38,12 +38,12 @@ def main() -> None:
     # mirroring the original findHDNA CLI flags exactly
     parser.add_argument("-seq",         required=True,       help="Input FASTA file")
     parser.add_argument("-out",         required=True,       help="Output prefix → <prefix>_HDNA.tsv")
-    parser.add_argument("-minrep",      type=int,   default=8,     metavar="INT",
-                        help="Minimum arm length (default: 8)")
-    parser.add_argument("-maxrep",      type=int,   default=3000,  metavar="INT",
-                        help="Maximum arm length (default: 3000)")
-    parser.add_argument("-maxspacer",   type=int,   default=20,   metavar="INT",
-                        help="Maximum spacer length (default: 20)")
+    parser.add_argument("-minrep",      type=int,   default=10,    metavar="INT",
+                        help="Minimum arm length (default: 10)")
+    parser.add_argument("-maxrep",      type=int,   default=1000,  metavar="INT",
+                        help="Maximum arm length (default: 1000)")
+    parser.add_argument("-maxspacer",   type=int,   default=10,   metavar="INT",
+                        help="Maximum spacer length (default: 10)")
     parser.add_argument("-purity",      type=float, default=0.90, metavar="FLOAT",
                         help="Min GA or CT fraction in arm (default: 0.90)")
     parser.add_argument("-mismatch",    type=float, default=0.10, metavar="FLOAT",

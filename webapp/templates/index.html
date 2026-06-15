@@ -104,7 +104,7 @@
             <label class="param-label" for="minrep">Min arm length
               <span class="param-code">minrep</span>
             </label>
-            <input id="minrep" type="number" name="minrep" value="8"
+            <input id="minrep" type="number" name="minrep" value="10"
                    min="4" max="100" class="param-input">
             <span class="param-hint">Minimum arm length in bp (≥ 4)</span>
           </div>
@@ -112,7 +112,7 @@
             <label class="param-label" for="maxrep">Max arm length
               <span class="param-code">maxrep</span>
             </label>
-            <input id="maxrep" type="number" name="maxrep" value="3000"
+            <input id="maxrep" type="number" name="maxrep" value="1000"
                    min="6" max="5000" class="param-input">
             <span class="param-hint">Maximum arm length in bp</span>
           </div>
@@ -120,7 +120,7 @@
             <label class="param-label" for="maxspacer">Max spacer
               <span class="param-code">maxspacer</span>
             </label>
-            <input id="maxspacer" type="number" name="maxspacer" value="20"
+            <input id="maxspacer" type="number" name="maxspacer" value="10"
                    min="0" max="100" class="param-input">
             <span class="param-hint">Maximum hinge loop length in bp</span>
           </div>
@@ -164,15 +164,15 @@
         <div class="presets">
           <span class="presets-label">Presets:</span>
           <button type="button" class="preset-btn"
-                  @click="applyPreset({minrep:8,maxrep:3000,maxspacer:20,purity:0.90,mismatch:0.10})">
+                  @click="applyPreset({minrep:10,maxrep:1000,maxspacer:10,purity:0.90,mismatch:0.10})">
             Default
           </button>
           <button type="button" class="preset-btn"
-                  @click="applyPreset({minrep:8,maxrep:3000,maxspacer:20,purity:1.0,mismatch:0.0})">
+                  @click="applyPreset({minrep:10,maxrep:1000,maxspacer:10,purity:1.0,mismatch:0.0})">
             Strict (100% pure)
           </button>
           <button type="button" class="preset-btn"
-                  @click="applyPreset({minrep:10,maxrep:3000,maxspacer:20,purity:0.90,mismatch:0.10})">
+                  @click="applyPreset({minrep:12,maxrep:1000,maxspacer:10,purity:0.90,mismatch:0.10})">
             Conservative
           </button>
         </div>

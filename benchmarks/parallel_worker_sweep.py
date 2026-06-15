@@ -21,7 +21,7 @@ except Exception:  # pragma: no cover
     psutil = None
 
 WORKERS = [1, 4, 7, 10, 14]
-MINREP = 8
+MINREP = 10
 ROOT = Path(__file__).resolve().parent
 DATA_DIR = ROOT / "data"
 OUT_JSON = ROOT / "parallel_workers_sweep.json"
