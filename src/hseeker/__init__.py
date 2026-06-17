@@ -78,6 +78,7 @@ def scan_sequence(
     remove_overlaps: bool = True,
     seq_offset: int = 1,
     score: bool = True,
+    purity_rmq: bool = False,
 ) -> list[dict]:
     """Scan a raw DNA string for H-DNA / triplex mirror repeat motifs.
 
@@ -109,6 +110,10 @@ def scan_sequence(
         Apply thermodynamic stability scoring to each hit (default True).
         Adds ``stacking_score``, ``pairing_score``, ``total_score``, and
         ``putative_triplex`` keys.
+    purity_rmq : bool
+        Use an exact right-arm purity feasibility prefilter before extension
+        (default False). This preserves output semantics while skipping
+        center/spacer pairs that cannot satisfy the purity rule.
 
     Returns
     -------
@@ -130,6 +135,7 @@ def scan_sequence(
         mismatch=mismatch,
         remove_overlaps=remove_overlaps,
         seq_offset=seq_offset,
+        purity_rmq=purity_rmq,
     )
     if score and hits:
         _apply_scoring(hits)
@@ -204,6 +210,7 @@ def scan_fasta(
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
     score: bool = True,
+    purity_rmq: bool = False,
 ) -> list[dict]:
     """Scan every record in a FASTA file for H-DNA motifs.
 
@@ -239,6 +246,7 @@ def scan_fasta(
             remove_overlaps=remove_overlaps,
             seq_offset=offset,
             score=False,  # defer scoring to collect phase
+            purity_rmq=purity_rmq,
         )
         for h in hits:
             h["seq_id"] = seq_id
@@ -258,6 +266,7 @@ def scan_fasta_iter(
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
     score: bool = True,
+    purity_rmq: bool = False,
 ) -> Generator[dict, None, None]:
     """Scan a FASTA file and yield hits one at a time (streaming).
 
@@ -281,6 +290,7 @@ def scan_fasta_iter(
             remove_overlaps=remove_overlaps,
             seq_offset=offset,
             score=score,  # score per-record for streaming
+            purity_rmq=purity_rmq,
         )
         for h in hits:
             h["seq_id"] = seq_id
@@ -299,6 +309,7 @@ def scan_fasta_parallel(
     workers: int | None = None,
     chunk_size: int = 1_000_000,
     score: bool = True,
+    purity_rmq: bool = False,
 ) -> list[dict]:
     """Scan a FASTA file using a thread pool with intra-record chunk parallelism.
 
@@ -382,6 +393,7 @@ def scan_fasta_parallel(
             remove_overlaps=(remove_overlaps and not defer_ovl),
             seq_offset=chunk_offset,
             score=False,
+            purity_rmq=purity_rmq,
         )
         for h in hits:
             h["seq_id"] = seq_id

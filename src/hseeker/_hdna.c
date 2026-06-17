@@ -31,6 +31,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <limits.h>
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -99,6 +100,109 @@ typedef struct {
     int   spacer_start_idx;  /* 0-based index into dna[] for spacer       */
     int   right_start_idx;   /* 0-based index into dna[] for right arm    */
 } HDNA_HIT;
+
+typedef struct {
+    int n;
+    int size;
+    int *tree;
+} RangeMaxTree;
+
+static int min4_int(int a, int b, int c, int d)
+{
+    int m = a < b ? a : b;
+    if (c < m) m = c;
+    if (d < m) m = d;
+    return m;
+}
+
+static int append_hit(
+    HDNA_HIT **p_hits, int *p_capacity, int *p_ndx,
+    int ctr, int sp, int best_k,
+    float best_mir, float best_ga, float best_ct,
+    long seq_offset)
+{
+    if (*p_ndx >= *p_capacity) {
+        int new_cap = (*p_capacity) * 2;
+        HDNA_HIT *new_buf = (HDNA_HIT *)realloc(
+            *p_hits, sizeof(HDNA_HIT) * (size_t)new_cap);
+        if (!new_buf) return -1;
+        *p_hits = new_buf;
+        *p_capacity = new_cap;
+    }
+
+    int left_start = ctr - best_k + 1;
+    int right_start = ctr + sp + 1;
+
+    HDNA_HIT *h = &(*p_hits)[*p_ndx];
+    h->arm_len = best_k;
+    h->spacer_len = sp;
+    h->start = (long)(left_start + 1) + (seq_offset - 1);
+    h->end = (long)(right_start + best_k) + (seq_offset - 1);
+    h->ga_pct = best_ga * 100.0f;
+    h->ct_pct = best_ct * 100.0f;
+    h->mirror_id = best_mir * 100.0f;
+    h->is_perfect = ((best_ga == 1.0f || best_ct == 1.0f)
+                     && best_mir == 1.0f) ? 1 : 0;
+    h->left_start_idx = left_start;
+    h->spacer_start_idx = ctr + 1;
+    h->right_start_idx = right_start;
+    (*p_ndx)++;
+    return 0;
+}
+
+static int *build_next_invalid_right(const unsigned char *cls, int n)
+{
+    int *next_invalid = (int *)malloc(sizeof(int) * (size_t)(n + 1));
+    if (!next_invalid) return NULL;
+    next_invalid[n] = n;
+    for (int i = n - 1; i >= 0; i--)
+        next_invalid[i] = cls[i] == 0 ? i : next_invalid[i + 1];
+    return next_invalid;
+}
+
+static int range_max_tree_build(RangeMaxTree *t, const int *values, int n)
+{
+    int size = 1;
+    while (size < n) size <<= 1;
+    t->tree = (int *)malloc(sizeof(int) * (size_t)(2 * size));
+    if (!t->tree) return -1;
+    t->n = n;
+    t->size = size;
+    for (int i = 0; i < 2 * size; i++) t->tree[i] = INT_MIN;
+    for (int i = 0; i < n; i++) t->tree[size + i] = values[i];
+    for (int i = size - 1; i > 0; i--)
+        t->tree[i] = t->tree[i << 1] > t->tree[(i << 1) | 1]
+                     ? t->tree[i << 1] : t->tree[(i << 1) | 1];
+    return 0;
+}
+
+static int range_max_tree_query(const RangeMaxTree *t, int left, int right)
+{
+    int ans = INT_MIN;
+    left += t->size;
+    right += t->size;
+    while (left <= right) {
+        if (left & 1) {
+            if (t->tree[left] > ans) ans = t->tree[left];
+            left++;
+        }
+        if (!(right & 1)) {
+            if (t->tree[right] > ans) ans = t->tree[right];
+            right--;
+        }
+        left >>= 1;
+        right >>= 1;
+    }
+    return ans;
+}
+
+static void range_max_tree_free(RangeMaxTree *t)
+{
+    free(t->tree);
+    t->tree = NULL;
+    t->n = 0;
+    t->size = 0;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Core algorithm                                                     */
@@ -248,6 +352,146 @@ static int findHDNA_core(
     return ndx;
 }
 
+/*
+ * findHDNA_purity_rmq_core
+ *
+ * Exact variant of findHDNA_core with one deterministic prefilter:
+ * before extending a (center, spacer) pair, skip it if no right-arm prefix
+ * length in [minrep, Kmax] can possibly satisfy the original GA/CT purity
+ * condition. Mirror comparison, mismatch handling, hit selection, and overlap
+ * removal are otherwise left to the same logic as the original path.
+ */
+static int findHDNA_purity_rmq_core(
+    const char *dna, int total_bases,
+    HDNA_HIT **p_hits, int *p_capacity,
+    int   minrep, int maxrep, int maxspacer,
+    float purity_thresh, float mismatch_tol,
+    long  seq_offset)
+{
+    int ndx = 0;
+    int mismatch_budget = (int)(mismatch_tol * maxrep);
+    int purity_thresh_int = (int)(purity_thresh * 100.0f + 0.5f);
+    int mismatch_tol_int = (int)(mismatch_tol * 100.0f + 0.5f);
+
+    unsigned char *cls = (unsigned char *)malloc((size_t)total_bases);
+    int *next_invalid_right = NULL;
+    int *ga_prefix = NULL;
+    int *ct_prefix = NULL;
+    int *f_ga = NULL;
+    int *f_ct = NULL;
+    RangeMaxTree rmq_ga = {0, 0, NULL};
+    RangeMaxTree rmq_ct = {0, 0, NULL};
+
+    prof_reset();
+
+    if (!cls) goto oom;
+    for (int i = 0; i < total_bases; i++)
+        cls[i] = BT[(unsigned char)dna[i]];
+
+    next_invalid_right = build_next_invalid_right(cls, total_bases);
+    ga_prefix = (int *)calloc((size_t)(total_bases + 1), sizeof(int));
+    ct_prefix = (int *)calloc((size_t)(total_bases + 1), sizeof(int));
+    f_ga = (int *)malloc(sizeof(int) * (size_t)(total_bases + 1));
+    f_ct = (int *)malloc(sizeof(int) * (size_t)(total_bases + 1));
+    if (!next_invalid_right || !ga_prefix || !ct_prefix || !f_ga || !f_ct)
+        goto oom;
+
+    for (int i = 0; i < total_bases; i++) {
+        ga_prefix[i + 1] = ga_prefix[i] + (cls[i] == 1);
+        ct_prefix[i + 1] = ct_prefix[i] + (cls[i] == 2);
+    }
+    for (int i = 0; i <= total_bases; i++) {
+        f_ga[i] = 100 * ga_prefix[i] - purity_thresh_int * i;
+        f_ct[i] = 100 * ct_prefix[i] - purity_thresh_int * i;
+    }
+    if (range_max_tree_build(&rmq_ga, f_ga, total_bases + 1) < 0) goto oom;
+    if (range_max_tree_build(&rmq_ct, f_ct, total_bases + 1) < 0) goto oom;
+
+    for (int ctr = minrep - 1; ctr <= total_bases - minrep - 1; ctr++) {
+        if (BT[(unsigned char)dna[ctr]] == 0) continue;
+
+        int max_sp = (ctr + maxspacer < total_bases - minrep)
+                      ? maxspacer
+                      : (total_bases - minrep - ctr - 1);
+
+        for (int sp = 0; sp <= max_sp; sp++) {
+            prof_ctr_sp_pairs++;
+
+            int right_start = ctr + sp + 1;
+            int kmax = min4_int(maxrep, ctr + 1, total_bases - right_start,
+                                next_invalid_right[right_start] - right_start);
+            if (kmax < minrep)
+                continue;
+
+            int left = right_start + minrep;
+            int right = right_start + kmax;
+            int ga_possible = range_max_tree_query(&rmq_ga, left, right) >= f_ga[right_start];
+            int ct_possible = range_max_tree_query(&rmq_ct, left, right) >= f_ct[right_start];
+            if (!ga_possible && !ct_possible)
+                continue;
+
+            int   left_i    = ctr;
+            int   right_j   = right_start;
+            int   k         = 0;
+            int   mismatches = 0;
+            int   ga_count  = 0;
+            int   ct_count  = 0;
+            int   best_k    = 0;
+            float best_mir  = 0.0f;
+            float best_ga   = 0.0f;
+            float best_ct   = 0.0f;
+
+            while (left_i >= 0 && right_j < total_bases && k < maxrep) {
+                char lb = dna[left_i];
+                unsigned char bt_rb = BT[(unsigned char)dna[right_j]];
+                if (bt_rb == 0) break;
+
+                if (lb != dna[right_j]) mismatches++;
+                k++;
+                prof_inner_iters++;
+
+                if (bt_rb == 1) ga_count++; else ct_count++;
+
+                if (k >= minrep) {
+                    int ga_ok = ga_count * 100 >= purity_thresh_int * k;
+                    int ct_ok = ct_count * 100 >= purity_thresh_int * k;
+
+                    if ((ga_ok || ct_ok) &&
+                        mismatches * 100 <= mismatch_tol_int * k) {
+                        best_k = k;
+                        float inv_k = 1.0f / k;
+                        best_mir = 1.0f - (float)mismatches * inv_k;
+                        best_ga  = (float)ga_count * inv_k;
+                        best_ct  = (float)ct_count * inv_k;
+                    }
+
+                    if (mismatches > mismatch_budget) break;
+                }
+
+                left_i--;
+                right_j++;
+            }
+
+            if (best_k >= minrep) {
+                if (append_hit(p_hits, p_capacity, &ndx, ctr, sp, best_k,
+                               best_mir, best_ga, best_ct, seq_offset) < 0)
+                    goto oom;
+            }
+        }
+    }
+
+    free(cls); free(next_invalid_right); free(ga_prefix); free(ct_prefix);
+    free(f_ga); free(f_ct);
+    range_max_tree_free(&rmq_ga); range_max_tree_free(&rmq_ct);
+    return ndx;
+
+oom:
+    free(cls); free(next_invalid_right); free(ga_prefix); free(ct_prefix);
+    free(f_ga); free(f_ct);
+    range_max_tree_free(&rmq_ga); range_max_tree_free(&rmq_ct);
+    return -1;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Overlap removal                                                    */
 /* ------------------------------------------------------------------ */
@@ -347,23 +591,24 @@ py_scan_sequence(PyObject *self, PyObject *args, PyObject *kwargs)
     double      mismatch  = 0.10;
     int         do_overlap = 1;
     long        seq_offset = 1;
+    int         use_purity_rmq = 0;
 
     static char *kwlist[] = {
         "seq",
         "minrep", "maxrep", "maxspacer",
         "purity", "mismatch",
-        "remove_overlaps", "seq_offset",
+        "remove_overlaps", "seq_offset", "purity_rmq",
         NULL
     };
 
     if (!PyArg_ParseTupleAndKeywords(
             args, kwargs,
-            "s#|iiiddil",
+            "s#|iiiddili",
             kwlist,
             &raw_seq, &raw_len,
             &minrep, &maxrep, &maxspacer,
             &purity, &mismatch,
-            &do_overlap, &seq_offset))
+            &do_overlap, &seq_offset, &use_purity_rmq))
         return NULL;
 
     /* parameter validation */
@@ -415,12 +660,21 @@ py_scan_sequence(PyObject *self, PyObject *args, PyObject *kwargs)
     int nhits;
 
     Py_BEGIN_ALLOW_THREADS
-        nhits = findHDNA_core(
-            dna, (int)raw_len,
-            &hits, &hit_capacity,
-            minrep, maxrep, maxspacer,
-            (float)purity, (float)mismatch,
-            seq_offset);
+        if (use_purity_rmq) {
+            nhits = findHDNA_purity_rmq_core(
+                dna, (int)raw_len,
+                &hits, &hit_capacity,
+                minrep, maxrep, maxspacer,
+                (float)purity, (float)mismatch,
+                seq_offset);
+        } else {
+            nhits = findHDNA_core(
+                dna, (int)raw_len,
+                &hits, &hit_capacity,
+                minrep, maxrep, maxspacer,
+                (float)purity, (float)mismatch,
+                seq_offset);
+        }
 
         if (nhits >= 0 && do_overlap && nhits > 1)
             nhits = remove_overlaps_core(hits, nhits);
@@ -548,6 +802,9 @@ PyDoc_STRVAR(scan_sequence_doc,
 "seq_offset : int\n"
 "    1-based genomic start coordinate of seq[0] (default 1).\n"
 "    Pass the chromosomal start position when seq is a genomic slice.\n"
+"purity_rmq : bool\n"
+"    Use an exact right-arm purity feasibility prefilter before extension\n"
+"    (default False). Output semantics are unchanged.\n"
 "\n"
 "Returns\n"
 "-------\n"

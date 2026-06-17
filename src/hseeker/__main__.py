@@ -56,6 +56,8 @@ def main() -> None:
                         help="Disable stability scoring")
     parser.add_argument("-workers",     type=int,   default=None,  metavar="INT",
                         help="Parallel worker threads (default: all CPU cores)")
+    parser.add_argument("-purity-rmq", action="store_true",
+                        help="Use exact right-arm purity feasibility prefilter")
     parser.add_argument("-v",           action="store_true",
                         help="Verbose: print per-sequence stats to stderr")
 
@@ -96,6 +98,7 @@ def main() -> None:
         remove_overlaps=not args.skipoverlap,
         workers=n_workers,
         score=args.score,
+        purity_rmq=args.purity_rmq,
     )
 
     # Count distinct records for the summary

@@ -1,0 +1,20 @@
+{
+  "hseeker_output": "/Users/archit/Projects/repeat_finder/HSeeker/analysis/results/chr1/chr1_hseeker_16threads_scored.tsv",
+  "hseeker_hits": 96729,
+  "workers": 16,
+  "scoring": true,
+  "purity_rmq": true,
+  "params": {
+    "minrep": 10,
+    "maxrep": 1000,
+    "maxspacer": 10,
+    "purity": 0.9,
+    "mismatch": 0.1
+  },
+  "source_fasta_note": "hg38 chr1 FASTA was downloaded to benchmarks/data/chr1.fa for the run and removed afterward as a cache artifact.",
+  "score_min": -9780.04,
+  "score_median": 71.415,
+  "score_max": 1785.99,
+  "triplex_status": "not_run_for_full_chr1",
+  "triplex_note": "Full-chromosome Triplex is not included in this chr1 analysis."
+}
