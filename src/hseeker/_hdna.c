@@ -55,21 +55,31 @@ static const unsigned char BT[256] = {
 static long long prof_inner_iters = 0;     /* total inner while-body executions  */
 static long long prof_ctr_sp_pairs = 0;    /* how many (ctr, sp) pairs explored */
 static long long prof_skipped_invalid_kmax = 0;
+static long long prof_skipped_kmax_lt_minrep = 0;
 static long long prof_skipped_purity_prefilter = 0;
 static long long prof_gate_passed = 0;
+static long long prof_stopped_by_mismatch_impossible = 0;
+static long long prof_stopped_by_purity_impossible = 0;
+static long long prof_stopped_by_boundary_or_kmax = 0;
 static long long prof_raw_hits = 0;
 static long long prof_final_hits = 0;
 static double    prof_runtime_seconds = 0.0;
+static const char *prof_method = "unknown";
 
-static void prof_reset(void) {
+static void prof_reset_method(const char *method) {
     prof_inner_iters  = 0;
     prof_ctr_sp_pairs = 0;
     prof_skipped_invalid_kmax = 0;
+    prof_skipped_kmax_lt_minrep = 0;
     prof_skipped_purity_prefilter = 0;
     prof_gate_passed = 0;
+    prof_stopped_by_mismatch_impossible = 0;
+    prof_stopped_by_purity_impossible = 0;
+    prof_stopped_by_boundary_or_kmax = 0;
     prof_raw_hits = 0;
     prof_final_hits = 0;
     prof_runtime_seconds = 0.0;
+    prof_method = method;
 }
 
 /*
@@ -112,6 +122,30 @@ typedef struct {
     int   spacer_start_idx;  /* 0-based index into dna[] for spacer       */
     int   right_start_idx;   /* 0-based index into dna[] for right arm    */
 } HDNA_HIT;
+
+static int min4_int(int a, int b, int c, int d)
+{
+    int m = a < b ? a : b;
+    if (c < m) m = c;
+    if (d < m) m = d;
+    return m;
+}
+
+static int can_purity_still_recover(
+    int current_count,
+    int k,
+    int kmax,
+    int minrep,
+    int purity_thresh_int)
+{
+    int start = k > minrep ? k : minrep;
+    for (int L = start; L <= kmax; L++) {
+        int favorable = current_count + (L - k);
+        if (favorable * 100 >= purity_thresh_int * L)
+            return 1;
+    }
+    return 0;
+}
 
 /* ------------------------------------------------------------------ */
 /*  Core algorithm                                                     */
@@ -164,7 +198,7 @@ static int findHDNA_core(
     int   purity_thresh_int = (int)(purity_thresh  * 100.0f + 0.5f);
     int   mismatch_tol_int  = (int)(mismatch_tol   * 100.0f + 0.5f);
 
-    prof_reset();
+    prof_reset_method("original");
 
     for (int ctr = minrep - 1; ctr <= total_bases - minrep - 1; ctr++) {
         /* skip centers that are N or non-ACGT — no sp can succeed */
@@ -323,7 +357,7 @@ static int findHDNA_fast_gated_core(
     unsigned char *ring_match = NULL;
     unsigned char *ring_bt = NULL;
 
-    prof_reset();
+    prof_reset_method("fast_gated");
     clock_t start_clock = clock();
 
     if (gate_window < 1) gate_window = minrep;
@@ -482,6 +516,142 @@ static int findHDNA_fast_gated_core(
 
     free(next_invalid_right); free(bt); free(right_pure_window_exists);
     free(ring_match); free(ring_bt);
+    return ndx;
+}
+
+/*
+ * SafePrunedHSeeker core
+ *
+ * This detector preserves original HSeeker prefix checks. It differs only in
+ * computing a tight Kmax for each (ctr, spacer), then stopping when no future
+ * prefix up to Kmax can recover the mismatch budget, and optionally when no
+ * future prefix can recover right-arm GA/CT purity.
+ */
+static int findHDNA_safe_pruned_core(
+    const char *dna, int total_bases,
+    HDNA_HIT **p_hits, int *p_capacity,
+    int   minrep, int maxrep, int maxspacer,
+    float purity_thresh, float mismatch_tol,
+    int   safe_prune_purity,
+    long  seq_offset)
+{
+    int ndx = 0;
+    int purity_thresh_int = (int)(purity_thresh * 100.0f + 0.5f);
+    int mismatch_tol_int = (int)(mismatch_tol * 100.0f + 0.5f);
+    int *next_invalid_right = NULL;
+    unsigned char *bt = NULL;
+
+    prof_reset_method(safe_prune_purity ? "safe_pruned_mismatch_plus_purity"
+                                        : "safe_pruned_mismatch_only");
+    clock_t start_clock = clock();
+
+    next_invalid_right = (int *)malloc(sizeof(int) * (size_t)(total_bases + 1));
+    bt = (unsigned char *)malloc(sizeof(unsigned char) * (size_t)total_bases);
+    if (!next_invalid_right || !bt) {
+        free(next_invalid_right); free(bt);
+        return -1;
+    }
+
+    next_invalid_right[total_bases] = total_bases;
+    for (int i = total_bases - 1; i >= 0; i--) {
+        bt[i] = BT[(unsigned char)dna[i]];
+        next_invalid_right[i] = (bt[i] == 0) ? i : next_invalid_right[i + 1];
+    }
+
+    for (int ctr = minrep - 1; ctr <= total_bases - minrep - 1; ctr++) {
+        if (bt[ctr] == 0) continue;
+
+        int max_sp = (ctr + maxspacer < total_bases - minrep)
+                      ? maxspacer
+                      : (total_bases - minrep - ctr - 1);
+
+        for (int sp = 0; sp <= max_sp; sp++) {
+            prof_ctr_sp_pairs++;
+
+            int right_start = ctr + sp + 1;
+            int kmax = min4_int(
+                maxrep,
+                ctr + 1,
+                total_bases - right_start,
+                next_invalid_right[right_start] - right_start);
+
+            if (kmax < minrep) {
+                prof_skipped_kmax_lt_minrep++;
+                prof_skipped_invalid_kmax++;
+                continue;
+            }
+
+            int mismatches = 0;
+            int ga_count = 0;
+            int ct_count = 0;
+            int best_k = 0;
+            float best_mir = 0.0f;
+            float best_ga = 0.0f;
+            float best_ct = 0.0f;
+            int stopped_early = 0;
+            int mismatch_limit_at_kmax = (mismatch_tol_int * kmax) / 100;
+
+            for (int k = 1; k <= kmax; k++) {
+                int left_i = ctr - k + 1;
+                int right_j = right_start + k - 1;
+                unsigned char rb = bt[right_j];
+
+                prof_inner_iters++;
+
+                if (dna[left_i] != dna[right_j]) mismatches++;
+                if (rb == 1) ga_count++; else ct_count++;
+
+                if (k >= minrep) {
+                    int ga_ok = ga_count * 100 >= purity_thresh_int * k;
+                    int ct_ok = ct_count * 100 >= purity_thresh_int * k;
+
+                    if ((ga_ok || ct_ok) &&
+                        mismatches * 100 <= mismatch_tol_int * k) {
+                        best_k = k;
+                        float inv_k = 1.0f / (float)k;
+                        best_mir = 1.0f - (float)mismatches * inv_k;
+                        best_ga = (float)ga_count * inv_k;
+                        best_ct = (float)ct_count * inv_k;
+                    }
+                }
+
+                if (mismatches > mismatch_limit_at_kmax) {
+                    prof_stopped_by_mismatch_impossible++;
+                    stopped_early = 1;
+                    break;
+                }
+
+                if (safe_prune_purity) {
+                    int ga_can = can_purity_still_recover(
+                        ga_count, k, kmax, minrep, purity_thresh_int);
+                    int ct_can = can_purity_still_recover(
+                        ct_count, k, kmax, minrep, purity_thresh_int);
+                    if (!ga_can && !ct_can) {
+                        prof_stopped_by_purity_impossible++;
+                        stopped_early = 1;
+                        break;
+                    }
+                }
+            }
+
+            if (!stopped_early)
+                prof_stopped_by_boundary_or_kmax++;
+
+            if (best_k >= minrep) {
+                if (append_hit(p_hits, p_capacity, &ndx, ctr, sp, best_k,
+                               best_mir, best_ga, best_ct, seq_offset) < 0) {
+                    free(next_invalid_right); free(bt);
+                    return -1;
+                }
+            }
+        }
+    }
+
+    prof_raw_hits = ndx;
+    prof_final_hits = ndx;
+    prof_runtime_seconds = (double)(clock() - start_clock) / (double)CLOCKS_PER_SEC;
+
+    free(next_invalid_right); free(bt);
     return ndx;
 }
 
@@ -956,6 +1126,173 @@ fg_cleanup_err:
     return NULL;
 }
 
+static PyObject *
+py_scan_sequence_safe_pruned(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    const char *raw_seq   = NULL;
+    Py_ssize_t  raw_len   = 0;
+    int         minrep    = 10;
+    int         maxrep    = 1000;
+    int         maxspacer = 10;
+    double      purity    = 0.90;
+    double      mismatch  = 0.10;
+    int         do_overlap = 1;
+    int         safe_prune_purity = 0;
+    long        seq_offset = 1;
+
+    static char *kwlist[] = {
+        "seq",
+        "minrep", "maxrep", "maxspacer",
+        "purity", "mismatch",
+        "remove_overlaps", "safe_prune_purity", "seq_offset",
+        NULL
+    };
+
+    (void)self;
+    if (!PyArg_ParseTupleAndKeywords(
+            args, kwargs,
+            "s#|iiiddiil",
+            kwlist,
+            &raw_seq, &raw_len,
+            &minrep, &maxrep, &maxspacer,
+            &purity, &mismatch,
+            &do_overlap, &safe_prune_purity, &seq_offset))
+        return NULL;
+
+    if (minrep < 1 || maxrep < minrep || maxspacer < 0 ||
+        purity < 0.0 || purity > 1.0 ||
+        mismatch < 0.0 || mismatch > 1.0) {
+        PyErr_SetString(PyExc_ValueError,
+            "Invalid parameters: minrep>=1, maxrep>=minrep, maxspacer>=0, "
+            "0<=purity<=1, 0<=mismatch<=1");
+        return NULL;
+    }
+
+    if (raw_len == 0)
+        return PyList_New(0);
+
+    char *dna = (char *)malloc((size_t)raw_len + 1);
+    if (!dna) { PyErr_NoMemory(); return NULL; }
+    for (Py_ssize_t i = 0; i < raw_len; i++)
+        dna[i] = (char)tolower((unsigned char)raw_seq[i]);
+    dna[raw_len] = '\0';
+
+    int hit_capacity = INITIAL_HIT_CAPACITY;
+    HDNA_HIT *hits = (HDNA_HIT *)malloc(sizeof(HDNA_HIT) * (size_t)hit_capacity);
+    if (!hits) { free(dna); PyErr_NoMemory(); return NULL; }
+
+    size_t arm_sz = (size_t)(maxrep + 2);
+    size_t spacer_sz = (size_t)(maxspacer + 2);
+    size_t full_sz = arm_sz * 2 + spacer_sz + 2;
+    char *left_arm_buf = (char *)malloc(arm_sz);
+    char *spacer_buf = (char *)malloc(spacer_sz);
+    char *right_arm_buf = (char *)malloc(arm_sz);
+    char *full_seq_buf = (char *)malloc(full_sz);
+    if (!left_arm_buf || !spacer_buf || !right_arm_buf || !full_seq_buf) {
+        free(left_arm_buf); free(spacer_buf);
+        free(right_arm_buf); free(full_seq_buf);
+        free(hits); free(dna);
+        PyErr_NoMemory();
+        return NULL;
+    }
+
+    int nhits;
+    int raw_nhits;
+    Py_BEGIN_ALLOW_THREADS
+        nhits = findHDNA_safe_pruned_core(
+            dna, (int)raw_len,
+            &hits, &hit_capacity,
+            minrep, maxrep, maxspacer,
+            (float)purity, (float)mismatch,
+            safe_prune_purity,
+            seq_offset);
+        raw_nhits = nhits;
+        if (nhits >= 0 && do_overlap && nhits > 1)
+            nhits = remove_overlaps_core(hits, nhits);
+    Py_END_ALLOW_THREADS
+
+    prof_raw_hits = raw_nhits >= 0 ? raw_nhits : 0;
+    prof_final_hits = nhits >= 0 ? nhits : 0;
+
+    if (nhits < 0) {
+        free(hits); free(dna);
+        free(left_arm_buf); free(spacer_buf);
+        free(right_arm_buf); free(full_seq_buf);
+        PyErr_NoMemory();
+        return NULL;
+    }
+
+    PyObject *result = PyList_New((Py_ssize_t)nhits);
+    if (!result) goto sp_cleanup_err;
+
+    for (int i = 0; i < nhits; i++) {
+        HDNA_HIT *h = &hits[i];
+        strncpy(left_arm_buf, dna + h->left_start_idx, (size_t)h->arm_len);
+        left_arm_buf[h->arm_len] = '\0';
+        if (h->spacer_len > 0) {
+            strncpy(spacer_buf, dna + h->spacer_start_idx, (size_t)h->spacer_len);
+            spacer_buf[h->spacer_len] = '\0';
+        } else {
+            spacer_buf[0] = '.';
+            spacer_buf[1] = '\0';
+        }
+        strncpy(right_arm_buf, dna + h->right_start_idx, (size_t)h->arm_len);
+        right_arm_buf[h->arm_len] = '\0';
+        if (h->spacer_len > 0)
+            snprintf(full_seq_buf, full_sz, "%s%s%s",
+                     left_arm_buf, spacer_buf, right_arm_buf);
+        else
+            snprintf(full_seq_buf, full_sz, "%s%s",
+                     left_arm_buf, right_arm_buf);
+
+        int total_len = h->arm_len * 2 + h->spacer_len;
+        PyObject *d = PyDict_New();
+        if (!d) {
+            Py_DECREF(result);
+            goto sp_cleanup_err;
+        }
+
+#define _SET_SP(key, val) \
+    do { \
+        PyObject *_v = (val); \
+        if (!_v || PyDict_SetItemString(d, (key), _v) < 0) { \
+            Py_XDECREF(_v); Py_DECREF(d); Py_DECREF(result); \
+            goto sp_cleanup_err; \
+        } \
+        Py_DECREF(_v); \
+    } while (0)
+
+        _SET_SP("start",           PyLong_FromLong(h->start));
+        _SET_SP("end",             PyLong_FromLong(h->end));
+        _SET_SP("arm_length",      PyLong_FromLong((long)h->arm_len));
+        _SET_SP("spacer_length",   PyLong_FromLong((long)h->spacer_len));
+        _SET_SP("total_length",    PyLong_FromLong((long)total_len));
+        _SET_SP("ga_pct",          PyFloat_FromDouble((double)h->ga_pct));
+        _SET_SP("ct_pct",          PyFloat_FromDouble((double)h->ct_pct));
+        _SET_SP("mirror_identity", PyFloat_FromDouble((double)h->mirror_id));
+        _SET_SP("is_perfect",      PyBool_FromLong((long)h->is_perfect));
+        _SET_SP("left_arm",        PyUnicode_FromString(left_arm_buf));
+        _SET_SP("spacer",          PyUnicode_FromString(spacer_buf));
+        _SET_SP("right_arm",       PyUnicode_FromString(right_arm_buf));
+        _SET_SP("full_sequence",   PyUnicode_FromString(full_seq_buf));
+
+#undef _SET_SP
+
+        PyList_SET_ITEM(result, (Py_ssize_t)i, d);
+    }
+
+    free(left_arm_buf); free(spacer_buf);
+    free(right_arm_buf); free(full_seq_buf);
+    free(hits); free(dna);
+    return result;
+
+sp_cleanup_err:
+    free(left_arm_buf); free(spacer_buf);
+    free(right_arm_buf); free(full_seq_buf);
+    free(hits); free(dna);
+    return NULL;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Module definition                                                  */
 /* ------------------------------------------------------------------ */
@@ -1004,12 +1341,17 @@ py_profiling_info(PyObject *self, PyObject *noargs)
 {
     (void)self;
     (void)noargs;
-    return Py_BuildValue("{s:L, s:L, s:L, s:L, s:L, s:L, s:L, s:d}",
+    return Py_BuildValue("{s:s, s:L, s:L, s:L, s:L, s:L, s:L, s:L, s:L, s:L, s:L, s:L, s:d}",
+        "method", prof_method,
         "inner_iters",  prof_inner_iters,
         "ctr_sp_pairs", prof_ctr_sp_pairs,
         "skipped_invalid_kmax", prof_skipped_invalid_kmax,
+        "skipped_kmax_lt_minrep", prof_skipped_kmax_lt_minrep,
         "skipped_purity_prefilter", prof_skipped_purity_prefilter,
         "gate_passed", prof_gate_passed,
+        "stopped_by_mismatch_impossible", prof_stopped_by_mismatch_impossible,
+        "stopped_by_purity_impossible", prof_stopped_by_purity_impossible,
+        "stopped_by_boundary_or_kmax", prof_stopped_by_boundary_or_kmax,
         "raw_hits", prof_raw_hits,
         "final_hits", prof_final_hits,
         "runtime_seconds", prof_runtime_seconds);
@@ -1027,6 +1369,12 @@ static PyMethodDef HdnaMethods[] = {
         (PyCFunction)py_scan_sequence_fast_gated,
         METH_VARARGS | METH_KEYWORDS,
         "Scan a raw DNA string with FastGatedHSeeker."
+    },
+    {
+        "scan_sequence_safe_pruned",
+        (PyCFunction)py_scan_sequence_safe_pruned,
+        METH_VARARGS | METH_KEYWORDS,
+        "Scan a raw DNA string with SafePrunedHSeeker."
     },
     {
         "profiling_info",

@@ -65,6 +65,8 @@ Thumbs.db
 # ──────────────────────────────────────────────
 benchmarks/data/
 OPTIMIZATIONS.md
+results/safe_pruned/
+results/runtime_scaling/
 
 # ──────────────────────────────────────────────
 # Agentic / migration files (not for distribution)

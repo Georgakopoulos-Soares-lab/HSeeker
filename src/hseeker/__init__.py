@@ -26,6 +26,7 @@ __version__: str = "0.1.0"
 __all__ = [
     "search",
     "search_fast_gated",
+    "search_safe_pruned",
     "scan_sequence",
     "scan_fasta",
     "scan_fasta_iter",
@@ -185,6 +186,42 @@ def search_fast_gated(
     return hits
 
 
+def search_safe_pruned(
+    seq: str,
+    *,
+    minrep: int = 10,
+    maxrep: int = 1000,
+    maxspacer: int = 10,
+    purity: float = 0.90,
+    mismatch: float = 0.10,
+    remove_overlaps: bool = True,
+    safe_prune_purity: bool = False,
+    seq_offset: int = 1,
+    score: bool = True,
+) -> list[dict]:
+    """Scan a DNA string with the SafePrunedHSeeker detector.
+
+    SafePrunedHSeeker keeps the original prefix-validity checks, but stops
+    extending a center/spacer pair when the current mismatch count, and
+    optionally right-arm purity, cannot mathematically recover before Kmax.
+    The conservative default is mismatch-only pruning.
+    """
+    hits = _hdna.scan_sequence_safe_pruned(
+        seq,
+        minrep=minrep,
+        maxrep=maxrep,
+        maxspacer=maxspacer,
+        purity=purity,
+        mismatch=mismatch,
+        remove_overlaps=remove_overlaps,
+        safe_prune_purity=bool(safe_prune_purity),
+        seq_offset=seq_offset,
+    )
+    if score and hits:
+        _apply_scoring(hits)
+    return hits
+
+
 def search(
     seq: str,
     *,
@@ -201,10 +238,11 @@ def search(
     fast_mode: bool = True,
     remove_overlaps: bool = True,
     use_purity_prefilter: bool = True,
+    safe_prune_purity: bool = False,
     seq_offset: int = 1,
     score: bool = True,
 ) -> list[dict]:
-    """Unified sequence search API for original and FastGatedHSeeker."""
+    """Unified sequence search API for original and optimized detectors."""
     if detector == "original":
         return scan_sequence(
             seq,
@@ -235,7 +273,20 @@ def search(
             seq_offset=seq_offset,
             score=score,
         )
-    raise ValueError("detector must be 'original' or 'fast_gated'")
+    if detector in {"safe_pruned", "SafePrunedHSeeker"}:
+        return search_safe_pruned(
+            seq,
+            minrep=minrep,
+            maxrep=maxrep,
+            maxspacer=maxspacer,
+            purity=purity,
+            mismatch=mismatch,
+            remove_overlaps=remove_overlaps,
+            safe_prune_purity=safe_prune_purity,
+            seq_offset=seq_offset,
+            score=score,
+        )
+    raise ValueError("detector must be 'original', 'fast_gated', or 'safe_pruned'")
 
 
 def profiling_info() -> dict:
