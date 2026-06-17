@@ -21,18 +21,12 @@ This file provides Copilot with deep context about the HSeeker codebase so that 
 hseeker/
 ├── src/
 │   └── hseeker/
-│       ├── _hdna.c          ← C extension main file (DO NOT refactor lightly)
-│       ├── _hdna_dp.h       ← Shared declarations for all DP modules
-│       ├── _hdna_purity.c   ← DP prefix-sum purity arrays + LRU cache
-│       ├── _hdna_sa.c       ← DP suffix array / LCP / RMQ / LCE
-│       ├── _hdna_lce.c      ← DP run-boundary enumerator (dp_best_k)
+│       ├── _hdna.c          ← C extension (DO NOT refactor lightly)
 │       ├── _scoring.py      ← Thermodynamic stability scoring (no external deps)
 │       ├── __init__.py      ← Public Python API
 │       ├── __main__.py      ← CLI entry point
 ├── tests/
-│   └── test_hdna.py               ← 137 pytest tests (25 sections)
-│   └── test_hdna_dp_equivalence.py ← 156 oracle + DP equivalence tests
-│   └── fixtures/golden_hdna.json  ← 67 seqs × 5 param sets = 43,811 hits
+│   └── test_hdna.py         ← 120 pytest tests
 ├── benchmarks/
 │   ├── benchmark.py         ← performance benchmark suite
 │   └── data/                ← downloaded chromosome FASTA files (gitignored)
@@ -68,15 +62,6 @@ The C file has a `#ifdef STANDALONE` guard so it can be compiled either as:
 - A **CPython extension** (`pip install`) — the default.
 - A **standalone CLI binary** (`gcc -DSTANDALONE -O2 -o findHDNA _hdna.c -lm`).
 
-The core scanning logic in `findHDNA_core()` supports two code paths, selected at
-runtime via the `HSEEKER_FAST_HDNA` environment variable:
-
-- **Legacy path** (`HSEEKER_FAST_HDNA` unset or `"0"`): character-by-character inner
-  loop. Always compiled, never deleted. Used for production by default.
-- **DP path** (`HSEEKER_FAST_HDNA=1`): SA/LCE-accelerated run-boundary enumerator
-  built from four C source files (see below). Produces bit-for-bit identical output
-  to the legacy path — verified by the equivalence test suite.
-
 ### Key functions
 
 | Function | Purpose |
@@ -92,7 +77,7 @@ runtime via the `HSEEKER_FAST_HDNA` environment variable:
 2. **Composition tracking uses the RIGHT arm** (`rb` base), not the left.
 3. **`is_perfect`** is true iff `(best_ga == 1.0 || best_ct == 1.0) && best_mir == 1.0` — this is checked using `float` equality against `1.0f`. Do not change this to a threshold comparison.
 4. **Coordinates are 1-based inclusive** — `start = left_start + 1 + (seq_offset - 1)`.
-5. **N bases terminate arm extension on the RIGHT arm only** — `if (bt_rb == 0) break;` where `bt_rb = BT[(unsigned char)dna[right_j]]`. N in the **left** arm is treated as a regular mismatch, does NOT stop the loop.
+5. **N bases terminate arm extension** — `if (lb == 'n' || rb == 'n') break;`
 6. **Overlap removal** keeps the longest arm; among ties it keeps the shorter spacer.
 
 ### When editing `_hdna.c`
@@ -241,54 +226,9 @@ hseeker -seq genome.fa -out results -no-score
 
 ---
 
-## DP optimization (`HSEEKER_FAST_HDNA`)
-
-The DP path is an SA/LCE-accelerated alternative to the character-by-character inner loop. It is **off by default** and selected at runtime via `HSEEKER_FAST_HDNA=1`.
-
-### C source files
-
-| File | Purpose |
-|---|---|
-| `_hdna_dp.h` | Shared type + function declarations for all DP modules |
-| `_hdna_purity.c` | Prefix-sum GA/CT arrays, per-right0 purity tables, LRU cache |
-| `_hdna_sa.c` | O(M log M) suffix array, Kasai LCP, sparse-table RMQ, O(1) LCE |
-| `_hdna_lce.c` | Run-boundary enumerator (`dp_best_k`) |
-
-### Memory budget
-
-The combined string `S = dna + 0x01 + rev(dna)` has length `M = 2C+1` where `C` is the chunk length. The SA/LCP/RMQ arrays use approximately `40 * M` bytes. If this exceeds `DP_MAX_CHUNK_BYTES = 512 MB`, the chunk falls back to the legacy loop and `prof_chunk_fallback_count` is incremented.
-
-### Key invariants of `dp_best_k`
-
-1. **K_total** = `min(ctr+1, next_bad[right0] - right0, maxrep)` — hard ceiling on arm length.
-2. **Mismatch budget** = `int(mismatch_tol * maxrep)` (fixed from maxrep, not running k).
-3. **LCE position mapping**: at step `t`, left arm position in reverse half = `2*C - ctr + t`; right arm position = `right0 + t`.
-4. **Mismatch steps are recorded** as candidate arm endpoints (a key correctness invariant: the legacy inner loop evaluates `k = t+1` even when the character at `t` is a mismatch, so `dp_best_k` must also record those positions).
-5. **N on left arm** is a regular mismatch (never stops the run). N on right arm is caught by `next_bad[]` (hard stop), matching `_hdna.c`'s `if (bt_rb == 0) break`.
-
-### Performance characteristics
-
-On hg38 chr1 (248 MB) with 16 workers and `chunk_size=1_000_000`:
-- **Legacy**: ~68.5 s, 96,729 hits
-- **DP**: ~67.6 s, 96,729 hits (identical output, ~1× vs legacy)
-
-The DP path does not provide a significant wall-clock speedup at this chunk size because the SA/LCP/RMQ build overhead (O(M log M) per 1 MB chunk) roughly cancels the inner-loop savings. The speedup is expected to be larger on repeat-rich sequences where many `(ctr, sp)` pairs require scanning long arms.
-
-### Equivalence test suite (`tests/test_hdna_dp_equivalence.py`)
-
-156 tests verifying the DP path produces bit-for-bit identical output to the golden fixtures:
-- 67 parametrized golden-fixture replay tests (`test_dp_matches_golden`) — run under `HSEEKER_FAST_HDNA=1`
-- 67 parametrized legacy-vs-golden tests (`test_legacy_matches_golden`)
-- 13 edge-case tests (Section 7)
-- 9 oracle-vs-C spot-check tests
-
-Run with `HSEEKER_FAST_HDNA=1 python -m pytest tests/test_hdna_dp_equivalence.py`.
-
----
-
 ## Test suite (`tests/test_hdna.py`)
 
-137 tests in a single file, organised across 25 sections. Before adding a new test:
+134 tests in a single file, organised across 24 sections. Before adding a new test:
 
 1. Read the section it belongs to and follow the existing naming pattern.
 2. Add reference sequences as **module-level constants** (e.g., `MY_SEQ = "AAAGGGAAAGGG"`).
@@ -323,8 +263,8 @@ print(hseeker.scan_sequence("YOUR_SEQ", minrep=10, remove_overlaps=False))
 | File | Role |
 |---|---|
 | `pyproject.toml` | Project metadata, dependencies, setuptools config, cibuildwheel config, pytest config |
-| `setup.py` | `Extension("hseeker._hdna", sources=["_hdna.c", "_hdna_purity.c", "_hdna_sa.c", "_hdna_lce.c"])` |
-| `MANIFEST.in` | Ensures all `_hdna*.c` and `_hdna_dp.h` are included in the sdist |
+| `setup.py` | `Extension("hseeker._hdna", sources=["src/hseeker/_hdna.c"])` |
+| `MANIFEST.in` | Ensures `_hdna.c` is included in the sdist |
 
 Build backend: `setuptools.build_meta` (NOT the legacy backend). This is declared in `[build-system]` in `pyproject.toml` — never change it to `setuptools.build_meta:__legacy__`.
 
