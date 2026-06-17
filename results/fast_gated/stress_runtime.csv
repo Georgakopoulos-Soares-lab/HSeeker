@@ -1,0 +1,4 @@
+method,sequence_length,minrep,maxrep,maxspacer,purity,mismatch,runtime_sec,inner_iterations,ctr_sp_pairs,skipped_invalid_kmax,skipped_purity_prefilter,gate_passed,raw_hits,final_hits
+original,20000,10,1000,50,0.9,0.1,0.17965799989178777,136238669,1017756,0,0,0,1,1
+fast_gated_fast_4x,20000,10,1000,50,0.9,0.1,0.021998249925673008,12166734,1017756,0,713587,21,1,1
+fast_gated_exact_gate,20000,10,1000,50,0.9,0.1,1.4673544578254223,967870087,1017756,0,0,277,1,1

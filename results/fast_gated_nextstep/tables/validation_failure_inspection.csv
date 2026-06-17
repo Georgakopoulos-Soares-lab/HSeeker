@@ -1,0 +1,17 @@
+sequence_id,method,label,sequence_length,best_score,best_arm_length,best_spacer_length,ga_pct,ct_pct,mirror_identity,left_arm,spacer,right_arm,notes
+HDNA0022,original,forming,36,0.0,,,,,,,,,
+HDNA0022,fast_4x,forming,36,0.0,,,,,,,,,same as original
+HDNA0023,original,forming,36,0.0,,,,,,,,,
+HDNA0023,fast_4x,forming,36,0.0,,,,,,,,,same as original
+HDNA0024,original,forming,46,0.0,,,,,,,,,
+HDNA0024,fast_4x,forming,46,0.0,,,,,,,,,same as original
+HDNA0025,original,forming,46,0.0,,,,,,,,,
+HDNA0025,fast_4x,forming,46,0.0,,,,,,,,,same as original
+HDNA0027,original,forming,33,0.0,,,,,,,,,
+HDNA0027,fast_4x,forming,33,0.0,,,,,,,,,same as original
+HDNA0030,original,forming,23,0.0,,,,,,,,,
+HDNA0030,fast_4x,forming,23,0.0,,,,,,,,,same as original
+HDNA0034,original,forming,23,0.0,,,,,,,,,
+HDNA0034,fast_4x,forming,23,0.0,,,,,,,,,same as original
+HDNA0053,original,non-forming,20,83.3,10,0,100.0,0.0,100.0,aaaaaaaaaa,.,aaaaaaaaaa,
+HDNA0053,fast_4x,non-forming,20,83.3,10,0,100.0,0.0,100.0,aaaaaaaaaa,.,aaaaaaaaaa,same as original

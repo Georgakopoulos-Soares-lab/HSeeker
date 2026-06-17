@@ -1,0 +1,7 @@
+chunk_id,method,lost_raw_hits,lost_final_hits,extra_raw_hits,extra_final_hits,changed_best_score_count,changed_best_arm_spacer_count,runtime_speedup_vs_original,inner_iter_reduction_vs_original,chunk_length,source_fasta
+chrY.hs1.fa:chrY:first_100000,fast_gated_fast_4x,0,0,0,0,0,0,3.9941438945553505,0.8182556495808524,100000,/Users/archit/Projects/repeat_finder/experiments/chry_t2t_window_irf_detection/intermediate/chrY.hs1.fa
+chrY.hs1.fa:chrY:first_100000,fast_gated_fast_8x,0,0,0,0,0,0,1.639413527892407,0.5107448068052333,100000,/Users/archit/Projects/repeat_finder/experiments/chry_t2t_window_irf_detection/intermediate/chrY.hs1.fa
+chrY.hs1.fa:chrY:first_1000000,fast_gated_fast_4x,0,0,0,0,0,0,3.324553152422706,0.7517195433193261,1000000,/Users/archit/Projects/repeat_finder/experiments/chry_t2t_window_irf_detection/intermediate/chrY.hs1.fa
+chrY.hs1.fa:chrY:first_1000000,fast_gated_fast_8x,0,0,0,0,0,0,1.4858554433790017,0.4274641767695906,1000000,/Users/archit/Projects/repeat_finder/experiments/chry_t2t_window_irf_detection/intermediate/chrY.hs1.fa
+chrY.hs1.fa:chrY:first_5000000,fast_gated_fast_4x,5,0,0,0,0,0,3.7835135716555874,0.8053394518688088,5000000,/Users/archit/Projects/repeat_finder/experiments/chry_t2t_window_irf_detection/intermediate/chrY.hs1.fa
+chrY.hs1.fa:chrY:first_5000000,fast_gated_fast_8x,0,0,0,0,0,0,1.576495481972018,0.5024292253411053,5000000,/Users/archit/Projects/repeat_finder/experiments/chry_t2t_window_irf_detection/intermediate/chrY.hs1.fa

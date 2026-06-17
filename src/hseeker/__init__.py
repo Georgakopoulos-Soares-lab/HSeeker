@@ -24,11 +24,14 @@ from hseeker._scoring import score_hit
 
 __version__: str = "0.1.0"
 __all__ = [
+    "search",
+    "search_fast_gated",
     "scan_sequence",
     "scan_fasta",
     "scan_fasta_iter",
     "scan_fasta_parallel",
     "parse_fasta",
+    "profiling_info",
     "score_hit",
     "__version__",
 ]
@@ -134,6 +137,110 @@ def scan_sequence(
     if score and hits:
         _apply_scoring(hits)
     return hits
+
+
+def search_fast_gated(
+    seq: str,
+    *,
+    minrep: int = 10,
+    maxrep: int = 1000,
+    maxspacer: int = 10,
+    purity: float = 0.90,
+    mismatch: float = 0.10,
+    gate_window: int | None = None,
+    gate_search_limit: int | None = None,
+    gate_mirror_frac: float | None = None,
+    gate_purity_frac: float | None = None,
+    fast_mode: bool = True,
+    remove_overlaps: bool = True,
+    use_purity_prefilter: bool = True,
+    seq_offset: int = 1,
+    score: bool = True,
+) -> list[dict]:
+    """Scan a DNA string with the FastGatedHSeeker detector.
+
+    FastGatedHSeeker first applies a local density gate to each candidate
+    center/spacer pair, then runs the original HSeeker-compatible extension
+    only for pairs that pass the gate. ``fast_mode=False`` makes the default
+    ``gate_search_limit`` equal to ``maxrep`` for exact-gate style runs.
+    """
+    hits = _hdna.scan_sequence_fast_gated(
+        seq,
+        minrep=minrep,
+        maxrep=maxrep,
+        maxspacer=maxspacer,
+        purity=purity,
+        mismatch=mismatch,
+        gate_window=gate_window or 0,
+        gate_search_limit=gate_search_limit or 0,
+        gate_mirror_frac=-1.0 if gate_mirror_frac is None else gate_mirror_frac,
+        gate_purity_frac=-1.0 if gate_purity_frac is None else gate_purity_frac,
+        fast_mode=bool(fast_mode),
+        remove_overlaps=remove_overlaps,
+        use_purity_prefilter=bool(use_purity_prefilter),
+        seq_offset=seq_offset,
+    )
+    if score and hits:
+        _apply_scoring(hits)
+    return hits
+
+
+def search(
+    seq: str,
+    *,
+    minrep: int = 10,
+    maxrep: int = 1000,
+    maxspacer: int = 10,
+    purity: float = 0.90,
+    mismatch: float = 0.10,
+    detector: str = "original",
+    gate_window: int | None = None,
+    gate_search_limit: int | None = None,
+    gate_mirror_frac: float | None = None,
+    gate_purity_frac: float | None = None,
+    fast_mode: bool = True,
+    remove_overlaps: bool = True,
+    use_purity_prefilter: bool = True,
+    seq_offset: int = 1,
+    score: bool = True,
+) -> list[dict]:
+    """Unified sequence search API for original and FastGatedHSeeker."""
+    if detector == "original":
+        return scan_sequence(
+            seq,
+            minrep=minrep,
+            maxrep=maxrep,
+            maxspacer=maxspacer,
+            purity=purity,
+            mismatch=mismatch,
+            remove_overlaps=remove_overlaps,
+            seq_offset=seq_offset,
+            score=score,
+        )
+    if detector in {"fast_gated", "FastGatedHSeeker"}:
+        return search_fast_gated(
+            seq,
+            minrep=minrep,
+            maxrep=maxrep,
+            maxspacer=maxspacer,
+            purity=purity,
+            mismatch=mismatch,
+            gate_window=gate_window,
+            gate_search_limit=gate_search_limit,
+            gate_mirror_frac=gate_mirror_frac,
+            gate_purity_frac=gate_purity_frac,
+            fast_mode=fast_mode,
+            remove_overlaps=remove_overlaps,
+            use_purity_prefilter=use_purity_prefilter,
+            seq_offset=seq_offset,
+            score=score,
+        )
+    raise ValueError("detector must be 'original' or 'fast_gated'")
+
+
+def profiling_info() -> dict:
+    """Return low-level detector profiling counters for the last scan."""
+    return _hdna.profiling_info()
 
 
 def parse_fasta(path: str | Path) -> Generator[tuple[str, str, int], None, None]:
