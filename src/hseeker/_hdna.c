@@ -19,6 +19,11 @@
  *   start, end, arm_length, spacer_length, total_length,
  *   ga_pct, ct_pct, mirror_identity, is_perfect,
  *   left_arm, spacer, right_arm, full_sequence
+ *
+ * DP/LCE optimisation (Phase 4):
+ *   Set HSEEKER_FAST_HDNA=1 to enable the prefix-sum + suffix-array +
+ *   run-boundary enumerator code path (see _hdna_purity.c / _hdna_sa.c /
+ *   _hdna_lce.c).  Leave unset or set to "0" for the legacy loop.
  */
 
 #define PY_SSIZE_T_CLEAN
@@ -31,6 +36,12 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+
+/* DP optimisation modules (only compiled when not in STANDALONE mode) */
+#ifndef STANDALONE
+#  define HSEEKER_HDNA_C_INCLUDED   /* tell _hdna_purity.c BT is here */
+#  include "_hdna_dp.h"
+#endif
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
@@ -45,7 +56,7 @@
  * Using a single table lookup in the inner loop eliminates multiple
  * character comparisons and reduces branch mispredictions.
  */
-static const unsigned char BT[256] = {
+const unsigned char BT[256] = {
     ['A']=1, ['a']=1, ['G']=1, ['g']=1,
     ['C']=2, ['c']=2, ['T']=2, ['t']=2,
 };
@@ -146,13 +157,54 @@ static int findHDNA_core(
     long  seq_offset)
 {
     int   ndx             = 0;
-    float min_mirror_id   = 1.0f - mismatch_tol;
     int   mismatch_budget = (int)(mismatch_tol * maxrep);  /* loop-invariant */
     /* integer-scaled thresholds (×100) — eliminate float division from inner loop */
     int   purity_thresh_int = (int)(purity_thresh  * 100.0f + 0.5f);
     int   mismatch_tol_int  = (int)(mismatch_tol   * 100.0f + 0.5f);
 
     prof_reset();
+
+#ifndef STANDALONE
+    /* ── DP path: build per-chunk structures ────────────────────────────── */
+    int use_dp = hdna_dp_enabled();
+    prof_dp_reset();
+
+    PurityArrays *pa          = NULL;
+    PurityCache  *pur_cache   = NULL;
+    SaRmqHandle  *sa          = NULL;
+    int32_t      *next_bad_arr = NULL;
+    int           sa_fallback  = 0;
+
+    if (use_dp) {
+        /* Prefix-sum arrays (always built when DP is on — O(n), negligible) */
+        pa = purity_arrays_build(dna, total_bases);
+        if (!pa) use_dp = 0;  /* OOM: fall back to legacy for this chunk */
+    }
+    if (use_dp) {
+        pur_cache = purity_cache_create(2 * maxspacer + 4);
+        if (!pur_cache) { purity_arrays_free(pa); pa = NULL; use_dp = 0; }
+    }
+    if (use_dp) {
+        next_bad_arr = next_bad_build(dna, total_bases, BT);
+        if (!next_bad_arr) {
+            purity_cache_free(pur_cache); pur_cache = NULL;
+            purity_arrays_free(pa); pa = NULL;
+            use_dp = 0;
+        }
+    }
+    if (use_dp) {
+        sa = sa_rmq_build(dna, total_bases, &sa_fallback);
+        if (!sa) {
+            /* Memory cap tripped (sa_fallback=1) or OOM (sa_fallback=0) */
+            free(next_bad_arr); next_bad_arr = NULL;
+            purity_cache_free(pur_cache); pur_cache = NULL;
+            purity_arrays_free(pa); pa = NULL;
+            use_dp = 0;
+        }
+    }
+#else
+    int use_dp = 0;
+#endif
 
     for (int ctr = minrep - 1; ctr <= total_bases - minrep - 1; ctr++) {
         /* skip centers that are N or non-ACGT — no sp can succeed */
@@ -165,53 +217,86 @@ static int findHDNA_core(
         for (int sp = 0; sp <= max_sp; sp++) {
             prof_ctr_sp_pairs++;
 
-            int   left_i    = ctr;
-            int   right_j   = ctr + sp + 1;
-            int   k         = 0;
-            int   mismatches = 0;
-            int   ga_count  = 0;
-            int   ct_count  = 0;
-            int   best_k    = 0;
-            float best_mir  = 0.0f;
-            float best_ga   = 0.0f;
-            float best_ct   = 0.0f;
+            int best_k;
+            float best_mir, best_ga, best_ct;
 
-            /* extend outward one base at a time */
-            while (left_i >= 0 && right_j < total_bases && k < maxrep) {
+            if (use_dp) {
+#ifndef STANDALONE
+                /* ── DP path ─────────────────────────────────────────────── */
+                best_k = dp_best_k(
+                    dna, total_bases,
+                    ctr, sp,
+                    minrep, maxrep,
+                    purity_thresh_int, mismatch_tol_int,
+                    mismatch_budget,
+                    next_bad_arr, pa, pur_cache, sa);
 
-                char lb = dna[left_i];
-                unsigned char bt_rb = BT[(unsigned char)dna[right_j]];
+                if (best_k >= minrep) {
+                    /* Recompute floats at best_k using prefix sums.
+                     * Must use IDENTICAL arithmetic to legacy path:
+                     *   inv_k = 1.0f / k
+                     *   best_ga = ga_count * inv_k
+                     *   etc.
+                     * is_perfect uses exact float comparison against 1.0f. */
+                    int right0   = ctr + sp + 1;
+                    int ga_count = purity_ga(pa, right0, best_k);
+                    int ct_count = purity_ct(pa, right0, best_k);
+                    /* Recount mismatches at best_k (left arm is right-to-left) */
+                    int mismatches = 0;
+                    for (int t = 0; t < best_k; t++) {
+                        if (dna[ctr - t] != dna[right0 + t]) mismatches++;
+                    }
+                    float inv_k = 1.0f / (float)best_k;
+                    best_mir = 1.0f - (float)mismatches * inv_k;
+                    best_ga  = (float)ga_count * inv_k;
+                    best_ct  = (float)ct_count * inv_k;
+                }
+#endif
+            } else {
+                /* ── Legacy path (unchanged character-by-character loop) ─── */
+                int left_i    = ctr;
+                int right_j   = ctr + sp + 1;
+                int k         = 0;
+                int mismatches = 0;
+                int ga_count  = 0;
+                int ct_count  = 0;
+                best_k  = 0;
+                best_mir = 0.0f;
+                best_ga  = 0.0f;
+                best_ct  = 0.0f;
 
-                /* N/other bases cannot participate in H-DNA — stop extending */
-                if (bt_rb == 0) break;
+                while (left_i >= 0 && right_j < total_bases && k < maxrep) {
 
-                if (lb != dna[right_j]) mismatches++;
-                k++;
+                    char lb = dna[left_i];
+                    unsigned char bt_rb = BT[(unsigned char)dna[right_j]];
 
-                /* track composition of the right arm (read forward) */
-                if (bt_rb == 1) ga_count++; else ct_count++;
+                    if (bt_rb == 0) break;
 
-                if (k >= minrep) {
-                    /* integer threshold checks — no float divisions */
-                    int ga_ok = ga_count * 100 >= purity_thresh_int * k;
-                    int ct_ok = ct_count * 100 >= purity_thresh_int * k;
+                    if (lb != dna[right_j]) mismatches++;
+                    k++;
+                    prof_inner_iters++;
 
-                    if ((ga_ok || ct_ok) &&
-                        mismatches * 100 <= mismatch_tol_int * k) {
-                        best_k = k;
-                        /* compute floats only for the winning candidate */
-                        float inv_k = 1.0f / k;
-                        best_mir = 1.0f - (float)mismatches * inv_k;
-                        best_ga  = (float)ga_count * inv_k;
-                        best_ct  = (float)ct_count * inv_k;
+                    if (bt_rb == 1) ga_count++; else ct_count++;
+
+                    if (k >= minrep) {
+                        int ga_ok = ga_count * 100 >= purity_thresh_int * k;
+                        int ct_ok = ct_count * 100 >= purity_thresh_int * k;
+
+                        if ((ga_ok || ct_ok) &&
+                            mismatches * 100 <= mismatch_tol_int * k) {
+                            best_k = k;
+                            float inv_k = 1.0f / k;
+                            best_mir = 1.0f - (float)mismatches * inv_k;
+                            best_ga  = (float)ga_count * inv_k;
+                            best_ct  = (float)ct_count * inv_k;
+                        }
+
+                        if (mismatches > mismatch_budget) break;
                     }
 
-                    /* early exit: mismatch budget already fully consumed */
-                    if (mismatches > mismatch_budget) break;
+                    left_i--;
+                    right_j++;
                 }
-
-                left_i--;
-                right_j++;
             }
 
             if (best_k >= minrep) {
@@ -220,7 +305,15 @@ static int findHDNA_core(
                     int new_cap = (*p_capacity) * 2;
                     HDNA_HIT *new_buf = (HDNA_HIT *)realloc(
                         *p_hits, sizeof(HDNA_HIT) * (size_t)new_cap);
-                    if (!new_buf) return -1;  /* OOM; caller must free *p_hits */
+                    if (!new_buf) {
+#ifndef STANDALONE
+                        sa_rmq_free(sa);
+                        free(next_bad_arr);
+                        purity_cache_free(pur_cache);
+                        purity_arrays_free(pa);
+#endif
+                        return -1;
+                    }
                     *p_hits    = new_buf;
                     *p_capacity = new_cap;
                 }
@@ -245,6 +338,14 @@ static int findHDNA_core(
             }
         }
     }
+
+#ifndef STANDALONE
+    sa_rmq_free(sa);
+    free(next_bad_arr);
+    purity_cache_free(pur_cache);
+    purity_arrays_free(pa);
+#endif
+
     return ndx;
 }
 
@@ -564,9 +665,14 @@ py_profiling_info(PyObject *self, PyObject *noargs)
 {
     (void)self;
     (void)noargs;
-    return Py_BuildValue("{s:L, s:L}",
-        "inner_iters",  prof_inner_iters,
-        "ctr_sp_pairs", prof_ctr_sp_pairs);
+    return Py_BuildValue(
+        "{s:L, s:L, s:L, s:L, s:L, s:L}",
+        "inner_iters",          prof_inner_iters,
+        "ctr_sp_pairs",         prof_ctr_sp_pairs,
+        "lce_queries",          prof_lce_queries,
+        "purity_cache_hits",    prof_purity_cache_hits,
+        "purity_cache_misses",  prof_purity_cache_misses,
+        "chunk_fallback_count", prof_chunk_fallback_count);
 }
 
 static PyMethodDef HdnaMethods[] = {

@@ -17,7 +17,12 @@ from setuptools import Extension, setup
 hdna_ext = Extension(
     # The module will be importable as  hseeker._hdna
     name="hseeker._hdna",
-    sources=["src/hseeker/_hdna.c"],
+    sources=[
+        "src/hseeker/_hdna.c",
+        "src/hseeker/_hdna_purity.c",
+        "src/hseeker/_hdna_sa.c",
+        "src/hseeker/_hdna_lce.c",
+    ],
     extra_compile_args=[
         "-O3",
         "-march=native",
