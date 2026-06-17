@@ -101,8 +101,8 @@
     <ol>
       <li>For each candidate <strong>hinge position</strong> and <strong>spacer length</strong> (0 to <span class="about-chip">maxspacer</span>), place a left pointer at the hinge and a right pointer immediately after the spacer.</li>
       <li>Extend both pointers outward simultaneously, one base at a time.</li>
-      <li>At each step, check that the base pair satisfies the <strong>mirror symmetry criterion</strong> (left arm base is the Watson-Crick complement of the right arm base, read in opposite directions).</li>
-      <li>Track the running <strong>GA purity</strong> and <strong>CT purity</strong> of the right arm. Extension stops when either falls below the <span class="about-chip">purity</span> threshold or mirror mismatches exceed the <span class="about-chip">mismatch</span> threshold.</li>
+      <li>At each step, check the <strong>mirror symmetry criterion</strong>: the base at position <em>t</em> outward from the center on the left equals the base at position <em>t</em> outward from the center on the right — i.e. <code>dna[ctr − t] = dna[right0 + t]</code>. This is base-identity equality (mirror repeat), <strong>not</strong> Watson-Crick complementarity (which would be an inverted/palindromic repeat).</li>
+      <li>Track the running <strong>GA purity</strong> and <strong>CT purity</strong> of the right arm. A candidate arm length <em>k</em> is valid when both: purity ≥ <span class="about-chip">purity</span> threshold <em>and</em> mismatches ≤ <span class="about-chip">mismatch</span> threshold. Extension halts only when an N base is encountered on the right arm; the algorithm records the best valid arm length found up to that point.</li>
       <li>Record a hit if the final arm length ≥ <span class="about-chip">minrep</span>.</li>
       <li>After scanning all positions, optionally remove overlapping hits — keeping the longest arm, with shorter spacer as tiebreaker.</li>
     </ol>
@@ -129,7 +129,7 @@
           <tr><td><code>mirror_identity</code></td><td>float</td><td>% mirror-symmetric positions between arms (0–100)</td></tr>
           <tr><td><code>is_perfect</code></td><td>bool</td><td>True if purity = 100 % <em>and</em> mirror identity = 100 %</td></tr>
           <tr><td><code>left_arm</code> / <code>right_arm</code></td><td>str</td><td>Arm sequences in 5′→3′ orientation (lowercase)</td></tr>
-          <tr><td><code>spacer</code></td><td>str</td><td>Hinge sequence; <code>"."</code> when spacer_length = 0</td></tr>
+          <tr><td><code>spacer</code></td><td>str</td><td>Hinge sequence (empty string when spacer_length = 0)</td></tr>
           <tr><td><code>full_sequence</code></td><td>str</td><td>left_arm + spacer + right_arm</td></tr>
           <tr><td><code>stacking_score</code></td><td>float</td><td>Stacking energy from consecutive GA–GA dinucleotide stacks</td></tr>
           <tr><td><code>pairing_score</code></td><td>float</td><td>Hoogsteen pairing score (G–G and A–A matches)</td></tr>
@@ -160,6 +160,8 @@
   <section class="about-section">
     <h2>Parameter Modes</h2>
     <p>HSeeker exposes five parameters that control detection sensitivity and specificity.
+      The defaults match the <code>hseeker</code> CLI:
+      <code>minrep=10</code>, <code>maxrep=1000</code>, <code>maxspacer=10</code>, <code>purity=0.90</code>, <code>mismatch=0.10</code>.
       Three curated presets cover the most common use cases:</p>
 
     <div class="table-wrap" style="margin-bottom: 24px;">
@@ -172,28 +174,24 @@
             <th>maxspacer</th>
             <th>purity</th>
             <th>mismatch</th>
-            <th>Sensitivity</th>
-            <th>False-positive rate</th>
+            <th>Use case</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Default</td>
-            <td>6</td><td>50</td><td>7</td><td>0.80</td><td>0.20</td>
-            <td>97.2 % (35/36)</td>
-            <td>100 % (3/3 FP)</td>
-          </tr>
           <tr class="about-table-row--highlight">
-            <td><strong>Recommended ★</strong></td>
-            <td><strong>8</strong></td><td>50</td><td>7</td><td>0.80</td><td>0.20</td>
-            <td><strong>97.2 % (35/36)</strong></td>
-            <td><strong>0 % (0/3 FP)</strong></td>
+            <td><strong>Default (CLI) ★</strong></td>
+            <td><strong>10</strong></td><td><strong>1000</strong></td><td><strong>10</strong></td><td><strong>0.90</strong></td><td><strong>0.10</strong></td>
+            <td>General genomic screens; matches CLI defaults exactly</td>
           </tr>
           <tr>
-            <td>Relaxed</td>
-            <td>4</td><td>100</td><td>10</td><td>0.70</td><td>0.30</td>
-            <td>100 % (36/36)</td>
-            <td>100 % (3/3 FP)</td>
+            <td>Strict</td>
+            <td>10</td><td>1000</td><td>10</td><td>1.0</td><td>0.0</td>
+            <td>Perfect mirror repeats only; zero mismatches, 100 % pure arms</td>
+          </tr>
+          <tr>
+            <td>Conservative</td>
+            <td>15</td><td>1000</td><td>10</td><td>0.90</td><td>0.10</td>
+            <td>Longer arms only; reduces short-arm false positives</td>
           </tr>
         </tbody>
       </table>
@@ -208,9 +206,9 @@
       </div>
       <div class="about-param-card">
         <div class="about-param-name"><span class="about-chip">maxrep</span></div>
-        <p>Maximum arm length cap. Set to 50 by default. Long repeat sequences
-           (e.g. (GAA)₆₆) will be reported as arm = 50 bp — the detection is
-           correct but the true arm length is ≥ 50 bp.</p>
+        <p>Maximum arm length cap. Set to 1000 by default. For very long tandem repeats
+           (e.g. (GAA)₃₃₀ in Friedreich's ataxia) the reported arm length will be capped
+           at this value — detection is unaffected but the exact value becomes a lower bound.</p>
       </div>
       <div class="about-param-card">
         <div class="about-param-name"><span class="about-chip">maxspacer</span></div>
@@ -314,10 +312,62 @@
       <div class="about-stat-mini"><span class="about-stat-mini-val">10 bp</span><span class="about-stat-mini-lbl">minimum arm</span></div>
       <div class="about-stat-mini"><span class="about-stat-mini-val">21.4 bp</span><span class="about-stat-mini-lbl">mean arm</span></div>
       <div class="about-stat-mini"><span class="about-stat-mini-val">19 bp</span><span class="about-stat-mini-lbl">median arm</span></div>
-      <div class="about-stat-mini"><span class="about-stat-mini-val">50 bp</span><span class="about-stat-mini-lbl">max (cap)</span></div>
+      <div class="about-stat-mini"><span class="about-stat-mini-val">50 bp</span><span class="about-stat-mini-lbl">max observed (validation set)</span></div>
       <div class="about-stat-mini"><span class="about-stat-mini-val accent">93.6 %</span><span class="about-stat-mini-lbl">mean mirror identity</span></div>
       <div class="about-stat-mini"><span class="about-stat-mini-val accent">63 %</span><span class="about-stat-mini-lbl">perfect sites</span></div>
     </div>
+  </section>
+
+  <!-- ── CLI & Python API ─────────────────────────────────────────────────── -->
+  <section class="about-section">
+    <h2>CLI &amp; Python API</h2>
+    <p>HSeeker is available as both a command-line tool and a Python library. Install from PyPI:</p>
+    <pre class="about-code">pip install hseeker</pre>
+
+    <h3>Command-line interface</h3>
+    <p>The <code>hseeker</code> CLI processes FASTA files and writes a TSV report. It parallelises
+      automatically across all CPU cores:</p>
+    <pre class="about-code">hseeker -seq genome.fa -out results
+hseeker -seq genome.fa -out results -minrep 10 -purity 0.90 -mismatch 0.10
+hseeker -seq genome.fa -out results -no-score          # disable stability scoring
+hseeker -seq genome.fa -out results -workers 8         # limit to 8 threads</pre>
+    <p>Output is written to <code>&lt;prefix&gt;_HDNA.tsv</code>. All CLI flags and their defaults:</p>
+    <div class="table-wrap">
+      <table class="about-table">
+        <thead><tr><th>Flag</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>-seq</code></td><td>required</td><td>Input FASTA file</td></tr>
+          <tr><td><code>-out</code></td><td>required</td><td>Output prefix (writes <code>&lt;prefix&gt;_HDNA.tsv</code>)</td></tr>
+          <tr><td><code>-minrep</code></td><td>10</td><td>Minimum arm length in bp</td></tr>
+          <tr><td><code>-maxrep</code></td><td>1000</td><td>Maximum arm length cap</td></tr>
+          <tr><td><code>-maxspacer</code></td><td>10</td><td>Maximum hinge/spacer loop length in bp</td></tr>
+          <tr><td><code>-purity</code></td><td>0.90</td><td>Minimum GA or CT fraction in the right arm</td></tr>
+          <tr><td><code>-mismatch</code></td><td>0.10</td><td>Maximum mirror-mismatch fraction</td></tr>
+          <tr><td><code>-skipoverlap</code></td><td>off</td><td>Disable overlap removal (keep all raw hits)</td></tr>
+          <tr><td><code>-no-score</code></td><td>off</td><td>Disable stability scoring</td></tr>
+          <tr><td><code>-workers N</code></td><td>all cores</td><td>Number of parallel worker threads</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Python API</h3>
+    <pre class="about-code">import hseeker
+
+# Scan a raw sequence string
+hits = hseeker.scan_sequence(seq, minrep=10, maxrep=1000, maxspacer=10,
+                              purity=0.90, mismatch=0.10)
+
+# Scan a FASTA file (serial)
+hits = hseeker.scan_fasta("genome.fa")
+
+# Scan a FASTA file in parallel (all CPU cores by default)
+hits = hseeker.scan_fasta_parallel("genome.fa", workers=8)
+
+# Streaming iterator (memory-efficient for large files)
+for hit in hseeker.scan_fasta_iter("genome.fa"):
+    print(hit["seq_id"], hit["start"], hit["arm_length"])</pre>
+    <p>Each hit is a <code>dict</code> with all fields described in the Output fields table above.
+      Scoring is enabled by default; pass <code>score=False</code> to any function to skip it.</p>
   </section>
 
   <!-- ── Limitations ──────────────────────────────────────────────────────── -->
@@ -330,9 +380,9 @@
       <li><strong>Specificity estimate is a lower bound.</strong> Only 3 non-forming controls are
         included in the benchmark, all from the same locus (BCL2 MBR). The 0 % false-positive rate
         at <code>minrep=8</code> should not be extrapolated directly to genome-wide specificity.</li>
-      <li><strong>maxrep cap.</strong> The default <code>maxrep=50</code> truncates arm length
-        reporting for very long repeats. Arm length will be reported as 50 bp for sequences with a
-        true arm &gt; 50 bp — detection is unaffected but the exact value is a lower bound.</li>
+      <li><strong>maxrep cap.</strong> The default <code>maxrep=1000</code> truncates arm length
+        reporting for very long tandem repeats. Arm length will be reported as 1000 bp for sequences
+        with a true arm &gt; 1000 bp — detection is unaffected but the exact value is a lower bound.</li>
       <li><strong>poly-dG·dC boundary class.</strong> H-DNA formed via poly-dG·poly-dC third-strand
         invasion (rather than intramolecular mirror-repeat folding) may be detected incidentally
         but this structural class requires a separate computational approach.</li>
