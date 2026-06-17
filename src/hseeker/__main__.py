@@ -54,6 +54,8 @@ def main() -> None:
                         help="Apply stability scoring (default: on)")
     parser.add_argument("-no-score", action="store_false", dest="score",
                         help="Disable stability scoring")
+    parser.add_argument("-workers",     type=int,   default=None,  metavar="INT",
+                        help="Parallel worker threads (default: all CPU cores)")
     parser.add_argument("-v",           action="store_true",
                         help="Verbose: print per-sequence stats to stderr")
 
@@ -71,55 +73,51 @@ def main() -> None:
         "putative_triplex",
     ]
 
+    import os
+    n_workers = args.workers if args.workers is not None else (os.cpu_count() or 1)
+
     print(
         f"hseeker v{hseeker.__version__} — H-DNA / Triplex Mirror Repeat Detector\n"
         f"  Input : {args.seq}\n"
         f"  Output: {out_path}\n"
         f"  minrep={args.minrep}  maxrep={args.maxrep}  maxspacer={args.maxspacer}\n"
-        f"  purity={args.purity:.2f}  mismatch={args.mismatch:.2f}\n",
+        f"  purity={args.purity:.2f}  mismatch={args.mismatch:.2f}\n"
+        f"  workers={n_workers}",
         file=sys.stderr,
     )
 
-    total_records = 0
-    total_hits = 0
+    hits = hseeker.scan_fasta_parallel(
+        args.seq,
+        minrep=args.minrep,
+        maxrep=args.maxrep,
+        maxspacer=args.maxspacer,
+        purity=args.purity,
+        mismatch=args.mismatch,
+        remove_overlaps=not args.skipoverlap,
+        workers=n_workers,
+        score=args.score,
+    )
+
+    # Count distinct records for the summary
+    seen_ids: set[str] = set()
+    for h in hits:
+        h["source"] = "findHDNA"
+        seen_ids.add(h["seq_id"])
+    total_records = len(seen_ids)
+    total_hits = len(hits)
+
+    # Sort by seq_id then start for deterministic output
+    hits.sort(key=lambda h: (h["seq_id"], h["start"]))
 
     with open(out_path, "w", newline="") as fh:
         writer = csv.DictWriter(
             fh,
             fieldnames=fieldnames,
             delimiter="\t",
-            extrasaction="ignore",  # ignore seq_id added by scan_fasta
+            extrasaction="ignore",
         )
         writer.writeheader()
-
-        for seq_id, seq, offset in hseeker.parse_fasta(args.seq):
-            total_records += 1
-            if args.v:
-                print(
-                    f"Processing {seq_id} ({len(seq):,} bases, offset {offset})...",
-                    file=sys.stderr,
-                )
-
-            hits = hseeker.scan_sequence(
-                seq,
-                minrep=args.minrep,
-                maxrep=args.maxrep,
-                maxspacer=args.maxspacer,
-                purity=args.purity,
-                mismatch=args.mismatch,
-                remove_overlaps=not args.skipoverlap,
-                seq_offset=offset,
-                score=args.score,
-            )
-
-            if args.v:
-                print(f"  {len(hits)} hits", file=sys.stderr)
-
-            for h in hits:
-                h["seq_id"] = seq_id
-                h["source"] = "findHDNA"
-            writer.writerows(hits)
-            total_hits += len(hits)
+        writer.writerows(hits)
 
     print(
         f"\nDone.\n"

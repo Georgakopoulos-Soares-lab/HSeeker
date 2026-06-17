@@ -25,6 +25,8 @@ Covers:
   21. parse_fasta edge cases
   22. Determinism / reproducibility
   23. CLI integration (python -m hseeker)
+  24. Parallel chunking edge cases (scan_fasta_parallel)
+  25. Real-genome regression (hg38 chr1 — requires benchmarks/data/chr1.fa)
 
 Reference values are derived by running the algorithm and recording observed output.
 
@@ -1227,3 +1229,273 @@ def test_cli_source_column_is_findhdna():
     finally:
         path.unlink(missing_ok=True)
         tsv_path.unlink(missing_ok=True)
+
+
+# ===========================================================================
+# 24. Parallel chunking edge cases  (scan_fasta_parallel)
+#
+# Tests that chunking, boundary overlap handling, and multi-worker
+# dispatch produce results identical to the serial scan_fasta path.
+# ===========================================================================
+
+_PCHUNK_PARAMS = dict(minrep=10, maxrep=100, maxspacer=10, purity=0.90, mismatch=0.10)
+
+
+def _tmp_fasta_parallel(*records):
+    """(seq_id, seq) tuples → temp Path (caller must unlink)."""
+    tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".fa", delete=False)
+    for sid, seq in records:
+        tmp.write(f">{sid}\n{seq}\n")
+    tmp.close()
+    return Path(tmp.name)
+
+
+def _pkey(h):
+    return (h["seq_id"], h["start"], h["end"], h["arm_length"])
+
+
+def test_parallel_single_chunk_matches_serial():
+    """Record < chunk_size → treated as single chunk; must match serial."""
+    seq = "A" * 50 + "G" * 50 + "C" * 50 + "T" * 50 + "A" * 200 + "G" * 200
+    p = _tmp_fasta_parallel(("test", seq))
+    try:
+        ser = hseeker.scan_fasta(str(p), **_PCHUNK_PARAMS)
+        par = hseeker.scan_fasta_parallel(str(p), chunk_size=5000, workers=2, **_PCHUNK_PARAMS)
+        assert sorted(_pkey(h) for h in ser) == sorted(_pkey(h) for h in par)
+    finally:
+        p.unlink(missing_ok=True)
+
+
+def test_parallel_hit_across_chunk_boundary():
+    """Pure poly-A tract that crosses the chunk boundary must still be found."""
+    chunk_size = 500
+    seq = "A" * chunk_size + "A" * 4000
+    p = _tmp_fasta_parallel(("test", seq))
+    try:
+        ser = hseeker.scan_fasta(str(p), **_PCHUNK_PARAMS)
+        par = hseeker.scan_fasta_parallel(str(p), chunk_size=chunk_size, workers=2, **_PCHUNK_PARAMS)
+        ser_keys = sorted(_pkey(h) for h in ser)
+        par_keys = sorted(_pkey(h) for h in par)
+        assert ser_keys == par_keys, (
+            f"Serial {len(ser)} hits vs parallel {len(par)} hits\n"
+            f"Missing from par: {set(ser_keys)-set(par_keys)}\n"
+            f"Extra in par: {set(par_keys)-set(ser_keys)}"
+        )
+    finally:
+        p.unlink(missing_ok=True)
+
+
+def test_parallel_record_exactly_chunk_size():
+    """Record exactly chunk_size bases → single chunk; must match serial."""
+    chunk_size = 1000
+    seq = "G" * chunk_size
+    p = _tmp_fasta_parallel(("exact", seq))
+    try:
+        ser = hseeker.scan_fasta(str(p), **_PCHUNK_PARAMS)
+        par = hseeker.scan_fasta_parallel(str(p), chunk_size=chunk_size, workers=2, **_PCHUNK_PARAMS)
+        assert sorted(_pkey(h) for h in ser) == sorted(_pkey(h) for h in par)
+    finally:
+        p.unlink(missing_ok=True)
+
+
+def test_parallel_record_one_over_chunk():
+    """Record chunk_size+1 bases → 2 chunks; must match serial."""
+    chunk_size = 1000
+    seq = "A" * (chunk_size + 1)
+    p = _tmp_fasta_parallel(("one_over", seq))
+    try:
+        ser = hseeker.scan_fasta(str(p), **_PCHUNK_PARAMS)
+        par = hseeker.scan_fasta_parallel(str(p), chunk_size=chunk_size, workers=2, **_PCHUNK_PARAMS)
+        assert sorted(_pkey(h) for h in ser) == sorted(_pkey(h) for h in par)
+    finally:
+        p.unlink(missing_ok=True)
+
+
+def test_parallel_empty_record():
+    p = _tmp_fasta_parallel(("empty", ""))
+    try:
+        assert hseeker.scan_fasta_parallel(str(p), chunk_size=100, workers=2, **_PCHUNK_PARAMS) == []
+    finally:
+        p.unlink(missing_ok=True)
+
+
+def test_parallel_too_short():
+    p = _tmp_fasta_parallel(("short", "AAAAA"))
+    try:
+        assert hseeker.scan_fasta_parallel(str(p), chunk_size=10, workers=2, **_PCHUNK_PARAMS) == []
+    finally:
+        p.unlink(missing_ok=True)
+
+
+def test_parallel_multi_record_mixed():
+    """Multi-record FASTA with chunked, non-chunked, empty, and too-short records."""
+    chunk_size = 500
+    records = [
+        ("chr1", "A" * 2000),
+        ("chr2", "G" * 200),
+        ("chr3", "C" * chunk_size),
+        ("chr4", ""),
+        ("chr5", "T" * 5),
+        ("chr6", "A" * (chunk_size + 1)),
+    ]
+    p = _tmp_fasta_parallel(*records)
+    try:
+        ser = hseeker.scan_fasta(str(p), **_PCHUNK_PARAMS)
+        par = hseeker.scan_fasta_parallel(str(p), chunk_size=chunk_size, workers=3, **_PCHUNK_PARAMS)
+        assert sorted(_pkey(h) for h in ser) == sorted(_pkey(h) for h in par)
+    finally:
+        p.unlink(missing_ok=True)
+
+
+@pytest.mark.parametrize("workers", [1, 2, 4])
+def test_parallel_worker_independence(workers):
+    """Results must be identical regardless of worker count."""
+    chunk_size = 500
+    seq = "A" * 2000 + "C" * 500 + "G" * 500
+    p = _tmp_fasta_parallel(("wtest", seq))
+    try:
+        ser = hseeker.scan_fasta(str(p), **_PCHUNK_PARAMS)
+        par = hseeker.scan_fasta_parallel(str(p), chunk_size=chunk_size, workers=workers, **_PCHUNK_PARAMS)
+        assert sorted(_pkey(h) for h in ser) == sorted(_pkey(h) for h in par)
+    finally:
+        p.unlink(missing_ok=True)
+
+
+def test_parallel_many_tiny_chunks():
+    """Many small chunks must produce a valid non-overlapping hit set."""
+    overlap = 2 * _PCHUNK_PARAMS["maxrep"] + _PCHUNK_PARAMS["maxspacer"] + 1
+    chunk_size = overlap + 100
+    seq = "A" * (chunk_size * 3)
+    p = _tmp_fasta_parallel(("tiny", seq))
+    try:
+        ser = hseeker.scan_fasta(str(p), **_PCHUNK_PARAMS)
+        par = hseeker.scan_fasta_parallel(str(p), chunk_size=chunk_size, workers=3, **_PCHUNK_PARAMS)
+
+        def _no_overlap(hits):
+            sh = sorted(hits, key=lambda h: h["start"])
+            for i in range(len(sh) - 1):
+                assert sh[i]["end"] < sh[i + 1]["start"], \
+                    f"overlap: {sh[i]} vs {sh[i+1]}"
+        _no_overlap(ser)
+        _no_overlap(par)
+        assert len(ser) == len(par), f"serial={len(ser)} parallel={len(par)}"
+    finally:
+        p.unlink(missing_ok=True)
+
+
+def test_parallel_hit_at_exact_boundary_with_max_arm():
+    """Max-arm hit whose center lands exactly at the chunk boundary exclusion point."""
+    chunk_size = 500
+    maxrep = _PCHUNK_PARAMS["maxrep"]
+    seq = "A" * (chunk_size + 2 * maxrep + 100)
+    p = _tmp_fasta_parallel(("boundary", seq))
+    try:
+        ser = hseeker.scan_fasta(str(p), **_PCHUNK_PARAMS)
+        par = hseeker.scan_fasta_parallel(str(p), chunk_size=chunk_size, workers=2, **_PCHUNK_PARAMS)
+        assert sorted(_pkey(h) for h in ser) == sorted(_pkey(h) for h in par)
+    finally:
+        p.unlink(missing_ok=True)
+
+
+def test_parallel_n_bases_near_boundary():
+    """N bases near chunk boundaries must be handled without duplicates or misses."""
+    chunk_size = 500
+    seq = "A" * 200 + "N" * 100 + "A" * 200 + "N" * 50 + "A" * 5000
+    p = _tmp_fasta_parallel(("n_boundary", seq))
+    try:
+        ser = hseeker.scan_fasta(str(p), **_PCHUNK_PARAMS)
+        par = hseeker.scan_fasta_parallel(str(p), chunk_size=chunk_size, workers=3, **_PCHUNK_PARAMS)
+        assert sorted(_pkey(h) for h in ser) == sorted(_pkey(h) for h in par)
+    finally:
+        p.unlink(missing_ok=True)
+
+
+def test_parallel_determinism():
+    """Same input, same output across two independent parallel runs."""
+    chunk_size = 800
+    seq = "G" * 3000 + "C" * 2000 + "A" * 5000
+    p = _tmp_fasta_parallel(("det", seq))
+    try:
+        a = hseeker.scan_fasta_parallel(str(p), chunk_size=chunk_size, workers=3, **_PCHUNK_PARAMS)
+        b = hseeker.scan_fasta_parallel(str(p), chunk_size=chunk_size, workers=3, **_PCHUNK_PARAMS)
+        assert sorted(_pkey(h) for h in a) == sorted(_pkey(h) for h in b)
+    finally:
+        p.unlink(missing_ok=True)
+
+
+# ===========================================================================
+# 25. Real-genome regression  (hg38 chr1 — requires benchmarks/data/chr1.fa)
+#
+# These tests are skipped automatically when the chr1 FASTA is not present
+# (e.g. in CI without the benchmark data).  Run them locally after downloading:
+#
+#   python benchmarks/benchmark.py --chromosomes chr1
+#
+# Reference values were established on 2026-06-16 using hseeker v0.1.0 with
+# default parameters (minrep=10, maxrep=1000, maxspacer=10, purity=0.90,
+# mismatch=0.10, remove_overlaps=True, score=True).
+#
+#   Total hits : 96,729
+#   Chromosome : chr1 (hg38/GRCh38, 249,698,492 bp)
+#
+# If the hit count changes after a code modification you MUST verify that
+# the change is intentional (algorithm fix) and update this constant.
+# ===========================================================================
+
+_CHR1_FA = Path(__file__).parent.parent / "benchmarks" / "data" / "chr1.fa"
+
+# Confirmed hit count — update only if the algorithm is intentionally changed.
+_CHR1_EXPECTED_HITS = 96_729
+
+_CHR1_DEFAULT_PARAMS = dict(
+    minrep=10, maxrep=1000, maxspacer=10,
+    purity=0.90, mismatch=0.10,
+    remove_overlaps=True,
+    score=False,   # scoring does not affect hit count; skip for speed
+)
+
+
+@pytest.mark.skipif(not _CHR1_FA.exists(), reason="benchmarks/data/chr1.fa not present")
+def test_chr1_hit_count_regression():
+    """Exact hit count on hg38 chr1 must not change between releases.
+
+    Uses scan_fasta_parallel (all cores, default chunk_size=1_000_000) which
+    is the same code path as the CLI.  score=False to keep the test fast.
+    """
+    hits = hseeker.scan_fasta_parallel(
+        str(_CHR1_FA),
+        **_CHR1_DEFAULT_PARAMS,
+    )
+    assert len(hits) == _CHR1_EXPECTED_HITS, (
+        f"chr1 hit count changed: expected {_CHR1_EXPECTED_HITS}, "
+        f"got {len(hits)}.  If this is intentional, update _CHR1_EXPECTED_HITS."
+    )
+
+
+@pytest.mark.skipif(not _CHR1_FA.exists(), reason="benchmarks/data/chr1.fa not present")
+def test_chr1_hits_no_overlaps():
+    """Every hit in the chr1 result must be non-overlapping."""
+    hits = hseeker.scan_fasta_parallel(
+        str(_CHR1_FA),
+        **_CHR1_DEFAULT_PARAMS,
+    )
+    hits.sort(key=lambda h: h["start"])
+    for i in range(len(hits) - 1):
+        assert hits[i]["end"] < hits[i + 1]["start"], (
+            f"Overlap found: [{hits[i]['start']},{hits[i]['end']}] "
+            f"vs [{hits[i+1]['start']},{hits[i+1]['end']}]"
+        )
+
+
+@pytest.mark.skipif(not _CHR1_FA.exists(), reason="benchmarks/data/chr1.fa not present")
+def test_chr1_coordinate_invariant():
+    """start + total_length - 1 == end must hold for every hit on chr1."""
+    hits = hseeker.scan_fasta_parallel(
+        str(_CHR1_FA),
+        **_CHR1_DEFAULT_PARAMS,
+    )
+    bad = [
+        h for h in hits
+        if h["start"] + h["total_length"] - 1 != h["end"]
+    ]
+    assert not bad, f"{len(bad)} hits violate coordinate invariant"

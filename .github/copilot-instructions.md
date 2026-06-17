@@ -29,7 +29,7 @@ hseeker/
 │   └── test_hdna.py         ← 120 pytest tests
 ├── benchmarks/
 │   ├── benchmark.py         ← performance benchmark suite
-│   └── data/                ← generated FASTA files (gitignored)
+│   └── data/                ← downloaded chromosome FASTA files (gitignored)
 ├── webapp/
 │   ├── main.py              ← FastAPI application
 │   ├── requirements.txt     ← webapp-only dependencies
@@ -172,9 +172,12 @@ When `score=True` (default), every hit from the Python API is post-processed thr
 - Entry point: `hseeker` (declared in `pyproject.toml` under `[project.scripts]`).
 - Also callable as `python -m hseeker`.
 - Output: `<prefix>_HDNA.tsv` — a tab-separated file with the column order defined in `fieldnames` in `main()`.
+- **The CLI calls `scan_fasta_parallel()` internally** — it parallelises across all CPU cores by default.
+- The `-workers N` flag limits the number of parallel threads (default: `os.cpu_count()`).
 - The CLI flag `-skipoverlap` **inverts** the Python `remove_overlaps` parameter (i.e. passing `-skipoverlap` sets `remove_overlaps=False`).
 - The CLI flag `-score` is **on by default**; pass `-no-score` to disable stability scoring.
 - All progress/diagnostic output goes to `stderr`; only the TSV header/rows go to the output file.
+- Hits are sorted by `(seq_id, start)` before being written to the TSV.
 
 ---
 
@@ -223,9 +226,9 @@ hseeker -seq genome.fa -out results -no-score
 
 ---
 
-## Test suite (`tests/test_hdna.py` + `tests/test_parallel_edges.py`)
+## Test suite (`tests/test_hdna.py`)
 
-134 tests across 25+ sections. Before adding a new test:
+134 tests in a single file, organised across 24 sections. Before adding a new test:
 
 1. Read the section it belongs to and follow the existing naming pattern.
 2. Add reference sequences as **module-level constants** (e.g., `MY_SEQ = "AAAGGGAAAGGG"`).
@@ -289,34 +292,34 @@ To trigger a release: create and push an annotated tag `vX.Y.Z`.
 
 ## Benchmarks (`benchmarks/benchmark.py`)
 
-Self-contained performance benchmark suite. Generates synthetic FASTA datasets and measures wall time, peak RAM, CPU utilisation, and parallelism speedup for all public API paths.
+CLI-only end-to-end benchmark. Downloads real hg38/GRCh38 chromosomes from NCBI and measures wall time, peak RSS, and disk I/O for the full `hseeker` pipeline using `/usr/bin/time -v`.
 
 ### Running
 
 ```bash
-# Small tier only (30 MB, ~3–5 min) — recommended default
-python benchmarks/benchmark.py --no-cli
+# All 24 chromosomes (~3 GB download on first run)
+python benchmarks/benchmark.py
 
-# Include medium tier (300 MB)
-python benchmarks/benchmark.py --medium --no-cli
-
-# Benchmark a real FASTA file
-python benchmarks/benchmark.py --real path/to/genome.fa --no-cli
+# Quick test: single chromosome
+python benchmarks/benchmark.py --chromosomes chr1
 
 # Save results as JSON
-python benchmarks/benchmark.py --no-cli --json results.json
+python benchmarks/benchmark.py --json results.json
 
-# Parallelism scaling table
-python benchmarks/benchmark.py --scaling --no-cli
+# Write Markdown performance report
+python benchmarks/benchmark.py --report report.md
+
+# Force re-download
+python benchmarks/benchmark.py --no-cache
 ```
 
 ### Key facts
 
-- Generated FASTA files are cached in `benchmarks/data/` (gitignored). Pass `--no-cache` to regenerate.
-- Three sequence profiles: `uniform` (sparse hits, baseline), `ga_biased` (dense hits, stresses buffer), `realistic` (medium density, mimics human chromosomes).
-- Three size tiers: `small` (30 MB, default), `medium` (300 MB, `--medium`), `large` (3 GB, `--large`).
-- Do NOT commit anything under `benchmarks/data/`.
-- When editing `benchmark.py`, do not change the `DatasetSpec` field names — they are used as JSON keys in `--json` output.
+- Chromosome FASTA files are cached in `benchmarks/data/` (gitignored). Pass `--no-cache` to re-download.
+- All 24 hg38 chromosomes (chr1–chr22, chrX, chrY) are downloaded from NCBI on first run.
+- When chr1, chr2, and chr3 are all available, the benchmark automatically builds `data/chr1_2_3.fa` (concatenation of the three) for multi-record throughput testing. The concat is rebuilt only when a source file is newer than the existing concat.
+- Scoring is always enabled (`score=True`) — no `-no-score` path is tested.
+- When editing `benchmark.py`, keep the measurement infrastructure unchanged (`bench_cli`, `_parse_time_str`, `_print_separator`, `_get_system_info`, `_generate_markdown_report`, `_build_concat_if_needed`).
 
 ---
 

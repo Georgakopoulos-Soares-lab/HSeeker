@@ -157,26 +157,41 @@ def parse_fasta(path: str | Path) -> Generator[tuple[str, str, int], None, None]
     _header_re = re.compile(r"^>(\S+)")
     _offset_re = re.compile(r":(\d+)[-–]")
 
-    seq_id: str | None = None
-    offset: int = 1
-    parts: list[str] = []
+    # Read the entire file in one shot.  For genome-scale FASTA files
+    # (3–4 GB) this requires sufficient RAM, but avoids creating millions
+    # of per-line Python string objects — the previous line-by-line
+    # approach was a ~3× bottleneck on chr1.
+    raw = Path(path).read_text()
 
-    with open(path) as fh:
-        for line in fh:
-            line = line.rstrip("\n\r")
-            if line.startswith(">"):
-                if seq_id is not None:
-                    yield seq_id, "".join(parts), offset
-                m = _header_re.match(line)
-                seq_id = m.group(1) if m else "unknown"
-                om = _offset_re.search(line)
-                offset = int(om.group(1)) if om else 1
-                parts = []
-            elif line:
-                parts.append(line.upper().replace(" ", ""))
+    # Split on '>' to get raw record blocks; the first (empty) block
+    # before the initial '>' is discarded.
+    blocks = raw.split(">")
+    for block in blocks:
+        if not block.strip():
+            continue
+        # First line is the header (up to first newline)
+        newline_idx = block.find("\n")
+        if newline_idx == -1:
+            header = block
+            seq_lines = ""
+        else:
+            header = block[:newline_idx]
+            seq_lines = block[newline_idx + 1:]
 
-    if seq_id is not None:
-        yield seq_id, "".join(parts), offset
+        m = _header_re.match(">" + header)
+        seq_id = m.group(1) if m else "unknown"
+        om = _offset_re.search(">" + header)
+        offset = int(om.group(1)) if om else 1
+
+        # Collapse all whitespace/newlines from the sequence block,
+        # then uppercase.  This is a single string operation instead
+        # of per-line allocations.
+        seq = seq_lines.translate(
+            {10: None, 13: None, 32: None}  # remove \n, \r, space
+        ).upper()
+
+        if seq:
+            yield seq_id, seq, offset
 
 
 def scan_fasta(
@@ -352,7 +367,11 @@ def scan_fasta_parallel(
     ) -> list[dict]:
         seq_id, chunk_seq, chunk_offset, excl_end, defer_ovl = task
         # Defer overlap removal to the global pass for all chunks except
-        # single-chunk records (those with defer_ovl=False).
+        # single-chunk records (those with defer_ovl=False).  Also defer
+        # scoring — each chunk may produce thousands of hits and scoring
+        # them individually per chunk (especially with ProcessPoolExecutor
+        # inside ThreadPoolExecutor threads) is very slow.  Both overlap
+        # removal and scoring are applied once on the merged result set.
         hits = scan_sequence(
             chunk_seq,
             minrep=minrep,
@@ -362,6 +381,7 @@ def scan_fasta_parallel(
             mismatch=mismatch,
             remove_overlaps=(remove_overlaps and not defer_ovl),
             seq_offset=chunk_offset,
+            score=False,
         )
         for h in hits:
             h["seq_id"] = seq_id
@@ -381,17 +401,34 @@ def scan_fasta_parallel(
 
     # Cross-chunk overlap removal: each chunk's overlap removal is
     # independent, so hits from different chunks of the same record
-    # can still overlap.  Run a global pass to resolve these.
+    # can still overlap.  Use a sweep-line pass (O(n log n) sort +
+    # O(n) linear scan) instead of the previous O(n²) nested-loop
+    # approach which could not complete on chromosome-scale data.
     if remove_overlaps and results:
-        results.sort(key=lambda h: (-h["arm_length"], h["spacer_length"]))
+        # Sort by seq_id, then by start coordinate ascending.
+        # Among hits that start at the same position, keep the
+        # longest arm first (shortest spacer as tiebreak).
+        results.sort(key=lambda h: (
+            h["seq_id"],
+            h["start"],
+            -h["arm_length"],
+            h["spacer_length"],
+        ))
         kept: list[dict] = []
         for h in results:
-            s, e, sid = h["start"], h["end"], h["seq_id"]
-            if not any(
-                k["seq_id"] == sid and s <= k["end"] and e >= k["start"]
-                for k in kept
-            ):
+            if not kept or h["seq_id"] != kept[-1]["seq_id"]:
+                # First hit in this seq_id — always keep
                 kept.append(h)
+            elif h["start"] > kept[-1]["end"]:
+                # No overlap with the last kept hit — keep
+                kept.append(h)
+            elif h["arm_length"] > kept[-1]["arm_length"] or (
+                h["arm_length"] == kept[-1]["arm_length"]
+                and h["spacer_length"] < kept[-1]["spacer_length"]
+            ):
+                # Overlaps but is better — replace
+                kept[-1] = h
+            # else: overlaps and is not better — discard
         results = kept
 
     if score and results:

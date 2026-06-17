@@ -304,7 +304,8 @@ python -m hseeker -seq <FASTA> -out <PREFIX> [options]
 | `-mismatch FLOAT` | float | `0.10` | **Maximum mirror mismatch fraction** (0.0–1.0). Fraction of base positions in the arm where `dna[left] ≠ dna[right]` (i.e. the mirror is broken). `0.0` requires a perfect mirror; `0.10` allows 1 mismatch per 10 bp. This parameter is independent of purity — both must be satisfied simultaneously. |
 | `-skipoverlap` | flag | *(off)* | **Skip overlap removal**. By default, overlapping hits are collapsed to the longest arm (ties broken by shortest spacer). Pass this flag to disable overlap removal and receive every raw hit at every `(center, spacer)` combination that passes the thresholds. Useful for statistical analyses or when you want to inspect the full hit landscape. |
 | `-score` | flag | *(on)* | **Apply thermodynamic stability scoring**. Enables stacking and pairing score computation for each hit. Pass `-no-score` to disable and keep only the core detection columns. |
-| `-v` | flag | *(off)* | **Verbose mode**. Prints per-sequence statistics (record name, length, offset, hit count) to `stderr` as each FASTA record is processed. Useful for monitoring progress on large genomes. |
+| `-workers INT` | int | *(all cores)* | **Parallel worker threads**. The CLI uses `scan_fasta_parallel` internally and defaults to all available CPU cores. Set this to a lower value to cap CPU usage, or to `1` to run single-threaded. |
+| `-v` | flag | *(off)* | **Verbose mode**. Prints progress information to `stderr`. Useful for monitoring large jobs. |
 
 ### CLI examples
 
@@ -328,6 +329,9 @@ hseeker -seq genome.fa -out perfect -purity 1.0 -mismatch 0.0 \
 
 # 6. Verbose output to monitor progress on a large genome
 hseeker -seq hg38.fa -out hg38 -minrep 8 -v 2>progress.log
+
+# 7. Use 8 worker threads instead of all cores
+hseeker -seq hg38.fa -out hg38 -workers 8
 ```
 
 ---
@@ -376,9 +380,10 @@ chr1    findHDNA  1001   1020  7           6              20            85.71   
 | Maximum spacer | `maxspacer` | `-maxspacer` | int | 10 | ≥ 0 | Set to 0 for zero-loop (adjacent arms) only |
 | Purity threshold | `purity` | `-purity` | float | 0.90 | 0.0–1.0 | Fraction GA or CT required in arm |
 | Mismatch tolerance | `mismatch` | `-mismatch` | float | 0.10 | 0.0–1.0 | Fraction of arm positions allowed to mismatch the mirror |
-| Overlap removal | `remove_overlaps` | `--skipoverlap` (inverts) | bool | True | — | When True, keeps only the longest non-overlapping hit |
+| Overlap removal | `remove_overlaps` | `-skipoverlap` (inverts) | bool | True | — | When True, keeps only the longest non-overlapping hit |
 | Sequence offset | `seq_offset` | *(automatic in CLI)* | int | 1 | ≥ 1 | 1-based start coordinate of `seq[0]`; used for correct genomic coordinates |
-| Stability scoring | `score` | `--score` / `--no-score` | bool | True | — | When True, computes stacking and pairing scores and an optimised triplex sequence for each hit. Scoring adds `stacking_score`, `pairing_score`, `total_score`, and `putative_triplex` columns to the output. |
+| Worker threads | *(CLI only)* | `-workers` | int | all cores | ≥ 1 | Number of parallel threads used by the CLI (via `scan_fasta_parallel`) |
+| Stability scoring | `score` | `-score` / `-no-score` | bool | True | — | When True, computes stacking and pairing scores and an optimised triplex sequence for each hit. Scoring adds `stacking_score`, `pairing_score`, `total_score`, and `putative_triplex` columns to the output. |
 
 ### Choosing parameters for your use case
 
@@ -440,11 +445,12 @@ When `remove_overlaps=True` (default), two hits overlap if their genomic ranges 
 - `scan_fasta_parallel(path, workers=N)` with default `chunk_size=1_000_000` achieves
   **~N× speedup on N-core machines** even for single-chromosome genomes like *E. coli*
   (4.6 Mb), which are automatically split into overlapping chunks.
-- A single human chromosome (≈ 250 Mb) processes in under 30 seconds on a single core
-  with default parameters, and in under 5 seconds with 8-thread parallelism.
+- The **CLI uses `scan_fasta_parallel` by default**, automatically parallelising
+  across all available CPU cores. A single human chromosome (≈ 250 Mb, chr1) processes
+  in ~78 seconds on 16 cores. Use `-workers N` to limit parallelism.
 - The internal hit buffer is capped at **1,000,000 hits per `scan_sequence` call**.
-  For whole-genome scans, call `scan_fasta()` (which iterates per-contig) rather
-  than concatenating chromosomes into a single string.
+  For whole-genome scans, use `scan_fasta_parallel` (which splits each contig into
+  overlapping chunks) rather than concatenating chromosomes into a single string.
 - Memory usage is approximately **O(n_hits × 200 bytes)** plus the sequence string itself.
 - N bases in the sequence (`N`, `n`) break arm extension, as per the original algorithm.
 
@@ -458,16 +464,17 @@ When `remove_overlaps=True` (default), two hits overlap if their genomic ranges 
 # Install dev dependencies first
 pip install -e ".[dev]"
 
-# Run all 120 tests
+# Run all 134 tests
 pytest -v tests/
 ```
 
-The test suite covers:
+The test suite (`tests/test_hdna.py`) covers:
 - Empty / trivial inputs
 - Known GA and CT mirror motifs with exact expected values
 - Strict mode (purity=1.0, mismatch=0.0) and relaxed mode
 - Coordinate offset propagation (`seq_offset`)
 - Multi-record FASTA parsing, `scan_fasta_iter` streaming generator, and `scan_fasta_parallel`
+- Parallel chunking edge cases: boundary hits, tiny chunks, N-bases near boundaries, determinism
 - Overlap removal correctness
 - Parameter validation (out-of-range inputs)
 - Exact field values for reference sequences
@@ -490,7 +497,7 @@ hseeker/
 │       ├── __init__.py      # Python API (scan_sequence, scan_fasta, scan_fasta_iter, scan_fasta_parallel)
 │       └── __main__.py      # CLI entry point (hseeker / python -m hseeker)
 ├── tests/
-│   └── test_hdna.py         # 110 comprehensive tests (pytest)
+│   └── test_hdna.py         # 134 comprehensive tests (pytest)
 ├── .github/
 │   └── workflows/
 │       └── build_wheels.yml # CI: build binary wheels + sdist, publish to PyPI
@@ -520,52 +527,39 @@ Tests live in `tests/test_hdna.py`. Each section focuses on one concern. Add new
 
 ## 13. Benchmarks
 
-The `benchmarks/` directory contains a self-contained performance benchmark suite that generates synthetic FASTA datasets and measures wall time, peak RAM, CPU utilisation, and parallelism speedup across all public API paths.
+`benchmarks/benchmark.py` is a CLI-only end-to-end benchmark that downloads real
+hg38/GRCh38 chromosomes from NCBI and measures wall time, peak RSS, and TSV
+throughput for the full `hseeker` pipeline (FASTA read → scan → overlap removal
+→ scoring → TSV write).
 
 ### Setup
 
 ```bash
-# Dev dependencies include everything the benchmark needs
 pip install -e ".[dev]"
 ```
 
-### Running the benchmarks
+### Running
 
 ```bash
-# Small tier only (30 MB total, ~3–5 min) — recommended first run
-python benchmarks/benchmark.py --no-cli
-
-# Include medium tier (300 MB total, ~30–60 min)
-python benchmarks/benchmark.py --medium --no-cli
-
-# Benchmark against a real FASTA file (e.g. a chromosome)
-python benchmarks/benchmark.py --real hg38_chr1.fa --no-cli
-
-# Include CLI / disk-write benchmark (requires hseeker on PATH)
+# All 24 chromosomes (~3 GB download on first run)
 python benchmarks/benchmark.py
 
-# Save machine-readable results to JSON
-python benchmarks/benchmark.py --no-cli --json results.json
+# Single chromosome quick test
+python benchmarks/benchmark.py --chromosomes chr1
 
-# Parallelism scaling table (workers 1 → N on largest dataset)
-python benchmarks/benchmark.py --scaling --no-cli
+# Save machine-readable results to JSON
+python benchmarks/benchmark.py --chromosomes chr1 --json results.json
+
+# Write a Markdown report
+python benchmarks/benchmark.py --chromosomes chr1 --report report.md
+
+# Force re-download
+python benchmarks/benchmark.py --no-cache
 ```
 
-### Datasets
-
-| Profile | Composition | H-DNA density |
-|---|---|---|
-| `uniform` | Equal ACGT probability | sparse (baseline throughput) |
-| `ga_biased` | 45 % G + 45 % A | dense (stresses hit buffer) |
-| `realistic` | Slight AT bias + GC blocks + embedded motifs | medium (mimics human chromosome) |
-
-| Tier | Records | Total size | Typical runtime |
-|---|---|---|---|
-| `small` (default) | 5 × 6 MB + 24 × 1.25 MB | 30 MB | 3–5 min |
-| `medium` (`--medium`) | 5 × 60 MB + 24 × 12.5 MB | 300 MB | 30–60 min |
-| `large` (`--large`) | 5 × 600 MB + 24 × 125 MB | 3 GB | 10–30 min |
-
-Generated FASTA files are cached in `benchmarks/data/` (gitignored) and reused on subsequent runs. Pass `--no-cache` to force regeneration.
+Chromosome FASTA files are cached in `benchmarks/data/` (gitignored).
+When chr1, chr2, and chr3 are all present, the benchmark automatically
+builds a concatenated `chr1_2_3.fa` for multi-record throughput testing.
 
 ---
 
