@@ -37,12 +37,12 @@ for (i in seq_len(nrow(df))) {
       res <- triplex.search(
         DNAString(seq),
         type = 0:7,
-        min_score = 0,
-        p_value = 1,
+        min_score = 15,
+        p_value = 0.05,
         min_len = 6,
-        max_len = min(25, max(6, nchar(seq))),
-        min_loop = 1,
-        max_loop = 50
+        max_len = 25,
+        min_loop = 3,
+        max_loop = 10
       )
       triplex_count <- length(res)
       if (triplex_count > 0) {

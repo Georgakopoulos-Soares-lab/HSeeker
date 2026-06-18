@@ -1,0 +1,35 @@
+{
+  "fasta": "/Users/archit/Projects/repeat_finder/HSeeker/benchmarks/data/chr1.fa",
+  "workers": 16,
+  "scoring": true,
+  "params": {
+    "minrep": 10,
+    "maxrep": 1000,
+    "maxspacer": 10,
+    "purity": 0.9,
+    "mismatch": 0.1
+  },
+  "purity_rmq_false": {
+    "purity_rmq": false,
+    "runtime_sec": 39.78907108400017,
+    "hits": 96729,
+    "score_min": -9780.04,
+    "score_median": 71.415,
+    "score_max": 1785.99
+  },
+  "purity_rmq_true": {
+    "purity_rmq": true,
+    "runtime_sec": 10.34222179185599,
+    "hits": 96729,
+    "score_min": -9780.04,
+    "score_median": 71.415,
+    "score_max": 1785.99
+  },
+  "speedup_true_vs_false": 3.8472459675281936,
+  "lost_hits_with_rmq": 0,
+  "extra_hits_with_rmq": 0,
+  "outputs": {
+    "purity_rmq_false_tsv": "/Users/archit/Projects/repeat_finder/HSeeker/analysis/results/chr1/chr1_hseeker_16threads_scored_purityrmq_false.tsv",
+    "purity_rmq_true_tsv": "/Users/archit/Projects/repeat_finder/HSeeker/analysis/results/chr1/chr1_hseeker_16threads_scored_purityrmq_true.tsv"
+  }
+}

@@ -18,8 +18,8 @@ Sensitivity=0.844, specificity=0.000, precision=1.000, F1=0.916, accuracy=0.844
 
 ## Triplex Presence/Absence
 
-TP=45 FN=0 TN=0 FP=0
-Sensitivity=1.000, specificity=0.000, precision=1.000, F1=1.000, accuracy=1.000
+TP=44 FN=1 TN=0 FP=0
+Sensitivity=0.978, specificity=0.000, precision=1.000, F1=0.989, accuracy=0.978
 
 Triplex is treated as a binary presence/absence caller here; its score is not directly comparable to HSeeker's thermodynamic score.
 
