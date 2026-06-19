@@ -39,16 +39,21 @@ def _is_cross_compiling():
     return any(t != native for t in target_archs)
 
 
-extra_compile_args = ["-O3", "-Wall"]
-if not _is_cross_compiling():
-    extra_compile_args.append("-march=native")
+if platform.system() == "Windows":
+    extra_compile_args = []
+    libraries = []
+else:
+    extra_compile_args = ["-O3", "-Wall"]
+    if not _is_cross_compiling():
+        extra_compile_args.append("-march=native")
+    libraries = ["m"]
 
 hdna_ext = Extension(
     # The module will be importable as  hseeker._hdna
     name="hseeker._hdna",
     sources=["src/hseeker/_hdna.c"],
     extra_compile_args=extra_compile_args,
-    libraries=["m"],  # link libm for math.h (no-op on Windows/MSVC)
+    libraries=libraries,
 )
 
 setup(ext_modules=[hdna_ext])
