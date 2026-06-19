@@ -99,13 +99,18 @@
 
     <h3>The scan algorithm</h3>
     <ol>
-      <li>For each candidate <strong>hinge position</strong> and <strong>spacer length</strong> (0 to <span class="about-chip">maxspacer</span>), place a left pointer at the hinge and a right pointer immediately after the spacer.</li>
+      <li>For each candidate <strong>hinge position</strong> and <strong>spacer length</strong> (0 to <span class="about-chip">maxspacer</span>), optionally run an exact right-arm purity feasibility prefilter so impossible center/spacer pairs are skipped before extension.</li>
+      <li>Place a left pointer at the hinge and a right pointer immediately after the spacer.</li>
       <li>Extend both pointers outward simultaneously, one base at a time.</li>
       <li>At each step, check the <strong>mirror symmetry criterion</strong>: the base at position <em>t</em> outward from the center on the left equals the base at position <em>t</em> outward from the center on the right — i.e. <code>dna[ctr − t] = dna[right0 + t]</code>. This is base-identity equality (mirror repeat), <strong>not</strong> Watson-Crick complementarity (which would be an inverted/palindromic repeat).</li>
-      <li>Track the running <strong>GA purity</strong> and <strong>CT purity</strong> of the right arm. A candidate arm length <em>k</em> is valid when both: purity ≥ <span class="about-chip">purity</span> threshold <em>and</em> mismatches ≤ <span class="about-chip">mismatch</span> threshold. Extension halts only when an N base is encountered on the right arm; the algorithm records the best valid arm length found up to that point.</li>
+      <li>Track the running <strong>GA purity</strong> and <strong>CT purity</strong> of the right arm. A candidate arm length <em>k</em> is valid when <strong>either</strong> the GA or CT purity meets the <span class="about-chip">purity</span> threshold and mismatches stay within the <span class="about-chip">mismatch</span> threshold. Extension halts when an N base is encountered on the right arm; the algorithm records the best valid arm length found up to that point.</li>
       <li>Record a hit if the final arm length ≥ <span class="about-chip">minrep</span>.</li>
       <li>After scanning all positions, optionally remove overlapping hits — keeping the longest arm, with shorter spacer as tiebreaker.</li>
     </ol>
+
+    <div class="callout">
+      <p><strong>RMQ optimization:</strong> the optional <code>purity_rmq</code> path is a deterministic prefilter that uses range-maximum queries over right-arm purity envelopes to reject impossible center/spacer pairs before the inner extension loop. It does <em>not</em> change mirror matching, overlap removal, or the final hit set.</p>
+    </div>
 
     <div class="callout">
       <p><strong>Key invariant:</strong> every hit satisfies
@@ -159,9 +164,12 @@
   <!-- ── Parameter modes ──────────────────────────────────────────────────── -->
   <section class="about-section">
     <h2>Parameter Modes</h2>
-    <p>HSeeker exposes five parameters that control detection sensitivity and specificity.
-      The defaults match the <code>hseeker</code> CLI:
-      <code>minrep=10</code>, <code>maxrep=1000</code>, <code>maxspacer=10</code>, <code>purity=0.90</code>, <code>mismatch=0.10</code>.
+    <p>The web app exposes the same scan controls used by the backend submission form:
+      <code>minrep</code>, <code>maxrep</code>, <code>maxspacer</code>, <code>purity</code>, <code>mismatch</code>,
+      <code>remove_overlaps</code>, and <code>score</code>. The defaults match the <code>hseeker</code> CLI and web form:
+      <code>minrep=10</code>, <code>maxrep=1000</code>, <code>maxspacer=10</code>, <code>purity=0.90</code>,
+      <code>mismatch=0.10</code>, <code>remove_overlaps=on</code>, <code>score=on</code>.
+      The underlying Python API also accepts <code>seq_offset</code> and <code>purity_rmq</code> for advanced use.
       Three curated presets cover the most common use cases:</p>
 
     <div class="table-wrap" style="margin-bottom: 24px;">
@@ -232,6 +240,11 @@
         <p>When enabled, overlapping hits are deduplicated by keeping the longest arm.
            Ties are broken by shorter spacer. Disable to see all raw hits from the
            center-outward scan.</p>
+      </div>
+      <div class="about-param-card">
+        <div class="about-param-name"><span class="about-chip">score</span></div>
+        <p>When enabled, each hit is post-processed with thermodynamic stability scoring and the
+           resulting stacking, pairing, total score, and putative triplex fields are included in the output.</p>
       </div>
     </div>
   </section>
