@@ -1,6 +1,6 @@
 name: Build and publish wheels
 
-# Trigger on version tags (v0.1.0, v1.2.3, …) or manually
+# Trigger on version tags (v0.1.0, v1.2.3, …), main pushes, or manually
 on:
   push:
     tags:
@@ -145,7 +145,7 @@ jobs:
 
   # -------------------------------------------------------------------------
   # Publish to PyPI after all wheels are built.
-  # Runs for pushes to main, version tags, and manual dispatches.
+  # Runs only for version tags and manual dispatches.
   # Uses PyPI Trusted Publishing (OIDC) — no API token needed.
   # Set up: https://docs.pypi.org/trusted-publishers/
   # -------------------------------------------------------------------------
@@ -153,7 +153,7 @@ jobs:
     name: Publish to PyPI
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
 
     permissions:
       id-token: write   # required for OIDC trusted publishing
