@@ -132,7 +132,7 @@ jobs:
           PY
 
       - name: Install build
-        run: pipx install build
+        run: pip install build
 
       - name: Build sdist
         run: python -m build --sdist
