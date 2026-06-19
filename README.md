@@ -1,11 +1,13 @@
 # HSeeker
 
-**HSeeker** is a fast, cross-platform Python package for detecting **H-DNA (intramolecular triplex DNA)** and **mirror repeat** structures in genomic sequences. It ships a compiled C extension (`_hdna`) as its computational core and exposes both a clean Python API and a drop-in CLI replacement for the original `findHDNA` binary.
+**HSeeker** is a fast, cross-platform Python package for detecting **H-DNA (intramolecular triplex DNA)** and **mirror repeat** structures in genomic sequences. It ships a compiled C extension (`_hdna.c`) for core scanning performance.
 
 [![PyPI version](https://img.shields.io/pypi/v/hseeker)](https://pypi.org/project/hseeker/)
 [![Python](https://img.shields.io/pypi/pyversions/hseeker)](https://pypi.org/project/hseeker/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![CI — Build Wheels](https://github.com/Georgakopoulos-Soares-lab/HDNAhunter/actions/workflows/build_wheels.yml/badge.svg)](https://github.com/Georgakopoulos-Soares-lab/HDNAhunter/actions/workflows/build_wheels.yml)
+
+**Package:** [`hseeker` on PyPI](https://pypi.org/project/hseeker/)
 
 ---
 
@@ -30,7 +32,7 @@
 
 ## 1. Biological Background
 
-**H-DNA** (also called intramolecular triplex DNA) forms when a single DNA strand folds back onto the Watson–Crick duplex and inserts into the major groove via **Hoogsteen** or **reverse-Hoogsteen** hydrogen bonds. The result is a three-stranded helical segment joined by a short single-stranded hinge loop.
+**H-DNA** (also called intramolecular triplex DNA) forms when a single DNA strand folds back onto the Watson–Crick duplex and inserts into the major groove via **Hoogsteen** or **reverse-Hoogsteen** pairing. The result is a triple-helical structure over a local region of the duplex.
 
 ```
   5'─────[left arm]─────[spacer]─────[right arm]─────3'
@@ -97,7 +99,7 @@ A hit is classified as `is_perfect = True` only when:
 pip install hseeker
 ```
 
-Binary wheels are provided for CPython 3.9–3.13 on Linux (x86_64, aarch64), macOS (x86_64, arm64, universal2), and Windows (AMD64). No compiler is needed.
+Binary wheels are provided for **CPython 3.9, 3.10, 3.11, 3.12, and 3.13** on Linux (x86_64, aarch64), macOS (x86_64, arm64, universal2), and Windows (AMD64). No compiler is needed.
 
 ### From source
 
@@ -121,7 +123,7 @@ This installs pytest, build, twine, and cibuildwheel in addition to the package 
 
 | Package | Version | Purpose |
 |---|---|---|
-| Python | ≥ 3.9 | Core runtime |
+| Python | 3.9–3.13 | Core runtime |
 | pandas | ≥ 1.5 | DataFrame output helper |
 
 ---
@@ -237,7 +239,7 @@ hseeker.scan_fasta_iter(
 ) -> Generator[dict, None, None]
 ```
 
-Streaming alternative to `scan_fasta`. Yields one hit dict at a time, keeping only a single record's worth of hits in memory at any moment. Use this for large FASTA files (e.g. whole-genome scans) where accumulating all hits at once would exhaust RAM. `scan_fasta` is implemented as `list(scan_fasta_iter(...))` and is provided for backward compatibility.
+Streaming alternative to `scan_fasta`. Yields one hit dict at a time, keeping only a single record's worth of hits in memory at any moment. Use this for large FASTA files (e.g. whole-genome scans).
 
 ---
 
@@ -297,14 +299,14 @@ python -m hseeker -seq <FASTA> -out <PREFIX> [options]
 
 | Argument | Type | Default | Description |
 |---|---|---|---|
-| `-minrep INT` | int | `10` | **Minimum arm length** in base pairs. Arms shorter than this are not reported, even if they satisfy all other criteria. Increasing this value reduces noise and focuses on structurally stable, longer H-DNA elements (recommended ≥ 10 for whole-genome scans). |
-| `-maxrep INT` | int | `1000` | **Maximum arm length** cap. The algorithm stops extending an arm beyond this length. Set higher for repetitive regions; setting it very high increases runtime without improving sensitivity for typical H-DNA. |
-| `-maxspacer INT` | int | `10` | **Maximum spacer / hinge loop length** in base pairs. The spacer is the single-stranded loop between the two mirror arms. H-DNA with spacers > 10 bp is thermodynamically unfavourable in vivo; the default of 10 captures biologically realistic hinge loops. Setting this to 0 requires the two arms to be immediately adjacent. |
-| `-purity FLOAT` | float | `0.90` | **Minimum compositional purity** of each arm (0.0–1.0). The arm must be ≥ `purity` fraction GA (purine) **or** ≥ `purity` fraction CT (pyrimidine). Set to `1.0` to require a perfectly pure homopurine/homopyrimidine arm. Lower values (e.g. `0.80`) increase sensitivity at the cost of more false positives. |
-| `-mismatch FLOAT` | float | `0.10` | **Maximum mirror mismatch fraction** (0.0–1.0). Fraction of base positions in the arm where `dna[left] ≠ dna[right]` (i.e. the mirror is broken). `0.0` requires a perfect mirror; `0.10` allows 1 mismatch per 10 bp. This parameter is independent of purity — both must be satisfied simultaneously. |
-| `-skipoverlap` | flag | *(off)* | **Skip overlap removal**. By default, overlapping hits are collapsed to the longest arm (ties broken by shortest spacer). Pass this flag to disable overlap removal and receive every raw hit at every `(center, spacer)` combination that passes the thresholds. Useful for statistical analyses or when you want to inspect the full hit landscape. |
+| `-minrep INT` | int | `10` | **Minimum arm length** in base pairs. Arms shorter than this are not reported, even if they satisfy all other criteria. Increasing this value reduces noise and focuses on longer, likely more stable motifs. |
+| `-maxrep INT` | int | `1000` | **Maximum arm length** cap. The algorithm stops extending an arm beyond this length. Set higher for repetitive regions; setting it very high increases runtime without improving signal in most genomes. |
+| `-maxspacer INT` | int | `10` | **Maximum spacer / hinge loop length** in base pairs. The spacer is the single-stranded loop between the two mirror arms. H-DNA with spacers > 10 bp is thermodynamically unfavoured. |
+| `-purity FLOAT` | float | `0.90` | **Minimum compositional purity** of each arm (0.0–1.0). The arm must be ≥ `purity` fraction GA (purine) **or** ≥ `purity` fraction CT (pyrimidine). Set to 1.0 for perfect purine or pyrimidine tracts. |
+| `-mismatch FLOAT` | float | `0.10` | **Maximum mirror mismatch fraction** (0.0–1.0). Fraction of base positions in the arm where `dna[left] ≠ dna[right]` (i.e. the mirror is broken). `0.0` requires perfect mirror symmetry; `0.10` allows up to 10 % divergence. |
+| `-skipoverlap` | flag | *(off)* | **Skip overlap removal**. By default, overlapping hits are collapsed to the longest arm (ties broken by shortest spacer). Pass this flag to disable overlap removal (useful for downstream ML or analysis). |
 | `-score` | flag | *(on)* | **Apply thermodynamic stability scoring**. Enables stacking and pairing score computation for each hit. Pass `-no-score` to disable and keep only the core detection columns. |
-| `-workers INT` | int | *(all cores)* | **Parallel worker threads**. The CLI uses `scan_fasta_parallel` internally and defaults to all available CPU cores. Set this to a lower value to cap CPU usage, or to `1` to run single-threaded. |
+| `-workers INT` | int | *(all cores)* | **Parallel worker threads**. The CLI uses `scan_fasta_parallel` internally and defaults to all available CPU cores. Set this to a lower value to cap CPU usage. |
 | `-v` | flag | *(off)* | **Verbose mode**. Prints progress information to `stderr`. Useful for monitoring large jobs. |
 
 ### CLI examples
@@ -365,8 +367,8 @@ The CLI writes a **tab-separated file** (`<prefix>_HDNA.tsv`). `scan_fasta()` re
 ### Example output
 
 ```
-seq_id  source    start  end  arm_length  spacer_length  total_length  ga_pct   ct_pct   mirror_identity  is_perfect  left_arm  spacer  right_arm  full_sequence  stacking_score  pairing_score  total_score  putative_triplex
-chr1    findHDNA  1001   1020  7           6              20            85.71    14.29    100.0            False       gggaaat   tttttt  taaaggg    gggaaattttttttaaaggg  35.0            42.3           77.3          gggaaat[tttttt]taaaggg
+seq_id  source    start  end  arm_length  spacer_length  total_length  ga_pct   ct_pct   mirror_identity  is_perfect  left_arm  spacer  right_arm  full_sequence  stacking_score  pairing_score  total_score putative_triplex
+chr1    findHDNA  1001   1020  7           6              20            85.71    14.29    100.0            False       gggaaat   tttttt  taaaggg    gggaaattttttttaaaggg  35.0            42.3            77.3      gggaaa[tttttt]taaaggg
 ```
 
 ---
@@ -383,7 +385,7 @@ chr1    findHDNA  1001   1020  7           6              20            85.71   
 | Overlap removal | `remove_overlaps` | `-skipoverlap` (inverts) | bool | True | — | When True, keeps only the longest non-overlapping hit |
 | Sequence offset | `seq_offset` | *(automatic in CLI)* | int | 1 | ≥ 1 | 1-based start coordinate of `seq[0]`; used for correct genomic coordinates |
 | Worker threads | *(CLI only)* | `-workers` | int | all cores | ≥ 1 | Number of parallel threads used by the CLI (via `scan_fasta_parallel`) |
-| Stability scoring | `score` | `-score` / `-no-score` | bool | True | — | When True, computes stacking and pairing scores and an optimised triplex sequence for each hit. Scoring adds `stacking_score`, `pairing_score`, `total_score`, and `putative_triplex` columns to the output. |
+| Stability scoring | `score` | `-score` / `-no-score` | bool | True | — | When True, computes stacking and pairing scores and an optimised triplex sequence for each hit. Scoring adds `stacking_score`, `pairing_score`, `total_score`, and `putative_triplex` columns. |
 
 ### Choosing parameters for your use case
 
@@ -415,7 +417,7 @@ These two values always sum to ≤ 100 %. The difference is due to ambiguous or 
 
 ### `mirror_identity` vs purity
 
-`mirror_identity` measures how closely the two arms are mirror images of each other. A value of 100 means every base on the left arm is identical to its mirror partner on the right arm. A value of 80 means 80 % of positions match (1 mismatch per 5 bp in a 6-mer arm). This is independent of purity: a CT-rich arm with one GA interruption could still have 100 % mirror identity.
+`mirror_identity` measures how closely the two arms are mirror images of each other. A value of 100 means every base on the left arm is identical to its mirror partner on the right arm. A value of 90 means 10 % of positions have a mismatch. `purity`, by contrast, measures the fraction of the arm that is GA-rich or CT-rich, regardless of the mirror match.
 
 ### `is_perfect` flag
 
@@ -427,15 +429,15 @@ These are the most likely candidates for stable H-DNA structures.
 
 ### Scoring results (`stacking_score`, `pairing_score`, `total_score`)
 
-When scoring is enabled (default), each hit is passed through a thermodynamic stability model that evaluates the energetic favourability of triplex formation. The model assigns a **pairing score** based on Hoogsteen base-pair complementarity (G–G and A–A matches contribute positively; mismatches incur a penalty) and a **stacking score** that rewards consecutive GA–GA dinucleotide stacks. The two components are summed to produce a **total score**; higher values indicate more stable candidate triplexes. A **total score ≥ 60** is the recommended threshold for filtering to high-confidence, thermodynamically stable H-DNA candidates.
+When scoring is enabled (default), each hit is passed through a thermodynamic stability model that evaluates the energetic favourability of triplex formation. The model assigns a **pairing score** (based on hydrogen bonding interactions) and a **stacking score** (base-stacking interactions), summed to give `total_score`. Higher scores indicate stronger predicted stability.
 
-The scoring pass also produces a `putative_triplex` field — the motif sequence in `left_arm[spacer]right_arm` notation — whose arm/spacer boundaries may differ from the original detection because the scorer re-optimises the boundary to maximise the combined stacking and pairing signal.
+The scoring pass also produces a `putative_triplex` field — the motif sequence in `left_arm[spacer]right_arm` notation — whose arm/spacer boundaries may differ from the original detection because scoring re-optimises the boundaries within a local window to maximise predicted stability.
 
 Scoring can be disabled at the API level (`score=False`) or via the CLI flag `-no-score`, which removes the four scoring columns from the TSV output.
 
 ### Overlap removal behaviour
 
-When `remove_overlaps=True` (default), two hits overlap if their genomic ranges on the DNA share at least one base. Among all overlapping hits, the one with the **longest arm** is retained. Ties are broken by choosing the **shorter spacer**.
+When `remove_overlaps=True` (default), two hits overlap if their genomic ranges on the DNA share at least one base. Among all overlapping hits, the one with the **longest arm** is retained. Ties are broken by **shorter spacer**. This keeps the most confident candidates and avoids redundant reporting of the same structural feature detected at slightly different boundaries.
 
 ---
 
@@ -521,11 +523,11 @@ cibuildwheel --platform linux
 
 ### Adding a new test
 
-Tests live in `tests/test_hdna.py`. Each section focuses on one concern. Add new sequences as module-level constants and group related assertions under a descriptively named function. Run `pytest -v tests/test_hdna.py -k <your_test_name>` to run just your new test.
+Tests live in `tests/test_hdna.py`. Each section focuses on one concern. Add new sequences as module-level constants and group related assertions under a descriptively named function. Run `pytest -v tests/` to validate.
 
 ---
 
-## 13. Benchmarks
+## 12. Benchmarks
 
 `benchmarks/benchmark.py` is a CLI-only end-to-end benchmark that downloads real
 hg38/GRCh38 chromosomes from NCBI and measures wall time, peak RSS, and TSV
