@@ -6,7 +6,7 @@
 <line x1="70" y1="50" x2="70" y2="350" stroke="#333"/>
 <line x1="70" y1="50" x2="790" y2="50" stroke="#ddd"/>
 <rect x="78.0" y="266.0" width="32.4" height="84.0" fill="#2e7d32"/>
-<rect x="113.1" y="350.0" width="32.4" height="0.0" fill="#c62828"/>
+<rect x="113.1" y="254.0" width="32.4" height="96.0" fill="#c62828"/>
 <text class="small" x="110.4" y="368" text-anchor="middle">0-20</text>
 <rect x="168.0" y="350.0" width="32.4" height="0.0" fill="#2e7d32"/>
 <rect x="203.1" y="350.0" width="32.4" height="0.0" fill="#c62828"/>
@@ -18,7 +18,7 @@
 <rect x="383.1" y="350.0" width="32.4" height="0.0" fill="#c62828"/>
 <text class="small" x="380.4" y="368" text-anchor="middle">60-80</text>
 <rect x="438.0" y="290.0" width="32.4" height="60.0" fill="#2e7d32"/>
-<rect x="473.1" y="350.0" width="32.4" height="0.0" fill="#c62828"/>
+<rect x="473.1" y="338.0" width="32.4" height="12.0" fill="#c62828"/>
 <text class="small" x="470.4" y="368" text-anchor="middle">80-100</text>
 <rect x="528.0" y="50.0" width="32.4" height="300.0" fill="#2e7d32"/>
 <rect x="563.1" y="350.0" width="32.4" height="0.0" fill="#c62828"/>

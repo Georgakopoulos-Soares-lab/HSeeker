@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import csv
 import json
 import sys
 import time
@@ -82,34 +81,12 @@ def run_mode(fasta: Path, purity_rmq: bool) -> tuple[list[dict[str, Any]], dict[
     return hits, summary
 
 
-def write_tsv(path: Path, hits: list[dict[str, Any]]) -> None:
-    fieldnames = [
-        "seq_id", "source", "start", "end",
-        "arm_length", "spacer_length", "total_length",
-        "ga_pct", "ct_pct", "mirror_identity", "is_perfect",
-        "left_arm", "spacer", "right_arm", "full_sequence",
-        "stacking_score", "pairing_score", "total_score",
-        "putative_triplex",
-    ]
-    with path.open("w", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=fieldnames, delimiter="\t", extrasaction="ignore")
-        writer.writeheader()
-        writer.writerows(hits)
-
-
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     fasta = ensure_chr1()
 
     hits_false, summary_false = run_mode(fasta, False)
-    for h in hits_false:
-        h["source"] = "hseeker"
-    write_tsv(OUT / "chr1_hseeker_16threads_scored_purityrmq_false.tsv", hits_false)
-
     hits_true, summary_true = run_mode(fasta, True)
-    for h in hits_true:
-        h["source"] = "hseeker_purity_rmq"
-    write_tsv(OUT / "chr1_hseeker_16threads_scored_purityrmq_true.tsv", hits_true)
 
     sig_false = {hit_signature(h) for h in hits_false}
     sig_true = {hit_signature(h) for h in hits_true}
@@ -127,26 +104,11 @@ def main() -> None:
         ),
         "lost_hits_with_rmq": len(sig_false - sig_true),
         "extra_hits_with_rmq": len(sig_true - sig_false),
-        "outputs": {
-            "purity_rmq_false_tsv": str(OUT / "chr1_hseeker_16threads_scored_purityrmq_false.tsv"),
-            "purity_rmq_true_tsv": str(OUT / "chr1_hseeker_16threads_scored_purityrmq_true.tsv"),
-        },
+        "note": "Per-mode hit TSVs are intentionally not written; this file keeps only runtime and equivalence counters.",
     }
 
     (OUT / "chr1_purity_rmq_runtime_comparison.json").write_text(
         json.dumps(comparison, indent=2) + "\n"
-    )
-    (OUT / "chr1_purity_rmq_runtime_comparison.md").write_text(
-        "# chr1 HSeeker purity_rmq Runtime Comparison\n\n"
-        "Settings: 16 worker threads, scoring enabled, minrep=10, maxrep=1000, "
-        "maxspacer=10, purity=0.90, mismatch=0.10.\n\n"
-        f"- `purity_rmq=False`: {summary_false['runtime_sec']:.2f}s, "
-        f"{summary_false['hits']:,} hits\n"
-        f"- `purity_rmq=True`: {summary_true['runtime_sec']:.2f}s, "
-        f"{summary_true['hits']:,} hits\n"
-        f"- Speedup (`True` vs `False`): {comparison['speedup_true_vs_false']:.2f}x\n"
-        f"- Lost hits with RMQ: {comparison['lost_hits_with_rmq']}\n"
-        f"- Extra hits with RMQ: {comparison['extra_hits_with_rmq']}\n"
     )
     print(json.dumps(comparison, indent=2))
 

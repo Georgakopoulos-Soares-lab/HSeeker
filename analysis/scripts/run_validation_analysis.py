@@ -6,6 +6,7 @@ from __future__ import annotations
 import csv
 import subprocess
 import sys
+import tempfile
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -23,6 +24,7 @@ PLOTS = ROOT / "analysis" / "results" / "plots"
 TRIPLEX_R = ROOT / "analysis" / "scripts" / "triplex_validate.R"
 THRESHOLD = 60.0
 DEFAULT_PARAMS = dict(minrep=10, maxrep=100, maxspacer=10, purity=0.90, mismatch=0.10)
+TUNED_PARAMS = dict(minrep=8, maxrep=100, maxspacer=10, purity=0.90, mismatch=0.10)
 USE_PURITY_RMQ = True
 
 
@@ -32,7 +34,7 @@ def load_rows() -> list[dict[str, Any]]:
         reader = csv.DictReader(fh)
         for i, row in enumerate(reader, start=1):
             label = row["label"].strip().lower()
-            if label not in {"forming", "non-forming", "nonforming"}:
+            if label not in {"forming", "non-forming", "nonforming", "non_forming"}:
                 continue
             rows.append(
                 {
@@ -137,33 +139,58 @@ def write_triplex_input(rows: list[dict[str, Any]], path: Path) -> None:
 
 
 def run_triplex(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    triplex_in = OUT / "triplex_input.csv"
-    triplex_out = OUT / "triplex_predictions.csv"
-    write_triplex_input(rows, triplex_in)
-    subprocess.run(["Rscript", str(TRIPLEX_R), str(triplex_in), str(triplex_out)],
-                   cwd=ROOT, check=True)
-    with triplex_out.open(newline="") as fh:
-        return list(csv.DictReader(fh))
+    with tempfile.TemporaryDirectory() as tmpdir:
+        triplex_in = Path(tmpdir) / "triplex_input.csv"
+        triplex_out = Path(tmpdir) / "triplex_predictions.csv"
+        write_triplex_input(rows, triplex_in)
+        subprocess.run(["Rscript", str(TRIPLEX_R), str(triplex_in), str(triplex_out)],
+                       cwd=ROOT, check=True)
+        with triplex_out.open(newline="") as fh:
+            return list(csv.DictReader(fh))
 
 
-def merge_triplex(hseeker_rows: list[dict[str, Any]], triplex_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def merge_comparison(
+    default_rows: list[dict[str, Any]],
+    tuned_rows: list[dict[str, Any]],
+    triplex_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     t = {r["sequence_id"]: r for r in triplex_rows}
+    tuned_by_id = {r["sequence_id"]: r for r in tuned_rows}
     merged = []
-    for h in hseeker_rows:
+    for h in default_rows:
+        tuned = tuned_by_id[h["sequence_id"]]
         tr = t.get(h["sequence_id"], {})
         triplex_pred = str(tr.get("triplex_pred", "")).lower() == "true"
         merged.append(
             {
                 "sequence_id": h["sequence_id"],
+                "sequence_name": h["sequence_name"],
                 "label": h["label"],
-                "hseeker_score": h["hseeker_score"],
-                "hseeker_pred": h["hseeker_pred"],
+                "default_hseeker_score": h["hseeker_score"],
+                "default_hseeker_pred": h["hseeker_pred"],
+                "default_hseeker_runtime_sec": h["runtime_sec"],
+                "default_arm_length": h["arm_length"],
+                "default_spacer_length": h["spacer_length"],
+                "tuned_hseeker_score": tuned["hseeker_score"],
+                "tuned_hseeker_pred": tuned["hseeker_pred"],
+                "tuned_hseeker_runtime_sec": tuned["runtime_sec"],
+                "tuned_arm_length": tuned["arm_length"],
+                "tuned_spacer_length": tuned["spacer_length"],
+                "tuned_ga_pct": tuned["ga_pct"],
+                "tuned_ct_pct": tuned["ct_pct"],
+                "tuned_mirror_identity": tuned["mirror_identity"],
                 "triplex_pred": triplex_pred,
                 "triplex_count": tr.get("triplex_count", ""),
                 "triplex_best_score": tr.get("triplex_best_score", ""),
                 "triplex_best_pvalue": tr.get("triplex_best_pvalue", ""),
-                "hseeker_correct": (h["label"] == "forming") == bool(h["hseeker_pred"]),
+                "triplex_best_type": tr.get("triplex_best_type", ""),
+                "triplex_best_start": tr.get("triplex_best_start", ""),
+                "triplex_best_end": tr.get("triplex_best_end", ""),
+                "triplex_runtime_sec": tr.get("triplex_runtime_sec", ""),
+                "default_hseeker_correct": (h["label"] == "forming") == bool(h["hseeker_pred"]),
+                "tuned_hseeker_correct": (h["label"] == "forming") == bool(tuned["hseeker_pred"]),
                 "triplex_correct": (h["label"] == "forming") == triplex_pred,
+                "tuned_hseeker_vs_triplex_agree": bool(tuned["hseeker_pred"]) == triplex_pred,
             }
         )
     return merged
@@ -229,45 +256,83 @@ def score_distribution_svg(path: Path, rows: list[dict[str, Any]]) -> None:
     path.write_text("\n".join(parts))
 
 
-def write_summary(rows: list[dict[str, Any]], grid: list[dict[str, Any]], comparison: list[dict[str, Any]]) -> None:
-    m_h = metrics(rows)
-    m_t = metrics([{**r, "triplex_pred": str(r["triplex_pred"]).lower() == "true"} for r in comparison], "triplex_pred")
-    failures = [r for r in rows if (r["label"] == "forming") != bool(r["hseeker_pred"])]
+def write_summary(
+    default_rows: list[dict[str, Any]],
+    tuned_rows: list[dict[str, Any]],
+    grid: list[dict[str, Any]],
+    comparison: list[dict[str, Any]],
+) -> None:
+    m_default = metrics(default_rows)
+    m_tuned = metrics(tuned_rows)
+    m_triplex = metrics(comparison, "triplex_pred")
+    default_failures = [r for r in default_rows if (r["label"] == "forming") != bool(r["hseeker_pred"])]
+    tuned_failures = [r for r in tuned_rows if (r["label"] == "forming") != bool(r["hseeker_pred"])]
     best = grid[0] if grid else {}
+    default_total_runtime = sum(float(r.get("runtime_sec") or 0.0) for r in default_rows)
+    tuned_total_runtime = sum(float(r.get("runtime_sec") or 0.0) for r in tuned_rows)
+    triplex_total_runtime = sum(float(r.get("triplex_runtime_sec") or 0.0) for r in comparison)
+    default_mean_runtime = default_total_runtime / len(default_rows) if default_rows else 0.0
+    tuned_mean_runtime = tuned_total_runtime / len(tuned_rows) if tuned_rows else 0.0
+    triplex_mean_runtime = triplex_total_runtime / len(comparison) if comparison else 0.0
+    runtime_ratio = triplex_total_runtime / tuned_total_runtime if tuned_total_runtime > 0 else 0.0
+    tuned_triplex_agree = sum(bool(r["tuned_hseeker_vs_triplex_agree"]) for r in comparison)
+    disagreements = [r for r in comparison if not bool(r["tuned_hseeker_vs_triplex_agree"])]
     lines = [
         "# HSeeker Validation / Sensitivity Summary",
         "",
         f"Dataset: `{INPUT}`",
-        f"Dataset size: {len(rows)}",
-        f"Forming: {sum(r['label']=='forming' for r in rows)}",
-        f"Non-forming: {sum(r['label']!='forming' for r in rows)}",
-        "",
-        "## Default HSeeker",
-        "",
+        f"Dataset size: {len(default_rows)}",
+        f"Forming: {sum(r['label']=='forming' for r in default_rows)}",
+        f"Non-forming: {sum(r['label']!='forming' for r in default_rows)}",
         f"Score threshold: `{THRESHOLD}`",
         f"Purity RMQ enabled: `{USE_PURITY_RMQ}`",
-        f"TP={m_h['TP']} FN={m_h['FN']} TN={m_h['TN']} FP={m_h['FP']}",
-        f"Sensitivity={m_h['sensitivity']:.3f}, specificity={m_h['specificity']:.3f}, precision={m_h['precision']:.3f}, F1={m_h['F1']:.3f}, accuracy={m_h['accuracy']:.3f}",
         "",
-        "## Best Grid Row",
+        "## Method Comparison",
         "",
-        str(best),
+        "| method | parameters | TP | FN | TN | FP | sensitivity | specificity | precision | F1 | accuracy |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        f"| HSeeker default | minrep=10, maxrep=100, maxspacer=10, purity=0.90, mismatch=0.10 | {m_default['TP']} | {m_default['FN']} | {m_default['TN']} | {m_default['FP']} | {m_default['sensitivity']:.3f} | {m_default['specificity']:.3f} | {m_default['precision']:.3f} | {m_default['F1']:.3f} | {m_default['accuracy']:.3f} |",
+        f"| HSeeker tuned | minrep=8, maxrep=100, maxspacer=10, purity=0.90, mismatch=0.10 | {m_tuned['TP']} | {m_tuned['FN']} | {m_tuned['TN']} | {m_tuned['FP']} | {m_tuned['sensitivity']:.3f} | {m_tuned['specificity']:.3f} | {m_tuned['precision']:.3f} | {m_tuned['F1']:.3f} | {m_tuned['accuracy']:.3f} |",
+        f"| Triplex default | min_score=15, p_value=0.05, min_len=6, max_len=25, min_loop=3, max_loop=10 | {m_triplex['TP']} | {m_triplex['FN']} | {m_triplex['TN']} | {m_triplex['FP']} | {m_triplex['sensitivity']:.3f} | {m_triplex['specificity']:.3f} | {m_triplex['precision']:.3f} | {m_triplex['F1']:.3f} | {m_triplex['accuracy']:.3f} |",
         "",
-        "## Triplex Presence/Absence",
+        "## Parameter Tuning Notes",
         "",
-        f"TP={m_t['TP']} FN={m_t['FN']} TN={m_t['TN']} FP={m_t['FP']}",
-        f"Sensitivity={m_t['sensitivity']:.3f}, specificity={m_t['specificity']:.3f}, precision={m_t['precision']:.3f}, F1={m_t['F1']:.3f}, accuracy={m_t['accuracy']:.3f}",
+        f"Best grid row by the simple sort: `{best}`",
+        "",
+        "`45/0/7/2` is not unique to one parameter set. It appears for several grid rows, including `minrep=6` with relaxed purity/mismatch and `minrep=8` with default purity/mismatch. The recommended tuned setting is `minrep=8` because it recovers all default false negatives while changing fewer biological assumptions than `minrep=6` or `mismatch=0.20`.",
+        "",
+        f"Tuned HSeeker and Triplex agreement: {tuned_triplex_agree}/{len(comparison)} ({tuned_triplex_agree / len(comparison):.3f}).",
         "",
         "Triplex is treated as a binary presence/absence caller here; its score is not directly comparable to HSeeker's thermodynamic score.",
         "",
-        "## HSeeker Failure Cases",
+        "## Runtime Comparison",
+        "",
+        f"HSeeker default total runtime: {default_total_runtime:.6f} sec; mean per sequence: {default_mean_runtime:.6f} sec.",
+        f"HSeeker tuned total runtime: {tuned_total_runtime:.6f} sec; mean per sequence: {tuned_mean_runtime:.6f} sec.",
+        f"Triplex total runtime: {triplex_total_runtime:.6f} sec; mean per sequence: {triplex_mean_runtime:.6f} sec.",
+        f"Triplex/tuned-HSeeker runtime ratio on this validation set: {runtime_ratio:.2f}x.",
+        "These are per-sequence search timings on very short sequences; HSeeker timings include scoring, while Triplex timings exclude R package startup.",
+        "",
+        "## Default HSeeker Failure Cases",
         "",
     ]
-    if not failures:
+    if not default_failures:
         lines.append("None at the default threshold.")
     else:
-        for r in failures:
+        for r in default_failures:
             lines.append(f"- {r['sequence_id']} ({r['label']}): score={float(r['hseeker_score']):.2f}, arm={r['arm_length']}, spacer={r['spacer_length']}, GA={float(r['ga_pct']):.1f}, CT={float(r['ct_pct']):.1f}, mirror={float(r['mirror_identity']):.1f}")
+    lines.extend(["", "## Tuned HSeeker Failure Cases", ""])
+    if not tuned_failures:
+        lines.append("None at the tuned threshold.")
+    else:
+        for r in tuned_failures:
+            lines.append(f"- {r['sequence_id']} ({r['label']}): score={float(r['hseeker_score']):.2f}, arm={r['arm_length']}, spacer={r['spacer_length']}, GA={float(r['ga_pct']):.1f}, CT={float(r['ct_pct']):.1f}, mirror={float(r['mirror_identity']):.1f}")
+    lines.extend(["", "## Tuned HSeeker vs Triplex Disagreements", ""])
+    if not disagreements:
+        lines.append("None.")
+    else:
+        for r in disagreements:
+            lines.append(f"- {r['sequence_id']} ({r['label']}): tuned HSeeker={r['tuned_hseeker_pred']} score={float(r['tuned_hseeker_score']):.2f}; Triplex={r['triplex_pred']} count={r['triplex_count']} best_score={r['triplex_best_score']}")
     (OUT / "summary.md").write_text("\n".join(lines) + "\n")
 
 
@@ -276,21 +341,21 @@ def main() -> None:
     PLOTS.mkdir(parents=True, exist_ok=True)
     rows = load_rows()
     hseeker_rows = run_hseeker(rows, DEFAULT_PARAMS, purity_rmq=USE_PURITY_RMQ)
-    write_csv(OUT / "hseeker_default_predictions.csv", hseeker_rows)
+    tuned_rows = run_hseeker(rows, TUNED_PARAMS, purity_rmq=USE_PURITY_RMQ)
     grid = parameter_grid(rows)
     write_csv(OUT / "hseeker_parameter_grid.csv", grid)
     triplex_rows = run_triplex(rows)
-    comparison = merge_triplex(hseeker_rows, triplex_rows)
+    comparison = merge_comparison(hseeker_rows, tuned_rows, triplex_rows)
     write_csv(OUT / "triplex_comparison.csv", comparison)
-    write_csv(OUT / "validation_failure_inspection.csv", [r for r in hseeker_rows if (r["label"] == "forming") != bool(r["hseeker_pred"])])
     score_distribution_svg(PLOTS / "validation_score_distribution.svg", hseeker_rows)
     m_h = metrics(hseeker_rows)
-    m_t = metrics([{**r, "triplex_pred": str(r["triplex_pred"]).lower() == "true"} for r in comparison], "triplex_pred")
-    simple_svg_bar(PLOTS / "validation_f1_comparison.svg", "F1 Comparison", ["HSeeker", "Triplex"], [m_h["F1"], m_t["F1"]], "F1")
-    write_summary(hseeker_rows, grid, comparison)
+    m_tuned = metrics(tuned_rows)
+    m_triplex = metrics(comparison, "triplex_pred")
+    simple_svg_bar(PLOTS / "validation_f1_comparison.svg", "F1 Comparison", ["HSeeker default", "HSeeker tuned", "Triplex"], [m_h["F1"], m_tuned["F1"], m_triplex["F1"]], "F1")
+    write_summary(hseeker_rows, tuned_rows, grid, comparison)
     print("Validation complete")
     print(f"Rows: {len(rows)}")
-    print(f"HSeeker F1: {m_h['F1']:.3f}; Triplex F1: {m_t['F1']:.3f}")
+    print(f"HSeeker default F1: {m_h['F1']:.3f}; HSeeker tuned F1: {m_tuned['F1']:.3f}; Triplex F1: {m_triplex['F1']:.3f}")
     print(f"Summary: {OUT / 'summary.md'}")
 
 

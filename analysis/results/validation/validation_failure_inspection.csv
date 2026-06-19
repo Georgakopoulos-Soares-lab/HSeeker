@@ -1,8 +1,0 @@
-sequence_id,sequence_name,label,sequence_length,hseeker_score,hseeker_pred,num_hits,runtime_sec,arm_length,spacer_length,ga_pct,ct_pct,mirror_identity,left_arm,spacer,right_arm,full_sequence
-HDNA0022,R1 (H-DNA buffer),forming,36,0.0,False,0,6.666872650384903e-06,0,0,0.0,0.0,0.0,,,,
-HDNA0023,R2 (H-DNA buffer),forming,36,0.0,False,0,4.583969712257385e-06,0,0,0.0,0.0,0.0,,,,
-HDNA0024,R2-3′ (H-DNA buffer),forming,46,0.0,False,0,7.874798029661179e-06,0,0,0.0,0.0,0.0,,,,
-HDNA0025,R2-5′ (H-DNA buffer),forming,46,0.0,False,0,6.666872650384903e-06,0,0,0.0,0.0,0.0,,,,
-HDNA0027,H-33,forming,33,0.0,False,0,4.624947905540466e-06,0,0,0.0,0.0,0.0,,,,
-HDNA0030,"pcMyc (S1, pH 4.5)",forming,23,0.0,False,0,3.5422854125499725e-06,0,0,0.0,0.0,0.0,,,,
-HDNA0034,MYCAA,forming,23,0.0,False,0,3.084074705839157e-06,0,0,0.0,0.0,0.0,,,,

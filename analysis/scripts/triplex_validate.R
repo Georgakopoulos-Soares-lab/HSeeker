@@ -30,9 +30,11 @@ for (i in seq_len(nrow(df))) {
   best_type <- NA_integer_
   best_start <- NA_integer_
   best_end <- NA_integer_
+  runtime_sec <- 0
   err <- ""
 
   if (nchar(seq) > 0) {
+    t0 <- proc.time()[["elapsed"]]
     tryCatch({
       res <- triplex.search(
         DNAString(seq),
@@ -44,6 +46,7 @@ for (i in seq_len(nrow(df))) {
         min_loop = 3,
         max_loop = 10
       )
+      runtime_sec <- proc.time()[["elapsed"]] - t0
       triplex_count <- length(res)
       if (triplex_count > 0) {
         scores <- score(res)
@@ -55,6 +58,7 @@ for (i in seq_len(nrow(df))) {
         best_end <- end(res)[[idx]]
       }
     }, error = function(e) {
+      runtime_sec <<- proc.time()[["elapsed"]] - t0
       err <<- conditionMessage(e)
     })
   }
@@ -69,6 +73,7 @@ for (i in seq_len(nrow(df))) {
     triplex_best_type = best_type,
     triplex_best_start = best_start,
     triplex_best_end = best_end,
+    triplex_runtime_sec = runtime_sec,
     triplex_error = err,
     stringsAsFactors = FALSE
   )

@@ -1,0 +1,16 @@
+{
+  "fit_method": "least_squares_through_origin_using_largest_3_samples",
+  "fit_sample_lengths": [
+    25000,
+    50000,
+    100000
+  ],
+  "sec_per_base": 1.8285714285714288e-06,
+  "predicted_chr1_runtime_sec": 455.2346002285715,
+  "predicted_chr1_runtime_min": 7.587243337142858,
+  "predicted_chr1_runtime_hr": 0.12645405561904763,
+  "chr1_length_bp": 248956422,
+  "samples_csv": "/Users/archit/Projects/repeat_finder/HSeeker/analysis/results/chr1/triplex_chr1_runtime_samples.csv",
+  "triplex_subprocess_wall_sec": 1.4806070001795888,
+  "triplex_runtime_note": "Per-sample Triplex timings exclude R package startup; subprocess wall time includes it."
+}

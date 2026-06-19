@@ -28,8 +28,5 @@
   "speedup_true_vs_false": 3.8472459675281936,
   "lost_hits_with_rmq": 0,
   "extra_hits_with_rmq": 0,
-  "outputs": {
-    "purity_rmq_false_tsv": "/Users/archit/Projects/repeat_finder/HSeeker/analysis/results/chr1/chr1_hseeker_16threads_scored_purityrmq_false.tsv",
-    "purity_rmq_true_tsv": "/Users/archit/Projects/repeat_finder/HSeeker/analysis/results/chr1/chr1_hseeker_16threads_scored_purityrmq_true.tsv"
-  }
+  "note": "Per-mode hit TSVs are intentionally not kept; this file stores runtime and equivalence counters only."
 }
