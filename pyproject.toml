@@ -9,9 +9,7 @@ description = "HSeeker — H-DNA / Triplex Mirror Repeat Detector — fast C cor
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.9"
-dependencies = [
-    "pandas>=1.5",
-]
+dependencies = []
 keywords = ["bioinformatics", "hseeker", "hdna", "triplex", "mirror-repeat", "genomics", "non-b-dna"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -30,6 +28,7 @@ classifiers = [
 
 [project.optional-dependencies]
 app = [
+    "pandas>=1.5",
     "streamlit>=1.30",
     "plotly>=5.0",
 ]
@@ -64,7 +63,7 @@ build = "cp39-* cp310-* cp311-* cp312-* cp313-*"
 # Skip 32-bit and musl libc builds
 skip  = "*-win32 *-manylinux_i686 *-musllinux*"
 
-test-requires = ["pytest", "pandas"]
+test-requires = ["pytest"]
 test-command  = "pytest {project}/tests -v"
 
 [tool.cibuildwheel.linux]
