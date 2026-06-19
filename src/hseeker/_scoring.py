@@ -7,6 +7,8 @@ energetics to produce an adjusted triplex with optimal arm/spacer boundaries.
 No external dependencies (no Biopython, no attrs).
 """
 
+from __future__ import annotations
+
 _REVCOMP = str.maketrans("ACGTacgt", "TGCAtgca")
 
 
