@@ -27,6 +27,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set build version
+        shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
