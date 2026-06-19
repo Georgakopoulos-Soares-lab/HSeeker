@@ -15,11 +15,7 @@ Purity RMQ enabled: `True`
 | HSeeker tuned | minrep=8, maxrep=100, maxspacer=10, purity=0.90, mismatch=0.10 | 45 | 0 | 7 | 2 | 1.000 | 0.778 | 0.957 | 0.978 | 0.963 |
 | Triplex default | min_score=15, p_value=0.05, min_len=6, max_len=25, min_loop=3, max_loop=10 | 44 | 1 | 7 | 2 | 0.978 | 0.778 | 0.957 | 0.967 | 0.944 |
 
-## Parameter Tuning Notes
-
-Best grid row by the simple sort: `{'minrep': 6, 'maxrep': 100, 'maxspacer': 10, 'purity': 0.85, 'mismatch': 0.15, 'TP': 45, 'FN': 0, 'TN': 7, 'FP': 2, 'sensitivity': 1.0, 'specificity': 0.7777777777777778, 'precision': 0.9574468085106383, 'F1': 0.9782608695652174, 'accuracy': 0.9629629629629629, 'n': 54}`
-
-`45/0/7/2` is not unique to one parameter set. It appears for several grid rows, including `minrep=6` with relaxed purity/mismatch and `minrep=8` with default purity/mismatch. The recommended tuned setting is `minrep=8` because it recovers all default false negatives while changing fewer biological assumptions than `minrep=6` or `mismatch=0.20`.
+The tuned HSeeker row uses the same parameters for every sequence: only `minrep` is changed from 10 to 8.
 
 Tuned HSeeker and Triplex agreement: 53/54 (0.981).
 
@@ -27,10 +23,10 @@ Triplex is treated as a binary presence/absence caller here; its score is not di
 
 ## Runtime Comparison
 
-HSeeker default total runtime: 0.000931 sec; mean per sequence: 0.000017 sec.
-HSeeker tuned total runtime: 0.000999 sec; mean per sequence: 0.000018 sec.
-Triplex total runtime: 0.139000 sec; mean per sequence: 0.002574 sec.
-Triplex/tuned-HSeeker runtime ratio on this validation set: 139.18x.
+HSeeker default total runtime: 0.000895 sec; mean per sequence: 0.000017 sec.
+HSeeker tuned total runtime: 0.000866 sec; mean per sequence: 0.000016 sec.
+Triplex total runtime: 0.134000 sec; mean per sequence: 0.002481 sec.
+Triplex/tuned-HSeeker runtime ratio on this validation set: 154.79x.
 These are per-sequence search timings on very short sequences; HSeeker timings include scoring, while Triplex timings exclude R package startup.
 
 ## Default HSeeker Failure Cases

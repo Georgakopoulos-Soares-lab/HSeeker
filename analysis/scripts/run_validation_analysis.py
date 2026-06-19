@@ -8,7 +8,6 @@ import subprocess
 import sys
 import tempfile
 import time
-from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
@@ -119,21 +118,6 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         writer.writerows(rows)
 
 
-def parameter_grid(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    grid = []
-    for minrep in (6, 8, 10, 12):
-        for maxspacer in (3, 5, 7, 10, 20, 50):
-            for purity in (0.85, 0.90, 0.95):
-                for mismatch in (0.00, 0.05, 0.10, 0.15):
-                    params = dict(minrep=minrep, maxrep=100, maxspacer=maxspacer, purity=purity, mismatch=mismatch)
-                    preds = run_hseeker(rows, params, purity_rmq=USE_PURITY_RMQ)
-                    m = metrics(preds)
-                    grid.append({"minrep": minrep, "maxrep": 100, "maxspacer": maxspacer,
-                                 "purity": purity, "mismatch": mismatch, **m})
-    grid.sort(key=lambda r: (r["F1"], r["sensitivity"], r["specificity"]), reverse=True)
-    return grid
-
-
 def write_triplex_input(rows: list[dict[str, Any]], path: Path) -> None:
     write_csv(path, [{"sequence_id": r["sequence_id"], "label": r["label"], "sequence": r["sequence"]} for r in rows])
 
@@ -166,19 +150,29 @@ def merge_comparison(
                 "sequence_id": h["sequence_id"],
                 "sequence_name": h["sequence_name"],
                 "label": h["label"],
+                "default_minrep": DEFAULT_PARAMS["minrep"],
+                "default_maxrep": DEFAULT_PARAMS["maxrep"],
+                "default_maxspacer": DEFAULT_PARAMS["maxspacer"],
+                "default_purity": DEFAULT_PARAMS["purity"],
+                "default_mismatch": DEFAULT_PARAMS["mismatch"],
                 "default_hseeker_score": h["hseeker_score"],
                 "default_hseeker_pred": h["hseeker_pred"],
                 "default_hseeker_runtime_sec": h["runtime_sec"],
-                "default_arm_length": h["arm_length"],
-                "default_spacer_length": h["spacer_length"],
+                "default_hit_arm_length": h["arm_length"],
+                "default_hit_spacer_length": h["spacer_length"],
+                "tuned_minrep": TUNED_PARAMS["minrep"],
+                "tuned_maxrep": TUNED_PARAMS["maxrep"],
+                "tuned_maxspacer": TUNED_PARAMS["maxspacer"],
+                "tuned_purity": TUNED_PARAMS["purity"],
+                "tuned_mismatch": TUNED_PARAMS["mismatch"],
                 "tuned_hseeker_score": tuned["hseeker_score"],
                 "tuned_hseeker_pred": tuned["hseeker_pred"],
                 "tuned_hseeker_runtime_sec": tuned["runtime_sec"],
-                "tuned_arm_length": tuned["arm_length"],
-                "tuned_spacer_length": tuned["spacer_length"],
-                "tuned_ga_pct": tuned["ga_pct"],
-                "tuned_ct_pct": tuned["ct_pct"],
-                "tuned_mirror_identity": tuned["mirror_identity"],
+                "tuned_hit_arm_length": tuned["arm_length"],
+                "tuned_hit_spacer_length": tuned["spacer_length"],
+                "tuned_hit_ga_pct": tuned["ga_pct"],
+                "tuned_hit_ct_pct": tuned["ct_pct"],
+                "tuned_hit_mirror_identity": tuned["mirror_identity"],
                 "triplex_pred": triplex_pred,
                 "triplex_count": tr.get("triplex_count", ""),
                 "triplex_best_score": tr.get("triplex_best_score", ""),
@@ -259,7 +253,6 @@ def score_distribution_svg(path: Path, rows: list[dict[str, Any]]) -> None:
 def write_summary(
     default_rows: list[dict[str, Any]],
     tuned_rows: list[dict[str, Any]],
-    grid: list[dict[str, Any]],
     comparison: list[dict[str, Any]],
 ) -> None:
     m_default = metrics(default_rows)
@@ -267,7 +260,6 @@ def write_summary(
     m_triplex = metrics(comparison, "triplex_pred")
     default_failures = [r for r in default_rows if (r["label"] == "forming") != bool(r["hseeker_pred"])]
     tuned_failures = [r for r in tuned_rows if (r["label"] == "forming") != bool(r["hseeker_pred"])]
-    best = grid[0] if grid else {}
     default_total_runtime = sum(float(r.get("runtime_sec") or 0.0) for r in default_rows)
     tuned_total_runtime = sum(float(r.get("runtime_sec") or 0.0) for r in tuned_rows)
     triplex_total_runtime = sum(float(r.get("triplex_runtime_sec") or 0.0) for r in comparison)
@@ -295,11 +287,7 @@ def write_summary(
         f"| HSeeker tuned | minrep=8, maxrep=100, maxspacer=10, purity=0.90, mismatch=0.10 | {m_tuned['TP']} | {m_tuned['FN']} | {m_tuned['TN']} | {m_tuned['FP']} | {m_tuned['sensitivity']:.3f} | {m_tuned['specificity']:.3f} | {m_tuned['precision']:.3f} | {m_tuned['F1']:.3f} | {m_tuned['accuracy']:.3f} |",
         f"| Triplex default | min_score=15, p_value=0.05, min_len=6, max_len=25, min_loop=3, max_loop=10 | {m_triplex['TP']} | {m_triplex['FN']} | {m_triplex['TN']} | {m_triplex['FP']} | {m_triplex['sensitivity']:.3f} | {m_triplex['specificity']:.3f} | {m_triplex['precision']:.3f} | {m_triplex['F1']:.3f} | {m_triplex['accuracy']:.3f} |",
         "",
-        "## Parameter Tuning Notes",
-        "",
-        f"Best grid row by the simple sort: `{best}`",
-        "",
-        "`45/0/7/2` is not unique to one parameter set. It appears for several grid rows, including `minrep=6` with relaxed purity/mismatch and `minrep=8` with default purity/mismatch. The recommended tuned setting is `minrep=8` because it recovers all default false negatives while changing fewer biological assumptions than `minrep=6` or `mismatch=0.20`.",
+        "The tuned HSeeker row uses the same parameters for every sequence: only `minrep` is changed from 10 to 8.",
         "",
         f"Tuned HSeeker and Triplex agreement: {tuned_triplex_agree}/{len(comparison)} ({tuned_triplex_agree / len(comparison):.3f}).",
         "",
@@ -342,8 +330,6 @@ def main() -> None:
     rows = load_rows()
     hseeker_rows = run_hseeker(rows, DEFAULT_PARAMS, purity_rmq=USE_PURITY_RMQ)
     tuned_rows = run_hseeker(rows, TUNED_PARAMS, purity_rmq=USE_PURITY_RMQ)
-    grid = parameter_grid(rows)
-    write_csv(OUT / "hseeker_parameter_grid.csv", grid)
     triplex_rows = run_triplex(rows)
     comparison = merge_comparison(hseeker_rows, tuned_rows, triplex_rows)
     write_csv(OUT / "triplex_comparison.csv", comparison)
@@ -352,7 +338,7 @@ def main() -> None:
     m_tuned = metrics(tuned_rows)
     m_triplex = metrics(comparison, "triplex_pred")
     simple_svg_bar(PLOTS / "validation_f1_comparison.svg", "F1 Comparison", ["HSeeker default", "HSeeker tuned", "Triplex"], [m_h["F1"], m_tuned["F1"], m_triplex["F1"]], "F1")
-    write_summary(hseeker_rows, tuned_rows, grid, comparison)
+    write_summary(hseeker_rows, tuned_rows, comparison)
     print("Validation complete")
     print(f"Rows: {len(rows)}")
     print(f"HSeeker default F1: {m_h['F1']:.3f}; HSeeker tuned F1: {m_tuned['F1']:.3f}; Triplex F1: {m_triplex['F1']:.3f}")
