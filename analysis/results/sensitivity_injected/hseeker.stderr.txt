@@ -1,0 +1,11 @@
+hseeker v0.1.0 — H-DNA / Triplex Mirror Repeat Detector
+  Input : /Users/archit/Projects/repeat_finder/HSeeker/analysis/results/sensitivity_injected/data/hdna_benchmark_injected.fna
+  Output: /Users/archit/Projects/repeat_finder/HSeeker/analysis/results/sensitivity_injected/hdna_benchmark_HDNA.tsv
+  minrep=8  maxrep=1000  maxspacer=10
+  purity=0.90  mismatch=0.10
+  workers=8
+
+Done.
+  Records processed : 1
+  Total hits written: 139
+  Output: /Users/archit/Projects/repeat_finder/HSeeker/analysis/results/sensitivity_injected/hdna_benchmark_HDNA.tsv

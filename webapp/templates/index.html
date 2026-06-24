@@ -274,7 +274,7 @@ function uploadForm() {
     },
     async loadExample() {
       try {
-        const r = await fetch('/static/hseeker_validation_motifs.fasta');
+        const r = await fetch('/static/example_hdna_sequence.fasta');
         this.seqText = await r.text();
         this.inputMode = 'text';
       } catch(e) {

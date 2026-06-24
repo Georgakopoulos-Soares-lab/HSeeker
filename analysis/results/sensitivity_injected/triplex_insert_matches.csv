@@ -1,0 +1,55 @@
+sequence_id,sequence_name,label,insert_start,insert_end,insert_length,matched,matched_hit_count,best_hit_start,best_hit_end,best_hit_length,best_overlap_bp,best_overlap_fraction_hit,best_overlap_fraction_insert,best_score,triplex_pred_by_overlap,triplex_score
+HDNA0001,pAA32,forming,55516,55547,32,True,2,55515,55548,34,32,0.9411764705882353,1.0,29.0,True,29.0
+HDNA0002,pGG32,forming,210838,210869,32,True,2,210838,210869,32,32,1.0,1.0,28.0,True,28.0
+HDNA0003,pAG32,forming,223664,223695,32,True,1,223664,223695,32,32,1.0,1.0,27.0,True,27.0
+HDNA0004,pTG32,forming,251054,251085,32,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0005,pAC32,forming,267741,267772,32,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0006,pGT32,forming,365649,365680,32,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0007,pGC32,forming,385595,385626,32,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0008,pCG32,forming,584695,584726,32,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0009,pCT32,forming,662280,662311,32,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0010,pAT32,forming,670632,670663,32,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0011,pTA32,forming,730616,730647,32,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0012,pTT32,forming,779361,779392,32,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0013,pCC32,forming,787357,787388,32,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0014,pGA32,forming,812732,812763,32,True,1,812728,812767,40,32,0.8,1.0,32.0,True,32.0
+HDNA0015,pCA32,forming,858850,858881,32,True,1,858848,858883,36,32,0.8888888888888888,1.0,26.0,True,26.0
+HDNA0016,pTC32,forming,861272,861303,32,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0017,Con-2,forming,935425,935477,53,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0018,H/CT,forming,1048683,1048735,53,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0019,H/Ri,forming,1172147,1172199,53,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0020,GA/CT,non-forming,1305928,1305980,53,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0021,ΔCT/Ri,non-forming,1341044,1341093,50,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0022,R1 (H-DNA buffer),forming,1614808,1614843,36,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0023,R2 (H-DNA buffer),forming,1669782,1669817,36,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0024,R2-3′ (H-DNA buffer),forming,1808029,1808074,46,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0025,R2-5′ (H-DNA buffer),forming,1835961,1836006,46,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0026,R2-ino,non-forming,1851128,1851163,36,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0027,H-33,forming,1874402,1874434,33,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0028,B-33,non-forming,1913757,1913789,33,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0029,"pCON (S1, pH 4.5)",non-forming,1953742,1953772,31,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0030,"pcMyc (S1, pH 4.5)",forming,1954863,1954885,23,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0031,"pMycAG (S1, pH 4.5)",non-forming,2056396,2056418,23,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0032,GG32 (30-nt version),forming,2221079,2221108,30,True,2,2221079,2221108,30,30,1.0,1.0,26.0,True,26.0
+HDNA0033,AG32 (30-nt version),forming,2309261,2309290,30,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0034,MYCAA,forming,2333131,2333153,23,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0035,GG32-long,forming,2335833,2335874,42,True,2,2335838,2335869,32,32,1.0,0.7619047619047619,28.0,True,28.0
+HDNA0036,Mycm1,non-forming,2429805,2429826,22,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0037,MycM2,non-forming,2461622,2461643,22,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0038,GA-rich_Lyamichev-Mirkin-Frank-Kamenetskii,forming,2825846,2825888,43,True,4,2825845,2825889,45,43,0.9555555555555556,1.0,40.0,True,40.0
+HDNA0039,(dG)n-(dC)n_Lyamichev-Mirkin-Frank-Kamenetskii,forming,2856558,2856602,45,True,2,2856565,2856597,33,33,1.0,0.7333333333333333,28.0,True,28.0
+HDNA0040,TC18/AG18_Htun-Dahlberg,forming,2887684,2887741,58,True,4,2887691,2887731,41,41,1.0,0.7068965517241379,37.0,True,37.0
+HDNA0041,pRW1704,forming,3013770,3013796,27,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0042,pRW1412,forming,3036074,3036100,27,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0043,pRW1415,forming,3177863,3177889,27,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0044,pRW1402,forming,3189575,3189598,24,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0045,pRW1702 (also pRW1701),forming,3521725,3521751,27,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0046,pRW1712,forming,3541901,3541929,29,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0047,pRW1713,forming,3547740,3547770,31,True,1,3547738,3547773,36,31,0.8611111111111112,1.0,27.0,True,27.0
+HDNA0048,pRW1714,forming,3770863,3770895,33,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0049,pRW1404,forming,3856593,3856616,24,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0050,pRW1411,forming,4241909,4241932,24,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0051,pRW1408,forming,4500913,4500936,24,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0052,pRW1410,forming,4574030,4574053,24,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0053,pRW1405,non-forming,4577620,4577639,20,False,0,,,,0,0.0,0.0,nan,False,nan
+HDNA0054,poly-(dC)30,forming,4633626,4633655,30,True,2,4633625,4633655,31,30,0.967741935483871,1.0,28.0,True,28.0
