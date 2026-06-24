@@ -1,7 +1,8 @@
-# Injected E. coli H-DNA Sensitivity Analysis
+# Secondary Injected E. coli H-DNA Sensitivity Analysis
 
 ## Dataset
 
+- This injected-genome benchmark is a secondary/context validation. The primary validation is the direct-on-sequences benchmark.
 - Experimental sequences: 54 (45 forming, 9 non-forming).
 - Reference genome: NC_000913.3; length 4,641,652 bp.
 - Injected genome length: 4,643,455 bp.
@@ -17,8 +18,8 @@
 
 ## Runtime
 
-- HSeeker runtime: 0.404 sec; hits: 139.
-- Triplex runtime: 8.852 sec; hits: 24.
+- HSeeker runtime: 0.410 sec; hits: 139.
+- Triplex runtime: 8.917 sec; hits: 24.
 
 ## Classification Metrics
 
@@ -43,4 +44,5 @@
 - `triplex_insert_matches.csv`: best Triplex match per insertion.
 - `method_comparison_by_insertion.csv`: per-insertion HSeeker/Triplex comparison.
 - `hseeker_score_roc.csv`: ROC thresholds and metrics.
-- `plots/hseeker_score_roc.svg`: ROC plot.
+- `plots/hseeker_score_roc.pdf`: ROC plot.
+- `plots/confusion_matrices_hseeker_triplex.pdf`: HSeeker vs Triplex confusion matrices.

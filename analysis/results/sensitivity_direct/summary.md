@@ -1,0 +1,45 @@
+# Primary Direct H-DNA Sensitivity Analysis
+
+## Dataset
+
+- Experimental sequences: 54 (45 forming, 9 non-forming).
+- HSeeker and Triplex were run directly on each curated sequence. No genomic insertion or flanking sequence was used in this primary analysis.
+
+## Methods
+
+- HSeeker parameters: `minrep=8`, `maxrep=1000`, `maxspacer=10`, `purity=0.90`, `mismatch=0.10`, scoring enabled, exact `purity_rmq=True`.
+- Triplex was run with installed package defaults via `triplex.search(DNAString(seq))`.
+- HSeeker score discrimination was evaluated by ROC/AUC, and the classification threshold was selected by Youden's J.
+
+## Runtime
+
+- HSeeker direct runtime: 0.001082 sec.
+- Triplex direct runtime: 0.202000 sec.
+
+## Classification Metrics
+
+| method | TP | FN | TN | FP | sensitivity | specificity | precision | F1 | accuracy | MCC |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| HSeeker direct hit | 45 | 0 | 7 | 2 | 1.000 | 0.778 | 0.957 | 0.978 | 0.963 | 0.863 |
+| HSeeker score Youden | 44 | 1 | 8 | 1 | 0.978 | 0.889 | 0.978 | 0.978 | 0.963 | 0.867 |
+| Triplex direct hit | 44 | 1 | 7 | 2 | 0.978 | 0.778 | 0.957 | 0.967 | 0.944 | 0.793 |
+
+## HSeeker Score ROC
+
+- AUC-ROC: 0.984.
+- Youden-optimal threshold: 86.495.
+- Youden J: 0.867; MCC at this threshold: 0.867.
+
+## Secondary Analysis
+
+- The E. coli injected-genome benchmark is retained separately in `analysis/results/sensitivity_injected/` as a secondary/context validation.
+
+## Output Files
+
+- `hseeker_direct_predictions.csv`: best HSeeker hit/score per sequence.
+- `triplex_direct_predictions.csv`: best Triplex hit/score per sequence.
+- `method_comparison_by_sequence.csv`: per-sequence HSeeker/Triplex comparison.
+- `summary_metrics.csv`: classification metrics.
+- `hseeker_score_roc.csv`: ROC thresholds and metrics.
+- `plots/hseeker_score_roc.pdf`: ROC plot.
+- `plots/confusion_matrices_hseeker_triplex.pdf`: HSeeker vs Triplex confusion matrices.

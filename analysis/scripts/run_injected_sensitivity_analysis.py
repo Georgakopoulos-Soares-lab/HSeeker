@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Paper-style HSeeker/Triplex sensitivity benchmark on injected E. coli K-12.
+"""Secondary HSeeker/Triplex sensitivity benchmark on injected E. coli K-12.
 
 This pipeline:
 1. Downloads NC_000913.3 if needed.
@@ -44,7 +44,7 @@ NCBI_FASTA_URL = (
 )
 DEFAULT_CSV = ROOT / "hdna_experimental_sequences_final.csv"
 DEFAULT_OUT = ROOT / "analysis" / "results" / "sensitivity_injected"
-TRIPLEX_R = ROOT / "analysis" / "scripts" / "triplex_genome_search_defaults.R"
+TRIPLEX_R = ROOT / "analysis" / "scripts" / "triplex_fasta_search_defaults.R"
 
 
 def normalize_label(label: str) -> str:
@@ -374,7 +374,16 @@ def best_youden(points: list[dict[str, float]]) -> dict[str, float]:
     return max(points, key=lambda p: (p["youden_j"], p["sensitivity"], p["specificity"]))
 
 
-def simple_svg_roc(path: Path, points: list[dict[str, float]], auc: float) -> None:
+def _pdf_escape(text: str) -> str:
+    return text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+
+
+def _pdf_stream(commands: list[str]) -> bytes:
+    body = "\n".join(commands).encode("ascii")
+    return b"<< /Length " + str(len(body)).encode("ascii") + b" >>\nstream\n" + body + b"\nendstream"
+
+
+def simple_pdf_roc(path: Path, points: list[dict[str, float]], auc: float) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     width, height = 720, 520
     margin = 70
@@ -382,24 +391,58 @@ def simple_svg_roc(path: Path, points: list[dict[str, float]], auc: float) -> No
     plot_h = height - 2 * margin
     xy = sorted({(p["FPR"], p["TPR"]) for p in points})
     coords = [
-        (margin + x * plot_w, height - margin - y * plot_h)
+        (margin + x * plot_w, margin + y * plot_h)
         for x, y in xy
     ]
-    poly = " ".join(f"{x:.1f},{y:.1f}" for x, y in coords)
-    path.write_text(
-        f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
-<rect width="100%" height="100%" fill="white"/>
-<line x1="{margin}" y1="{height-margin}" x2="{width-margin}" y2="{height-margin}" stroke="#222"/>
-<line x1="{margin}" y1="{height-margin}" x2="{margin}" y2="{margin}" stroke="#222"/>
-<line x1="{margin}" y1="{height-margin}" x2="{width-margin}" y2="{margin}" stroke="#999" stroke-dasharray="6,6"/>
-<polyline points="{poly}" fill="none" stroke="#2166ac" stroke-width="3"/>
-<text x="{width/2}" y="{height-20}" text-anchor="middle" font-family="Arial" font-size="18">False positive rate</text>
-<text x="20" y="{height/2}" transform="rotate(-90 20 {height/2})" text-anchor="middle" font-family="Arial" font-size="18">True positive rate</text>
-<text x="{margin}" y="35" font-family="Arial" font-size="20" font-weight="bold">HSeeker score ROC on injected E. coli benchmark</text>
-<text x="{margin}" y="60" font-family="Arial" font-size="16">AUC = {auc:.3f}</text>
-</svg>
-"""
+    commands = [
+        "1 1 1 rg 0 0 720 520 re f",
+        "0.13 0.13 0.13 RG 1 w",
+        f"{margin} {margin} m {width - margin} {margin} l S",
+        f"{margin} {margin} m {margin} {height - margin} l S",
+        "0.6 0.6 0.6 RG 1 w [6 6] 0 d",
+        f"{margin} {margin} m {width - margin} {height - margin} l S",
+        "[] 0 d",
+        "0.13 0.40 0.67 RG 3 w",
+    ]
+    if coords:
+        x0, y0 = coords[0]
+        commands.append(f"{x0:.1f} {y0:.1f} m")
+        for x, y in coords[1:]:
+            commands.append(f"{x:.1f} {y:.1f} l")
+        commands.append("S")
+    commands.extend([
+        "0 0 0 rg",
+        "BT /F1 20 Tf 70 485 Td (HSeeker score ROC on injected E. coli benchmark) Tj ET",
+        f"BT /F1 16 Tf 70 460 Td (AUC = {auc:.3f}) Tj ET",
+        "BT /F1 18 Tf 278 28 Td (False positive rate) Tj ET",
+        "q 0 1 -1 0 24 205 cm BT /F1 18 Tf 0 0 Td (True positive rate) Tj ET Q",
+        "BT /F1 12 Tf 63 50 Td (0) Tj ET",
+        "BT /F1 12 Tf 640 50 Td (1) Tj ET",
+        "BT /F1 12 Tf 45 67 Td (0) Tj ET",
+        "BT /F1 12 Tf 45 445 Td (1) Tj ET",
+    ])
+
+    objects: list[bytes] = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 720 520] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+        _pdf_stream(commands),
+    ]
+    chunks = [b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n"]
+    offsets = [0]
+    for idx, obj in enumerate(objects, start=1):
+        offsets.append(sum(len(c) for c in chunks))
+        chunks.append(f"{idx} 0 obj\n".encode("ascii") + obj + b"\nendobj\n")
+    xref_offset = sum(len(c) for c in chunks)
+    chunks.append(f"xref\n0 {len(objects) + 1}\n".encode("ascii"))
+    chunks.append(b"0000000000 65535 f \n")
+    for offset in offsets[1:]:
+        chunks.append(f"{offset:010d} 00000 n \n".encode("ascii"))
+    chunks.append(
+        f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref_offset}\n%%EOF\n".encode("ascii")
     )
+    path.write_bytes(b"".join(chunks))
 
 
 def metrics_from_binary(rows: list[dict[str, Any]], pred_key: str) -> dict[str, float]:
@@ -488,7 +531,7 @@ def main() -> None:
             row["threshold"] = "-Inf"
         roc_rows.append(row)
     write_csv(out / "hseeker_score_roc.csv", roc_rows)
-    simple_svg_roc(plots_dir / "hseeker_score_roc.svg", roc, auc)
+    simple_pdf_roc(plots_dir / "hseeker_score_roc.pdf", roc, auc)
 
     comparison: list[dict[str, Any]] = []
     triplex_by_id = {r["sequence_id"]: r for r in triplex_match_rows}
@@ -563,10 +606,11 @@ def main() -> None:
     (out / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
 
     lines = [
-        "# Injected E. coli H-DNA Sensitivity Analysis",
+        "# Secondary Injected E. coli H-DNA Sensitivity Analysis",
         "",
         "## Dataset",
         "",
+        "- This injected-genome benchmark is a secondary/context validation. The primary validation is the direct-on-sequences benchmark.",
         f"- Experimental sequences: {len(manifest)} ({metadata['forming_count']} forming, {metadata['nonforming_count']} non-forming).",
         f"- Reference genome: {ACCESSION}; length {len(ref_seq):,} bp.",
         f"- Injected genome length: {len(injected_seq):,} bp.",
@@ -613,7 +657,7 @@ def main() -> None:
         "- `triplex_insert_matches.csv`: best Triplex match per insertion.",
         "- `method_comparison_by_insertion.csv`: per-insertion HSeeker/Triplex comparison.",
         "- `hseeker_score_roc.csv`: ROC thresholds and metrics.",
-        "- `plots/hseeker_score_roc.svg`: ROC plot.",
+        "- `plots/hseeker_score_roc.pdf`: ROC plot.",
     ])
     (out / "summary.md").write_text("\n".join(lines) + "\n")
 

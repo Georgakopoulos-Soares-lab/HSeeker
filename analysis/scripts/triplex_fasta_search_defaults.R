@@ -3,7 +3,7 @@
 suppressPackageStartupMessages({
   args <- commandArgs(trailingOnly = TRUE)
   if (length(args) != 2) {
-    stop("Usage: triplex_genome_search_defaults.R <input_fasta> <output_csv>", call. = FALSE)
+    stop("Usage: triplex_fasta_search_defaults.R <input_fasta> <output_csv>", call. = FALSE)
   }
   .libPaths(c(".r-lib", .libPaths()))
   library(triplex)
@@ -63,6 +63,5 @@ if (length(rows) == 0) {
   out <- do.call(rbind, rows)
 }
 
-attr(out, "runtime_sec") <- runtime_sec
 write.csv(out, output_csv, row.names = FALSE)
 writeLines(sprintf("triplex_runtime_sec,%.6f", runtime_sec), paste0(output_csv, ".runtime.txt"))

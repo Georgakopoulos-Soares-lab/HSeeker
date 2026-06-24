@@ -1,0 +1,79 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 720 520] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 926 >>
+stream
+1 1 1 rg 0 0 720 520 re f
+0.13 0.13 0.13 RG 1 w
+70 70 m 650 70 l S
+70 70 m 70 450 l S
+0.6 0.6 0.6 RG 1 w [6 6] 0 d
+70 70 m 650 450 l S
+[] 0 d
+0.13 0.40 0.67 RG 3 w
+70.0 70.0 m
+70.0 78.4 l
+70.0 86.9 l
+70.0 95.3 l
+70.0 103.8 l
+70.0 120.7 l
+70.0 137.6 l
+70.0 146.0 l
+70.0 154.4 l
+70.0 171.3 l
+70.0 179.8 l
+70.0 188.2 l
+70.0 281.1 l
+70.0 289.6 l
+70.0 298.0 l
+70.0 306.4 l
+70.0 314.9 l
+70.0 323.3 l
+70.0 331.8 l
+70.0 340.2 l
+70.0 348.7 l
+70.0 357.1 l
+70.0 365.6 l
+134.4 416.2 l
+134.4 424.7 l
+134.4 433.1 l
+134.4 441.6 l
+198.9 441.6 l
+198.9 450.0 l
+S
+0 0 0 rg
+BT /F1 20 Tf 70 485 Td (HSeeker score ROC on injected E. coli benchmark) Tj ET
+BT /F1 16 Tf 70 460 Td (AUC = 0.980) Tj ET
+BT /F1 18 Tf 278 28 Td (False positive rate) Tj ET
+q 0 1 -1 0 24 205 cm BT /F1 18 Tf 0 0 Td (True positive rate) Tj ET Q
+BT /F1 12 Tf 63 50 Td (0) Tj ET
+BT /F1 12 Tf 640 50 Td (1) Tj ET
+BT /F1 12 Tf 45 67 Td (0) Tj ET
+BT /F1 12 Tf 45 445 Td (1) Tj ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000247 00000 n 
+0000000317 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1294
+%%EOF
