@@ -2,7 +2,7 @@
 
 ## Dataset
 
-- Experimental sequences: 54 (45 forming, 9 non-forming).
+- Experimental sequences: 80 (71 forming, 9 non-forming).
 - HSeeker and Triplex were run directly on each curated sequence. No genomic insertion or flanking sequence was used in this primary analysis.
 
 ## Methods
@@ -13,22 +13,22 @@
 
 ## Runtime
 
-- HSeeker direct runtime: 0.001082 sec.
-- Triplex direct runtime: 0.202000 sec.
+- HSeeker direct runtime: 0.002197 sec.
+- Triplex direct runtime: 0.269000 sec.
 
 ## Classification Metrics
 
 | method | TP | FN | TN | FP | sensitivity | specificity | precision | F1 | accuracy | MCC |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| HSeeker direct hit | 45 | 0 | 7 | 2 | 1.000 | 0.778 | 0.957 | 0.978 | 0.963 | 0.863 |
-| HSeeker score Youden | 44 | 1 | 8 | 1 | 0.978 | 0.889 | 0.978 | 0.978 | 0.963 | 0.867 |
-| Triplex direct hit | 44 | 1 | 7 | 2 | 0.978 | 0.778 | 0.957 | 0.967 | 0.944 | 0.793 |
+| HSeeker direct hit | 68 | 3 | 7 | 2 | 0.958 | 0.778 | 0.971 | 0.965 | 0.938 | 0.703 |
+| HSeeker score Youden | 66 | 5 | 8 | 1 | 0.930 | 0.889 | 0.985 | 0.957 | 0.925 | 0.701 |
+| Triplex direct hit | 68 | 3 | 7 | 2 | 0.958 | 0.778 | 0.971 | 0.965 | 0.938 | 0.703 |
 
 ## HSeeker Score ROC
 
-- AUC-ROC: 0.984.
+- AUC-ROC: 0.961.
 - Youden-optimal threshold: 86.495.
-- Youden J: 0.867; MCC at this threshold: 0.867.
+- Youden J: 0.818; MCC at this threshold: 0.701.
 
 ## Secondary Analysis
 

@@ -218,10 +218,9 @@ def run_hseeker(fasta: Path, out_prefix: Path, workers: int) -> tuple[Path, floa
     t0 = time.perf_counter()
     proc = subprocess.run(cmd, cwd=ROOT, env=env, capture_output=True, text=True)
     runtime = time.perf_counter() - t0
-    (out_prefix.parent / "hseeker.stdout.txt").write_text(proc.stdout)
-    (out_prefix.parent / "hseeker.stderr.txt").write_text(proc.stderr)
     if proc.returncode != 0:
-        raise RuntimeError(f"HSeeker failed with return code {proc.returncode}; see hseeker.stderr.txt")
+        stderr = proc.stderr.strip()
+        raise RuntimeError(f"HSeeker failed with return code {proc.returncode}: {stderr}")
     return Path(str(out_prefix) + "_HDNA.tsv"), runtime
 
 
@@ -243,10 +242,9 @@ def run_triplex(fasta: Path, out_csv: Path) -> tuple[list[dict[str, Any]], float
     t0 = time.perf_counter()
     proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
     runtime_wall = time.perf_counter() - t0
-    (out_csv.parent / "triplex.stdout.txt").write_text(proc.stdout)
-    (out_csv.parent / "triplex.stderr.txt").write_text(proc.stderr)
     if proc.returncode != 0:
-        raise RuntimeError(f"Triplex failed with return code {proc.returncode}; see triplex.stderr.txt")
+        stderr = proc.stderr.strip()
+        raise RuntimeError(f"Triplex failed with return code {proc.returncode}: {stderr}")
     runtime_file = Path(str(out_csv) + ".runtime.txt")
     runtime = runtime_wall
     if runtime_file.exists():
@@ -658,6 +656,7 @@ def main() -> None:
         "- `method_comparison_by_insertion.csv`: per-insertion HSeeker/Triplex comparison.",
         "- `hseeker_score_roc.csv`: ROC thresholds and metrics.",
         "- `plots/hseeker_score_roc.pdf`: ROC plot.",
+        "- `plots/confusion_matrices_hseeker_triplex.pdf`: HSeeker vs Triplex confusion matrices.",
     ])
     (out / "summary.md").write_text("\n".join(lines) + "\n")
 

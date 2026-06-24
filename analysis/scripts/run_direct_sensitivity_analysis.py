@@ -146,10 +146,9 @@ def run_triplex_direct(fasta: Path, out_csv: Path) -> tuple[list[dict[str, Any]]
     t0 = time.perf_counter()
     proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
     wall = time.perf_counter() - t0
-    (out_csv.parent / "triplex.stdout.txt").write_text(proc.stdout)
-    (out_csv.parent / "triplex.stderr.txt").write_text(proc.stderr)
     if proc.returncode != 0:
-        raise RuntimeError(f"Triplex failed with return code {proc.returncode}; see triplex.stderr.txt")
+        stderr = proc.stderr.strip()
+        raise RuntimeError(f"Triplex failed with return code {proc.returncode}: {stderr}")
     runtime = wall
     runtime_file = Path(str(out_csv) + ".runtime.txt")
     if runtime_file.exists():
@@ -442,6 +441,7 @@ def main() -> None:
         "- `summary_metrics.csv`: classification metrics.",
         "- `hseeker_score_roc.csv`: ROC thresholds and metrics.",
         "- `plots/hseeker_score_roc.pdf`: ROC plot.",
+        "- `plots/confusion_matrices_hseeker_triplex.pdf`: HSeeker vs Triplex confusion matrices.",
     ])
     (out / "summary.md").write_text("\n".join(lines) + "\n")
 

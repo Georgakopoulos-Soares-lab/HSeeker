@@ -1,1 +1,1 @@
-triplex_runtime_sec,8.917000
+triplex_runtime_sec,8.807000

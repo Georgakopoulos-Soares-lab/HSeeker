@@ -3,9 +3,9 @@
 ## Dataset
 
 - This injected-genome benchmark is a secondary/context validation. The primary validation is the direct-on-sequences benchmark.
-- Experimental sequences: 54 (45 forming, 9 non-forming).
+- Experimental sequences: 80 (71 forming, 9 non-forming).
 - Reference genome: NC_000913.3; length 4,641,652 bp.
-- Injected genome length: 4,643,455 bp.
+- Injected genome length: 4,644,767 bp.
 - Insertion seed: 42; minimum inter-insertion distance: 500 bp.
 - Insertions used sequences exactly as provided in `hdna_experimental_sequences_final.csv`.
 
@@ -18,22 +18,22 @@
 
 ## Runtime
 
-- HSeeker runtime: 0.410 sec; hits: 139.
-- Triplex runtime: 8.917 sec; hits: 24.
+- HSeeker runtime: 0.417 sec; hits: 163.
+- Triplex runtime: 8.807 sec; hits: 100.
 
 ## Classification Metrics
 
 | method | TP | FN | TN | FP | sensitivity | specificity | precision | F1 | accuracy | MCC |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| HSeeker overlap | 45 | 0 | 7 | 2 | 1.000 | 0.778 | 0.957 | 0.978 | 0.963 | 0.863 |
-| HSeeker score Youden | 44 | 1 | 8 | 1 | 0.978 | 0.889 | 0.978 | 0.978 | 0.963 | 0.867 |
-| Triplex overlap | 12 | 33 | 9 | 0 | 0.267 | 1.000 | 1.000 | 0.421 | 0.389 | 0.239 |
+| HSeeker overlap | 69 | 2 | 7 | 2 | 0.972 | 0.778 | 0.972 | 0.972 | 0.950 | 0.750 |
+| HSeeker score Youden | 69 | 2 | 8 | 1 | 0.972 | 0.889 | 0.986 | 0.979 | 0.963 | 0.822 |
+| Triplex overlap | 31 | 40 | 9 | 0 | 0.437 | 1.000 | 1.000 | 0.608 | 0.500 | 0.283 |
 
 ## HSeeker Score ROC
 
-- AUC-ROC: 0.980.
-- Youden-optimal threshold: 86.495.
-- Youden J: 0.867; MCC at this threshold: 0.867.
+- AUC-ROC: 0.971.
+- Youden-optimal threshold: 76.375.
+- Youden J: 0.861; MCC at this threshold: 0.822.
 
 ## Output Files
 

@@ -2,7 +2,7 @@
 
 ## Primary Validation
 
-The primary validation runs HSeeker and Triplex directly on the 54 curated
+The primary validation runs HSeeker and Triplex directly on the 80 curated
 experimental sequences:
 
 - Summary: `analysis/results/sensitivity_direct/summary.md`
@@ -15,7 +15,7 @@ classification.
 
 ## Secondary Validation
 
-The secondary/context validation injects the same 54 sequences into the
+The secondary/context validation injects the same 80 sequences into the
 E. coli K-12 `NC_000913.3` genome using seed 42 and a minimum inter-insertion
 distance of 500 bp, then matches hits back to insertion intervals using the
 80% overlap rule:
@@ -33,9 +33,9 @@ sequence validation.
 
 | analysis | method | TP | FN | TN | FP | sensitivity | specificity | F1 | MCC |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| direct primary | HSeeker direct hit | 45 | 0 | 7 | 2 | 1.000 | 0.778 | 0.978 | 0.863 |
-| direct primary | HSeeker score Youden | 44 | 1 | 8 | 1 | 0.978 | 0.889 | 0.978 | 0.867 |
-| direct primary | Triplex direct hit | 44 | 1 | 7 | 2 | 0.978 | 0.778 | 0.967 | 0.793 |
-| injected secondary | HSeeker overlap | 45 | 0 | 7 | 2 | 1.000 | 0.778 | 0.978 | 0.863 |
-| injected secondary | HSeeker score Youden | 44 | 1 | 8 | 1 | 0.978 | 0.889 | 0.978 | 0.867 |
-| injected secondary | Triplex overlap | 12 | 33 | 9 | 0 | 0.267 | 1.000 | 0.421 | 0.239 |
+| direct primary | HSeeker direct hit | 68 | 3 | 7 | 2 | 0.958 | 0.778 | 0.965 | 0.703 |
+| direct primary | HSeeker score Youden | 66 | 5 | 8 | 1 | 0.930 | 0.889 | 0.957 | 0.701 |
+| direct primary | Triplex direct hit | 68 | 3 | 7 | 2 | 0.958 | 0.778 | 0.965 | 0.703 |
+| injected secondary | HSeeker overlap | 69 | 2 | 7 | 2 | 0.972 | 0.778 | 0.972 | 0.750 |
+| injected secondary | HSeeker score Youden | 69 | 2 | 8 | 1 | 0.972 | 0.889 | 0.979 | 0.822 |
+| injected secondary | Triplex overlap | 31 | 40 | 9 | 0 | 0.437 | 1.000 | 0.608 | 0.283 |

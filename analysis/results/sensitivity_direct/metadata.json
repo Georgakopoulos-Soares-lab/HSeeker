@@ -1,8 +1,8 @@
 {
-  "date": "2026-06-24 10:58:37",
+  "date": "2026-06-24 15:38:49",
   "input_csv": "/Users/archit/Projects/repeat_finder/HSeeker/hdna_experimental_sequences_final.csv",
-  "dataset_size": 54,
-  "forming_count": 45,
+  "dataset_size": 80,
+  "forming_count": 71,
   "nonforming_count": 9,
   "hseeker_parameters": {
     "minrep": 8,
@@ -15,10 +15,10 @@
   },
   "triplex_call": "triplex.search(DNAString(seq))",
   "triplex_package_defaults": "type=0:7, min_score=15, p_value=0.05, min_len=6, max_len=25, min_loop=3, max_loop=10, seq_type='eukaryotic', scoring/penalty/statistical constants='default'",
-  "hseeker_runtime_sec": 0.0010818329997164255,
-  "triplex_runtime_sec": 0.202,
-  "hseeker_score_auc_roc": 0.9839506172839506,
+  "hseeker_runtime_sec": 0.002197041000272293,
+  "triplex_runtime_sec": 0.269,
+  "hseeker_score_auc_roc": 0.9608763693270735,
   "hseeker_youden_threshold": 86.495,
-  "hseeker_youden_j": 0.8666666666666667,
-  "hseeker_youden_mcc": 0.8666666666666667
+  "hseeker_youden_j": 0.8184663536776213,
+  "hseeker_youden_mcc": 0.7010390050037301
 }

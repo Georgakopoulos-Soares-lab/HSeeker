@@ -150,7 +150,7 @@ plot_one(
   "HSeeker direct hit",
   "Triplex direct hit",
   "Direct sequence validation",
-  "HSeeker and Triplex run directly on the 54 curated experimental sequences.",
+  "HSeeker and Triplex run directly on the 80 curated experimental sequences.",
   file.path(direct_dir, "plots", "confusion_matrices_hseeker_triplex.pdf")
 )
 
