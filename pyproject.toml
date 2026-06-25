@@ -47,6 +47,10 @@ Homepage   = "https://github.com/Georgakopoulos-Soares-lab/HDNAhunter"
 Repository = "https://github.com/Georgakopoulos-Soares-lab/HDNAhunter"
 Issues     = "https://github.com/Georgakopoulos-Soares-lab/HDNAhunter/issues"
 
+[tool.setuptools]
+include-package-data = true
+package-dir = {"" = "src"}
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
