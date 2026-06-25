@@ -1,8 +1,8 @@
 """
 setup.py — declares the _hdna CPython C extension.
 
-This file is intentionally minimal.  All project metadata lives in
-pyproject.toml.  This file exists only to register the C extension so
+This file is intentionally minimal. All project metadata lives in
+pyproject.toml. This file exists only to register the C extension so
 that setuptools knows to compile it.
 
 Build commands:
@@ -52,6 +52,7 @@ hdna_ext = Extension(
     # The module will be importable as  hseeker._hdna
     name="hseeker._hdna",
     sources=["src/hseeker/_hdna.c"],
+    language="c",
     extra_compile_args=extra_compile_args,
     libraries=libraries,
 )
