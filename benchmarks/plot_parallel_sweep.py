@@ -104,7 +104,8 @@ for x, y, ofs in zip(workers, rss_mb, offsets_rss):
     ax.annotate(f"{y:,}", (x, y), textcoords="offset points",
                 xytext=ofs, ha="center", fontsize=11, color=RED)
 style_ax(ax, "Workers", "Peak RSS (MB)", "Peak memory usage", "d")
-ax.set_ylim(rss_mb.min() - 50, rss_mb.max() + 80)
+ax.set_ylim(1400, 2100)
+ax.set_yticks([1400, 1600, 1800, 2000])
 
 fig.tight_layout(rect=[0, 0, 1, 0.97], h_pad=4.0, w_pad=3.5)
 
