@@ -23,6 +23,15 @@ from hseeker import _hdna  # compiled C extension
 from hseeker._scoring import score_hit
 
 __version__: str = "0.1.0"
+
+# One-pass table: strips \n, \r, space AND uppercases a-z in a single .translate()
+# call.  This avoids the extra string allocation from .upper() on genome-scale
+# sequences (saves ~250 MB peak RSS when reading chr1).
+_STRIP_UPPER_TABLE = str.maketrans(
+    "abcdefghijklmnopqrstuvwxyz",
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    "\n\r ",
+)
 __all__ = [
     "scan_sequence",
     "scan_fasta",
@@ -170,8 +179,11 @@ def parse_fasta(path: str | Path) -> Generator[tuple[str, str, int], None, None]
     raw = Path(path).read_text()
 
     # Split on '>' to get raw record blocks; the first (empty) block
-    # before the initial '>' is discarded.
+    # before the initial '>' is discarded.  Free `raw` immediately after
+    # the split so we don't hold both the original and the split copies.
     blocks = raw.split(">")
+    del raw
+
     for block in blocks:
         if not block.strip():
             continue
@@ -189,12 +201,10 @@ def parse_fasta(path: str | Path) -> Generator[tuple[str, str, int], None, None]
         om = _offset_re.search(">" + header)
         offset = int(om.group(1)) if om else 1
 
-        # Collapse all whitespace/newlines from the sequence block,
-        # then uppercase.  This is a single string operation instead
-        # of per-line allocations.
-        seq = seq_lines.translate(
-            {10: None, 13: None, 32: None}  # remove \n, \r, space
-        ).upper()
+        # Single-pass: strip \n/\r/space and uppercase in one .translate()
+        # call.  Avoids the extra ~250 MB allocation that .upper() would create
+        # on top of the already-translated string for chromosome-scale inputs.
+        seq = seq_lines.translate(_STRIP_UPPER_TABLE)
 
         if seq:
             yield seq_id, seq, offset
@@ -401,15 +411,20 @@ def scan_fasta_parallel(
             hits = [h for h in hits if h["start"] < excl_end]
         return hits
 
-    # Flatten all records into a list of chunk tasks
+    # Flatten all records into a list of chunk tasks.
+    # Each chunk_seq is a new str copy of a slice of the full sequence.
+    # Explicitly delete the full-sequence loop variable once chunking is done
+    # so the original full-sequence string can be freed before the scan starts.
     all_tasks: list[tuple[str, str, int, int | None, bool]] = []
     for seq_id, seq, offset in parse_fasta(path):
         all_tasks.extend(_build_tasks(seq_id, seq, offset))
+    del seq  # type: ignore[possibly-undefined]  # free full-sequence string
 
     results: list[dict] = []
     with ThreadPoolExecutor(max_workers=n_workers) as executor:
         for hits in executor.map(_scan_chunk, all_tasks):
             results.extend(hits)
+    del all_tasks  # free chunk strings now that all tasks have completed
 
     # Cross-chunk overlap removal: each chunk's overlap removal is
     # independent, so hits from different chunks of the same record

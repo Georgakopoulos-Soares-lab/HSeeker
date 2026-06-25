@@ -1,0 +1,49 @@
+{
+  "date": "2026-06-25T07:20:29.403717",
+  "hseeker": "0.1.0",
+  "fasta": "/scratch/10899/kimopro/HSeeker/benchmarks/data/chr1.fa",
+  "fasta_mb": 252.068451,
+  "minrep": 10,
+  "results": [
+    {
+      "workers": 1,
+      "wall_s": 187.66,
+      "peak_rss_mb": 1611.73828125,
+      "throughput_mbps": 1.343218858574017,
+      "fasta_mb": 252.068451,
+      "runs": 1
+    },
+    {
+      "workers": 2,
+      "wall_s": 105.33,
+      "peak_rss_mb": 1614.06640625,
+      "throughput_mbps": 2.3931306465394475,
+      "fasta_mb": 252.068451,
+      "runs": 1
+    },
+    {
+      "workers": 4,
+      "wall_s": 59.49,
+      "peak_rss_mb": 1599.37890625,
+      "throughput_mbps": 4.23715668179526,
+      "fasta_mb": 252.068451,
+      "runs": 1
+    },
+    {
+      "workers": 8,
+      "wall_s": 35.94,
+      "peak_rss_mb": 1719.3125,
+      "throughput_mbps": 7.013590734557597,
+      "fasta_mb": 252.068451,
+      "runs": 1
+    },
+    {
+      "workers": 16,
+      "wall_s": 25.21,
+      "peak_rss_mb": 1964.875,
+      "throughput_mbps": 9.99874855216184,
+      "fasta_mb": 252.068451,
+      "runs": 1
+    }
+  ]
+}
