@@ -416,9 +416,10 @@ def scan_fasta_parallel(
     # Explicitly delete the full-sequence loop variable once chunking is done
     # so the original full-sequence string can be freed before the scan starts.
     all_tasks: list[tuple[str, str, int, int | None, bool]] = []
+    seq: str = ""  # pre-init so del below is safe even when FASTA has no records
     for seq_id, seq, offset in parse_fasta(path):
         all_tasks.extend(_build_tasks(seq_id, seq, offset))
-    del seq  # type: ignore[possibly-undefined]  # free full-sequence string
+    del seq  # free the last full-sequence string (or the "" sentinel)
 
     results: list[dict] = []
     with ThreadPoolExecutor(max_workers=n_workers) as executor:
