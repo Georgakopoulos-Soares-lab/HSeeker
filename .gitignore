@@ -69,3 +69,7 @@ OPTIMIZATIONS.md
 # Agentic / migration files (not for distribution)
 # ──────────────────────────────────────────────
 MIGRATION.md
+hs_err_pid*.log
+triplex_search.log
+triplex_search.summary
+.r-lib/
