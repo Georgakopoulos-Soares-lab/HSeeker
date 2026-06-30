@@ -1,0 +1,202 @@
+\documentclass{article}
+\usepackage[letterpaper,margin=0.45in]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+
+\begin{document}
+
+\begin{algorithm}
+\caption{HSeeker Phase 1: Candidate Enumeration with Purity RMQ Prefilter}
+\label{alg:mirror-phase1}
+\scriptsize
+\begin{algorithmic}[1]
+\Require
+    DNA sequence $S$ of length $n$,
+    minimum arm length $L_{\min}$,
+    maximum arm length $L_{\max}$,
+    maximum spacer $S_{\max}$,
+    purity threshold $P \in [0,1]$,
+    mismatch tolerance $M \in [0,1]$
+\Ensure Candidate mirror repeat list $\mathcal{C}$
+
+\State $\mathcal{C} \gets [\,]$
+\State $P_{100} \gets \lfloor 100P + 0.5 \rfloor$;\;
+       $M_{100} \gets \lfloor 100M + 0.5 \rfloor$;\;
+       $B_{\mathrm{mis}} \gets \lfloor M L_{\max} \rfloor$
+\For{$i \leftarrow 0$ \textbf{to} $n-1$}
+    \State $\mathrm{cls}[i] \gets
+        \begin{cases}
+            1 & \text{if } S[i]\in\{G,A\}\\
+            2 & \text{if } S[i]\in\{C,T\}\\
+            0 & \text{otherwise}
+        \end{cases}$
+\EndFor
+\State Build $\mathrm{nextBad}[i]$, the smallest index $j \ge i$ with
+       $\mathrm{cls}[j]=0$; use $n$ if no such index exists
+\State $G[0]\gets 0$;\; $C[0]\gets 0$
+\For{$i \leftarrow 0$ \textbf{to} $n-1$}
+    \State $G[i+1] \gets G[i] + [\mathrm{cls}[i]=1]$
+    \State $C[i+1] \gets C[i] + [\mathrm{cls}[i]=2]$
+\EndFor
+\For{$i \leftarrow 0$ \textbf{to} $n$}
+    \State $F_{\mathrm{GA}}[i] \gets 100G[i] - P_{100}i$
+    \State $F_{\mathrm{CT}}[i] \gets 100C[i] - P_{100}i$
+\EndFor
+\State Build range-maximum structures $T_{\mathrm{GA}}$ over $F_{\mathrm{GA}}$
+       and $T_{\mathrm{CT}}$ over $F_{\mathrm{CT}}$
+
+\For{each center position $c \in [L_{\min}-1,\; n-L_{\min}-1]$}
+    \If{$S[c]$ is not ACGT} \Comment{skip invalid centers}
+        \State \textbf{continue}
+    \EndIf
+    \State $s_{\max} \gets \min\bigl(S_{\max},\; n - L_{\min} - c - 1\bigr)$
+    \For{each spacer $s \in [0, s_{\max}]$}
+        \State $r_0 \gets c + s + 1$ \Comment{right-arm start}
+        \State $K_{\max} \gets \min\bigl(L_{\max},\; c+1,\; n-r_0,\;
+               \mathrm{nextBad}[r_0]-r_0\bigr)$
+        \If{$K_{\max} < L_{\min}$}
+            \State \textbf{continue}
+        \EndIf
+        \State $\mathrm{gaPossible} \gets
+               \textsc{RangeMax}(T_{\mathrm{GA}},\, r_0+L_{\min},\, r_0+K_{\max})
+               \ge F_{\mathrm{GA}}[r_0]$
+        \State $\mathrm{ctPossible} \gets
+               \textsc{RangeMax}(T_{\mathrm{CT}},\, r_0+L_{\min},\, r_0+K_{\max})
+               \ge F_{\mathrm{CT}}[r_0]$
+        \If{\textbf{not} $(\mathrm{gaPossible} \lor \mathrm{ctPossible})$}
+            \State \textbf{continue} \Comment{no right-arm prefix can satisfy purity}
+        \EndIf
+        \State $\ell \gets c$ \Comment{left pointer}
+        \State $r \gets r_0$ \Comment{right pointer}
+        \State $k \gets 0,\; \textit{mis} \gets 0,\; \textit{ga} \gets 0,\; \textit{ct} \gets 0$
+        \State $\textit{best}_k \gets 0$
+        \While{$\ell \ge 0$ \textbf{and} $r < n$ \textbf{and} $k < L_{\max}$}
+            \If{$S[r]$ is not ACGT} \State \textbf{break} \EndIf
+            \If{$S[\ell] \neq S[r]$} \State $\textit{mis} \gets \textit{mis} + 1$ \EndIf
+            \State $k \gets k + 1$
+            \If{$S[r]$ is G or A} $\textit{ga} \gets \textit{ga} + 1$ \Else $\textit{ct} \gets \textit{ct} + 1$ \EndIf
+            \If{$k \ge L_{\min}$}
+                \State $\textit{pure}_{\text{GA}} \gets 100\textit{ga} \ge P_{100} \cdot k$
+                \State $\textit{pure}_{\text{CT}} \gets 100\textit{ct} \ge P_{100} \cdot k$
+                \State $\textit{mirrorOk} \gets 100\textit{mis} \le M_{100} \cdot k$
+                \If{$(\textit{pure}_{\text{GA}} \lor \textit{pure}_{\text{CT}}) \land \textit{mirrorOk}$}
+                    \State $\textit{best}_k \gets k$ \Comment{record this arm length}
+                \EndIf
+                \If{$\textit{mis} > B_{\mathrm{mis}}$} \State \textbf{break} \EndIf
+            \EndIf
+            \State $\ell \gets \ell - 1,\; r \gets r + 1$
+        \EndWhile
+        \If{$\textit{best}_k \ge L_{\min}$}
+            \State Record candidate with $\textit{arm} = \textit{best}_k$, $\textit{spacer} = s$ \Comment*{add to $\mathcal{C}$}
+        \EndIf
+    \EndFor
+\EndFor
+\State \Return $\mathcal{C}$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{HSeeker Phase 2: Overlap Removal}
+\label{alg:mirror-phase2}
+\small
+\begin{algorithmic}[1]
+\Require Candidate mirror repeat list $\mathcal{C}$ from Algorithm~\ref{alg:mirror-phase1}
+\Ensure Non-overlapping H-DNA mirror repeat hits $\mathcal{H}$
+
+\State Sort $\mathcal{C}$ by start coordinate (longest arm first on ties; shorter spacer first among equal-arm ties)
+\State $\mathcal{H} \gets [\,]$
+\For{each candidate $h \in \mathcal{C}$}
+    \If{$\mathcal{H}$ is empty \textbf{or} $h.\textit{start} > \textsc{Last}(\mathcal{H}).\textit{end}$}
+        \State Append $h$ to $\mathcal{H}$ \Comment{no overlap---keep}
+    \ElsIf{$h.\textit{arm} > \textsc{Last}(\mathcal{H}).\textit{arm}$ \textbf{or}
+          $(h.\textit{arm} = \textsc{Last}(\mathcal{H}).\textit{arm} \land h.\textit{spacer} < \textsc{Last}(\mathcal{H}).\textit{spacer})$}
+        \State Replace \textsc{Last}$(\mathcal{H})$ with $h$ \Comment{overlap but better---replace}
+    \EndIf
+\EndFor
+\State \Return $\mathcal{H}$
+\end{algorithmic}
+\end{algorithm}
+
+\clearpage
+
+\begin{algorithm}
+\caption{HSeeker Phase 3: Thermodynamic Stability Scoring}
+\label{alg:mirror-phase3}
+\scriptsize
+\begin{algorithmic}[1]
+\Require Full motif $s = s_1 \cdot s_3 \cdot s_2$ (left arm $s_1$, spacer $s_3$,
+         right arm $s_2$, each arm of length $al$),
+         parameters $L_{\min,\mathrm{win}} = 8$ (minimum arm window),
+         $v = 1.0$ (spacer-to-arm ratio bound),
+         $\delta = 5$, $d = 2$
+\Ensure Stacking score, pairing score, total score,
+        putative triplex $s_l[s_{\mathrm{spacer}}]s_r$
+
+\State $s \leftarrow \mathrm{uppercase}(s)$;\;
+       $s_1 \leftarrow s[{:}al]$;\;
+       $s_3 \leftarrow s[al{:}-al]$;\;
+       $s_2 \leftarrow s[-al{:}]$;\;
+       $\ell_s \leftarrow |s_3|$
+\If{$|CT(s_1)| > |GA(s_1)|$}
+    \State $s \leftarrow \mathrm{revcomp}(s)$;\; recompute $s_1,\, s_3,\, s_2$
+    \Comment{score on purine strand}
+\EndIf
+\State $s_2^R \leftarrow \mathrm{reverse}(s_2)$
+    \Comment{positional alignment with $s_1$: $s_1[j]$ pairs with $s_2^R[j]$}
+\For{$j \leftarrow 0$ \textbf{to} $al - 1$}
+    \State $P[j] \leftarrow
+        \begin{cases}
+            7.6   & \text{if } s_1[j] = s_2^R[j] = G\\
+            3.83  & \text{if } s_1[j] = s_2^R[j] = A\\
+            -(7.6+3.83)/2 & \text{otherwise}
+        \end{cases}$
+    \State $B[j] \leftarrow 1$ if $s_1[j] = s_2^R[j] \in \{G,A\}$ else $0$
+\EndFor
+
+\Statex \textit{$\triangleright$ Optimal window search: find arm window $[L, R)$ that maximises total score
+         subject to the spacer-length constraint}
+\State $\mathit{best} \leftarrow -\infty$;\;
+       $(L^*,\, R^*) \leftarrow \mathrm{None}$
+\For{$L \leftarrow 0$ \textbf{to} $al - 1$}
+    \For{$R \leftarrow \min(L + L_{\min,\mathrm{win}},\; al)$ \textbf{to} $al$}
+        \If{$2(al - R) + \ell_s \;\le\; (R - L) \cdot v$}
+            \Comment{new spacer length $\le$ selected arm length $\times\, v$}
+            \State $K \leftarrow \mathrm{CalcStacking}(B[L{:}R])$
+                \Comment{$K[0]{=}0$;\;
+                         $K[j]{=}{+}\delta$ if $B[L{+}j{-}1]{=}B[L{+}j]{=}1$;\;
+                         else $-\delta$ if $n{=}0$,\; $-\delta^{n+1}/d$ if $n{\ge}1$,
+                         where $n$ is the preceding non-canonical run length within the window}
+            \State $\mathit{cur} \leftarrow
+                   \mathrm{round}\!\bigl(\textstyle\sum_{j} P[L{+}j]
+                   + \textstyle\sum_{j} K[j],\; 3\bigr)$
+            \If{$\mathit{cur} > \mathit{best}$}
+                \State $\mathit{best} \leftarrow \mathit{cur}$;\;
+                       $(L^*,\, R^*) \leftarrow (L,\, R)$
+            \EndIf
+        \EndIf
+    \EndFor
+\EndFor
+\If{$(L^*,\, R^*) = \mathrm{None}$}
+    \State \Return $\mathrm{None}$ \Comment{no window satisfies the spacer constraint}
+\EndIf
+\State $K \leftarrow \mathrm{CalcStacking}(B[L^*{:}R^*])$
+\State $\mathit{stacking\_score} \leftarrow \textstyle\sum_{j} K[j]$;\;
+       $\mathit{pairing\_score}  \leftarrow \textstyle\sum_{j} P[L^*{+}j]$
+\State $\mathit{total\_score} \leftarrow
+       \mathrm{round}(\mathit{stacking\_score} + \mathit{pairing\_score},\; 3)$
+\State $s_{\mathrm{spacer}} \leftarrow
+       s_1[R^*{:}] \;+\; s_3 \;+\; s_2[{:}(al - R^*)]$
+    \Comment{right tail of $s_1$ + original spacer + left tail of $s_2$}
+\State $s_l \leftarrow s_1[L^*{:}R^*]$;\;
+       $s_r \leftarrow s_2[(al - R^*){:}(al - L^*)]$
+\State $\mathit{putative\_triplex} \leftarrow
+       s_l + \text{``[''} + s_{\mathrm{spacer}} + \text{``]''} + s_r$
+\State \Return $\{\mathit{stacking\_score},\;
+                  \mathit{pairing\_score},\;
+                  \mathit{total\_score},\;
+                  \mathit{putative\_triplex}\}$
+\end{algorithmic}
+\end{algorithm}
+
+\end{document}
