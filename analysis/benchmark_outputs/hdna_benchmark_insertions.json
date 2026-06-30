@@ -1,0 +1,713 @@
+[
+  {
+    "uid": "HDNA0024_rep1",
+    "record_id": "HDNA0024",
+    "sequence_name": "R2-3\u2032 (H-DNA buffer)",
+    "label": "forming",
+    "sequence": "CCCCTCCCTTTTTGGGAGGGGCGCTTATGGGGAGGGCAGTCGAGCG",
+    "position": 55015,
+    "original_position": 55015
+  },
+  {
+    "uid": "HDNA0002_rep1",
+    "record_id": "HDNA0002",
+    "sequence_name": "pGG32",
+    "label": "forming",
+    "sequence": "AAGGGAGAAGGGGGTATAGGGGGAAGAGGGAA",
+    "position": 210351,
+    "original_position": 210305
+  },
+  {
+    "uid": "HDNA0017_rep1",
+    "record_id": "HDNA0017",
+    "sequence_name": "Con-2",
+    "label": "forming",
+    "sequence": "CCTCGAGACCTCTCTCTCTTCTCTTCTCTCTCTCCAGGCTCTCTCTCGAGCTC",
+    "position": 223177,
+    "original_position": 223099
+  },
+  {
+    "uid": "HDNA0012_rep1",
+    "record_id": "HDNA0012",
+    "sequence_name": "pTT32",
+    "label": "forming",
+    "sequence": "AAGGGAGAATGGGGTATAGGGGTAAGAGGGAA",
+    "position": 250588,
+    "original_position": 250457
+  },
+  {
+    "uid": "HDNA0011_rep1",
+    "record_id": "HDNA0011",
+    "sequence_name": "pTA32",
+    "label": "forming",
+    "sequence": "AAGGGAGAATGGGGTATAGGGGAAAGAGGGAA",
+    "position": 267275,
+    "original_position": 267112
+  },
+  {
+    "uid": "TTCCC20_avian_rep1",
+    "record_id": "TTCCC20_avian",
+    "sequence_name": "TTCCC20_avian",
+    "label": "forming",
+    "sequence": "TTCCCTTCCCTTCCCTTCCCTTCCCTTCCCTTCCCTTCCCTTCCCTTCCCTTCCCTTCCCTTCCCTTCCCTTCCCTTCCCTTCCCTTCCCTTCCCTTCCC",
+    "position": 269971,
+    "original_position": 269776
+  },
+  {
+    "uid": "HDNA0039_rep1",
+    "record_id": "HDNA0039",
+    "sequence_name": "(dG)n-(dC)n_Lyamichev-Mirkin-Frank-Kamenetskii",
+    "label": "forming",
+    "sequence": "GCCTGCACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCTGCAGGT",
+    "position": 365283,
+    "original_position": 364988
+  },
+  {
+    "uid": "HDNA0050_rep1",
+    "record_id": "HDNA0050",
+    "sequence_name": "pRW1411",
+    "label": "forming",
+    "sequence": "TCCTCCTCCTCCTCCTCCTCCTCC",
+    "position": 385242,
+    "original_position": 384902
+  },
+  {
+    "uid": "SV40_GACT22_rep1",
+    "record_id": "SV40_GACT22",
+    "sequence_name": "SV40_GACT22",
+    "label": "forming",
+    "sequence": "GAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGA",
+    "position": 470105,
+    "original_position": 469741
+  },
+  {
+    "uid": "HDNA0049_rep1",
+    "record_id": "HDNA0049",
+    "sequence_name": "pRW1404",
+    "label": "forming",
+    "sequence": "AGAGAGAGAGAGAGAGAGAGAGAG",
+    "position": 584378,
+    "original_position": 583970
+  },
+  {
+    "uid": "XDP_CCCTCT10_rep1",
+    "record_id": "XDP_CCCTCT10",
+    "sequence_name": "XDP_CCCTCT10",
+    "label": "forming",
+    "sequence": "CCCTCTCCCTCTCCCTCTCCCTCTCCCTCTCCCTCTCCCTCTCCCTCTCCCTCTCCCTCT",
+    "position": 599899,
+    "original_position": 599467
+  },
+  {
+    "uid": "HDNA0044_rep1",
+    "record_id": "HDNA0044",
+    "sequence_name": "pRW1402",
+    "label": "forming",
+    "sequence": "AGAAAGAGAGAGAGAGAGAGAGAG",
+    "position": 662015,
+    "original_position": 661523
+  },
+  {
+    "uid": "HDNA0053_rep1",
+    "record_id": "HDNA0053",
+    "sequence_name": "pRW1405",
+    "label": "non_forming",
+    "sequence": "AAAAAAAAAAAAAAAAAAAA",
+    "position": 670359,
+    "original_position": 669843
+  },
+  {
+    "uid": "HDNA0009_rep1",
+    "record_id": "HDNA0009",
+    "sequence_name": "pCT32",
+    "label": "forming",
+    "sequence": "AAGGGAGAACGGGGTATAGGGGTAAGAGGGAA",
+    "position": 730331,
+    "original_position": 729795
+  },
+  {
+    "uid": "HDNA0033_rep1",
+    "record_id": "HDNA0033",
+    "sequence_name": "AG32 (30-nt version)",
+    "label": "forming",
+    "sequence": "AAGGGAGAAAGGGTATAGGGGAAGAGGGAA",
+    "position": 779076,
+    "original_position": 778508
+  },
+  {
+    "uid": "HDNA0013_rep1",
+    "record_id": "HDNA0013",
+    "sequence_name": "pCC32",
+    "label": "forming",
+    "sequence": "AAGGGAGAACGGGGTATAGGGGCAAGAGGGAA",
+    "position": 787070,
+    "original_position": 786472
+  },
+  {
+    "uid": "HDNA0035_rep1",
+    "record_id": "HDNA0035",
+    "sequence_name": "GG32-long",
+    "label": "forming",
+    "sequence": "AATTCAAGGGAGAAGGGGGTATAGGGGGAAGAGGGAAGGATC",
+    "position": 812445,
+    "original_position": 811815
+  },
+  {
+    "uid": "GA32_rep1",
+    "record_id": "GA32",
+    "sequence_name": "GA32",
+    "label": "forming",
+    "sequence": "AAGGGAGAAGGGGTATAGGGAAAGAGGGAA",
+    "position": 848433,
+    "original_position": 847761
+  },
+  {
+    "uid": "HDNA0032_rep1",
+    "record_id": "HDNA0032",
+    "sequence_name": "GG32 (30-nt version)",
+    "label": "forming",
+    "sequence": "AAGGGAGAAGGGGTATAGGGGAAGAGGGAA",
+    "position": 858603,
+    "original_position": 857901
+  },
+  {
+    "uid": "HDNA0007_rep1",
+    "record_id": "HDNA0007",
+    "sequence_name": "pGC32",
+    "label": "forming",
+    "sequence": "AAGGGAGAAGGGGGTATAGGGGCAAGAGGGAA",
+    "position": 861023,
+    "original_position": 860291
+  },
+  {
+    "uid": "HDNA0001_rep1",
+    "record_id": "HDNA0001",
+    "sequence_name": "pAA32",
+    "label": "forming",
+    "sequence": "AAGGGAGAAAGGGGTATAGGGGAAAGAGGGAA",
+    "position": 935176,
+    "original_position": 934412
+  },
+  {
+    "uid": "HDNA0042_rep1",
+    "record_id": "HDNA0042",
+    "sequence_name": "pRW1412",
+    "label": "forming",
+    "sequence": "GAAGAAGTAGAAGTAGAAGATGAAGAA",
+    "position": 1048413,
+    "original_position": 1047617
+  },
+  {
+    "uid": "HDNA0006_rep1",
+    "record_id": "HDNA0006",
+    "sequence_name": "pGT32",
+    "label": "forming",
+    "sequence": "AAGGGAGAAGGGGGTATAGGGGTAAGAGGGAA",
+    "position": 1171851,
+    "original_position": 1171028
+  },
+  {
+    "uid": "HDNA0029_rep1",
+    "record_id": "HDNA0029",
+    "sequence_name": "pCON (S1, pH 4.5)",
+    "label": "non_forming",
+    "sequence": "TTGCTGAACTTGATTCGACTCAGATGCAGTG",
+    "position": 1305611,
+    "original_position": 1304756
+  },
+  {
+    "uid": "HDNA0025_rep1",
+    "record_id": "HDNA0025",
+    "sequence_name": "R2-5\u2032 (H-DNA buffer)",
+    "label": "forming",
+    "sequence": "CAGGAAATCACCCCTCCCTTTTTGGGAGGGGCGCTTATGGGGAGGG",
+    "position": 1340705,
+    "original_position": 1339819
+  },
+  {
+    "uid": "FXN_GAA10_rep1",
+    "record_id": "FXN_GAA10",
+    "sequence_name": "FXN_GAA10",
+    "label": "forming",
+    "sequence": "GAAGAAGAAGAAGAAGAAGAAGAAGAAGAA",
+    "position": 1365873,
+    "original_position": 1364941
+  },
+  {
+    "uid": "AG11_model_rep1",
+    "record_id": "AG11_model",
+    "sequence_name": "AG11_model",
+    "label": "forming",
+    "sequence": "AGAGAGAGAGAGAGAGAGAGAG",
+    "position": 1372181,
+    "original_position": 1371219
+  },
+  {
+    "uid": "CTC20_mouse_rep1",
+    "record_id": "CTC20_mouse",
+    "sequence_name": "CTC20_mouse",
+    "label": "forming",
+    "sequence": "CTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTC",
+    "position": 1437099,
+    "original_position": 1436115
+  },
+  {
+    "uid": "HDNA0048_rep1",
+    "record_id": "HDNA0048",
+    "sequence_name": "pRW1714",
+    "label": "forming",
+    "sequence": "GAAGAAGAAGAATTAATTCGCGAAGAAGAAGAA",
+    "position": 1614558,
+    "original_position": 1613533
+  },
+  {
+    "uid": "HDNA0018_rep1",
+    "record_id": "HDNA0018",
+    "sequence_name": "H/CT",
+    "label": "forming",
+    "sequence": "CCTCGAGACCTTTCCTTTCCTTTCCTTTCCTTTCCAGGCTCTCTCTCGAGCTC",
+    "position": 1669529,
+    "original_position": 1668471
+  },
+  {
+    "uid": "FXN_GAA66_rep1",
+    "record_id": "FXN_GAA66",
+    "sequence_name": "FXN_GAA66",
+    "label": "forming",
+    "sequence": "GAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAA",
+    "position": 1759083,
+    "original_position": 1757972
+  },
+  {
+    "uid": "HDNA0030_rep1",
+    "record_id": "HDNA0030",
+    "sequence_name": "pcMyc (S1, pH 4.5)",
+    "label": "forming",
+    "sequence": "GGGAGGGGCGCTTATGGGGAGGG",
+    "position": 1807991,
+    "original_position": 1806682
+  },
+  {
+    "uid": "HDNA0014_rep1",
+    "record_id": "HDNA0014",
+    "sequence_name": "pGA32",
+    "label": "forming",
+    "sequence": "AAGGGAGAAGGGGGTATAGGGGAAAGAGGGAA",
+    "position": 1835900,
+    "original_position": 1834568
+  },
+  {
+    "uid": "GAAA10_human_rep1",
+    "record_id": "GAAA10_human",
+    "sequence_name": "GAAA10_human",
+    "label": "forming",
+    "sequence": "GAAAGAAAGAAAGAAAGAAAGAAAGAAAGAAAGAAAGAAA",
+    "position": 1844129,
+    "original_position": 1842765
+  },
+  {
+    "uid": "HDNA0021_rep1",
+    "record_id": "HDNA0021",
+    "sequence_name": "\u0394CT/Ri",
+    "label": "non_forming",
+    "sequence": "CCTCGAATGGCAAACATTTCAGAATATAATGACAAAATATCATCGAGCTC",
+    "position": 1851093,
+    "original_position": 1849689
+  },
+  {
+    "uid": "HDNA0005_rep1",
+    "record_id": "HDNA0005",
+    "sequence_name": "pAC32",
+    "label": "forming",
+    "sequence": "AAGGGAGAAAGGGGTATAGGGGCAAGAGGGAA",
+    "position": 1874381,
+    "original_position": 1872927
+  },
+  {
+    "uid": "HDNA0051_rep1",
+    "record_id": "HDNA0051",
+    "sequence_name": "pRW1408",
+    "label": "forming",
+    "sequence": "TTCCTTCCTTCCTTCCTTCCTTCC",
+    "position": 1913735,
+    "original_position": 1912249
+  },
+  {
+    "uid": "TC17_Glover_rep1",
+    "record_id": "TC17_Glover",
+    "sequence_name": "TC17_Glover",
+    "label": "forming",
+    "sequence": "TCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTC",
+    "position": 1923404,
+    "original_position": 1921894
+  },
+  {
+    "uid": "HDNA0015_rep1",
+    "record_id": "HDNA0015",
+    "sequence_name": "pCA32",
+    "label": "forming",
+    "sequence": "AAGGGAGAACGGGGTATAGGGGAAAGAGGGAA",
+    "position": 1953745,
+    "original_position": 1952201
+  },
+  {
+    "uid": "HDNA0054_rep1",
+    "record_id": "HDNA0054",
+    "sequence_name": "poly-(dC)30",
+    "label": "forming",
+    "sequence": "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
+    "position": 1954867,
+    "original_position": 1953291
+  },
+  {
+    "uid": "TCCTC10_mouse_rep1",
+    "record_id": "TCCTC10_mouse",
+    "sequence_name": "TCCTC10_mouse",
+    "label": "forming",
+    "sequence": "TCCTCTCCTCTCCTCTCCTCTCCTCTCCTCTCCTCTCCTCTCCTCTCCTC",
+    "position": 2055728,
+    "original_position": 2054122
+  },
+  {
+    "uid": "HDNA0004_rep1",
+    "record_id": "HDNA0004",
+    "sequence_name": "pTG32",
+    "label": "forming",
+    "sequence": "AAGGGAGAATGGGGTATAGGGGGAAGAGGGAA",
+    "position": 2056457,
+    "original_position": 2054801
+  },
+  {
+    "uid": "HDNA0038_rep1",
+    "record_id": "HDNA0038",
+    "sequence_name": "GA-rich_Lyamichev-Mirkin-Frank-Kamenetskii",
+    "label": "forming",
+    "sequence": "GAAGGGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGGGGGG",
+    "position": 2221149,
+    "original_position": 2219461
+  },
+  {
+    "uid": "CANVAS_AAGGG10_rep1",
+    "record_id": "CANVAS_AAGGG10",
+    "sequence_name": "CANVAS_AAGGG10",
+    "label": "forming",
+    "sequence": "AAGGGAAGGGAAGGGAAGGGAAGGGAAGGGAAGGGAAGGGAAGGGAAGGG",
+    "position": 2241803,
+    "original_position": 2240072
+  },
+  {
+    "uid": "GA16_sea_urchin_histone_rep1",
+    "record_id": "GA16_sea_urchin_histone",
+    "sequence_name": "GA16_sea_urchin_histone",
+    "label": "forming",
+    "sequence": "GAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGA",
+    "position": 2266767,
+    "original_position": 2264986
+  },
+  {
+    "uid": "HDNA0003_rep1",
+    "record_id": "HDNA0003",
+    "sequence_name": "pAG32",
+    "label": "forming",
+    "sequence": "AAGGGAGAAAGGGGTATAGGGGGAAGAGGGAA",
+    "position": 2309426,
+    "original_position": 2307613
+  },
+  {
+    "uid": "HDNA0028_rep1",
+    "record_id": "HDNA0028",
+    "sequence_name": "B-33",
+    "label": "non_forming",
+    "sequence": "AATTCGCGGGAGGGGCGCTTATGGAGGGGGAAC",
+    "position": 2333298,
+    "original_position": 2331453
+  },
+  {
+    "uid": "cMYC_NHE_Hisey2024_rep1",
+    "record_id": "cMYC_NHE_Hisey2024",
+    "sequence_name": "cMYC_NHE_Hisey2024",
+    "label": "forming",
+    "sequence": "TGGAAAGGAGGTGGAGGAGAGGAA",
+    "position": 2334189,
+    "original_position": 2332311
+  },
+  {
+    "uid": "HDNA0023_rep1",
+    "record_id": "HDNA0023",
+    "sequence_name": "R2 (H-DNA buffer)",
+    "label": "forming",
+    "sequence": "CCCCTCCCTTTTTGGGAGGGGCGCTTATGGGGAGGG",
+    "position": 2336034,
+    "original_position": 2334132
+  },
+  {
+    "uid": "HDNA0052_rep1",
+    "record_id": "HDNA0052",
+    "sequence_name": "pRW1410",
+    "label": "forming",
+    "sequence": "GAAAGAAAGAAAGAAAGAAAGAAA",
+    "position": 2430000,
+    "original_position": 2428062
+  },
+  {
+    "uid": "HDNA0046_rep1",
+    "record_id": "HDNA0046",
+    "sequence_name": "pRW1712",
+    "label": "forming",
+    "sequence": "GAAGAAGAAGAATTCGCGAAGAAGAAGAA",
+    "position": 2461819,
+    "original_position": 2459857
+  },
+  {
+    "uid": "gamma_globin_228_189_rep1",
+    "record_id": "gamma_globin_228_189",
+    "sequence_name": "gamma_globin_228_189",
+    "label": "forming",
+    "sequence": "CTCCCAGCCTCCCAGCCTCCCAGCCTCCCAGCCTCCC",
+    "position": 2648702,
+    "original_position": 2646711
+  },
+  {
+    "uid": "GGAA10_human_rep1",
+    "record_id": "GGAA10_human",
+    "sequence_name": "GGAA10_human",
+    "label": "forming",
+    "sequence": "GGAAGGAAGGAAGGAAGGAAGGAAGGAAGGAAGGAAGGAA",
+    "position": 2722808,
+    "original_position": 2720780
+  },
+  {
+    "uid": "HDNA0031_rep1",
+    "record_id": "HDNA0031",
+    "sequence_name": "pMycAG (S1, pH 4.5)",
+    "label": "non_forming",
+    "sequence": "GGGAGGGGCGCTTATGGAGGGGG",
+    "position": 2826127,
+    "original_position": 2824059
+  },
+  {
+    "uid": "HDNA0027_rep1",
+    "record_id": "HDNA0027",
+    "sequence_name": "H-33",
+    "label": "forming",
+    "sequence": "AATTCGCGGGAGGGGCGCTTATGGGGAGGGAAC",
+    "position": 2856819,
+    "original_position": 2854728
+  },
+  {
+    "uid": "HDNA0037_rep1",
+    "record_id": "HDNA0037",
+    "sequence_name": "MycM2",
+    "label": "non_forming",
+    "sequence": "GGAGGGGCGCTTATGGAGGGTG",
+    "position": 2887933,
+    "original_position": 2885809
+  },
+  {
+    "uid": "FXN_GAA33_rep1",
+    "record_id": "FXN_GAA33",
+    "sequence_name": "FXN_GAA33",
+    "label": "forming",
+    "sequence": "GAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAA",
+    "position": 2982872,
+    "original_position": 2980726
+  },
+  {
+    "uid": "HDNA0036_rep1",
+    "record_id": "HDNA0036",
+    "sequence_name": "Mycm1",
+    "label": "non_forming",
+    "sequence": "GGAGGGGCGCTTATGGAGGGGG",
+    "position": 3014082,
+    "original_position": 3011837
+  },
+  {
+    "uid": "HDNA0047_rep1",
+    "record_id": "HDNA0047",
+    "sequence_name": "pRW1713",
+    "label": "forming",
+    "sequence": "GAAGAAGAAGAATTAATTCGAAGAAGAAGAA",
+    "position": 3036381,
+    "original_position": 3034114
+  },
+  {
+    "uid": "BCL6_ClusterII_Pu_rep1",
+    "record_id": "BCL6_ClusterII_Pu",
+    "sequence_name": "BCL6_ClusterII_Pu",
+    "label": "forming",
+    "sequence": "GGGAGGAGGGAGGAGGGAGGAGGG",
+    "position": 3063232,
+    "original_position": 3060934
+  },
+  {
+    "uid": "FXN_GAA20_rep1",
+    "record_id": "FXN_GAA20",
+    "sequence_name": "FXN_GAA20",
+    "label": "forming",
+    "sequence": "GAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAA",
+    "position": 3108125,
+    "original_position": 3105803
+  },
+  {
+    "uid": "HDNA0043_rep1",
+    "record_id": "HDNA0043",
+    "sequence_name": "pRW1415",
+    "label": "forming",
+    "sequence": "GAAGAAGAAGAAGAAGAAGATGAAGAA",
+    "position": 3178258,
+    "original_position": 3175876
+  },
+  {
+    "uid": "PKD1_PyRE_CT44_rep1",
+    "record_id": "PKD1_PyRE_CT44",
+    "sequence_name": "PKD1_PyRE_CT44",
+    "label": "forming",
+    "sequence": "CTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCT",
+    "position": 3186011,
+    "original_position": 3183602
+  },
+  {
+    "uid": "HDNA0034_rep1",
+    "record_id": "HDNA0034",
+    "sequence_name": "MYCAA",
+    "label": "forming",
+    "sequence": "GGGGGAGGCGCTTATGGAGGGGG",
+    "position": 3190058,
+    "original_position": 3187561
+  },
+  {
+    "uid": "AA32_rep1",
+    "record_id": "AA32",
+    "sequence_name": "AA32",
+    "label": "forming",
+    "sequence": "AAGGGAGAAAGGGTATAGGGAAAGAGGGAA",
+    "position": 3191749,
+    "original_position": 3189229
+  },
+  {
+    "uid": "PKD1_46bp_mirror_rep1",
+    "record_id": "PKD1_46bp_mirror",
+    "sequence_name": "PKD1_46bp_mirror",
+    "label": "forming",
+    "sequence": "CTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCT",
+    "position": 3368264,
+    "original_position": 3365714
+  },
+  {
+    "uid": "HDNA0020_rep1",
+    "record_id": "HDNA0020",
+    "sequence_name": "GA/CT",
+    "label": "non_forming",
+    "sequence": "CCTCGAGATGAGTGAGCTGCACTGTGACAAGCTGCAGGCTCTCTCTCGAGCTC",
+    "position": 3522283,
+    "original_position": 3519687
+  },
+  {
+    "uid": "HDNA0010_rep1",
+    "record_id": "HDNA0010",
+    "sequence_name": "pAT32",
+    "label": "forming",
+    "sequence": "AAGGGAGAAAGGGGTATAGGGGTAAGAGGGAA",
+    "position": 3542485,
+    "original_position": 3539836
+  },
+  {
+    "uid": "HDNA0026_rep1",
+    "record_id": "HDNA0026",
+    "sequence_name": "R2-ino",
+    "label": "non_forming",
+    "sequence": "CCCCTCCCTTTTTGGGAGGGGCGCTTATGGGGAGGG",
+    "position": 3548327,
+    "original_position": 3545646
+  },
+  {
+    "uid": "HDNA0022_rep1",
+    "record_id": "HDNA0022",
+    "sequence_name": "R1 (H-DNA buffer)",
+    "label": "forming",
+    "sequence": "GGGAGGGGCGCTTATGGGGAGGGTTTTTCCCTCCCC",
+    "position": 3771455,
+    "original_position": 3768738
+  },
+  {
+    "uid": "cMYC_NSE_ACCCTCCCC4_rep1",
+    "record_id": "cMYC_NSE_ACCCTCCCC4",
+    "sequence_name": "cMYC_NSE_ACCCTCCCC4",
+    "label": "forming",
+    "sequence": "ACCCTCCCCACCCTCCCCACCCTCCCCACCCTCCCC",
+    "position": 3806734,
+    "original_position": 3803981
+  },
+  {
+    "uid": "HDNA0040_rep1",
+    "record_id": "HDNA0040",
+    "sequence_name": "TC18/AG18_Htun-Dahlberg",
+    "label": "forming",
+    "sequence": "GGACAGGTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTTTCTCATTATTTGC",
+    "position": 3857224,
+    "original_position": 3854435
+  },
+  {
+    "uid": "GA20_SV40_rep1",
+    "record_id": "GA20_SV40",
+    "sequence_name": "GA20_SV40",
+    "label": "forming",
+    "sequence": "GAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGAGA",
+    "position": 3881066,
+    "original_position": 3878219
+  },
+  {
+    "uid": "HDNA0016_rep1",
+    "record_id": "HDNA0016",
+    "sequence_name": "pTC32",
+    "label": "forming",
+    "sequence": "AAGGGAGAATGGGGTATAGGGGCAAGAGGGAA",
+    "position": 4242614,
+    "original_position": 4239727
+  },
+  {
+    "uid": "CTC16_mouse_rep1",
+    "record_id": "CTC16_mouse",
+    "sequence_name": "CTC16_mouse",
+    "label": "forming",
+    "sequence": "CTCTCTCTCTCTCTCTCTCTCTCTCTCTCTCTC",
+    "position": 4484109,
+    "original_position": 4481190
+  },
+  {
+    "uid": "HDNA0041_rep1",
+    "record_id": "HDNA0041",
+    "sequence_name": "pRW1704",
+    "label": "forming",
+    "sequence": "GAAGAAGAAGAAGAAGAAGAAGAAGAA",
+    "position": 4501659,
+    "original_position": 4498707
+  },
+  {
+    "uid": "HDNA0019_rep1",
+    "record_id": "HDNA0019",
+    "sequence_name": "H/Ri",
+    "label": "forming",
+    "sequence": "CCTCGAGACCTTTCCTTTCCTTTCCTTTCCTTTCCAGGTGACAACTCGAGCTC",
+    "position": 4574779,
+    "original_position": 4571800
+  },
+  {
+    "uid": "HDNA0008_rep1",
+    "record_id": "HDNA0008",
+    "sequence_name": "pCG32",
+    "label": "forming",
+    "sequence": "AAGGGAGAACGGGGTATAGGGGGAAGAGGGAA",
+    "position": 4578398,
+    "original_position": 4575366
+  },
+  {
+    "uid": "HDNA0045_rep1",
+    "record_id": "HDNA0045",
+    "sequence_name": "pRW1702 (also pRW1701)",
+    "label": "forming",
+    "sequence": "GAAGAAGAAGAATTCGAAGAAGAAGAA",
+    "position": 4634416,
+    "original_position": 4631352
+  }
+]
