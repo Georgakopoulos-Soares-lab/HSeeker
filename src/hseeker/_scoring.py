@@ -31,6 +31,7 @@ class _Scorer:
         self.v = 1.0  # max spacer-to-arm ratio
 
     def _discount(self, n: int) -> float:
+        n = min(n, 12)
         p = self.stacking_score ** (n + 1)
         return p if n + 1 < 2 else round(p / self.d, self.dv)
 
@@ -130,7 +131,7 @@ class _Scorer:
         return {
             "stacking_score": stacking_score,
             "pairing_score": pairing_score,
-            "total_score": total_score,
+            "total_score": max(total_score, 0),
             "putative_triplex": putative_triplex,
         }
 
