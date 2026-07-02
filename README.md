@@ -306,6 +306,7 @@ python -m hseeker -seq <FASTA> -out <PREFIX> [options]
 | `-mismatch FLOAT` | float | `0.10` | **Maximum mirror mismatch fraction** (0.0–1.0). Fraction of base positions in the arm where `dna[left] ≠ dna[right]` (i.e. the mirror is broken). `0.0` requires perfect mirror symmetry; `0.10` allows up to 10 % divergence. |
 | `-skipoverlap` | flag | *(off)* | **Skip overlap removal**. By default, overlapping hits are collapsed to the longest arm (ties broken by shortest spacer). Pass this flag to disable overlap removal (useful for downstream ML or analysis). |
 | `-score` | flag | *(on)* | **Apply thermodynamic stability scoring**. Enables stacking and pairing score computation for each hit. Pass `-no-score` to disable and keep only the core detection columns. |
+| `-at-threshold FLOAT` | float | `0.80` | **Left-arm AT-content filter**, applied before scoring. Hits whose left arm has AT content ≥ this value are dropped — AT-rich arms are dominated by weak A·A stacking and are unlikely to fold into stable H-DNA. Raise it (e.g. `1.5`) to effectively disable it. |
 | `-workers INT` | int | *(all cores)* | **Parallel worker threads**. The CLI uses `scan_fasta_parallel` internally and defaults to all available CPU cores. Set this to a lower value to cap CPU usage. |
 | `-v` | flag | *(off)* | **Verbose mode**. Prints progress information to `stderr`. Useful for monitoring large jobs. |
 
@@ -434,6 +435,15 @@ When scoring is enabled (default), each hit is passed through a thermodynamic st
 The scoring pass also produces a `putative_triplex` field — the motif sequence in `left_arm[spacer]right_arm` notation — whose arm/spacer boundaries may differ from the original detection because scoring re-optimises the boundaries within a local window to maximise predicted stability.
 
 Scoring can be disabled at the API level (`score=False`) or via the CLI flag `-no-score`, which removes the four scoring columns from the TSV output.
+
+### AT-content and homopolymer filtering
+
+Two post-detection filters remove hits that are unlikely to form real H-DNA:
+
+- **AT-content filter** (before scoring, `at_threshold` / `-at-threshold`, default `0.80`): drops hits whose left arm is ≥ 80% A/T. Since the right arm of a mirror repeat is the same bases in reverse, checking the left arm alone is sufficient.
+- **Homopolymer filter** (after scoring, `filter_homopolymers`, always on in the CLI): drops hits whose `putative_triplex` — arms plus spacer, brackets stripped — collapses to a single repeated base (poly-A, poly-G, ...). These carry no real mirror-repeat structure.
+
+Both are opt-in at the Python API level (`hseeker.scan_fasta(...)`, off by default) so existing integrations are unaffected; the CLI enables the AT filter by default at `0.80` and always applies the homopolymer filter when scoring is on.
 
 ### Overlap removal behaviour
 

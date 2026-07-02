@@ -32,6 +32,7 @@ def main() -> None:
             "  hseeker -seq test.fa -out test\n"
             "  hseeker -seq genome.fa -out genome -purity 1.0 -mismatch 0.0\n"
             "  hseeker -seq genome.fa -out genome -minrep 10 -purity 0.85 -v\n"
+            "  hseeker -seq genome.fa -out genome -at-threshold 0.7\n"
         ),
     )
 
@@ -54,6 +55,10 @@ def main() -> None:
                         help="Apply stability scoring (default: on)")
     parser.add_argument("-no-score", action="store_false", dest="score",
                         help="Disable stability scoring")
+    parser.add_argument("-at-threshold", type=float, default=0.8, metavar="FLOAT",
+                        help="Drop hits whose left-arm AT content is >= this value, "
+                             "applied before scoring (default: 0.80). AT-rich arms "
+                             "are unlikely to form stable H-DNA triplexes.")
     parser.add_argument("-workers",     type=int,   default=None,  metavar="INT",
                         help="Parallel worker threads (default: all CPU cores)")
     parser.add_argument("-purity-rmq", action="store_true",
@@ -84,6 +89,7 @@ def main() -> None:
         f"  Output: {out_path}\n"
         f"  minrep={args.minrep}  maxrep={args.maxrep}  maxspacer={args.maxspacer}\n"
         f"  purity={args.purity:.2f}  mismatch={args.mismatch:.2f}\n"
+        f"  at_threshold={args.at_threshold:.2f}\n"
         f"  workers={n_workers}",
         file=sys.stderr,
     )
@@ -99,6 +105,8 @@ def main() -> None:
         workers=n_workers,
         score=args.score,
         purity_rmq=args.purity_rmq,
+        at_threshold=args.at_threshold,
+        filter_homopolymers=True,
     )
 
     # Count distinct records for the summary

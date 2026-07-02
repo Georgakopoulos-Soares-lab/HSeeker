@@ -50,6 +50,45 @@ __all__ = [
 _SCORE_KEYS = ("stacking_score", "pairing_score", "total_score", "putative_triplex")
 
 
+def _filter_at_content(hits: list[dict], threshold: float) -> list[dict]:
+    """Drop hits whose left-arm AT content is >= *threshold*.
+
+    Applied before scoring: an arm dominated by A/T bases is unlikely to
+    stack into a stable triplex (poly-purine/poly-pyrimidine stacking
+    relies on G/A tracts), so these hits are pruned early to skip the
+    O(n^2) scoring pass on unpromising candidates. Only the left arm is
+    checked — for a mirror repeat the right arm is the same bases in
+    reverse order, so its AT content is identical (or within one
+    mismatch) and checking both would be redundant.
+    """
+    kept = []
+    for h in hits:
+        arm_length = h["arm_length"]
+        if arm_length == 0:
+            kept.append(h)
+            continue
+        at_count = sum(1 for b in h["left_arm"] if b in ("a", "t", "A", "T"))
+        if (at_count / arm_length) < threshold:
+            kept.append(h)
+    return kept
+
+
+def _filter_homopolymer_triplex(hits: list[dict]) -> list[dict]:
+    """Drop hits whose scored ``putative_triplex`` is a pure homopolymer run.
+
+    Applied after scoring. A putative triplex collapsing to a single
+    repeated base (poly-A, poly-G, ...) carries no real mirror-repeat
+    structure and is not expected to fold into H-DNA.
+    """
+    kept = []
+    for h in hits:
+        seq = (h.get("putative_triplex") or "").replace("[", "").replace("]", "")
+        if seq and all(b == seq[0] for b in seq):
+            continue
+        kept.append(h)
+    return kept
+
+
 def _apply_scoring(hits: list[dict]) -> list[dict]:
     """Apply thermodynamic stability scoring to each hit in-place.
 
@@ -88,6 +127,8 @@ def scan_sequence(
     seq_offset: int = 1,
     score: bool = True,
     purity_rmq: bool = False,
+    at_threshold: float | None = None,
+    filter_homopolymers: bool = False,
 ) -> list[dict]:
     """Scan a raw DNA string for H-DNA / triplex mirror repeat motifs.
 
@@ -123,6 +164,14 @@ def scan_sequence(
         Use an exact right-arm purity feasibility prefilter before extension
         (default False). This preserves output semantics while skipping
         center/spacer pairs that cannot satisfy the purity rule.
+    at_threshold : float | None
+        Drop hits whose left-arm AT content is >= this value (default None,
+        i.e. no filtering). Applied before scoring. AT-rich arms are
+        unlikely to form stable H-DNA triplexes.
+    filter_homopolymers : bool
+        Drop hits whose scored ``putative_triplex`` is a pure homopolymer
+        run, e.g. poly-A or poly-G (default False). Applied after scoring;
+        has no effect when ``score=False``.
 
     Returns
     -------
@@ -146,8 +195,12 @@ def scan_sequence(
         seq_offset=seq_offset,
         purity_rmq=purity_rmq,
     )
+    if at_threshold is not None and hits:
+        hits = _filter_at_content(hits, at_threshold)
     if score and hits:
         _apply_scoring(hits)
+        if filter_homopolymers:
+            hits = _filter_homopolymer_triplex(hits)
     return hits
 
 
@@ -221,6 +274,8 @@ def scan_fasta(
     remove_overlaps: bool = True,
     score: bool = True,
     purity_rmq: bool = False,
+    at_threshold: float | None = None,
+    filter_homopolymers: bool = False,
 ) -> list[dict]:
     """Scan every record in a FASTA file for H-DNA motifs.
 
@@ -235,7 +290,8 @@ def scan_fasta(
     ----------
     path : str | Path
         Path to a FASTA file (may contain multiple records).
-    minrep, maxrep, maxspacer, purity, mismatch, remove_overlaps, score :
+    minrep, maxrep, maxspacer, purity, mismatch, remove_overlaps, score,
+    at_threshold, filter_homopolymers :
         Same as :func:`scan_sequence`.
 
     Returns
@@ -257,12 +313,15 @@ def scan_fasta(
             seq_offset=offset,
             score=False,  # defer scoring to collect phase
             purity_rmq=purity_rmq,
+            at_threshold=at_threshold,
         )
         for h in hits:
             h["seq_id"] = seq_id
         results.extend(hits)
     if score and results:
         _apply_scoring(results)
+        if filter_homopolymers:
+            results = _filter_homopolymer_triplex(results)
     return results
 
 
@@ -277,6 +336,8 @@ def scan_fasta_iter(
     remove_overlaps: bool = True,
     score: bool = True,
     purity_rmq: bool = False,
+    at_threshold: float | None = None,
+    filter_homopolymers: bool = False,
 ) -> Generator[dict, None, None]:
     """Scan a FASTA file and yield hits one at a time (streaming).
 
@@ -301,6 +362,8 @@ def scan_fasta_iter(
             seq_offset=offset,
             score=score,  # score per-record for streaming
             purity_rmq=purity_rmq,
+            at_threshold=at_threshold,
+            filter_homopolymers=filter_homopolymers,
         )
         for h in hits:
             h["seq_id"] = seq_id
@@ -320,6 +383,8 @@ def scan_fasta_parallel(
     chunk_size: int = 1_000_000,
     score: bool = True,
     purity_rmq: bool = False,
+    at_threshold: float | None = None,
+    filter_homopolymers: bool = False,
 ) -> list[dict]:
     """Scan a FASTA file using a thread pool with intra-record chunk parallelism.
 
@@ -404,6 +469,7 @@ def scan_fasta_parallel(
             seq_offset=chunk_offset,
             score=False,
             purity_rmq=purity_rmq,
+            at_threshold=at_threshold,
         )
         for h in hits:
             h["seq_id"] = seq_id
@@ -461,5 +527,7 @@ def scan_fasta_parallel(
 
     if score and results:
         _apply_scoring(results)
+        if filter_homopolymers:
+            results = _filter_homopolymer_triplex(results)
 
     return results
