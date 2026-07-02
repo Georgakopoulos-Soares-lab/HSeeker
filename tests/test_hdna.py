@@ -1499,3 +1499,163 @@ def test_chr1_coordinate_invariant():
         if h["start"] + h["total_length"] - 1 != h["end"]
     ]
     assert not bad, f"{len(bad)} hits violate coordinate invariant"
+
+
+# ===========================================================================
+# 26. AT-content pre-filter & homopolymer post-filter
+#
+# HSeeker can optionally drop two classes of hits that are unlikely to fold
+# into real H-DNA: AT-rich arms (checked on left_arm, before scoring) and
+# putative_triplex sequences that collapse to a single repeated base, e.g.
+# poly-A / poly-G (checked after scoring). Both are opt-in (at_threshold
+# defaults to None, filter_homopolymers defaults to False) so existing
+# callers are unaffected; the CLI turns them on by default.
+# ===========================================================================
+
+POLY_A_SEQ = "A" * 30   # 100% AT-content left arm — dropped by AT filter
+POLY_G_SEQ = "G" * 30   # 0% AT-content but a homopolymer putative_triplex
+
+
+def test_at_filter_default_off_does_not_change_hit_count():
+    """at_threshold=None (default) must not alter scan_sequence output."""
+    default  = hseeker.scan_sequence(POLY_A_SEQ, minrep=6)
+    explicit = hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=None)
+    assert default == explicit
+
+
+def test_at_filter_drops_pure_at_arm():
+    """A pure-A arm has AT_content=1.0 and must be dropped at threshold=0.8."""
+    assert len(hseeker.scan_sequence(POLY_A_SEQ, minrep=6)) > 0
+    filtered = hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=0.8)
+    assert filtered == []
+
+
+def test_at_filter_keeps_low_at_arm():
+    """PURE_GA has 0% AT content — must survive any AT threshold <= 1.0."""
+    default  = hseeker.scan_sequence(PURE_GA, minrep=6)
+    filtered = hseeker.scan_sequence(PURE_GA, minrep=6, at_threshold=0.8)
+    assert len(filtered) == len(default)
+
+
+def test_at_filter_boundary_is_exclusive_below_threshold():
+    """AT_content >= threshold is dropped; AT_content < threshold is kept."""
+    hits = hseeker.scan_sequence(POLY_A_SEQ, minrep=6)
+    assert hits, "expected at least one hit on a pure-A run"
+    at_content = sum(1 for b in hits[0]["left_arm"] if b in "at") / hits[0]["arm_length"]
+    assert at_content == pytest.approx(1.0)
+    assert hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=at_content) == []
+    assert len(hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=at_content + 0.01)) > 0
+
+
+def test_homopolymer_filter_default_off_does_not_change_hit_count():
+    default  = hseeker.scan_sequence(POLY_G_SEQ, minrep=6)
+    explicit = hseeker.scan_sequence(POLY_G_SEQ, minrep=6, filter_homopolymers=False)
+    assert default == explicit
+
+
+def test_homopolymer_filter_drops_poly_g_triplex():
+    """POLY_G_SEQ scores to a putative_triplex of a single repeated 'g' — must be dropped."""
+    hits = hseeker.scan_sequence(POLY_G_SEQ, minrep=6)
+    assert hits and hits[0]["putative_triplex"], "expected a scored hit on a pure-G run"
+    filtered = hseeker.scan_sequence(POLY_G_SEQ, minrep=6, filter_homopolymers=True)
+    assert filtered == []
+
+
+def test_homopolymer_filter_keeps_mixed_triplex():
+    """GAMIR_SEQ's putative_triplex mixes G/A/T — must survive the homopolymer filter."""
+    default  = hseeker.scan_sequence(GAMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20)
+    filtered = hseeker.scan_sequence(
+        GAMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20, filter_homopolymers=True
+    )
+    assert len(filtered) == len(default)
+
+
+def test_homopolymer_filter_noop_when_score_false():
+    """filter_homopolymers requires putative_triplex, so it must be a no-op when score=False."""
+    unscored = hseeker.scan_sequence(POLY_G_SEQ, minrep=6, score=False, filter_homopolymers=True)
+    assert len(unscored) > 0
+
+
+def test_at_filter_applies_per_record_in_scan_fasta():
+    """scan_fasta must apply at_threshold to every record, not just the first."""
+    path = fasta_to_tmp([("poly_a", POLY_A_SEQ), ("ga", PURE_GA)])
+    try:
+        hits = hseeker.scan_fasta(str(path), minrep=6, at_threshold=0.8)
+        ids = {h["seq_id"] for h in hits}
+        assert "poly_a" not in ids
+        assert "ga" in ids
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def test_homopolymer_filter_applies_in_scan_fasta():
+    path = fasta_to_tmp([("poly_g", POLY_G_SEQ), ("gamir", GAMIR_SEQ)])
+    try:
+        hits = hseeker.scan_fasta(
+            str(path), minrep=6, purity=0.80, mismatch=0.20, filter_homopolymers=True
+        )
+        ids = {h["seq_id"] for h in hits}
+        assert "poly_g" not in ids
+        assert "gamir" in ids
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def test_at_filter_and_homopolymer_filter_apply_in_scan_fasta_parallel():
+    """Both filters must also work through the chunked/parallel entry point."""
+    path = fasta_to_tmp([("poly_a", POLY_A_SEQ), ("poly_g", POLY_G_SEQ), ("ga", PURE_GA)])
+    try:
+        hits = hseeker.scan_fasta_parallel(
+            str(path), minrep=6, at_threshold=0.8, filter_homopolymers=True
+        )
+        ids = {h["seq_id"] for h in hits}
+        assert "poly_a" not in ids
+        assert "poly_g" not in ids
+        assert "ga" in ids
+    finally:
+        path.unlink(missing_ok=True)
+
+
+def test_cli_default_at_threshold_drops_poly_a_record():
+    """The CLI defaults to at_threshold=0.80 and filter_homopolymers=True."""
+    path = fasta_to_tmp([("poly_a", POLY_A_SEQ), ("ga", PURE_GA)])
+    out_prefix = str(path.parent / "cli_at_filter")
+    tsv_path = Path(out_prefix + "_HDNA.tsv")
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "hseeker",
+             "-seq", str(path), "-out", out_prefix, "-minrep", "6"],
+            check=True, capture_output=True,
+        )
+        with open(tsv_path) as fh:
+            rows = list(csv.DictReader(fh, delimiter="\t"))
+        seq_ids = {row["seq_id"] for row in rows}
+        assert "poly_a" not in seq_ids
+        assert "ga" in seq_ids
+    finally:
+        path.unlink(missing_ok=True)
+        tsv_path.unlink(missing_ok=True)
+
+
+def test_cli_at_threshold_flag_is_configurable():
+    """Raising -at-threshold above the poly-A arm's AT content lets it through.
+
+    Scoring is disabled here so the always-on homopolymer post-filter (which
+    would also drop this poly-A hit) does not confound the AT-threshold check.
+    """
+    path = fasta_to_tmp([("poly_a", POLY_A_SEQ)])
+    out_prefix = str(path.parent / "cli_at_relaxed")
+    tsv_path = Path(out_prefix + "_HDNA.tsv")
+    try:
+        subprocess.run(
+            [sys.executable, "-m", "hseeker",
+             "-seq", str(path), "-out", out_prefix, "-minrep", "6",
+             "-at-threshold", "1.5", "-no-score"],
+            check=True, capture_output=True,
+        )
+        with open(tsv_path) as fh:
+            rows = list(csv.DictReader(fh, delimiter="\t"))
+        assert len(rows) > 0, "poly-A record should survive a >1.0 AT threshold"
+    finally:
+        path.unlink(missing_ok=True)
+        tsv_path.unlink(missing_ok=True)
