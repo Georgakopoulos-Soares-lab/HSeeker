@@ -105,29 +105,34 @@ class _Scorer:
         # subject to: new_spacer_length = 2*(al-R)+ll <= (R-L)*v
         best_score = -float("inf")
         best_pair: tuple[int, int] | None = None
+        best_stacking = 0.0
         for L in range(al):
             for R in range(min(L + self.min_al, al), al + 1):
                 if 2 * (al - R) + ll <= (R - L) * self.v:
-                    sub = scoring_array[L:R]
-                    stacked = self._calc_stacking(sub)
-                    cur = round(sum(pairing_scores[L:R]) + sum(stacked), 3)
+                    stacking = sum(self._calc_stacking(scoring_array[L:R]))
+                    cur = round(sum(pairing_scores[L:R]) + stacking, 3)
                     if cur > best_score:
                         best_score = cur
                         best_pair = (L, R)
+                        # Cache the winning window's stacking sum so we don't
+                        # recompute _calc_stacking() for best_pair after the
+                        # loop. Stacking is path-dependent (incorrect_tail
+                        # tracks consecutive matches), so it cannot be sliced
+                        # from a full-arm pass — but capturing it here at the
+                        # point of improvement is exact and avoids the extra
+                        # O(n) recompute.
+                        best_stacking = stacking
 
         if best_pair is None:
             raise ValueError("No valid arm window satisfies the spacer constraint")
 
         L, R = best_pair
-        sub_scoring = scoring_array[L:R]
-        stacking_scores = self._calc_stacking(sub_scoring)
-        stacking_score = sum(stacking_scores)
+        stacking_score = best_stacking
         pairing_score = sum(pairing_scores[L:R])
         total_score = round(stacking_score + pairing_score, 3)
 
         new_spacer = s1[R:] + s3 + s2[R:][::-1]
         putative_triplex = s1[L:R] + "[" + new_spacer + "]" + s2[L:R][::-1]
-
         return {
             "stacking_score": stacking_score,
             "pairing_score": pairing_score,
