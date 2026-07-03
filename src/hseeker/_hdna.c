@@ -118,7 +118,7 @@ static int min4_int(int a, int b, int c, int d)
 static int append_hit(
     HDNA_HIT **p_hits, int *p_capacity, int *p_ndx,
     int ctr, int sp, int best_k,
-    float best_mir, float best_ga, float best_ct,
+    float best_mir, float best_ga, float best_ct, int best_perfect,
     long seq_offset)
 {
     if (*p_ndx >= *p_capacity) {
@@ -141,8 +141,7 @@ static int append_hit(
     h->ga_pct = best_ga * 100.0f;
     h->ct_pct = best_ct * 100.0f;
     h->mirror_id = best_mir * 100.0f;
-    h->is_perfect = ((best_ga == 1.0f || best_ct == 1.0f)
-                     && best_mir == 1.0f) ? 1 : 0;
+    h->is_perfect = best_perfect;
     h->left_start_idx = left_start;
     h->spacer_start_idx = ctr + 1;
     h->right_start_idx = right_start;
@@ -279,6 +278,7 @@ static int findHDNA_core(
             float best_mir  = 0.0f;
             float best_ga   = 0.0f;
             float best_ct   = 0.0f;
+            int   best_perfect = 0;
 
             /* extend outward one base at a time */
             while (left_i >= 0 && right_j < total_bases && k < maxrep) {
@@ -308,6 +308,12 @@ static int findHDNA_core(
                         best_mir = 1.0f - (float)mismatches * inv_k;
                         best_ga  = (float)ga_count * inv_k;
                         best_ct  = (float)ct_count * inv_k;
+                        /* is_perfect from exact integer counts — avoids the
+                         * float32 rounding of best_ga (e.g. 61*(1.0f/61) !=
+                         * 1.0f) that spuriously demoted pure poly-GA/CT
+                         * perfect mirrors. */
+                        best_perfect = ((ga_count == k || ct_count == k)
+                                        && mismatches == 0) ? 1 : 0;
                     }
 
                     /* early exit: mismatch budget already fully consumed */
@@ -340,8 +346,7 @@ static int findHDNA_core(
                 h->ga_pct           = best_ga * 100.0f;
                 h->ct_pct           = best_ct * 100.0f;
                 h->mirror_id        = best_mir * 100.0f;
-                h->is_perfect       = ((best_ga == 1.0f || best_ct == 1.0f)
-                                       && best_mir == 1.0f) ? 1 : 0;
+                h->is_perfect       = best_perfect;
                 h->left_start_idx   = left_start;
                 h->spacer_start_idx = ctr + 1;
                 h->right_start_idx  = right_start;
@@ -440,6 +445,7 @@ static int findHDNA_purity_rmq_core(
             float best_mir  = 0.0f;
             float best_ga   = 0.0f;
             float best_ct   = 0.0f;
+            int   best_perfect = 0;
 
             while (left_i >= 0 && right_j < total_bases && k < maxrep) {
                 char lb = dna[left_i];
@@ -463,6 +469,9 @@ static int findHDNA_purity_rmq_core(
                         best_mir = 1.0f - (float)mismatches * inv_k;
                         best_ga  = (float)ga_count * inv_k;
                         best_ct  = (float)ct_count * inv_k;
+                        /* exact-integer is_perfect (see findHDNA_core) */
+                        best_perfect = ((ga_count == k || ct_count == k)
+                                        && mismatches == 0) ? 1 : 0;
                     }
 
                     if (mismatches > mismatch_budget) break;
@@ -474,7 +483,8 @@ static int findHDNA_purity_rmq_core(
 
             if (best_k >= minrep) {
                 if (append_hit(p_hits, p_capacity, &ndx, ctr, sp, best_k,
-                               best_mir, best_ga, best_ct, seq_offset) < 0)
+                               best_mir, best_ga, best_ct, best_perfect,
+                               seq_offset) < 0)
                     goto oom;
             }
         }

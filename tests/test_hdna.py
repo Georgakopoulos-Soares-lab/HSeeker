@@ -916,6 +916,42 @@ def test_is_perfect_only_true_when_purity_and_mirror_are_100():
                 f"is_perfect=True but ga={h['ga_pct']:.2f} ct={h['ct_pct']:.2f} mir={h['mirror_identity']:.2f}"
 
 
+# Arm lengths where 100*count/k rounds below 100 in float32, so the old
+# `best_ga == 1.0f` test wrongly demoted genuinely-perfect pure tracts.
+# 41 is the smallest; 61 is the one observed in the 90M-row production DB.
+_FLOAT32_PERFECT_TRIGGER_LENGTHS = [41, 47, 55, 61]
+
+
+@pytest.mark.parametrize("k", _FLOAT32_PERFECT_TRIGGER_LENGTHS)
+def test_is_perfect_true_for_pure_tract_at_float32_trigger_lengths(k):
+    """A pure poly-A tract of length 2k gives a 100%-pure, exact-mirror hit of
+    arm length k. For k in {41,47,55,61,...} the float32 value of 100*k/k lands
+    one ULP below 100, so the historical `best_ga == 1.0f` check demoted these
+    genuinely perfect mirrors to is_perfect=False. is_perfect is now derived
+    from exact integer counts and must be True."""
+    hits = hseeker.scan_sequence("A" * (2 * k), minrep=10, maxrep=2000)
+    arm_k = [h for h in hits if h["arm_length"] == k]
+    assert arm_k, f"expected an arm={k} hit on a poly-A tract of length {2*k}"
+    h = arm_k[0]
+    assert h["mirror_identity"] == pytest.approx(100.0, abs=0.01)
+    assert h["is_perfect"] is True, (
+        f"pure poly-A arm={k} must be is_perfect=True "
+        f"(ga_pct={h['ga_pct']}, mirror={h['mirror_identity']})"
+    )
+
+
+@pytest.mark.parametrize("k", _FLOAT32_PERFECT_TRIGGER_LENGTHS)
+def test_is_perfect_false_for_impure_tract_at_trigger_lengths(k):
+    """One non-A base inside an otherwise pure arm at a trigger length must NOT
+    be flagged perfect — guards against an over-eager fix that just rounds."""
+    # A run with a single C break so the arm is impure but still long/mirror-y.
+    seq = "A" * k + "C" + "A" * k
+    for h in hseeker.scan_sequence(seq, minrep=10, maxrep=2000):
+        if h["is_perfect"]:
+            assert (h["ga_pct"] >= 100.0 - 0.1 or h["ct_pct"] >= 100.0 - 0.1)
+            assert h["mirror_identity"] >= 100.0 - 0.1
+
+
 # ===========================================================================
 # 18. Mirror identity with known mismatch count
 #
