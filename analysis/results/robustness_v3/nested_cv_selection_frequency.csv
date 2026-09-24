@@ -1,0 +1,9 @@
+axis,value,times_selected,fraction_of_folds
+purity,0.85,100,1.0
+mismatch,0.1,60,0.6
+mismatch,0.15,40,0.4
+minrep,8,100,1.0
+maxspacer,10,77,0.77
+maxspacer,5,23,0.23
+filters,at,86,0.86
+filters,homopolymer,14,0.14

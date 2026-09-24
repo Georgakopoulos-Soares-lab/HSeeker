@@ -1,0 +1,131 @@
+record_id,sequence_name,label,record_type,family_id,split
+HDNA0001,pAA32,forming,experimental,fam:pAA32,eval
+HDNA0002,pGG32,forming,experimental,fam:pAA32,eval
+HDNA0003,pAG32,forming,experimental,fam:pAA32,train
+HDNA0004,pTG32,forming,experimental,fam:pAA32,eval
+HDNA0005,pAC32,forming,experimental,fam:pAA32,train
+HDNA0006,pGT32,forming,experimental,fam:pAA32,train
+HDNA0007,pGC32,forming,experimental,fam:pAA32,train
+HDNA0008,pCG32,forming,experimental,fam:pAA32,train
+HDNA0009,pCT32,forming,experimental,fam:pAA32,eval
+HDNA0010,pAT32,forming,experimental,fam:pAA32,train
+HDNA0011,pTA32,forming,experimental,fam:pAA32,train
+HDNA0012,pTT32,forming,experimental,fam:pAA32,train
+HDNA0013,pCC32,forming,experimental,fam:pAA32,train
+HDNA0014,pGA32,forming,experimental,fam:pAA32,eval
+HDNA0015,pCA32,forming,experimental,fam:pAA32,train
+HDNA0016,pTC32,forming,experimental,fam:pAA32,train
+HDNA0017,Con-2,forming,experimental,fam:Con-2,eval
+HDNA0018,H/CT,forming,experimental,fam:Con-2,train
+HDNA0019,H/Ri,forming,experimental,fam:H/CT,eval
+HDNA0020,GA/CT,non-forming,experimental,fam:Con-2,train
+HDNA0021,ΔCT/Ri,non-forming,experimental,fam:Con-2,eval
+HDNA0022,R1 (H-DNA buffer),forming,experimental,fam:R1 (H-DNA buffer),train
+HDNA0023,R2 (H-DNA buffer),forming,experimental,fam:R2 (H-DNA buffer),eval
+HDNA0024,R2-3′ (H-DNA buffer),forming,experimental,fam:R2,train
+HDNA0025,R2-5′ (H-DNA buffer),forming,experimental,fam:R2,train
+HDNA0027,H-33,forming,experimental,fam:c-MYC H-DNA motif,train
+HDNA0028,B-33,non-forming,experimental,fam:H-33,eval
+HDNA0029,"pCON (S1, pH 4.5)",non-forming,experimental,"fam:pCON (S1, pH 4.5)",train
+HDNA0030,"pcMyc (S1, pH 4.5)",forming,experimental,"fam:pcMyc (S1, pH 4.5)",train
+HDNA0031,"pMycAG (S1, pH 4.5)",non-forming,experimental,fam:pcMyc,train
+HDNA0038,GA-rich_Lyamichev-Mirkin-Frank-Kamenetskii,forming,experimental,fam:GA-rich_Lyamichev-Mirkin-Frank-Kamenetskii,train
+HDNA0040,TC18/AG18_Htun-Dahlberg,forming,experimental,fam:TC18/AG18_Htun-Dahlberg,train
+HDNA0041,pRW1704,forming,experimental,fam:pRW1704,train
+HDNA0042,pRW1412,forming,experimental,fam:pRW1704,train
+HDNA0043,pRW1415,forming,experimental,fam:pRW1704,train
+HDNA0044,pRW1402,forming,experimental,fam:pRW1404,eval
+HDNA0045,pRW1702 (also pRW1701),forming,experimental,fam:pRW1702 (also pRW1701),train
+HDNA0046,pRW1712,forming,experimental,fam:pRW1712,train
+HDNA0047,pRW1713,forming,experimental,fam:pRW1713,eval
+HDNA0048,pRW1714,forming,experimental,fam:pRW1714,train
+HDNA0049,pRW1404,forming,experimental,fam:pRW1404,train
+HDNA0050,pRW1411,forming,experimental,fam:pRW1411,eval
+HDNA0051,pRW1408,forming,experimental,fam:pRW1408,eval
+HDNA0052,pRW1410,forming,experimental,fam:pRW1410,train
+HDNA0053,pRW1405,non-forming,experimental,fam:pRW1405,train
+HDNA0054,poly-(dC)30,forming,experimental,fam:poly-(dC)30,train
+HDNA0055,GA32,forming,experimental,fam:GA32,train
+HDNA0056,AA32,forming,experimental,fam:AA32,eval
+HDNA0057,cMYC_NHE_Hisey2024,forming,experimental,fam:cMYC_NHE_Hisey2024,train
+HDNA0058,cMYC_NSE_ACCCTCCCC4,forming,experimental,fam:cMYC_NSE_ACCCTCCCC4,eval
+HDNA0059,BCL6_ClusterII_Pu,forming,experimental,fam:BCL6_ClusterII_Pu,train
+HDNA0060,FXN_GAA10,forming,experimental,fam:FXN_GAA10,train
+HDNA0061,FXN_GAA20,forming,experimental,fam:FXN_GAA20,eval
+HDNA0062,FXN_GAA33,forming,experimental,fam:FXN_GAA33,train
+HDNA0063,FXN_GAA66,forming,experimental,fam:FXN_GAA66,eval
+HDNA0064,CANVAS_AAGGG10,forming,experimental,fam:CANVAS_AAGGG10,train
+HDNA0065,XDP_CCCTCT10,forming,experimental,fam:XDP_CCCTCT10,train
+HDNA0066,CTC20_mouse,forming,experimental,fam:CTC20_mouse,train
+HDNA0067,CTC16_mouse,forming,experimental,fam:CTC16_mouse,train
+HDNA0068,TCCTC10_mouse,forming,experimental,fam:TCCTC10_mouse,eval
+HDNA0069,AG11_model,forming,experimental,fam:AG11_model,train
+HDNA0070,GA20_SV40,forming,experimental,fam:GA20_SV40,train
+HDNA0071,PKD1_PyRE_CT44,forming,experimental,fam:PKD1_PyRE_CT44,eval
+HDNA0072,GA16_sea_urchin_histone,forming,experimental,fam:GA16_sea_urchin_histone,eval
+HDNA0073,GAAA10_human,forming,experimental,fam:GAAA10_human,eval
+HDNA0074,GGAA10_human,forming,experimental,fam:GGAA10_human,train
+HDNA0075,SV40_GACT22,forming,experimental,fam:SV40_GACT22,train
+HDNA0076,TC17_Glover,forming,experimental,fam:TC17_Glover,train
+HDNA0077,TTCCC20_avian,forming,experimental,fam:TTCCC20_avian,train
+HDNA0078,gamma_globin_228_189,forming,experimental,fam:gamma_globin_228_189,train
+HDNA0079,PKD1_46bp_mirror,forming,experimental,fam:PKD1_46bp_mirror,train
+SYN0001,R2-5′ (H-DNA buffer)_mirrordisrupted,non-forming,synthetic,SYN:fam:R2,train
+SYN0002,pCG32_mirrordisrupted,non-forming,synthetic,SYN:fam:pAA32,eval
+SYN0003,pGT32_mirrordisrupted,non-forming,synthetic,SYN:fam:pAA32,eval
+SYN0004,pTT32_mirrordisrupted,non-forming,synthetic,SYN:fam:pAA32,eval
+SYN0005,pRW1712_mirrordisrupted,non-forming,synthetic,SYN:fam:pRW1712,train
+SYN0006,pCC32_mirrordisrupted,non-forming,synthetic,SYN:fam:pAA32,eval
+SYN0007,AA32_mirrordisrupted,non-forming,synthetic,SYN:fam:AA32,train
+SYN0008,"pcMyc (S1, pH 4.5)_mirrordisrupted",non-forming,synthetic,"SYN:fam:pcMyc (S1, pH 4.5)",train
+SYN0009,pAT32_mirrordisrupted,non-forming,synthetic,SYN:fam:pAA32,train
+SYN0010,H/Ri_mirrordisrupted,non-forming,synthetic,SYN:fam:H/CT,train
+SYN0011,pRW1713_mirrordisrupted,non-forming,synthetic,SYN:fam:pRW1713,train
+SYN0012,pTC32_mirrordisrupted,non-forming,synthetic,SYN:fam:pAA32,train
+SYN0013,pTA32_mirrordisrupted,non-forming,synthetic,SYN:fam:pAA32,train
+SYN0014,pCT32_mirrordisrupted,non-forming,synthetic,SYN:fam:pAA32,eval
+SYN0015,pTG32_mirrordisrupted,non-forming,synthetic,SYN:fam:pAA32,train
+SYN0016,pRW1714_mirrordisrupted,non-forming,synthetic,SYN:fam:pRW1714,train
+SYN0017,cMYC_NSE_ACCCTCCCC4_mirrordisrupted,non-forming,synthetic,SYN:fam:cMYC_NSE_ACCCTCCCC4,train
+SYN0018,pRW1415_mirrordisrupted,non-forming,synthetic,SYN:fam:pRW1704,train
+SYN0019,pRW1412_mirrordisrupted,non-forming,synthetic,SYN:fam:pRW1704,train
+SYN0020,pGA32_mirrordisrupted,non-forming,synthetic,SYN:fam:pAA32,train
+SYN0021,pCA32_dinucshuffle,non-forming,synthetic,SYN:fam:pAA32,train
+SYN0022,R1 (H-DNA buffer)_dinucshuffle,non-forming,synthetic,SYN:fam:R1 (H-DNA buffer),eval
+SYN0023,R2-3′ (H-DNA buffer)_dinucshuffle,non-forming,synthetic,SYN:fam:R2,train
+SYN0024,pRW1702 (also pRW1701)_dinucshuffle,non-forming,synthetic,SYN:fam:pRW1702 (also pRW1701),train
+SYN0025,pAG32_dinucshuffle,non-forming,synthetic,SYN:fam:pAA32,train
+SYN0026,pGG32_dinucshuffle,non-forming,synthetic,SYN:fam:pAA32,train
+SYN0027,gamma_globin_228_189_dinucshuffle,non-forming,synthetic,SYN:fam:gamma_globin_228_189,eval
+SYN0028,R2 (H-DNA buffer)_dinucshuffle,non-forming,synthetic,SYN:fam:R2 (H-DNA buffer),train
+SYN0029,pAC32_dinucshuffle,non-forming,synthetic,SYN:fam:pAA32,train
+SYN0030,cMYC_NHE_Hisey2024_dinucshuffle,non-forming,synthetic,SYN:fam:cMYC_NHE_Hisey2024,train
+SYN0031,random_matched_to_HDNA0042,non-forming,synthetic,SYN:random,train
+SYN0032,random_matched_to_HDNA0014,non-forming,synthetic,SYN:random,eval
+SYN0033,random_matched_to_HDNA0064,non-forming,synthetic,SYN:random,train
+SYN0034,random_matched_to_HDNA0009,non-forming,synthetic,SYN:random,eval
+SYN0035,random_matched_to_HDNA0075,non-forming,synthetic,SYN:random,train
+SYN0036,random_matched_to_HDNA0057,non-forming,synthetic,SYN:random,train
+SYN0037,random_matched_to_HDNA0059,non-forming,synthetic,SYN:random,train
+SYN0038,random_matched_to_HDNA0005,non-forming,synthetic,SYN:random,eval
+SYN0039,random_matched_to_HDNA0079,non-forming,synthetic,SYN:random,train
+SYN0040,random_matched_to_HDNA0010,non-forming,synthetic,SYN:random,train
+SYN0041,telomeric_(TTAGGG)4,non-forming,synthetic,SYN:G4,train
+SYN0042,G4_G3-tracts_TT-loops,non-forming,synthetic,SYN:G4,eval
+SYN0043,c-kit21_G4,non-forming,synthetic,SYN:G4,eval
+SYN0044,thrombin_aptamer_G4,non-forming,synthetic,SYN:G4,eval
+SYN0045,Z-DNA_(CG)8,non-forming,synthetic,SYN:ZDNA,train
+SYN0046,Z-DNA_(CG)10,non-forming,synthetic,SYN:ZDNA,train
+SYN0047,Z-DNA_(CG)12,non-forming,synthetic,SYN:ZDNA,train
+SYN0048,B-DNA_random_1,non-forming,synthetic,SYN:BDNA,eval
+SYN0049,B-DNA_random_2,non-forming,synthetic,SYN:BDNA,train
+SYN0050,B-DNA_random_3,non-forming,synthetic,SYN:BDNA,train
+SYN0051,B-DNA_random_4,non-forming,synthetic,SYN:BDNA,train
+SYN0052,B-DNA_random_5,non-forming,synthetic,SYN:BDNA,eval
+SYN0053,poly-A15,non-forming,synthetic,SYN:homopolymer,train
+SYN0054,poly-A30,non-forming,synthetic,SYN:homopolymer,train
+SYN0055,poly-T25,non-forming,synthetic,SYN:homopolymer,eval
+SYN0056,poly-T35,non-forming,synthetic,SYN:homopolymer,train
+SYN0057,perfect_mirror_balancedGC_1,non-forming,synthetic,SYN:mirror,eval
+SYN0058,perfect_mirror_balancedGC_2,non-forming,synthetic,SYN:mirror,eval
+SYN0059,perfect_mirror_balancedGC_3,non-forming,synthetic,SYN:mirror,train

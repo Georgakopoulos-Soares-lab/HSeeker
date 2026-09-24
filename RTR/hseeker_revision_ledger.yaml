@@ -1,0 +1,832 @@
+schema_version: 1
+last_updated: '2026-09-23'
+artifacts:
+  provenance_audit:
+    path: hdna_benchmark_experimental_v3.csv
+    status: verified
+    produced_by: AUDIT + curation (this session)
+    sha256: 01c7fbeb3f6f63005904dd513425d459b0afa1304f0480eb4ced0110b0b4fbcd
+    notes: 80 rows; 71 kept (65 forming / 6 non-forming); 59 primary / 12 secondary / 7 removed / 2 excluded; 0 low-tier rows
+      kept; 4 moderate-tier kept. Moved to the repository root 2026-09-23; this is the
+      provenance/audit record, NOT the file the benchmark scripts read.
+  plan_v2:
+    path: HSeeker_Reviewer_Answer_Plan_v2.md
+    status: verified
+    produced_by: AUDIT (this session)
+    notes: updated 2026-09-23 to reflect v3 curation numbers
+  balanced_v3:
+    path: hdna_benchmark_balanced_v3.csv
+    status: done
+    produced_by: SYN-1/2/3 (this session)
+    sha256: f4602d6453d0926c1eae10dd54311e9fad08afe2beb9e59a3a9a0153e3b2ad8c
+    notes: 130 rows; 65:65 balanced; 71 experimental + 59 synthetic (seed=20260922).
+      Moved to the repository root 2026-09-23 and adopted as THE benchmark input -
+      run_direct_sensitivity_analysis.py and run_injected_sensitivity_analysis.py both
+      default to it, filter to curation_decision=='kept', support
+      --subset all|experimental|synthetic, and record input_csv_sha256 per run.
+  synthetic_generator:
+    path: RTR/generate_synthetic_negatives.py
+    status: done
+    produced_by: SYN-1 (this session)
+    notes: seeded generator (20260922); 6 classes; structural validation only. Reads/writes
+      the benchmark CSVs at the repository root. Re-run 2026-09-23 and reproduced
+      hdna_benchmark_balanced_v3.csv byte-for-byte.
+  revision_graph:
+    path: hseeker_revision_graph.html
+    status: done
+    produced_by: graph build (this session)
+    notes: 71 nodes / 118 edges; interactive HTML + JSON + PNG preview
+decisions:
+- id: DEC-1
+  question: 'AG32-30nt (HDNA0033): relabel non-forming citing Rooney & Moore 1995, or exclude?'
+  status: resolved
+  decider: authors
+  resolution: 'Mooted: HDNA0033 removed with all low-confidence-tier records (author decision 2026-09-23).'
+  resolved_date: '2026-09-23'
+- id: DEC-2
+  question: 'FXN records (HDNA0060-0063): confirm intended citation (candidate: Wells 2008 FASEB J, PMID 18211957)?'
+  status: blocked_on_author
+  decider: authors
+  evidence: RTR/evidence/DEC-2_fxn_citation.md
+  evidence_date: '2026-09-23'
+  findings: >-
+    Current citation disproved two independent ways: cited_pmid 18024960 = Romney 2008 JBC
+    (C. elegans FTN-1 iron enhancer; likely FTN-1/FXN gene-symbol confusion) and cited_doi
+    10.1074/jbc.R700013200 = Samuel 2007 JBC innate-immunity minireview - two different
+    unrelated papers. The recorded title matches Rajeswari 2012 J Biosci 37:519-32
+    (PMID 22750988) more closely than the audit's candidate Wells 2008 FASEB J
+    (PMID 18211957); both are REVIEWS, so neither promotes these records to primary.
+    No primary source found for n=10/20/33/66: Sakamoto 1999 Mol Cell (PMID 10230399)
+    used 75-270 repeats and reports sticky DNA requires >59 repeats, so the 'forming'
+    label for GAA10/GAA20/GAA33 is itself unsupported by any source traced here.
+    Separately, all 4 records are marked verification_status=citation_corrected while
+    carrying NO correction - the only 4 rows in that state; this must be made truthful
+    whichever option is chosen.
+  options: 'A=Wells 2008; B=Rajeswari 2012; C=supply primary source (only route to primary
+    disposition); D=drop the 4 records (65->61 forming, forces rebalance)'
+- id: DEC-3
+  question: Add pRW1406=(TTC)8 as a new verified primary forming record?
+  status: blocked_on_author
+  decider: authors
+  evidence: RTR/evidence/DEC-3_pRW1406.md
+  evidence_date: '2026-09-23'
+  findings: >-
+    Hanvey 1988 JBC (PMID 2835375) full abstract retrieved and quoted. It names seven
+    inserts and states the five at 66-25% G+C adopt a non-B conformation best explained
+    by an intramolecular triple-stranded model. (TTC)8.(GAA)8 at 33% G+C is one of those
+    five, so BOTH its sequence and its forming label are established by the primary source.
+    Confirmed absent from the benchmark (exact and reverse-complement search over all 80
+    rows). All five existing Hanvey records' labels agree with the abstract. However the
+    abstract names only the vector pRW790, never construct numbers - the pRW#### mapping
+    comes from the same secondary document already shown corrupted for this study
+    (it listed pRW1406 with the (TCC)8 sequence). Recommend adding under a content-derived
+    name (Hanvey1988_(TTC)8) rather than re-importing the unverifiable plasmid number.
+    Second candidate G19.C19 is also missing but the abstract says its conformation
+    DIFFERS from the other five - recommend NOT adding it as forming (HDNA0080-class
+    label-scope risk).
+  options: 'A=add as Hanvey1988_(TTC)8, disposition primary (RECOMMENDED); B=add as pRW1406;
+    C=do not add. A or B => 72 kept (66/6), 60 primary, balanced 132 at 66:66, regenerate
+    synthetic negatives'
+- id: DEC-4
+  question: Confirm MYCAA (HDNA0034) promotion to primary after figure-level check of Belotserkovskii 2007 Fig. 2?
+  status: resolved
+  decider: authors
+  resolution: 'Mooted: HDNA0034 removed with all low-confidence-tier records (author decision 2026-09-23).'
+  resolved_date: '2026-09-23'
+- id: DEC-5
+  question: 'Canonical benchmark parameters: adopt manuscript-stated values (mismatch=0.15, minrep=8, explicit Triplex args)
+    as canonical and re-run?'
+  status: pending
+  decider: authors
+  note: "Recommended: yes \u2014 the reviewed manuscript's values are canonical; record any number changes."
+actions:
+- id: WS0-A1
+  workstream: WS0_benchmark_freeze
+  reviewer_items:
+  - R2.2
+  - R3.1
+  - R3.5
+  status: pending
+  depends_on: []
+  inputs:
+  - hdna_benchmark_experimental_v3.csv
+  outputs:
+  - hdna_benchmark_experimental_v3.csv (frozen)
+  verify: 71 kept (65 forming / 6 non-forming); 0 low-tier rows kept; 59 primary / 12 secondary; all primary rows construct-level
+    with valid citation; pCON terminal C corrected; 22 PMIDs + 2 DOIs corrected; family_id/study_id/evidence_level columns
+    present; SHA-256 recorded.
+  evidence: experimental v3 CSV curation_decision column
+  sha256: {}
+- id: WS0-A2
+  workstream: WS0_benchmark_freeze
+  reviewer_items:
+  - R3.5
+  status: pending
+  depends_on:
+  - WS0-A1
+  inputs:
+  - hdna_benchmark_experimental_v3.csv
+  outputs:
+  - ledger decisions DEC-2, DEC-3, DEC-5 resolved (DEC-1 and DEC-4 mooted by low-tier removal)
+  verify: decisions section updated with date+decider for DEC-2, DEC-3, DEC-5; DEC-1 and DEC-4 marked resolved/mooted
+  evidence: ''
+- id: WS0-A3
+  workstream: WS0_benchmark_freeze
+  reviewer_items:
+  - R3.5
+  status: pending
+  depends_on:
+  - WS0-A1
+  - WS0-A2
+  inputs:
+  - hdna_benchmark_experimental_v3.csv
+  outputs:
+  - manuscript Methods inclusion-criteria paragraph
+  verify: paragraph matches audit dispositions exactly
+  evidence: ''
+- id: WS1-A1
+  workstream: WS1_code_fixes
+  reviewer_items:
+  - R2.8
+  status: verified
+  depends_on: []
+  inputs:
+  - setup.py (lines 21-49)
+  outputs:
+  - setup.py with opt-in HSEEKER_NATIVE (_native_requested)
+  - README.md 'Optional: CPU-native optimization'
+  verify: default Linux source build log contains no -march=native; CI wheels build
+  verified_result: >-
+    PASS. Reviewer's reading confirmed exactly: ARCHFLAGS is macOS/cibuildwheel-only, so
+    _is_cross_compiling() returned False for every Linux build and -march=native was
+    applied unconditionally, producing non-portable binaries (SIGILL risk on other hosts).
+    Now opt-in via HSEEKER_NATIVE=1, with the cross-compile guard retained as a second
+    safety net. Real build matrix (grep -c march=native on forced rebuilds):
+    default=0, HSEEKER_NATIVE=1 -> 1, HSEEKER_NATIVE=0 -> 0,
+    HSEEKER_NATIVE=1+ARCHFLAGS=-arch ppc64 -> 0. cibuildwheel sets no HSEEKER_NATIVE,
+    so CI wheels are now built portably. Suite 149 passed / 3 skipped after restoring
+    a default build.
+  evidence: RTR/evidence/WS1-A1_march_native_optin.md
+  last_updated: '2026-09-23'
+- id: WS1-A2
+  workstream: WS1_code_fixes
+  reviewer_items:
+  - R2.9
+  status: verified
+  depends_on: []
+  inputs:
+  - src/hseeker/_hdna.c (lines 54-61
+  - 659-681)
+  outputs:
+  - src/hseeker/_hdna.c counters declared HDNA_THREAD_LOCAL (portable MSVC/gcc/clang macro)
+  - tests/test_hdna.py::test_profiling_counters_are_thread_local
+  verify: parallel chr1-chunk scan returns identical hits; counters per-call if kept
+  verified_result: >-
+    PASS, and the defect was larger than the reviewer stated. Measured pre-fix: 8 concurrent
+    scans of IDENTICAL input returned 8 distinct totals, none correct, max inner_iters
+    6,993,228 vs single-thread baseline 1,823,346 = 3.84x inflation - counts were not just
+    lost but cross-contaminated between threads. Fixed with thread-local storage rather than
+    atomics, deliberately: the counters increment in the innermost loop (1.8M times/scan) so
+    an atomic RMW per iteration would tax the hot path the paper's speed claim rests on.
+    Post-fix all 8 threads report exactly the baseline. Parallel results verified unchanged:
+    workers=2/4/8/16, 3 repeats each, digest identical to serial. Regression test confirmed
+    to FAIL on the pre-fix build and pass on the fixed build. Suite 150 passed / 3 skipped.
+    No published manuscript number is affected - these counters are diagnostic-only with no
+    consumer anywhere in the repo; benchmark timings come from /usr/bin/time -v and
+    perf_counter.
+  evidence: RTR/evidence/WS1-A2_profiling_counters.md
+  last_updated: '2026-09-23'
+- id: WS1-A3
+  workstream: WS1_code_fixes
+  reviewer_items:
+  - R2.10
+  status: verified
+  depends_on: []
+  inputs:
+  - src/hseeker/_hdna.c (629-752)
+  - src/hseeker/_scoring.py (76-136)
+  outputs:
+  - src/hseeker/__init__.py _normalize_sequence_case() applied in scan_sequence
+  - tests/test_hdna.py 7 assertions updated + 2 regression tests added
+  verify: left_arm/right_arm/full_sequence/putative_triplex all uppercase; string round-trip test passes
+  verified_result: >-
+    PASS. Reviewer's reading confirmed (_hdna.c:633 tolower vs _scoring.py:77 upper).
+    Fixed at the Python boundary; C core unchanged so detection carries no risk.
+    full_sequence == putative_triplex bases now True (was False). Field-by-field
+    comparison of raw C output vs public API: hit counts equal, ZERO non-sequence
+    field differences, sequence fields equal ignoring case - this change cannot move
+    any benchmark number. AT and homopolymer filters verified unaffected (both were
+    already case-safe). All four public paths + CLI TSV verified on upper/lower/mixed
+    input. Suite 149 passed / 3 skipped (was 147/3).
+  evidence: RTR/evidence/WS1-A3_case_normalization.md
+  last_updated: '2026-09-23'
+- id: WS1-A4
+  workstream: WS1_code_fixes
+  reviewer_items:
+  - R2.11
+  status: verified
+  depends_on: []
+  inputs:
+  - src/hseeker/app.py
+  - webapp/main.py
+  outputs:
+  - src/hseeker/app.py deleted (Streamlit front-end removed entirely)
+  - pyproject.toml [app] extra: streamlit dropped (now pandas, plotly)
+  - README.md section 4 'Web interface' (single FastAPI entry)
+  - .github/copilot-instructions.md [app] extra description corrected
+  - RTR/HSeeker_Reviewer_Answer_Plan_v2.md WS1-A4 row + R2.11 response corrected
+  verify: no streamlit reference anywhere in the shipped tree; one web entry point only
+  resolution_change: >-
+    Author decision 2026-09-23 superseded the planned rename: Streamlit is REMOVED entirely
+    rather than renamed. Stronger answer to R2.11 - there is now only one front-end instead
+    of two distinguishable ones. History shows app.py -> streamlit_app.py -> deleted.
+  verified_result: >-
+    PASS. grep for 'streamlit' across the shipped tree (excluding the RTR archive, which
+    quotes the reviewer verbatim and must not be altered) returns NONE. Package builds and
+    imports with streamlit uninstalled; hseeker.app and hseeker.streamlit_app both absent;
+    pip install -e '.[app]' resolves cleanly with the dependency dropped. [app] extra
+    retained because pandas/plotly are real FastAPI webapp dependencies used by the
+    Dockerfile's first stage. Deployment path unchanged (Dockerfile:42 uvicorn
+    webapp.main:app). Plan doc corrected in both places so the response letter cannot claim
+    'renamed'. Suite 150 passed / 3 skipped. Caveat: the web front-end is not covered by the
+    test suite (unchanged by this action), so verification is import/dependency resolution,
+    syntax and absence of stale references - not a live HTTP check.
+  evidence: RTR/evidence/WS1-A4_streamlit_removal.md
+  last_updated: '2026-09-23'
+- id: WS1-A5
+  workstream: WS1_code_fixes
+  reviewer_items:
+  - R2.2
+  status: verified
+  depends_on: []
+  inputs:
+  - analysis/scripts/run_direct_sensitivity_analysis.py
+  - analysis/hdna_detection_benchmark.ipynb
+  outputs:
+  - run_direct_sensitivity_analysis.py docstring rewritten for benchmark v3
+  - notebook cell 4 (missing-file merge) replaced by an explanatory markdown note
+  - notebook cell 6 FASTA header fields migrated to v3 columns
+  verify: notebook runs end-to-end or merge cell removed; no '54 sequences' text remains
+  verified_result: >-
+    PASS. No '54 sequences'/'54 experimentally curated' text remains outside the revision
+    archive. hseeker_additional_motifs.csv is absent from the repo AND from every commit, so
+    the notebook failed at cell 4 for anyone reproducing it - the exact R2.2 complaint;
+    removed the cell rather than inventing the file, since benchmark v3 is now the single
+    curated source, leaving a markdown note explaining the removal. IMPORTANT self-caught
+    defect: repointing the notebook at v3 had silently broken cell 6, which wrote FASTA
+    headers from first_author/year - columns that exist in the old CSV but NOT in v3
+    (KeyError); header now uses record_id/sequence_name/record_type/label. Data path
+    EXECUTED, not just parsed: 130 records written, 65 forming / 65 non_forming, headers
+    verified. nbformat validates (49 cells). Scope limit: only load + FASTA cells were run;
+    downstream cells need the E. coli genome and are TACC-bound (WS2-A1).
+  evidence: RTR/evidence/WS1-A5_stale_docstring_and_notebook.md
+  last_updated: '2026-09-23'
+- id: WS2-A1
+  workstream: WS2_benchmark_pipeline
+  reviewer_items:
+  - R2.2
+  - R2.6
+  - R3.11
+  status: pending
+  depends_on:
+  - WS0-A1
+  - WS1-A3
+  - DEC-5
+  inputs:
+  - hdna_benchmark_experimental_v3.csv
+  - hdna_benchmark_balanced_v3.csv
+  outputs:
+  - analysis/benchmark_config.json
+  - updated run_direct/run_injected scripts reading the config
+  verify: both arms' metadata.json report identical parameter blocks; filters explicit; mismatch/minrep/triplex args match
+    manuscript
+  evidence: run_direct_sensitivity_analysis.py:99-141; __main__.py:97-110
+- id: WS2-A2
+  workstream: WS2_benchmark_pipeline
+  reviewer_items:
+  - R2.7
+  - R3.1
+  status: in_progress
+  ci_work: >-
+    DONE 2026-09-23 for HSeeker: every reported figure now carries Wilson intervals for
+    sensitivity/specificity, a record-level bootstrap CI for MCC, AND a family-cluster
+    bootstrap CI that resamples whole families rather than rows - the 'resample families,
+    not rows' requirement of this action. Both interval families are reported together,
+    never one instead of the other: the record-level interval is R2.7's interval on the
+    observed sample, the cluster interval is R3.2's question of what happens if the
+    FAMILIES had differed. Estimator validated by construction: with every record placed
+    in its own group the cluster CI collapses to exactly the record-level CI
+    ([0.876,0.985] both). STILL OPEN: NPV/PPV are computed but the tool-vs-tool
+    comparison and its difference CIs are not - R/Triplex is unavailable in this
+    environment, so no comparative claim is yet supported.
+  prework: >-
+    PROVISIONAL baseline run 2026-09-23 - see RTR/evidence/WS2-PRE_hseeker_baseline_v3.md.
+    First HSeeker result ever produced on benchmark v3 (all deposited results in
+    analysis/results/ date from 2026-06-24 on the OLD 80-row CSV, pre-filter-commit code).
+    Balanced n=130: sens 0.969 spec 0.938 MCC 0.908 AUC 0.963. Experimental n=71: sens 0.969
+    spec 0.833 MCC 0.749. KEY FINDING for DEC-5/D-4: all 4 false positives are homopolymers
+    (poly-A20/A30, poly-T25/T35) - exactly what the production CLI filters remove and the
+    direct script's library defaults do not. Either filter alone drives specificity to 1.000
+    (MCC 0.908 -> 0.955); the full production config gives sens 0.938 / spec 1.000 /
+    MCC 0.940. So the filter switch alone decides whether the headline specificity is 0.938
+    or 1.000 - D-4 must be pinned before any number is quoted. Both false negatives
+    (HDNA0058, HDNA0078) are pyrimidine-rich tandem DIRECT repeats, not mirror repeats -
+    explain explicitly in WS2-A5. NOT WS2-A2: pre-DEC-5 parameters, benchmark not frozen,
+    HSeeker-only (no R/Triplex in that environment), no CIs, no family-aware evaluation.
+  depends_on:
+  - WS2-A1
+  inputs:
+  - analysis/benchmark_config.json
+  outputs:
+  - summary_metrics_v2.csv with 95% CIs (Wilson for proportions; cluster bootstrap by family for MCC and tool differences);
+    NPV added
+  verify: CI columns present; unit test recomputes one Wilson interval by hand
+  evidence: run_direct_sensitivity_analysis.py:191-207
+- id: WS2-A3
+  workstream: WS2_benchmark_pipeline
+  reviewer_items:
+  - R3.2
+  - R3.3
+  status: in_progress
+  depends_on:
+  - WS2-A1
+  inputs:
+  - hdna_benchmark_experimental_v3.csv with family_id/study_id
+  outputs:
+  - lofo_metrics.csv
+  - loso_metrics.csv; out-of-fold Youden threshold evaluation
+  verify: no reported confusion matrix uses a threshold selected on its own rows
+  progress: >-
+    DONE 2026-09-23 for the DETECTION CALL; the stability-score threshold half remains open.
+    Implemented all three schemes R3.2 names, meeting its 'ideally' bar not its minimum:
+    leave-one-family-out (54 groups), leave-one-study-out (27 groups), and both collapsed
+    variants. Leakage-safe grouping: synthetic negatives generated from an experimental
+    positive INHERIT that positive's family and study (40 of 59 do), so holding out
+    fam:pAA32 cannot leave its own mirror-disrupted mutant in the training portion.
+    fam:pAA32 - the pXY32 series the reviewer names by name - is a single group of 34 of
+    the 130 records. RESULT: the manuscript's pre-specified parameters win under every
+    scheme - LOFO/LOSO sens 0.954 spec 0.985 MCC 0.939, vs per-fold tuned 0.895,
+    script_default 0.908, production_cli 0.856. KEY INSIGHT verified not assumed: LOFO,
+    LOSO and full-data evaluation are NUMERICALLY IDENTICAL (TP62 FN3 TN64 FP1) because
+    with parameters fixed HSeeker's call depends only on the record's own sequence -
+    nothing is fitted, so grouping CANNOT bias the point estimate. What family structure
+    actually affects is PRECISION, exactly as R3.2 says ('inflate apparent statistical
+    power'): the family-cluster CI is 1.26x wider than the record-level CI
+    ([0.845,0.988] vs [0.877,0.985]), ratio 0.91-1.61 across all 14 reported rows.
+    Collapsed-per-family (the literal 'at minimum') is reported but NOT recommended as
+    primary: it leaves 45 forming / 9 non-forming because synthetics collapse away with
+    their source positive, reinstating the imbalance the balanced set removes; the
+    class-preserving variant (n=74, MCC 0.889) is the better figure.
+  evidence: RTR/evidence/WS2-A3_family_aware_validation.md
+  outputs_deposited: analysis/results/grouped_validation_v3/
+  script: analysis/scripts/run_grouped_validation.py
+  last_updated: '2026-09-23'
+- id: WS2-A4
+  workstream: WS2_benchmark_pipeline
+  reviewer_items:
+  - R2.1
+  status: done
+  depends_on:
+  - WS2-A1
+  inputs:
+  - hdna_benchmark_experimental_v3.csv
+  outputs:
+  - hdna_benchmark_balanced_v3.csv (60 synthetic negatives, seed=20260922)
+  verify: 130 rows; 65:65 balanced; 6 classes (mirror-disrupted, dinuc shuffle, random, other-structure, homopolymer, perfect-mirror);
+    0 H-DNA-competent synthetic rows; no exact/revcomp duplicates; never filtered by HSeeker predictions
+  evidence: generate_synthetic_negatives.py output + validation checks
+- id: WS2-A5
+  workstream: WS2_benchmark_pipeline
+  reviewer_items:
+  - R2.1
+  - R3.1
+  - R3.5
+  status: pending
+  depends_on:
+  - WS2-A2
+  - WS2-A3
+  inputs:
+  - frozen benchmark CSVs
+  outputs:
+  - per-record prediction tables on primary and primary+secondary sets
+  - with audit explanations attached to each FP/FN
+  verify: every FP/FN has an audit-consistent explanation or is flagged unexplained
+  evidence: hdna_benchmark_experimental_v3.csv
+- id: WS3-A1
+  workstream: WS3_comparators
+  reviewer_items:
+  - R3.6
+  status: in_progress
+  depends_on:
+  - WS0-A1
+  inputs:
+  - hdna_benchmark_balanced_v3.csv
+  - NeSSie source (github.com/B3rse/nessie)
+  outputs:
+  - nessie_benchmark.csv + build/run commands
+  verify: documented parameters; outputs deposited
+  progress: >-
+    BUILD DONE 2026-09-23, RUN STILL BLOCKED on WS0-A1. NeSSie builds from source at commit
+    dbe6cb2d13050d9b9877b3ffd317bb746143f21a (2018-06-26) via make. Target-class finding that
+    changes how R3.6 must be answered: NeSSie -M reports k-mers that are THEMSELVES
+    mirror-symmetric and -T reports purine-rich k-mers; neither models an arm-spacer-arm
+    motif. Measured: canonical H-DNA positive HDNA0002/pGG32 yields NO -M hit at k=8, while
+    poly-A20 does. Output is motif string/counts/indexes with no per-locus score and no
+    arm/spacer decomposition, so NeSSie cannot be scored as a drop-in H-DNA classifier - an
+    explicit hit-to-call mapping rule or a target-class caveat is mandatory. This is the
+    'technical limitation' R3.6 asks to be documented.
+  evidence: RTR/evidence/WS3-A1_A2_comparator_builds.md
+  last_updated: '2026-09-23'
+- id: WS3-A2
+  workstream: WS3_comparators
+  reviewer_items:
+  - R3.6
+  status: in_progress
+  depends_on:
+  - WS0-A1
+  inputs:
+  - hdna_benchmark_balanced_v3.csv
+  - non-B_gfa local runner (github.com/abcsFrederick/non-B_gfa)
+  outputs:
+  - nbmst_benchmark.csv + hit-to-call mapping rule
+  verify: mapping from nBMST motif hit to classification stated in Methods; outputs deposited
+  progress: >-
+    BUILD DONE 2026-09-23, RUN STILL BLOCKED on WS0-A1. non-B_gfa builds at commit
+    a891b59a4f262c83f990739d5802863e6c621175 (2026-06-22); its Mirror_Repeat module maps
+    directly onto HSeeker (-minMRrep ~ minrep, -maxMRspacer ~ maxspacer), making it the
+    closer of the two comparators. OPERATIONAL DEFECT FOUND: gfa has a fixed-size path
+    buffer and dies with '*** buffer overflow detected ***' on long absolute paths,
+    producing no output; it must be invoked from inside the working directory with SHORT
+    RELATIVE paths - this must reach Methods or the TACC run will fail on deep scratch
+    paths. First comparison on 4 sequences confirms the plan's concern empirically: the MR
+    Score column is literally 'NA' (motif geometry, not a propensity score), so a hit-to-call
+    rule is mandatory; nBMST MISSED pcMyc (HDNA0030), a canonical H-DNA former HSeeker
+    detects; and both tools call poly-A20 a mirror repeat, which HSeeker's production
+    homopolymer filter drops - a concrete illustration for R2.6. NOTE this 4-sequence smoke
+    test is an interface check, NOT a benchmark: it supports no performance claim, and the
+    RTR's existing 'nBMST performance lower than ours' sentence remains blocked.
+  evidence: RTR/evidence/WS3-A1_A2_comparator_builds.md
+  last_updated: '2026-09-23'
+- id: WS3-A3
+  workstream: WS3_comparators
+  reviewer_items:
+  - R3.6
+  - R3.12
+  status: pending
+  depends_on:
+  - WS3-A1
+  - WS3-A2
+  - WS2-A2
+  inputs:
+  - all comparator outputs
+  outputs:
+  - harmonized Key Points/Results claims
+  verify: no comparative claim lacks a verified supporting output; unsupported nBMST sentence removed from RTR
+  evidence: ''
+- id: WS4-A1
+  workstream: WS4_robustness
+  reviewer_items:
+  - R3.7
+  status: pending
+  depends_on:
+  - WS2-A1
+  inputs:
+  - run_injected_sensitivity_analysis.py --overlap-fraction
+  outputs:
+  - overlap_sweep.csv for fractions 0.5-0.95
+  verify: tool rankings reported at each threshold; conclusion stated
+  evidence: run_injected_sensitivity_analysis.py:471
+- id: WS4-A2
+  workstream: WS4_robustness
+  reviewer_items:
+  - R3.9
+  status: pending
+  depends_on:
+  - WS2-A1
+  inputs:
+  - public switches in __init__.py:118-204; _scoring.py subscores
+  outputs:
+  - ablation_metrics.csv: detection-only / +AT / +homopolymer / pairing-only / pairing+stacking / full
+  verify: each ablation reproducible from the pinned config with one component toggled
+  evidence: src/hseeker/__init__.py:53-89; src/hseeker/_scoring.py
+- id: WS4-A3
+  workstream: WS4_robustness
+  reviewer_items:
+  - R3.9
+  status: in_progress
+  depends_on:
+  - WS2-A1
+  inputs:
+  - hdna_benchmark_experimental_v3.csv
+  outputs:
+  - parameter_sweep.csv: purity 0.85-1.0
+  - mismatch 0.0-0.15
+  - minrep 8-12
+  - maxspacer 5-15
+  verify: sensitivity/specificity/MCC per setting; one-at-a-time around canonical config
+  primary_estimate: >-
+    Repeated stratified 5-fold nested CV (20 repeats, every record held out once per
+    repeat, pooled out-of-fold over all 130 records). Design fixed a priori, NOT chosen
+    by comparing results - picking a flattering partition would reintroduce R3.3's
+    circularity at the split level. RESULT: the manuscript's own pre-specified parameters
+    (mismatch 0.15, minrep 8, purity 0.90, maxspacer 10, both filters) give
+    sens 0.954 / spec 0.985 / MCC 0.939 [0.877, 0.985] and BEAT per-fold tuning
+    (MCC 0.909 [0.857, 0.985]); script_default 0.908, production_cli 0.856. Tuning adds
+    selection variance without signal. THIS is the configuration to report: best
+    performing AND most defensible, because nothing was selected on the data, so R3.3
+    does not apply to it at all. Selection-frequency across 100 outer folds: minrep=8 and
+    purity=0.85 in 100% of folds, some composition filter in 100% (AT 86% / homopolymer
+    14%), maxspacer=10 in 77%, mismatch=0.10 in only 60% - mismatch is the least settled
+    axis, exactly the one DEC-5 asks about, and the fixed 0.15 wins out of fold.
+    CV correctness: exact partition of all 130 records in every one of 20x5 folds, all
+    folds class-balanced within 1, every pooled confusion sums to 130, selection-frequency
+    totals 100 per axis. Zero-width across-repeat intervals for FIXED configs are expected,
+    not a defect (a fixed config predicts each record identically regardless of fold), so
+    record-level bootstrap CIs were added for the headline numbers.
+  progress: >-
+    DONE 2026-09-23 for the detection-parameter half of R3.9; PROVISIONAL (pre-freeze,
+    pre-DEC-5) and the scoring-component ablation half remains open as WS4-A2.
+    Design per author instruction: 65:65 balanced set only, SEQUENCE-level stratified
+    70/30 split (train 90 at 45:45, eval 40 at 20:20, seed 20260923), full factorial
+    576 configs (purity x mismatch x minrep x maxspacer x filter-state), selection by
+    max MCC on TRAIN only with a deterministic simplicity-preferring tie-break,
+    evaluated once on the held-out split. Upgraded from the plan's one-at-a-time sweep
+    to full factorial because compute was negligible (14.7 s for the whole matrix).
+    HEADLINE: tuning does NOT reliably beat the shipped default - over 200 repeated
+    splits the median tuned-minus-default eval MCC is exactly +0.0000 (95% [-0.0955,
+    +0.1001]), winning 99/200, tied 43, losing 58. The surface is broad: 108 of 576
+    configs lie within 0.05 MCC of the maximum and 75 tie at it. Parameter importance
+    by spread in median eval MCC: minrep 0.278 (dominant) > mismatch 0.166 >
+    maxspacer 0.083 > filter-state 0.060 > purity 0.041. The three filter states are
+    indistinguishable from each other and all beat 'none', consistent with every false
+    positive being a homopolymer. INFORMS DEC-5: mismatch=0.15, the manuscript's stated
+    value, has the best median eval MCC (0.860), and the manuscript's full stated
+    configuration ties the tuned one on held-out data (MCC 0.951) - so adopting the
+    manuscript values as canonical is supported by data, not just by consistency.
+    CORRECTNESS: 10 checks pass including determinism (byte-identical re-run), grid
+    completeness, hand-recomputed Wilson CI, and 6 grid cells recomputed from direct
+    hseeker calls. Two initial FAILs were defects in the CHECKING code (label
+    'non_forming' vs normalised 'non-forming'; rounded-vs-unrounded MCC comparison),
+    both re-verified after correction and recorded rather than quietly fixed.
+    PARITY CAVEAT: this is sequence-level by instruction, so it does NOT answer R3.2.
+    Leakage measured, not assumed - of 40 eval records, 24 share a family with train,
+    8 have a >=90% identical train record, and 7 synthetic negatives have their source
+    record in train. The held-out estimate is therefore optimistic relative to a
+    family-aware design and must not be presented as answering R3.2.
+  evidence: RTR/evidence/WS4-A3_parameter_robustness.md
+  outputs_deposited: analysis/results/robustness_v3/ (grid_train_metrics.csv,
+    grid_eval_metrics.csv, selected_vs_reference.csv, split_manifest.csv,
+    leakage_audit.csv, repeated_split_stability.csv, metadata.json)
+  script: analysis/scripts/run_parameter_robustness.py
+  last_updated: '2026-09-23'
+- id: WS4-A4
+  workstream: WS4_robustness
+  reviewer_items:
+  - R3.10
+  status: pending
+  depends_on:
+  - WS2-A1
+  inputs:
+  - remove_overlaps=False candidate sets
+  outputs:
+  - overlap_selection_comparison.csv: longest-arm vs highest-score
+  verify: concordance reported on benchmark and chr1; production rule changed only if justified
+  evidence: src/hseeker/_hdna.c:499-558
+- id: WS5-A1
+  workstream: WS5_genome_scale_validation
+  reviewer_items:
+  - R2.3
+  - R3.8
+  status: pending
+  depends_on:
+  - WS2-A1
+  inputs:
+  - analysis/results/chr1/chr1_hseeker_16threads_scored.tsv
+  - S1-END-seq human triplex loci (GSE204808/GSE203632)
+  outputs:
+  - chr1_vs_s1endseq_enrichment.csv + figure
+  verify: composition-matched control intervals (GC + purine content, length); enrichment statistic with CI
+  evidence: ''
+- id: WS5-A2
+  workstream: WS5_genome_scale_validation
+  reviewer_items:
+  - R3.8
+  status: pending
+  depends_on:
+  - WS5-A1
+  inputs:
+  - mouse S1-seq GSE197669 (fallback)
+  outputs:
+  - mouse-genome HSeeker run + enrichment
+  - only if WS5-A1 unusable
+  verify: same-species comparison; document why human data were unusable if fallback taken
+  evidence: ''
+- id: WS5-A3
+  workstream: WS5_genome_scale_validation
+  reviewer_items:
+  - R2.3
+  - R3.7
+  status: pending
+  depends_on:
+  - WS5-A1
+  inputs:
+  - manuscript Figure 3 + caption
+  outputs:
+  - reframed genomic-context recovery text
+  verify: E. coli experiment nowhere framed as biological validation
+  evidence: ''
+- id: WS6-A1
+  workstream: WS6_manuscript_sync
+  reviewer_items:
+  - all
+  status: pending
+  depends_on:
+  - WS2-A5
+  - WS3-A3
+  - WS4-A1
+  - WS4-A2
+  - WS4-A3
+  - WS4-A4
+  - WS5-A1
+  inputs:
+  - all verified outputs
+  outputs:
+  - revised manuscript + response letter
+  verify: every number in manuscript/letter appears in a status=verified output file
+  evidence: ''
+- id: WS6-A2
+  workstream: WS6_manuscript_sync
+  reviewer_items:
+  - R2.4
+  - R3.4
+  - R2.6
+  status: pending
+  depends_on:
+  - WS0-A3
+  inputs:
+  - manuscript Discussion
+  outputs:
+  - Limitations subsection
+  verify: covers heuristic score, fixed penalties, no backbone geometry, assay-condition heterogeneity, benchmark size, filter
+    provenance
+  evidence: ''
+- id: WS6-A3
+  workstream: WS6_manuscript_sync
+  reviewer_items:
+  - R2.5
+  status: pending
+  depends_on: []
+  inputs:
+  - manuscript Methods/Results
+  outputs:
+  - sensitivity/complexity results moved to Results
+  verify: compiled manuscript shows result statements only in Results
+  evidence: ''
+- id: WS6-A4
+  workstream: WS6_manuscript_sync
+  reviewer_items:
+  - R3.11
+  status: pending
+  depends_on: []
+  inputs:
+  - manuscript; benchmarks/ and analysis/results/chr1/ artifacts
+  outputs:
+  - extrapolation labeled; Data Availability rewritten; optional full-hg38 run
+  verify: no unlabeled whole-genome runtime claim; deposited artifacts referenced
+  evidence: ''
+- id: WS6-A5
+  workstream: WS6_manuscript_sync
+  reviewer_items:
+  - R3.12
+  status: pending
+  depends_on:
+  - WS3-A3
+  inputs:
+  - manuscript Key Points/Discussion/Figure 1
+  outputs:
+  - moderated claims; terminology discipline; simplified figures
+  verify: the three challenged phrases removed or qualified; putative/predicted usage consistent
+  evidence: ''
+- id: WS6-A6
+  workstream: WS6_manuscript_sync
+  reviewer_items:
+  - R2.1
+  - R2.4
+  - R3.1
+  - R3.6
+  - R3.7
+  status: pending
+  depends_on:
+  - WS6-A1
+  inputs:
+  - RTR draft
+  outputs:
+  - completed responses for the five unfinished items
+  verify: no placeholder, note-to-self, or unsupported claim remains in the response letter
+  evidence: ''
+- id: CUR-1
+  workstream: WS2_benchmark_v3
+  reviewer_items:
+  - R3.5
+  - R3.1
+  status: done
+  depends_on:
+  - AUDIT-1
+  inputs:
+  - hdna_experimental_sequences_final.csv
+  - provenance audit (AUDIT-1)
+  outputs:
+  - hdna_benchmark_experimental_v3.csv
+  verify: 80 rows = 71 kept / 7 removed / 2 excluded; kept = 65 forming / 6 non-forming;
+    every non-kept row carries a written curation_justification; 0 low-tier rows kept
+  verified_result: >-
+    Re-verified 2026-09-23 in this repo: 80 rows, curation_decision = 71 kept / 7 removed /
+    2 excluded; kept split 65 forming / 6 non-forming; 59 primary / 12 secondary.
+    sha256 01c7fbeb3f6f63005904dd513425d459b0afa1304f0480eb4ced0110b0b4fbcd.
+    NOTE this action is NOT the WS0-A1 freeze: the citation corrections (22 PMIDs, 2 DOIs)
+    are recorded in corrected_pmid/corrected_doi but NOT applied to cited_pmid/cited_doi,
+    and the pCON terminal-C fix (register D-9) is not applied - HDNA0029 is still 31 nt.
+    WS0-A1 remains open for exactly that work.
+  evidence: hdna_benchmark_experimental_v3.csv curation_decision/curation_justification columns
+  last_updated: '2026-09-23'
+- id: SYN-1
+  workstream: WS2_benchmark_v3
+  reviewer_items:
+  - R2.1
+  status: done
+  depends_on:
+  - CUR-1
+  inputs:
+  - hdna_benchmark_experimental_v3.csv
+  outputs:
+  - RTR/generate_synthetic_negatives.py (seed 20260922)
+  verify: six classes per the reviewer R2.1 menu; seed fixed; all parameters in-script
+  verified_result: >-
+    59 synthetic negatives across 6 classes: 20 mirror-disrupted mutants, 10 dinucleotide
+    shuffles, 10 random GC/length-matched, 12 other-structure (4 G4 / 3 Z-DNA / 5 B-DNA),
+    4 poly-A/T, 3 perfect-mirror balanced-GC. Generator re-run 2026-09-23 from its new
+    location and reproduced the delivered CSV BYTE-FOR-BYTE, so the seed and pipeline are
+    genuinely deterministic.
+  evidence: RTR/generate_synthetic_negatives.py
+  last_updated: '2026-09-23'
+- id: SYN-2
+  workstream: WS2_benchmark_v3
+  reviewer_items:
+  - R2.1
+  status: done
+  depends_on:
+  - SYN-1
+  inputs:
+  - synthetic candidate sequences
+  outputs:
+  - structural validation columns in hdna_benchmark_balanced_v3.csv
+  verify: no H-DNA-competent synthetic row (strong mirror arm>=8 at identity>=0.80 AND
+    purine-rich strand); no exact or reverse-complement duplicate; never filtered by
+    HSeeker's own predictions (avoids circular benchmarking)
+  verified_result: >-
+    Re-run 2026-09-23 - 'H-DNA-competent synthetic rows (must be []): []'. Max residual
+    strong-mirror identity 0.78 (< 0.80) across all perturbation/random classes. Independent
+    dedup check over all 130 sequences found 0 exact and 0 reverse-complement duplicates.
+  evidence: RTR/generate_synthetic_negatives.py (validation printed by the script on each run)
+  last_updated: '2026-09-23'
+- id: SYN-3
+  workstream: WS2_benchmark_v3
+  reviewer_items:
+  - R2.1
+  - R3.1
+  status: done
+  depends_on:
+  - SYN-2
+  inputs:
+  - kept experimental records + validated synthetic negatives
+  outputs:
+  - hdna_benchmark_balanced_v3.csv
+  verify: 130 rows at 65:65; 71 experimental + 59 synthetic; experimental rows identical to
+    the kept rows of the experimental v3 CSV
+  verified_result: >-
+    Re-verified 2026-09-23: 130 rows, 65 forming / 65 non-forming, 71 experimental + 59
+    synthetic. The 71 experimental rows match the kept rows of hdna_benchmark_experimental_v3
+    with ZERO field differences. sha256
+    f4602d6453d0926c1eae10dd54311e9fad08afe2beb9e59a3a9a0153e3b2ad8c. This file is now the
+    repo's benchmark: both analysis scripts default to it and record its sha256 per run.
+  evidence: hdna_benchmark_balanced_v3.csv
+  last_updated: '2026-09-23'
+- id: AUDIT-1
+  workstream: WS0_benchmark_freeze
+  reviewer_items:
+  - R3.5
+  - R3.2
+  status: verified
+  depends_on: []
+  inputs:
+  - hdna_experimental_sequences_final.csv
+  outputs:
+  - hdna_benchmark_experimental_v3.csv
+  - hdna_benchmark_balanced_v3.csv
+  - generate_synthetic_negatives.py
+  - hseeker_revision_graph.html
+  verify: 80 rows audited; 71 kept (65/6); 59 primary / 12 secondary / 7 removed / 2 excluded; all primary rows cited; 4 low-tier
+    + 1 moderate-tier-weakest records removed by author decision; balanced benchmark 130 rows at 65:65
+  evidence: sequence analysis + PubMed/Crossref verification + Wang 2004 Fig 1A image + Rooney 1995 template match + Belotserkovskii
+    2007 design match + Hanvey 1988 abstracts
+  last_updated: '2026-09-23'

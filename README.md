@@ -113,6 +113,21 @@ pip install .
 
 A C compiler (GCC, Clang, or MSVC) is required when building from source. The C extension compiles automatically during `pip install`.
 
+#### Optional: CPU-native optimization
+
+By default the extension is compiled **portably**, so the result can be copied to
+or shared with any machine of the same platform. To tune the binary to the CPU of
+the machine you are building on, opt in explicitly:
+
+```bash
+HSEEKER_NATIVE=1 pip install .
+```
+
+This adds `-march=native`. The resulting binary is **not portable** — running it on
+a host lacking the same instruction-set extensions can abort with an illegal
+instruction — so use it only for a build that stays on the machine that produced
+it, never for a wheel you intend to distribute. It is ignored when cross-compiling.
+
 ### Development install
 
 ```bash
@@ -175,6 +190,17 @@ hseeker -seq genome.fa -out relaxed -purity 0.90 -mismatch 0.10
 # Verbose output, longer arms only
 hseeker -seq genome.fa -out long -minrep 10 -maxrep 1000 -v
 ```
+
+### Web interface
+
+There is a single web front-end: the **FastAPI** application in `webapp/main.py`,
+which serves the online tool and is what the Docker image runs.
+
+```bash
+uvicorn webapp.main:app --host 0.0.0.0 --port 8000
+```
+
+It is not required to use the library or the CLI.
 
 ---
 

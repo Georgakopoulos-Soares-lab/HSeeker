@@ -611,4 +611,4 @@ The Docker image will pick up the new versions automatically on the next `docker
 
 ### Updating the `[app]` extra in `pyproject.toml`
 
-The `[project.optional-dependencies]` section has an `app` extra (currently `streamlit` and `plotly`) that is used by the Dockerfile's first stage (`pip install ".[app]"`). This is separate from `webapp/requirements.txt`. If you add a new Python import to `webapp/main.py`, add the package to **both** `webapp/requirements.txt` (for local dev) and the `[app]` extra in `pyproject.toml` (for Docker builds).
+The `[project.optional-dependencies]` section has an `app` extra (currently `pandas` and `plotly`) that is used by the Dockerfile's first stage (`pip install ".[app]"`). This is separate from `webapp/requirements.txt`. If you add a new Python import to `webapp/main.py`, add the package to **both** `webapp/requirements.txt` (for local dev) and the `[app]` extra in `pyproject.toml` (for Docker builds).

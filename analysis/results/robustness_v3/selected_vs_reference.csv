@@ -1,0 +1,5 @@
+config_name,purity,mismatch,minrep,maxspacer,filters,n,TP,FN,TN,FP,sensitivity,sens_CI95_lo,sens_CI95_hi,specificity,spec_CI95_lo,spec_CI95_hi,precision,NPV,F1,accuracy,MCC,MCC_CI95_lo,MCC_CI95_hi
+SELECTED (train-tuned),0.85,0.1,8,10,at,40,19,1,20,0,0.95,0.7639,0.9911,1.0,0.8389,1.0,1.0,0.9524,0.9744,0.975,0.9512,0.8498,1.0
+script_default,0.9,0.1,8,10,none,40,19,1,19,1,0.95,0.7639,0.9911,0.95,0.7639,0.9911,0.95,0.95,0.95,0.95,0.9,0.7472,1.0
+production_cli,0.9,0.1,10,10,both,40,18,2,20,0,0.9,0.699,0.9721,1.0,0.8389,1.0,1.0,0.9091,0.9474,0.95,0.9045,0.7671,1.0
+manuscript_stated,0.9,0.15,8,10,both,40,20,0,19,1,1.0,0.8389,1.0,0.95,0.7639,0.9911,0.9524,1.0,0.9756,0.975,0.9512,0.8498,1.0

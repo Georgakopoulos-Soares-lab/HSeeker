@@ -51,9 +51,32 @@ static const unsigned char BT[256] = {
     ['C']=2, ['c']=2, ['T']=2, ['t']=2,
 };
 
-/* ── profiling counters (zeroed per call, exposed via Python) ──────────── */
-static long long prof_inner_iters = 0;     /* total inner while-body executions  */
-static long long prof_ctr_sp_pairs = 0;    /* how many (ctr, sp) pairs explored */
+/* ── profiling counters ────────────────────────────────────────────────────
+ *
+ * These are diagnostic only. They must be thread-local: py_scan_sequence()
+ * releases the GIL around the core scan (see Py_BEGIN_ALLOW_THREADS below), and
+ * scan_fasta_parallel() runs many chunk scans concurrently on a thread pool, so
+ * plain static globals were mutated by several threads at once — losing counts
+ * and letting concurrent scans corrupt each other's totals.
+ *
+ * Thread-local storage is used rather than atomics deliberately: these counters
+ * are incremented in the innermost scan loop, where an atomic RMW per iteration
+ * would slow the hot path that this tool exists to keep fast. Each thread now
+ * accumulates privately, and prof_reset()/profiling_info() act on the calling
+ * thread's own copy, so a value read after a scan describes that thread's work.
+ */
+#if defined(_MSC_VER)
+#  define HDNA_THREAD_LOCAL __declspec(thread)
+#elif defined(__GNUC__) || defined(__clang__)
+#  define HDNA_THREAD_LOCAL __thread
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#  define HDNA_THREAD_LOCAL _Thread_local
+#else
+#  define HDNA_THREAD_LOCAL   /* single-threaded fallback */
+#endif
+
+static HDNA_THREAD_LOCAL long long prof_inner_iters = 0;   /* inner while-body executions */
+static HDNA_THREAD_LOCAL long long prof_ctr_sp_pairs = 0;  /* (ctr, sp) pairs explored    */
 
 static void prof_reset(void) {
     prof_inner_iters  = 0;

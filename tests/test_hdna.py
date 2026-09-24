@@ -270,8 +270,8 @@ def test_seq_offset_does_not_change_arm_sequences():
         hits = hseeker.scan_sequence(GAMIR_SEQ, minrep=6, seq_offset=off)
         arm7 = [h for h in hits if h["arm_length"] == 7]
         if arm7:
-            assert arm7[0]["left_arm"]  == "gggaaat"
-            assert arm7[0]["right_arm"] == "taaaggg"
+            assert arm7[0]["left_arm"]  == "GGGAAAT"
+            assert arm7[0]["right_arm"] == "TAAAGGG"
 
 
 # ===========================================================================
@@ -562,11 +562,11 @@ def test_gamir_start_end_coordinates():
 
 
 def test_gamir_left_arm_sequence():
-    assert _gamir_hit()["left_arm"] == "gggaaat"
+    assert _gamir_hit()["left_arm"] == "GGGAAAT"
 
 
 def test_gamir_right_arm_sequence():
-    assert _gamir_hit()["right_arm"] == "taaaggg"
+    assert _gamir_hit()["right_arm"] == "TAAAGGG"
 
 
 def test_gamir_ga_pct():
@@ -639,8 +639,8 @@ def test_ct_arm_ct_pct_exceeds_ga_pct():
 
 def test_ct_arm_arm_sequences():
     h = _ctmir_hit()
-    assert h["left_arm"]  == "cccttta"
-    assert h["right_arm"] == "atttccc"
+    assert h["left_arm"]  == "CCCTTTA"
+    assert h["right_arm"] == "ATTTCCC"
 
 
 def test_ct_arm_coordinates():
@@ -743,11 +743,37 @@ def test_mixed_case_same_as_lower():
            len(hseeker.scan_sequence(mixed.lower(), minrep=6))
 
 
-def test_output_sequences_are_always_lowercase():
-    for h in hseeker.scan_sequence(GAMIR_SEQ.upper(), minrep=6):
-        assert h["left_arm"]      == h["left_arm"].lower()
-        assert h["right_arm"]     == h["right_arm"].lower()
-        assert h["full_sequence"] == h["full_sequence"].lower()
+def test_output_sequences_are_always_uppercase():
+    """R2.10: every public sequence field is uppercase, whatever the input case.
+
+    Previously the C core emitted lowercase arms while the scorer emitted an
+    uppercase putative_triplex, so a plain == between them silently failed.
+    """
+    for source in (GAMIR_SEQ.upper(), GAMIR_SEQ.lower(), "gGgAaAtTaAaGgG"):
+        for h in hseeker.scan_sequence(source, minrep=6):
+            assert h["left_arm"]      == h["left_arm"].upper()
+            assert h["right_arm"]     == h["right_arm"].upper()
+            assert h["full_sequence"] == h["full_sequence"].upper()
+            assert h["spacer"]        == h["spacer"].upper()
+
+
+def test_sequence_fields_comparable_with_putative_triplex():
+    """R2.10: the bug the reviewer reported — cross-field string comparison."""
+    for h in hseeker.scan_sequence(GAMIR_SEQ.lower(), minrep=6):
+        triplex_bases = h["putative_triplex"].replace("[", "").replace("]", "")
+        assert triplex_bases, "expected a scored hit"
+        # every base of the reconstructed triplex must come from the same alphabet
+        assert set(triplex_bases) <= set(h["full_sequence"])
+
+
+def test_case_of_input_does_not_change_output_fields():
+    """The same motif in any input case yields byte-identical sequence fields."""
+    upper = hseeker.scan_sequence(GAMIR_SEQ.upper(), minrep=6)
+    lower = hseeker.scan_sequence(GAMIR_SEQ.lower(), minrep=6)
+    assert len(upper) == len(lower)
+    for hu, hl in zip(upper, lower):
+        for key in ("left_arm", "right_arm", "full_sequence", "spacer"):
+            assert hu[key] == hl[key]
 
 
 # ===========================================================================
@@ -1423,6 +1449,35 @@ def test_parallel_determinism():
         p.unlink(missing_ok=True)
 
 
+def test_profiling_counters_are_thread_local():
+    """R2.9: profiling counters must not be shared across concurrent scans.
+
+    The core scan runs with the GIL released, so when the counters were plain
+    static globals, concurrent scans incremented the same words: counts were
+    both lost and cross-contaminated (measured up to 3.8x inflation on 8
+    threads). Each thread must now observe exactly the single-threaded total
+    for the same input.
+    """
+    import concurrent.futures as cf
+
+    from hseeker import _hdna
+
+    seq = ("GGGAAAGGGGAGGGTATAGGGAGGGGAAAGGG" + "ACGT" * 500) * 4
+
+    def scan_and_read(_):
+        hseeker.scan_sequence(seq, minrep=10, purity_rmq=True)
+        return _hdna.profiling_info()
+
+    baseline = scan_and_read(0)
+    assert baseline["ctr_sp_pairs"] > 0, "expected a non-trivial scan"
+
+    with cf.ThreadPoolExecutor(max_workers=8) as ex:
+        observed = list(ex.map(scan_and_read, range(8)))
+
+    assert {o["ctr_sp_pairs"] for o in observed} == {baseline["ctr_sp_pairs"]}
+    assert {o["inner_iters"] for o in observed} == {baseline["inner_iters"]}
+
+
 # ===========================================================================
 # 25. Real-genome regression  (hg38 chr1 — requires benchmarks/data/chr1.fa)
 #
@@ -1541,7 +1596,7 @@ def test_at_filter_boundary_is_exclusive_below_threshold():
     """AT_content >= threshold is dropped; AT_content < threshold is kept."""
     hits = hseeker.scan_sequence(POLY_A_SEQ, minrep=6)
     assert hits, "expected at least one hit on a pure-A run"
-    at_content = sum(1 for b in hits[0]["left_arm"] if b in "at") / hits[0]["arm_length"]
+    at_content = sum(1 for b in hits[0]["left_arm"].lower() if b in "at") / hits[0]["arm_length"]
     assert at_content == pytest.approx(1.0)
     assert hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=at_content) == []
     assert len(hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=at_content + 0.01)) > 0
@@ -1554,7 +1609,7 @@ def test_homopolymer_filter_default_off_does_not_change_hit_count():
 
 
 def test_homopolymer_filter_drops_poly_g_triplex():
-    """POLY_G_SEQ scores to a putative_triplex of a single repeated 'g' — must be dropped."""
+    """POLY_G_SEQ scores to a putative_triplex of a single repeated base — must be dropped."""
     hits = hseeker.scan_sequence(POLY_G_SEQ, minrep=6)
     assert hits and hits[0]["putative_triplex"], "expected a scored hit on a pure-G run"
     filtered = hseeker.scan_sequence(POLY_G_SEQ, minrep=6, filter_homopolymers=True)

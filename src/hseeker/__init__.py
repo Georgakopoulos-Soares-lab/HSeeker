@@ -50,6 +50,30 @@ __all__ = [
 _SCORE_KEYS = ("stacking_score", "pairing_score", "total_score", "putative_triplex")
 
 
+#: Public hit fields that carry DNA sequence text.
+_SEQUENCE_FIELDS = ("left_arm", "spacer", "right_arm", "full_sequence")
+
+
+def _normalize_sequence_case(hits: list[dict]) -> list[dict]:
+    """Uppercase every public sequence field in-place.
+
+    The C core lowercases its working copy of the input, so the arm/spacer
+    fields it emits are lowercase, while ``putative_triplex`` comes back from
+    the scorer in uppercase. Mixing the two made a plain ``==`` between, say,
+    ``full_sequence`` and ``putative_triplex`` fail for no visible reason.
+    Uppercase is normalised here, at the Python boundary, so every public
+    entry point is consistent regardless of the case of the input.
+
+    The empty-spacer sentinel ``"."`` is unaffected.
+    """
+    for h in hits:
+        for key in _SEQUENCE_FIELDS:
+            value = h.get(key)
+            if value is not None:
+                h[key] = value.upper()
+    return hits
+
+
 def _filter_at_content(hits: list[dict], threshold: float) -> list[dict]:
     """Drop hits whose left-arm AT content is >= *threshold*.
 
@@ -182,7 +206,9 @@ def scan_sequence(
         ``right_arm``, ``full_sequence``, and (if ``score=True``)
         ``stacking_score``, ``pairing_score``, ``total_score``,
         ``putative_triplex``.
-        Coordinates are 1-based and inclusive.
+        Coordinates are 1-based and inclusive. All sequence fields are
+        returned in uppercase regardless of input case, so they can be
+        compared directly with each other and with ``putative_triplex``.
     """
     hits = _hdna.scan_sequence(
         seq,
@@ -195,6 +221,8 @@ def scan_sequence(
         seq_offset=seq_offset,
         purity_rmq=purity_rmq,
     )
+    if hits:
+        _normalize_sequence_case(hits)
     if at_threshold is not None and hits:
         hits = _filter_at_content(hits, at_threshold)
     if score and hits:

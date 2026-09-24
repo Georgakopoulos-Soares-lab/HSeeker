@@ -1,0 +1,1494 @@
+{
+  "nodes": [
+    {
+      "id": "R1",
+      "type": "reviewer_item",
+      "label": "R1: HSeeker, an algorithm for systematic H-DNA sequence identificaion, is\u2026",
+      "title": "HSeeker, an algorithm for systematic H-DNA sequence identificaion, is well presented, its structural features recognized are properly made clear and tested, a suitable comparison with the two well known competitor tools is done and shows the strong performance, Results are nicely separated from an intelligent discussion; All data and scripts are made fully available; language is nice and well written manuscript. --> nothing to change in this reviewer\u00b4s opinion.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R2.1",
+      "type": "reviewer_item",
+      "label": "R2.1: The authors show the time efficiency and scalability of\u2026",
+      "title": "1. The authors show the time efficiency and scalability of their approach, but they fail to unequivocally show the discriminating power of the tool - the main reason is the size of the benchmark dataset - 79 cases with only 9 negative. The class imbalance makes any accuracy comparison unreliable - the model which always answers 'true' on this dataset would have a similar accuracy. Therefore the argument, that the model has not worse metrics than other models is not convincing. I understand, that the problem might be the sequences, which do not form the H-DNA structure. One way to deal with it is to try the tool on random sequences, or those, which have structures in PDB already and there might be seen they do not form H-DNA. If the tool fail on such a simple test, than its discriminating power is small. Another step is to test mirror sequences. If there are no more than 9 such sequences, one might try to create artificial structures using BoltzGen, or RFDiffusion. Alternatively, one might artificially perturb the positive cases in such way to disrupt formation of H-DNA. Also, including poly-A, or similar cases, which are known not to form H-DNA should be included, as a hard test if the implementation really covers this case. One could also use sequences with other known structures, like B-DNA, or DNA quadruplexes.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R2.2",
+      "type": "reviewer_item",
+      "label": "R2.2: The results are non-reproducible, as the sequences cannot be\u2026",
+      "title": "2. The results are non-reproducible, as the sequences cannot be retrieved from the supplement. It would be much better if the sequences would be given as a csv file, which would be much easier to parse. Also, it would be good if in the repo there was a script to run the analysis on the 79 test cases.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R2.3",
+      "type": "reviewer_item",
+      "label": "R2.3: The results on introducing the sequences into E.Coli genome\u2026",
+      "title": "3. The results on introducing the sequences into E.Coli genome are not convincing. In particular, the experiment does not prove the tool finds the H-DNA, but rather retrieves correctly the sequences on which it is fitted to work good. But the \\\"genetic context\\\" might disallow to create H-DNA entirely in those cases. Also, were there any other cases obtained in the modified E.Coli genome? In general, to strengthen the analysis, the authors might run their tool not on the modified E.Coli genome, but on a genome which was tested to contain non B-DNA sequences. For example in the paper of Kouzine (ref 4) such a analysis was done. If the set of sequences found by HSeek would be a subset of all non-B-DNA sequences, that would be a biologically sound result! Minor things:",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R2.4",
+      "type": "reviewer_item",
+      "label": "R2.4: The thermodynamical approach is interesting, but it is a\u2026",
+      "title": "4. The thermodynamical approach is interesting, but it is a major simplification. The geometry of the DNA backbone is not included, the energy of the structure is not just the algebraic sum, the mismatch have different values (as authors already note), not universally equal 5kcal/mol etc. The authors should be honest about the limitations of the tool. In general, there should be a section devoted to tool limitation. We added the following in the discussion and the updated text below:",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R2.5",
+      "type": "reviewer_item",
+      "label": "R2.5: The complexity and sensitivity analyses are in my opinion\u2026",
+      "title": "5. The complexity and sensitivity analyses are in my opinion results, not methods, so should be moved there.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R2.6",
+      "type": "reviewer_item",
+      "label": "R2.6: The same 79-sequence dataset is used to define the\u2026",
+      "title": "6. The same 79-sequence dataset is used to define the empirical filters and used next to retrieve the sequences. So the tool is overfitted to these exact sequences. If not fixed by the authors, this have to be made clear to the reader.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R2.7",
+      "type": "reviewer_item",
+      "label": "R2.7: The results are not statistically rigorous, not only because\u2026",
+      "title": "7. The results are not statistically rigorous, not only because of the small dataset, but also because of lack of confidence intervals in tool-vs-tool comparison. This should be added if the authors want draw conclusions about tool superiority. In the repo:",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R2.8",
+      "type": "reviewer_item",
+      "label": "R2.8: On most of the linux and mac distributions the\u2026",
+      "title": "8. On most of the linux and mac distributions the package will be compiled with -march=native. Actually ARCHFLAGS is never set on Linux, so -march=native will always be set on Linux. Was that intentional?",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R2.9",
+      "type": "reviewer_item",
+      "label": "R2.9: There is no synchronization in mutating prof_inner_iters and prof_ctr_sp_pairs\u2026",
+      "title": "9. There is no synchronization in mutating prof_inner_iters and prof_ctr_sp_pairs in src/hseeker/\\_hdna.c. It may lead to losing the counting.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R2.10",
+      "type": "reviewer_item",
+      "label": "R2.10: the left_arm/right_arm/full_sequence come in lowecase, while putative_triplex in uppercase.\u2026",
+      "title": "10. the left_arm/right_arm/full_sequence come in lowecase, while putative_triplex in uppercase. Am I right? If so, simple string comparison would fail for a user not knowing this.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R2.11",
+      "type": "reviewer_item",
+      "label": "R2.11: It seems there is some Streamlit demo, while the\u2026",
+      "title": "11. It seems there is some Streamlit demo, while the app stands on FastAPI, giving rise to two app.py files. This might be misleading. Apart from this, I really acknowledge the IT part of the project - the care for the speed of the code as well as putting the package on PyPi and as a standalone on-line tool. This might really help the user!",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R3.1",
+      "type": "reviewer_item",
+      "label": "R3.1: The benchmark is too small, imbalanced, and internally heterogeneous\u2026",
+      "title": "1. The benchmark is too small, imbalanced, and internally heterogeneous to establish predictive performance convincingly. The principal validation dataset contains 79 sequences, of which 70 are classified as H-DNA-forming and only nine as non-forming. The manuscript itself acknowledges the approximately 7.8:1 class imbalance. This is particularly problematic for claims concerning specificity. The reported raw specificity of 66.7% corresponds to only six correctly classified negative sequences out of nine; therefore, changing the classification of one or two sequences substantially alters the result. The authors should either substantially expand the negative-control dataset or provide a compelling justification for why this is not possible. At minimum, confidence intervals should be reported for sensitivity, specificity, MCC, PPV and NPV, and conclusions concerning specificity should be appropriately qualified.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R3.2",
+      "type": "reviewer_item",
+      "label": "R3.2: More importantly, the 79 observations do not appear to\u2026",
+      "title": "2. More importantly, the 79 observations do not appear to represent 79 genuinely independent experimental examples. Supplementary Table 1 contains large groups of closely related sequence variants originating from the same experimental studies, including the extensive pXY32 substitution series. Several additional entries are closely related repeat-length variants or sequence derivatives. Consequently, treating every sequence as an independent observation can substantially inflate apparent statistical power and may favor algorithms whose rules happen to capture a particular sequence family. I strongly recommend a family-aware validation strategy in which closely related constructs from the same experimental series are grouped. Ideally, performance should be evaluated using leave-one-family-out or leave-one-study-out validation. At minimum, results should be recalculated after collapsing highly related sequence families.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R3.3",
+      "type": "reviewer_item",
+      "label": "R3.3: There is an important risk of circularity/overfitting in the\u2026",
+      "title": "3. There is an important risk of circularity/overfitting in the stability-score validation. The authors determine an \"optimal classification threshold\" using Youden's J statistic and subsequently evaluate discrimination on the same benchmark. Figure 3 then reports an apparently excellent stability-score AUC of 0.981 and a Youden-selected operating threshold, while the resulting confusion matrix improves the MCC substantially. This is not an independent assessment of predictive performance. The threshold must be determined using training data and evaluated on independent test data, or through appropriately nested cross-validation/bootstrapping. Given the small dataset, leave-one-study/family-out validation would be especially informative. The present AUC and threshold should not be described as demonstrating generalizable classification performance until this issue is addressed.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R3.4",
+      "type": "reviewer_item",
+      "label": "R3.4: The thermodynamic interpretation of the \"stability score\" needs considerably\u2026",
+      "title": "4. The thermodynamic interpretation of the \"stability score\" needs considerably more caution and validation. The score combines interaction energies derived from Park et al. with several additional assumptions, including an averaged 5.0 kcal/mol mismatch/stacking penalty and an exponential penalty for consecutive mismatches/impurities. These choices may be reasonable as a heuristic scoring model, but they do not automatically constitute a thermodynamic free-energy model for H-DNA formation. H-DNA stability depends on supercoiling, ionic environment, pH, sequence context, loop/spacer energetics and competing conformations. The authors should therefore clearly distinguish an experimentally informed heuristic stability score from a quantitatively calibrated thermodynamic prediction unless they can demonstrate a direct relationship with experimentally measured \u0394G, melting temperatures, transition superhelical densities, or equivalent quantitative measurements. This distinction is especially important because the benchmark itself combines assays performed under quite different conditions. Supplementary information includes examples measured under acidic conditions, Mg\u00b2\u207a-containing conditions and negatively supercoiled plasmids, among others. A sequence being experimentally classified as H-DNA-forming under one condition does not necessarily imply equivalent formation propensity under physiological conditions. The manuscript should discuss this limitation explicitly.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R3.5",
+      "type": "reviewer_item",
+      "label": "R3.5: The benchmark curation requires substantially greater scrutiny. Supplementary Table\u2026",
+      "title": "5. The benchmark curation requires substantially greater scrutiny. Supplementary Table 1 contains several records whose provenance appears weaker than suggested by the main text. In particular, some sequences are explicitly described as having been added from a supplied \"H-DNA Thermostability document,\" with no primary-paper citation attached to the specific construct and with the classification described as \"low confidence pending source-level verification.\" This is difficult to reconcile with the main-text statement that the 70 positives were selected on the basis of strong experimental evidence. The benchmark used for performance claims should contain only independently traceable experimental records with clear inclusion criteria. Low-confidence or secondary-source annotations should either be verified against primary literature or excluded from the primary benchmark. Relatedly, the supplementary table contains an acknowledged probable transcription inconsistency involving pRW1406/pRW1411. Such issues reinforce the need for systematic quality control of the benchmark before it is used to establish algorithmic performance.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R3.6",
+      "type": "reviewer_item",
+      "label": "R3.6: The comparator analysis is useful but not fully equivalent.\u2026",
+      "title": "6. The comparator analysis is useful but not fully equivalent. HSeeker is compared primarily with Triplex and Triplexator. However, the manuscript itself explains that Triplexator and 3plex were developed largely for intermolecular triplex prediction rather than specifically for intramolecular genomic H-DNA. The manuscript also discusses NeSSie and nBMST as relevant tools but does not include them in the main experimental benchmark. A more comprehensive comparison with algorithms designed specifically to identify mirror repeats/H-DNA would strengthen the manuscript considerably. If technical limitations prevent inclusion of particular tools, these should be explicitly documented. The statement that HSeeker \"outperformed existing tools in benchmarking\" in the Key Points is also stronger than the Results themselves, which ultimately conclude that HSeeker is \"at least comparable\" to Triplex and Triplexator. These claims should be harmonized. We run nBMST with the sequences and show performance lower than ours Also note nBMST does not provide the H-DNA sequences, we had to deduce them.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R3.7",
+      "type": "reviewer_item",
+      "label": "R3.7: The E. coli insertion experiment provides limited independent biological\u2026",
+      "title": "7. The E. coli insertion experiment provides limited independent biological validation. Randomly inserting the same 79 sequences into the E. coli genome primarily tests whether sequence-context and interval-reporting behavior interfere with recovery; it does not constitute an independent validation of H-DNA formation. The authors appropriately call this a secondary recovery analysis, which I agree with. However, Figure 3 places considerable emphasis on this experiment. The manuscript should make clearer that this analysis tests computational recovery in genomic background, not biological prediction accuracy. Moreover, the >80% overlap criterion is somewhat arbitrary and potentially tool-dependent. Sensitivity analyses using several overlap thresholds would demonstrate whether the comparative conclusions are robust. Tone down this experiment only.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R3.8",
+      "type": "reviewer_item",
+      "label": "R3.8: A genome-scale biological validation would substantially strengthen the manuscript.\u2026",
+      "title": "8. A genome-scale biological validation would substantially strengthen the manuscript. HSeeker identifies 96,729 non-overlapping H-DNA loci on chromosome 1 under default parameters. Yet there is little analysis demonstrating that these predictions correspond to independent experimental signatures of non-B DNA formation or biologically meaningful genomic features. This is a missed opportunity. For a bioinformatics paper claiming genome-scale annotation utility, the authors should ideally compare HSeeker predictions with an independent genome-wide experimental dataset, for example structure-sensitive nuclease mapping or another suitable non-B-DNA dataset, while carefully accounting for sequence composition. Even a well-designed enrichment analysis against independent experimental loci would provide an important orthogonal validation.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R3.9",
+      "type": "reviewer_item",
+      "label": "R3.9: Parameter robustness and ablation analyses are needed. HSeeker combines\u2026",
+      "title": "9. Parameter robustness and ablation analyses are needed. HSeeker combines several algorithmic components: mirror-repeat detection, purity constraints, mismatch tolerance, AT-content filtering, homopolymer exclusion, overlap removal, pairing energies, stacking contributions, mismatch penalties and boundary optimization. It is presently difficult to determine which components generate the reported performance improvement. The authors should provide an ablation analysis comparing, for example, sequence detection alone; detection plus composition filtering; pairing-only scoring; pairing plus stacking; and the complete model. Similarly, performance across reasonable purity, mismatch, minimum-arm and spacer thresholds should be reported. This would demonstrate that the results are not dependent on one hand-selected parameterization.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R3.10",
+      "type": "reviewer_item",
+      "label": "R3.10: The overlap-removal strategy may discard biologically relevant alternatives. The\u2026",
+      "title": "10. The overlap-removal strategy may discard biologically relevant alternatives. The greedy procedure retains the candidate with the longest arm within overlapping groups, using shorter spacer length as a tie-breaker. It is not clear that longest-arm length is always the biologically optimal criterion, particularly when a shorter overlapping motif has a substantially higher predicted stability. The authors should justify this choice and compare it with alternatives such as selecting the highest-scoring candidate. Since the web interface apparently permits overlapping motifs to be retained, the manuscript should also explain which mode is recommended for biological analysis.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R3.11",
+      "type": "reviewer_item",
+      "label": "R3.11: Computational benchmarking should be made more reproducible and somewhat\u2026",
+      "title": "11. Computational benchmarking should be made more reproducible and somewhat less promotional. The performance analysis is useful and relatively well documented in terms of hardware and software environment. HSeeker requires 187.7 s using one worker and 25.2 s using 16 workers on chromosome 1, while memory usage approaches 2 GB. These are good results. However, extrapolating chromosome 1 runtime linearly to an approximately five-minute whole-genome runtime is not equivalent to actually benchmarking the whole genome. The authors should either run the complete hg38 genome or explicitly label the estimate as an extrapolation throughout. Raw benchmark commands, output files and timing data should also be deposited rather than being available only \"upon reasonable request.\" The manuscript currently states that benchmarking results will be deposited upon publication. For a computational methods paper, these materials should preferably be available during peer review and permanently archived upon publication. We agree with the reviewer. We have revised the manuscript to explicitly describe the estimated whole-genome runtime as an extrapolation from chromosome 1 benchmarking and have removed wording that could imply a direct whole-genome benchmark. We have also made the benchmarking commands, raw timing data, and output files publicly available and will maintain these materials in a permanent repository upon publication.",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "R3.12",
+      "type": "reviewer_item",
+      "label": "R3.12: Several claims in the Discussion should be moderated. Statements\u2026",
+      "title": "12. Several claims in the Discussion should be moderated. Statements such as the scoring system \"works highly effectively and aligns seamlessly\" with experimental findings, that HSeeker is \"the only H-DNA identification algorithm with a proven scoring system built-in,\" and that broad evolutionary analyses were \"previously computationally prohibitive\" are insufficiently demonstrated by the presented analyses. I recommend replacing these formulations with more precise statements directly supported by the benchmarks. There are also several minor issues of terminology, grammar and presentation throughout the manuscript. The distinction among \"H-DNA-forming sequence,\" \"putative H-DNA-forming sequence,\" \"mirror repeat,\" and \"predicted H-DNA motif\" should be maintained consistently. Predictions should generally be described as putative unless experimentally demonstrated. The manuscript would also benefit from careful language editing, and Figures 1 and the algorithm panels are visually dense and could be simplified substantially. Overall, I consider HSeeker potentially useful, and the combination of computational efficiency, accessible implementation and H-DNA-specific sequence prioritization is valuable. However, the validation currently demonstrates primarily that the algorithm recovers a relatively small curated collection of sequence motifs, many of which are closely related. It does not yet establish the general predictive accuracy implied by some of the manuscript's claims. Addressing the independence of the benchmark, threshold overfitting, benchmark provenance, score interpretation, parameter robustness and independent genomic validation would considerably strengthen the work. Editor's Comments to Author: Editor: 1 Comments to the Author: (There are no comments.) Editor: 2 Comments to the Author: (There are no comments.)",
+      "status": null,
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "DEC-1",
+      "type": "decision",
+      "label": "DEC-1",
+      "title": "AG32-30nt (HDNA0033): relabel non-forming citing Rooney & Moore 1995, or exclude?",
+      "status": "resolved",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "DEC-2",
+      "type": "decision",
+      "label": "DEC-2",
+      "title": "FXN records (HDNA0060-0063): confirm intended citation (candidate: Wells 2008 FASEB J, PMID 18211957)?",
+      "status": "pending",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "DEC-3",
+      "type": "decision",
+      "label": "DEC-3",
+      "title": "Add pRW1406=(TTC)8 as a new verified primary forming record?",
+      "status": "pending",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "DEC-4",
+      "type": "decision",
+      "label": "DEC-4",
+      "title": "Confirm MYCAA (HDNA0034) promotion to primary after figure-level check of Belotserkovskii 2007 Fig. 2?",
+      "status": "resolved",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "DEC-5",
+      "type": "decision",
+      "label": "DEC-5",
+      "title": "Canonical benchmark parameters: adopt manuscript-stated values (mismatch=0.15, minrep=8, explicit Triplex args) as canonical and re-run?",
+      "status": "pending",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "WS0-A1",
+      "type": "action",
+      "label": "WS0-A1",
+      "title": "WS0-A1 [WS0_benchmark_freeze]\nverify: 71 kept (65 forming / 6 non-forming); 0 low-tier rows kept; 59 primary / 12 secondary; all primary rows construct-level with valid citation; pCON terminal C corrected; 22 PMIDs + 2 DOIs corrected; family_id/study_id/evidence_level columns present; SHA-256 recorded.",
+      "status": "pending",
+      "group": "WS0_benchmark_freeze",
+      "critical": false
+    },
+    {
+      "id": "WS0-A2",
+      "type": "action",
+      "label": "WS0-A2",
+      "title": "WS0-A2 [WS0_benchmark_freeze]\nverify: decisions section updated with date+decider for DEC-2, DEC-3, DEC-5; DEC-1 and DEC-4 marked resolved/mooted",
+      "status": "pending",
+      "group": "WS0_benchmark_freeze",
+      "critical": false
+    },
+    {
+      "id": "WS0-A3",
+      "type": "action",
+      "label": "WS0-A3",
+      "title": "WS0-A3 [WS0_benchmark_freeze]\nverify: paragraph matches audit dispositions exactly",
+      "status": "pending",
+      "group": "WS0_benchmark_freeze",
+      "critical": false
+    },
+    {
+      "id": "WS1-A1",
+      "type": "action",
+      "label": "WS1-A1",
+      "title": "WS1-A1 [WS1_code_fixes]\nverify: default Linux source build log contains no -march=native; CI wheels build",
+      "status": "pending",
+      "group": "WS1_code_fixes",
+      "critical": false
+    },
+    {
+      "id": "WS1-A2",
+      "type": "action",
+      "label": "WS1-A2",
+      "title": "WS1-A2 [WS1_code_fixes]\nverify: parallel chr1-chunk scan returns identical hits; counters per-call if kept",
+      "status": "pending",
+      "group": "WS1_code_fixes",
+      "critical": false
+    },
+    {
+      "id": "WS1-A3",
+      "type": "action",
+      "label": "WS1-A3",
+      "title": "WS1-A3 [WS1_code_fixes]\nverify: left_arm/right_arm/full_sequence/putative_triplex all uppercase; string round-trip test passes",
+      "status": "pending",
+      "group": "WS1_code_fixes",
+      "critical": false
+    },
+    {
+      "id": "WS1-A4",
+      "type": "action",
+      "label": "WS1-A4",
+      "title": "WS1-A4 [WS1_code_fixes]\nverify: no two same-named entry points; README/Code Availability updated",
+      "status": "pending",
+      "group": "WS1_code_fixes",
+      "critical": false
+    },
+    {
+      "id": "WS1-A5",
+      "type": "action",
+      "label": "WS1-A5",
+      "title": "WS1-A5 [WS1_code_fixes]\nverify: notebook runs end-to-end or merge cell removed; no '54 sequences' text remains",
+      "status": "pending",
+      "group": "WS1_code_fixes",
+      "critical": false
+    },
+    {
+      "id": "WS2-A1",
+      "type": "action",
+      "label": "WS2-A1",
+      "title": "WS2-A1 [WS2_benchmark_pipeline]\nverify: both arms' metadata.json report identical parameter blocks; filters explicit; mismatch/minrep/triplex args match manuscript",
+      "status": "pending",
+      "group": "WS2_benchmark_pipeline",
+      "critical": true
+    },
+    {
+      "id": "WS2-A2",
+      "type": "action",
+      "label": "WS2-A2",
+      "title": "WS2-A2 [WS2_benchmark_pipeline]\nverify: CI columns present; unit test recomputes one Wilson interval by hand",
+      "status": "pending",
+      "group": "WS2_benchmark_pipeline",
+      "critical": true
+    },
+    {
+      "id": "WS2-A3",
+      "type": "action",
+      "label": "WS2-A3",
+      "title": "WS2-A3 [WS2_benchmark_pipeline]\nverify: no reported confusion matrix uses a threshold selected on its own rows",
+      "status": "pending",
+      "group": "WS2_benchmark_pipeline",
+      "critical": false
+    },
+    {
+      "id": "WS2-A4",
+      "type": "action",
+      "label": "WS2-A4",
+      "title": "WS2-A4 [WS2_benchmark_pipeline]\nverify: 130 rows; 65:65 balanced; 6 classes (mirror-disrupted, dinuc shuffle, random, other-structure, homopolymer, perfect-mirror); 0 H-DNA-competent synthetic rows; no exact/revcomp duplicates; never filtered by HSeeker predictions",
+      "status": "done",
+      "group": "WS2_benchmark_pipeline",
+      "critical": false
+    },
+    {
+      "id": "WS2-A5",
+      "type": "action",
+      "label": "WS2-A5",
+      "title": "WS2-A5 [WS2_benchmark_pipeline]\nverify: every FP/FN has an audit-consistent explanation or is flagged unexplained",
+      "status": "pending",
+      "group": "WS2_benchmark_pipeline",
+      "critical": false
+    },
+    {
+      "id": "WS3-A1",
+      "type": "action",
+      "label": "WS3-A1",
+      "title": "WS3-A1 [WS3_comparators]\nverify: documented parameters; outputs deposited",
+      "status": "pending",
+      "group": "WS3_comparators",
+      "critical": false
+    },
+    {
+      "id": "WS3-A2",
+      "type": "action",
+      "label": "WS3-A2",
+      "title": "WS3-A2 [WS3_comparators]\nverify: mapping from nBMST motif hit to classification stated in Methods; outputs deposited",
+      "status": "pending",
+      "group": "WS3_comparators",
+      "critical": false
+    },
+    {
+      "id": "WS3-A3",
+      "type": "action",
+      "label": "WS3-A3",
+      "title": "WS3-A3 [WS3_comparators]\nverify: no comparative claim lacks a verified supporting output; unsupported nBMST sentence removed from RTR",
+      "status": "pending",
+      "group": "WS3_comparators",
+      "critical": true
+    },
+    {
+      "id": "WS4-A1",
+      "type": "action",
+      "label": "WS4-A1",
+      "title": "WS4-A1 [WS4_robustness]\nverify: tool rankings reported at each threshold; conclusion stated",
+      "status": "pending",
+      "group": "WS4_robustness",
+      "critical": false
+    },
+    {
+      "id": "WS4-A2",
+      "type": "action",
+      "label": "WS4-A2",
+      "title": "WS4-A2 [WS4_robustness]\nverify: each ablation reproducible from the pinned config with one component toggled",
+      "status": "pending",
+      "group": "WS4_robustness",
+      "critical": false
+    },
+    {
+      "id": "WS4-A3",
+      "type": "action",
+      "label": "WS4-A3",
+      "title": "WS4-A3 [WS4_robustness]\nverify: sensitivity/specificity/MCC per setting; one-at-a-time around canonical config",
+      "status": "pending",
+      "group": "WS4_robustness",
+      "critical": false
+    },
+    {
+      "id": "WS4-A4",
+      "type": "action",
+      "label": "WS4-A4",
+      "title": "WS4-A4 [WS4_robustness]\nverify: concordance reported on benchmark and chr1; production rule changed only if justified",
+      "status": "pending",
+      "group": "WS4_robustness",
+      "critical": false
+    },
+    {
+      "id": "WS5-A1",
+      "type": "action",
+      "label": "WS5-A1",
+      "title": "WS5-A1 [WS5_genome_scale_validation]\nverify: composition-matched control intervals (GC + purine content, length); enrichment statistic with CI",
+      "status": "pending",
+      "group": "WS5_genome_scale_validation",
+      "critical": false
+    },
+    {
+      "id": "WS5-A2",
+      "type": "action",
+      "label": "WS5-A2",
+      "title": "WS5-A2 [WS5_genome_scale_validation]\nverify: same-species comparison; document why human data were unusable if fallback taken",
+      "status": "pending",
+      "group": "WS5_genome_scale_validation",
+      "critical": false
+    },
+    {
+      "id": "WS5-A3",
+      "type": "action",
+      "label": "WS5-A3",
+      "title": "WS5-A3 [WS5_genome_scale_validation]\nverify: E. coli experiment nowhere framed as biological validation",
+      "status": "pending",
+      "group": "WS5_genome_scale_validation",
+      "critical": false
+    },
+    {
+      "id": "WS6-A1",
+      "type": "action",
+      "label": "WS6-A1",
+      "title": "WS6-A1 [WS6_manuscript_sync]\nverify: every number in manuscript/letter appears in a status=verified output file",
+      "status": "pending",
+      "group": "WS6_manuscript_sync",
+      "critical": true
+    },
+    {
+      "id": "WS6-A2",
+      "type": "action",
+      "label": "WS6-A2",
+      "title": "WS6-A2 [WS6_manuscript_sync]\nverify: covers heuristic score, fixed penalties, no backbone geometry, assay-condition heterogeneity, benchmark size, filter provenance",
+      "status": "pending",
+      "group": "WS6_manuscript_sync",
+      "critical": false
+    },
+    {
+      "id": "WS6-A3",
+      "type": "action",
+      "label": "WS6-A3",
+      "title": "WS6-A3 [WS6_manuscript_sync]\nverify: compiled manuscript shows result statements only in Results",
+      "status": "pending",
+      "group": "WS6_manuscript_sync",
+      "critical": false
+    },
+    {
+      "id": "WS6-A4",
+      "type": "action",
+      "label": "WS6-A4",
+      "title": "WS6-A4 [WS6_manuscript_sync]\nverify: no unlabeled whole-genome runtime claim; deposited artifacts referenced",
+      "status": "pending",
+      "group": "WS6_manuscript_sync",
+      "critical": false
+    },
+    {
+      "id": "WS6-A5",
+      "type": "action",
+      "label": "WS6-A5",
+      "title": "WS6-A5 [WS6_manuscript_sync]\nverify: the three challenged phrases removed or qualified; putative/predicted usage consistent",
+      "status": "pending",
+      "group": "WS6_manuscript_sync",
+      "critical": false
+    },
+    {
+      "id": "WS6-A6",
+      "type": "action",
+      "label": "WS6-A6",
+      "title": "WS6-A6 [WS6_manuscript_sync]\nverify: no placeholder, note-to-self, or unsupported claim remains in the response letter",
+      "status": "pending",
+      "group": "WS6_manuscript_sync",
+      "critical": true
+    },
+    {
+      "id": "AUDIT-1",
+      "type": "action",
+      "label": "AUDIT-1",
+      "title": "AUDIT-1 [WS0_benchmark_freeze]\nverify: 80 rows audited; 71 kept (65/6); 59 primary / 12 secondary / 7 removed / 2 excluded; all primary rows cited; 4 low-tier + 1 moderate-tier-weakest records removed by author decision; balanced benchmark 130 rows at 65:65",
+      "status": "verified",
+      "group": "WS0_benchmark_freeze",
+      "critical": true
+    },
+    {
+      "id": "CUR-1",
+      "type": "action",
+      "label": "CUR-1",
+      "title": "Curate experimental benchmark v3\nRemoved 7 records: 3 unverifiable (HDNA0035/36/37) + 3 low-confidence-tier (HDNA0032/33/34, author decision; moots DEC-1 and DEC-4) + 1 weakest-provenance (HDNA0039: moderate tier, empty resolved_origin, generic poly-C homopolymer). Excluded 2 invalid (HDNA0026 inosine artifact, HDNA0080 intermolecular-TFO label-scope error). Kept 71 with per-record justification; zero low-tier records remain. Output: hdna_benchmark_experimental_v3.csv (65 forming / 6 non-forming).",
+      "status": "done",
+      "group": "WS2_benchmark_v3",
+      "critical": true
+    },
+    {
+      "id": "SYN-1",
+      "type": "action",
+      "label": "SYN-1",
+      "title": "Generate 59 synthetic negatives (seed=20260922)\nSix classes per reviewer R2.1 menu: 20 mirror-disrupted mutants, 10 dinucleotide shuffles, 10 random GC/length-matched, 12 other-structure (G4/Z-DNA/B-DNA), 4 poly-A/T, 3 perfect-mirror balanced-GC. Script: generate_synthetic_negatives.py.",
+      "status": "done",
+      "group": "WS2_benchmark_v3",
+      "critical": true
+    },
+    {
+      "id": "SYN-2",
+      "type": "action",
+      "label": "SYN-2",
+      "title": "Validate synthetic negatives (structural only)\nArm>=8 mirror identity <0.80 for all perturbation classes; purine/dedup/length checks pass; no H-DNA-competent synthetic row; never filtered by HSeeker predictions (avoids circular benchmarking).",
+      "status": "done",
+      "group": "WS2_benchmark_v3",
+      "critical": true
+    },
+    {
+      "id": "SYN-3",
+      "type": "action",
+      "label": "SYN-3",
+      "title": "Freeze balanced benchmark v3 (65:65, 130 records)\nOutput: hdna_benchmark_balanced_v3.csv. Dual-reporting policy: metrics on experimental-only AND balanced sets.",
+      "status": "done",
+      "group": "WS2_benchmark_v3",
+      "critical": true
+    },
+    {
+      "id": "ART_audit",
+      "type": "artifact",
+      "label": "hdna_benchmark_experimental_v3.csv (per-record audit + curation)",
+      "title": "hdna_benchmark_experimental_v3.csv (per-record audit + curation)",
+      "status": "verified",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "ART_exp_v3",
+      "type": "artifact",
+      "label": "hdna_benchmark_experimental_v3.csv",
+      "title": "hdna_benchmark_experimental_v3.csv",
+      "status": "done",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "ART_script",
+      "type": "artifact",
+      "label": "generate_synthetic_negatives.py",
+      "title": "generate_synthetic_negatives.py",
+      "status": "done",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "ART_bal_v3",
+      "type": "artifact",
+      "label": "hdna_benchmark_balanced_v3.csv",
+      "title": "hdna_benchmark_balanced_v3.csv",
+      "status": "done",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "ART_metrics",
+      "type": "artifact",
+      "label": "benchmark metrics v3 (sens/spec/MCC + CIs, family-aware)",
+      "title": "benchmark metrics v3 (sens/spec/MCC + CIs, family-aware)",
+      "status": "pending",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "ART_letter",
+      "type": "artifact",
+      "label": "response letter + revised manuscript",
+      "title": "response letter + revised manuscript",
+      "status": "pending",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "GATE_BM",
+      "type": "gate",
+      "label": "GATE: benchmark v3 frozen",
+      "title": "All benchmark records curated, justified, balanced, and frozen with checksums. Every downstream number must derive from this set.",
+      "status": "done",
+      "group": null,
+      "critical": true
+    },
+    {
+      "id": "GATE_NUM",
+      "type": "gate",
+      "label": "GATE: all manuscript numbers verified",
+      "title": "Response letter may cite numbers only from status=verified outputs.",
+      "status": "pending",
+      "group": null,
+      "critical": true
+    }
+  ],
+  "edges": [
+    {
+      "from": "WS0-A1",
+      "to": "R2.2",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS0-A1",
+      "to": "R3.1",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS0-A1",
+      "to": "R3.5",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS0-A1",
+      "to": "WS0-A2",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS0-A2",
+      "to": "R3.5",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS0-A1",
+      "to": "WS0-A3",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS0-A2",
+      "to": "WS0-A3",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS0-A3",
+      "to": "R3.5",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS1-A1",
+      "to": "R2.8",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS1-A2",
+      "to": "R2.9",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS1-A3",
+      "to": "R2.10",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS1-A4",
+      "to": "R2.11",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS1-A5",
+      "to": "R2.2",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS0-A1",
+      "to": "WS2-A1",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS1-A3",
+      "to": "WS2-A1",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "DEC-5",
+      "to": "WS2-A1",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A1",
+      "to": "R2.2",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A1",
+      "to": "R2.6",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A1",
+      "to": "R3.11",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A1",
+      "to": "WS2-A2",
+      "type": "requires",
+      "note": "",
+      "critical": true
+    },
+    {
+      "from": "WS2-A2",
+      "to": "R2.7",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A2",
+      "to": "R3.1",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A1",
+      "to": "WS2-A3",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A3",
+      "to": "R3.2",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A3",
+      "to": "R3.3",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A1",
+      "to": "WS2-A4",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A4",
+      "to": "R2.1",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A2",
+      "to": "WS2-A5",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A3",
+      "to": "WS2-A5",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A5",
+      "to": "R2.1",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A5",
+      "to": "R3.1",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A5",
+      "to": "R3.5",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS0-A1",
+      "to": "WS3-A1",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS3-A1",
+      "to": "R3.6",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS0-A1",
+      "to": "WS3-A2",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS3-A2",
+      "to": "R3.6",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS3-A1",
+      "to": "WS3-A3",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS3-A2",
+      "to": "WS3-A3",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A2",
+      "to": "WS3-A3",
+      "type": "requires",
+      "note": "",
+      "critical": true
+    },
+    {
+      "from": "WS3-A3",
+      "to": "R3.6",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS3-A3",
+      "to": "R3.12",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A1",
+      "to": "WS4-A1",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS4-A1",
+      "to": "R3.7",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A1",
+      "to": "WS4-A2",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS4-A2",
+      "to": "R3.9",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A1",
+      "to": "WS4-A3",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS4-A3",
+      "to": "R3.9",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A1",
+      "to": "WS4-A4",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS4-A4",
+      "to": "R3.10",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A1",
+      "to": "WS5-A1",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS5-A1",
+      "to": "R2.3",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS5-A1",
+      "to": "R3.8",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS5-A1",
+      "to": "WS5-A2",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS5-A2",
+      "to": "R3.8",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS5-A1",
+      "to": "WS5-A3",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS5-A3",
+      "to": "R2.3",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS5-A3",
+      "to": "R3.7",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A5",
+      "to": "WS6-A1",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS3-A3",
+      "to": "WS6-A1",
+      "type": "requires",
+      "note": "",
+      "critical": true
+    },
+    {
+      "from": "WS4-A1",
+      "to": "WS6-A1",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS4-A2",
+      "to": "WS6-A1",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS4-A3",
+      "to": "WS6-A1",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS4-A4",
+      "to": "WS6-A1",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS5-A1",
+      "to": "WS6-A1",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS0-A3",
+      "to": "WS6-A2",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS6-A2",
+      "to": "R2.4",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS6-A2",
+      "to": "R3.4",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS6-A2",
+      "to": "R2.6",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS6-A3",
+      "to": "R2.5",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS6-A4",
+      "to": "R3.11",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS3-A3",
+      "to": "WS6-A5",
+      "type": "requires",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS6-A5",
+      "to": "R3.12",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS6-A1",
+      "to": "WS6-A6",
+      "type": "requires",
+      "note": "",
+      "critical": true
+    },
+    {
+      "from": "WS6-A6",
+      "to": "R2.1",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS6-A6",
+      "to": "R2.4",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS6-A6",
+      "to": "R3.1",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS6-A6",
+      "to": "R3.6",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS6-A6",
+      "to": "R3.7",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "AUDIT-1",
+      "to": "R3.5",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "AUDIT-1",
+      "to": "R3.2",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "CUR-1",
+      "to": "R3.5",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "CUR-1",
+      "to": "R2.2",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "CUR-1",
+      "to": "R3.1",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "SYN-1",
+      "to": "R2.1",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "SYN-2",
+      "to": "R2.1",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "SYN-3",
+      "to": "R2.1",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "SYN-3",
+      "to": "R3.1",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "SYN-3",
+      "to": "R2.6",
+      "type": "addresses",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "CUR-1",
+      "to": "SYN-1",
+      "type": "requires",
+      "note": "",
+      "critical": true
+    },
+    {
+      "from": "SYN-1",
+      "to": "SYN-2",
+      "type": "requires",
+      "note": "",
+      "critical": true
+    },
+    {
+      "from": "SYN-2",
+      "to": "SYN-3",
+      "type": "requires",
+      "note": "",
+      "critical": true
+    },
+    {
+      "from": "AUDIT-1",
+      "to": "CUR-1",
+      "type": "requires",
+      "note": "provenance audit is the evidence base",
+      "critical": true
+    },
+    {
+      "from": "CUR-1",
+      "to": "WS0-A1",
+      "type": "requires",
+      "note": "WS0 freeze now operates on the curated v3 set",
+      "critical": false
+    },
+    {
+      "from": "DEC-1",
+      "to": "WS0-A1",
+      "type": "informs",
+      "note": "AG32-30nt label: kept with label_conflict flag in v3; decision now governs the WS2 sensitivity analysis",
+      "critical": false
+    },
+    {
+      "from": "DEC-2",
+      "to": "WS0-A1",
+      "type": "informs",
+      "note": "FXN citation confirmation",
+      "critical": false
+    },
+    {
+      "from": "DEC-3",
+      "to": "WS0-A1",
+      "type": "informs",
+      "note": "optional pRW1406=(TTC)8 addition",
+      "critical": false
+    },
+    {
+      "from": "DEC-4",
+      "to": "WS0-A1",
+      "type": "informs",
+      "note": "MYCAA figure-level confirmation",
+      "critical": false
+    },
+    {
+      "from": "DEC-5",
+      "to": "WS2-A1",
+      "type": "informs",
+      "note": "canonical parameter choice governs every re-run",
+      "critical": false
+    },
+    {
+      "from": "AUDIT-1",
+      "to": "ART_audit",
+      "type": "produces",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "CUR-1",
+      "to": "ART_exp_v3",
+      "type": "produces",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "SYN-1",
+      "to": "ART_script",
+      "type": "produces",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "SYN-3",
+      "to": "ART_bal_v3",
+      "type": "produces",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS2-A5",
+      "to": "ART_metrics",
+      "type": "produces",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "WS6-A6",
+      "to": "ART_letter",
+      "type": "produces",
+      "note": "",
+      "critical": false
+    },
+    {
+      "from": "SYN-3",
+      "to": "GATE_BM",
+      "type": "requires",
+      "note": "",
+      "critical": true
+    },
+    {
+      "from": "WS0-A1",
+      "to": "GATE_BM",
+      "type": "requires",
+      "note": "citation-corrected primary/secondary freeze",
+      "critical": false
+    },
+    {
+      "from": "WS6-A1",
+      "to": "GATE_NUM",
+      "type": "requires",
+      "note": "",
+      "critical": true
+    },
+    {
+      "from": "GATE_NUM",
+      "to": "WS6-A6",
+      "type": "requires",
+      "note": "",
+      "critical": true
+    },
+    {
+      "from": "GATE_BM",
+      "to": "WS2-A1",
+      "type": "invalidates",
+      "note": "benchmark changed: prior numbers must be re-derived on v3",
+      "critical": false
+    },
+    {
+      "from": "GATE_BM",
+      "to": "WS2-A2",
+      "type": "invalidates",
+      "note": "benchmark changed: prior numbers must be re-derived on v3",
+      "critical": false
+    },
+    {
+      "from": "GATE_BM",
+      "to": "WS2-A3",
+      "type": "invalidates",
+      "note": "benchmark changed: prior numbers must be re-derived on v3",
+      "critical": false
+    },
+    {
+      "from": "GATE_BM",
+      "to": "WS2-A4",
+      "type": "invalidates",
+      "note": "benchmark changed: prior numbers must be re-derived on v3",
+      "critical": false
+    },
+    {
+      "from": "GATE_BM",
+      "to": "WS2-A5",
+      "type": "invalidates",
+      "note": "benchmark changed: prior numbers must be re-derived on v3",
+      "critical": false
+    },
+    {
+      "from": "GATE_BM",
+      "to": "WS3-A1",
+      "type": "invalidates",
+      "note": "benchmark changed: prior numbers must be re-derived on v3",
+      "critical": false
+    },
+    {
+      "from": "GATE_BM",
+      "to": "WS3-A2",
+      "type": "invalidates",
+      "note": "benchmark changed: prior numbers must be re-derived on v3",
+      "critical": false
+    },
+    {
+      "from": "GATE_BM",
+      "to": "WS3-A3",
+      "type": "invalidates",
+      "note": "benchmark changed: prior numbers must be re-derived on v3",
+      "critical": false
+    },
+    {
+      "from": "GATE_BM",
+      "to": "WS6-A1",
+      "type": "invalidates",
+      "note": "benchmark changed: prior numbers must be re-derived on v3",
+      "critical": false
+    },
+    {
+      "from": "GATE_BM",
+      "to": "WS6-A2",
+      "type": "invalidates",
+      "note": "benchmark changed: prior numbers must be re-derived on v3",
+      "critical": false
+    }
+  ],
+  "meta": {
+    "critical_path": [
+      "WS6-A6",
+      "GATE_NUM",
+      "WS6-A1",
+      "WS3-A3",
+      "WS2-A2",
+      "WS2-A1",
+      "GATE_BM",
+      "SYN-3",
+      "SYN-2",
+      "SYN-1",
+      "CUR-1",
+      "AUDIT-1"
+    ],
+    "counts": {
+      "reviewer_items": 24,
+      "decisions": 5,
+      "actions": 34,
+      "artifacts": 6,
+      "gates": 2
+    }
+  }
+}

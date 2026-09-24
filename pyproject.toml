@@ -29,7 +29,6 @@ classifiers = [
 [project.optional-dependencies]
 app = [
     "pandas>=1.5",
-    "streamlit>=1.30",
     "plotly>=5.0",
 ]
 dev = [
