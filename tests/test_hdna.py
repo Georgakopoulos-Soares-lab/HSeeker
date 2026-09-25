@@ -491,6 +491,60 @@ def test_skip_overlap_yields_more_or_equal_hits():
     assert len(without_removal) >= len(with_removal)
 
 
+@pytest.mark.parametrize("spacer,expected_spacer", [("AA", 0), ("AAA", 1)])
+def test_matching_spacer_pairs_extend_arms_inward(spacer, expected_spacer):
+    """Even and odd spacers absorb matching pairs from both ends."""
+    seq = "A" * 6 + spacer + "A" * 6
+    hits = hseeker.scan_sequence(
+        seq, minrep=6, maxrep=7, maxspacer=3, purity=1.0,
+        mismatch=0.0, remove_overlaps=False, score=False,
+    )
+    same_span = [h for h in hits if (h["start"], h["end"]) == (1, len(seq))]
+    assert [(h["arm_length"], h["spacer_length"])
+            for h in same_span] == [(7, expected_spacer)]
+
+
+def test_inward_mismatch_preserves_both_representations():
+    """A nonmatching spacer-end pair is not absorbed into the arms."""
+    seq = "A" * 6 + "AG" + "A" * 6
+    hits = hseeker.scan_sequence(
+        seq, minrep=6, maxrep=7, maxspacer=2, purity=1.0,
+        mismatch=0.2, remove_overlaps=False, score=False,
+    )
+    same_span = [h for h in hits if (h["start"], h["end"]) == (1, len(seq))]
+    assert {(h["arm_length"], h["spacer_length"], round(h["mirror_identity"]))
+            for h in same_span} == {(6, 2, 100), (7, 0, 86)}
+
+
+def test_inward_extension_respects_purity_and_maxrep():
+    """Matching spacer bases must still meet the existing arm limits."""
+    seq = "G" * 6 + "CC" + "G" * 6
+    hits = hseeker.scan_sequence(
+        seq, minrep=6, maxrep=7, maxspacer=2, purity=1.0,
+        mismatch=0.0, remove_overlaps=False, score=False,
+    )
+    same_span = [h for h in hits if (h["start"], h["end"]) == (1, len(seq))]
+    assert [(h["arm_length"], h["spacer_length"]) for h in same_span] == [(6, 2)]
+
+    capped = hseeker.scan_sequence(
+        "A" * 14, minrep=6, maxrep=6, maxspacer=2, purity=1.0,
+        mismatch=0.0, remove_overlaps=False, score=False,
+    )
+    same_span = [h for h in capped if (h["start"], h["end"]) == (1, 14)]
+    assert [(h["arm_length"], h["spacer_length"]) for h in same_span] == [(6, 2)]
+
+
+def test_inward_extension_without_preexisting_same_span_candidate():
+    """Normalize a hit even if the inner-center scan grew farther outward."""
+    seq = "GAAAAGGGAAGGGAAGGGAAGGGAAGGGAAGGGATGGGAAGAGA"
+    hits = hseeker.scan_sequence(
+        seq, minrep=10, maxspacer=10, purity=0.9, mismatch=0.1,
+        remove_overlaps=False, seq_offset=112, score=False,
+    )
+    same_span = [h for h in hits if (h["start"], h["end"]) == (115, 151)]
+    assert [(h["arm_length"], h["spacer_length"]) for h in same_span] == [(18, 1)]
+
+
 # ===========================================================================
 # 8. Parameter validation
 # ===========================================================================

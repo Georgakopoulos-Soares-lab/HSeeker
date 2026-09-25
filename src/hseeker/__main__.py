@@ -50,7 +50,7 @@ def main() -> None:
     parser.add_argument("-mismatch",    type=float, default=0.10, metavar="FLOAT",
                         help="Max mismatch fraction in mirror (default: 0.10)")
     parser.add_argument("-skipoverlap", action="store_true",
-                        help="Skip overlap removal (keep all raw hits)")
+                        help="Skip overlap removal (keep inward-normalized hits)")
     parser.add_argument("-score", action="store_true", default=True,
                         help="Apply stability scoring (default: on)")
     parser.add_argument("-no-score", action="store_false", dest="score",

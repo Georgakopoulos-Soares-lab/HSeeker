@@ -1,0 +1,16 @@
+seq_id	source	start	end	arm_length	spacer_length	total_length	ga_pct	ct_pct	mirror_identity	is_perfect	left_arm	spacer	right_arm	full_sequence	stacking_score	pairing_score	total_score	putative_triplex
+NC_008253.1	findHDNA	83	103	10	1	21	100.0	0.0	90.0	False	tgagagagag	a	gagagagaga	tgagagagagagagagagaga	40.0	53.32	93.32	GAGAGAGAG[A]GAGAGAGAG
+NC_008253.1	findHDNA	83	105	11	1	23	100.0	0.0	90.90908813476562	False	tgagagagaga	g	agagagagaga	tgagagagagagagagagagaga	45.0	57.15	102.15	GAGAGAGAGA[G]AGAGAGAGAG
+NC_008253.1	findHDNA	83	107	12	1	25	100.0	0.0	91.66667175292969	False	tgagagagagag	a	gagagagagagg	tgagagagagagagagagagagagg	50.0	64.75	114.75	GAGAGAGAGAG[A]GAGAGAGAGAG
+NC_008253.1	findHDNA	84	108	12	1	25	100.0	0.0	91.66667175292969	False	gagagagagaga	g	agagagagaggg	gagagagagagagagagagagaggg	45.0	57.15	102.15	GAGAGAGAGA[G]AGAGAGAGAG
+NC_008253.1	findHDNA	86	108	11	1	23	100.0	0.0	90.90908813476562	False	gagagagagag	a	gagagagaggg	gagagagagagagagagagaggg	40.0	53.32	93.32	GAGAGAGAG[A]GAGAGAGAG
+NC_008253.1	findHDNA	88	108	10	1	21	100.0	0.0	90.0	False	gagagagaga	g	agagagaggg	gagagagagagagagagaggg	35.0	45.72	80.72	GAGAGAGA[G]AGAGAGAG
+NC_008253.1	findHDNA	112	154	21	1	43	95.23809814453125	4.761904716491699	90.47618865966797	False	gaaaagggaagggaagggaag	g	gaagggaagggatgggaagag	gaaaagggaagggaagggaagggaagggaagggatgggaagag	60.0	102.81	162.81	GAAAAGGGAAGGGAAGGGAAG[G]GAAGGGAAGGGATGGGAAGAG
+NC_008253.1	findHDNA	114	137	12	0	24	100.0	0.0	91.66667175292969	False	aaagggaaggga	.	agggaagggaag	aaagggaagggaagggaagggaag	50.0	64.75	114.75	AAGGGAAGGGA[]AGGGAAGGGAA
+NC_008253.1	findHDNA	114	142	14	1	29	100.0	0.0	92.85713958740234	False	aaagggaagggaag	g	gaagggaagggaag	aaagggaagggaagggaagggaagggaag	60.0	76.17999999999999	136.18	AAGGGAAGGGAAG[G]GAAGGGAAGGGAA
+NC_008253.1	findHDNA	115	146	16	0	32	93.75	6.25	93.75	False	aagggaagggaaggga	.	agggaagggaagggat	aagggaagggaagggaagggaagggaagggat	70.0	91.38	161.38	AGGGAAGGGAAGGGA[]AGGGAAGGGAAGGGA
+NC_008253.1	findHDNA	115	151	18	1	37	94.44445037841797	5.555555820465088	94.44444274902344	False	aagggaagggaagggaag	g	gaagggaagggatgggaa	aagggaagggaagggaagggaagggaagggatgggaa	65.0	97.095	162.095	AAGGGAAGGGAAGGGAAG[G]GAAGGGAAGGGATGGGAA
+NC_008253.1	findHDNA	116	155	20	0	40	95.0	5.0	90.0	False	agggaagggaagggaaggga	.	agggaagggatgggaagaga	agggaagggaagggaagggaagggaagggatgggaagaga	55.0	98.97999999999999	153.98	AGGGAAGGGAAGGGAAGGGA[]AGGGAAGGGATGGGAAGAGA
+NC_008253.1	findHDNA	119	152	17	0	34	94.11764526367188	5.882352828979492	94.11764526367188	False	gaagggaagggaaggga	.	agggaagggatgggaag	gaagggaagggaagggaagggaagggatgggaag	60.0	93.265	153.265	GAAGGGAAGGGAAGGGA[]AGGGAAGGGATGGGAAG
+NC_008253.1	findHDNA	124	152	14	1	29	92.85714721679688	7.142857551574707	92.85713958740234	False	gaagggaagggaag	g	gaagggatgggaag	gaagggaagggaagggaagggatgggaag	45.0	74.235	119.235	GAAGGGAAGGGAAG[G]GAAGGGATGGGAAG
+NC_008253.1	findHDNA	129	152	12	0	24	91.66667175292969	8.333333969116211	91.66667175292969	False	gaagggaaggga	.	agggatgggaag	gaagggaagggaagggatgggaag	35.0	62.805	97.805	GAAGGGAAGGGA[]AGGGATGGGAAG
