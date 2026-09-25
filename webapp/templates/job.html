@@ -38,6 +38,7 @@
       <span class="pill pill--{{ 'teal' if p.remove_overlaps else 'orange' }}">
         {{ "overlaps removed" if p.remove_overlaps else "all hits" }}
       </span>
+      {% if p.remove_overlaps %}<span class="pill">overlap: {{ p.overlap_strategy }}</span>{% endif %}
       <span class="pill pill--{{ 'teal' if p.score else 'orange' }}">
         {{ "scoring: on" if p.score else "scoring: off" }}
       </span>

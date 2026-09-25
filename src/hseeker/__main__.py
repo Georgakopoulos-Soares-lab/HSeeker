@@ -51,6 +51,10 @@ def main() -> None:
                         help="Max mismatch fraction in mirror (default: 0.10)")
     parser.add_argument("-skipoverlap", action="store_true",
                         help="Skip overlap removal (keep all raw hits)")
+    parser.add_argument("-overlap-strategy", choices=("greedy", "score"),
+                        default="greedy",
+                        help="Choose overlap winner: longest arm (greedy, default) "
+                             "or highest stability score (score, applied after scoring)")
     parser.add_argument("-score", action="store_true", default=True,
                         help="Apply stability scoring (default: on)")
     parser.add_argument("-no-score", action="store_false", dest="score",
@@ -102,6 +106,7 @@ def main() -> None:
         purity=args.purity,
         mismatch=args.mismatch,
         remove_overlaps=not args.skipoverlap,
+        overlap_strategy=args.overlap_strategy,
         workers=n_workers,
         score=args.score,
         purity_rmq=args.purity_rmq,

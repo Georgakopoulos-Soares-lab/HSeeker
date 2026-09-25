@@ -109,6 +109,11 @@ with st.sidebar:
 
     st.markdown("---")
     skip_overlap = st.checkbox("Skip overlap removal", value=False)
+    overlap_strategy = st.selectbox(
+        "Overlap winner", ("greedy", "score"),
+        format_func=lambda choice: "Longest arm" if choice == "greedy" else "Highest stability score",
+        disabled=skip_overlap,
+    )
     st.markdown("**Strict** = purity 1.0 · mismatch 0.0  \n**Relaxed** = purity 0.8 · mismatch 0.2")
 
 # ---------------------------------------------------------------------------
@@ -178,6 +183,7 @@ def _run_scan(fasta_text: str) -> pd.DataFrame:
         purity=purity,
         mismatch=mismatch,
         remove_overlaps=not skip_overlap,
+        overlap_strategy=overlap_strategy,
     )
 
     Path(tmp_path).unlink(missing_ok=True)

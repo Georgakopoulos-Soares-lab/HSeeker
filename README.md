@@ -192,6 +192,7 @@ hseeker.scan_sequence(
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
+    overlap_strategy: str = "greedy",
     seq_offset: int = 1,
     score: bool = True,
 ) -> list[dict]
@@ -217,6 +218,7 @@ hseeker.scan_fasta(
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
+    overlap_strategy: str = "greedy",
     score: bool = True,
 ) -> list[dict]
 ```
@@ -237,6 +239,7 @@ hseeker.scan_fasta_iter(
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
+    overlap_strategy: str = "greedy",
     score: bool = True,
 ) -> Generator[dict, None, None]
 ```
@@ -257,6 +260,7 @@ hseeker.scan_fasta_parallel(
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
+    overlap_strategy: str = "greedy",
     workers: int | None = None,
     chunk_size: int = 1_000_000,
     score: bool = True,
@@ -307,6 +311,7 @@ python -m hseeker -seq <FASTA> -out <PREFIX> [options]
 | `-purity FLOAT` | float | `0.90` | **Minimum compositional purity** of each arm (0.0–1.0). The arm must be ≥ `purity` fraction GA (purine) **or** ≥ `purity` fraction CT (pyrimidine). Set to 1.0 for perfect purine or pyrimidine tracts. |
 | `-mismatch FLOAT` | float | `0.10` | **Maximum mirror mismatch fraction** (0.0–1.0). Fraction of base positions in the arm where `dna[left] ≠ dna[right]` (i.e. the mirror is broken). `0.0` requires perfect mirror symmetry; `0.10` allows up to 10 % divergence. |
 | `-skipoverlap` | flag | *(off)* | **Skip overlap removal**. By default, overlapping hits are collapsed to the longest arm (ties broken by shortest spacer). Pass this flag to disable overlap removal (useful for downstream ML or analysis). |
+| `-overlap-strategy greedy\|score` | choice | `greedy` | Choose the longest arm before scoring (`greedy`) or score all candidates and retain the highest-scoring nonoverlapping hits (`score`). Score mode requires scoring to be enabled. |
 | `-score` | flag | *(on)* | **Apply thermodynamic stability scoring**. Enables stacking and pairing score computation for each hit. Pass `-no-score` to disable and keep only the core detection columns. |
 | `-at-threshold FLOAT` | float | `0.80` | **Left-arm AT-content filter**, applied before scoring. Hits whose left arm has AT content ≥ this value are dropped — AT-rich arms are dominated by weak A·A stacking and are unlikely to fold into stable H-DNA. Raise it (e.g. `1.5`) to effectively disable it. |
 | `-workers INT` | int | *(all cores)* | **Parallel worker threads**. The CLI uses `scan_fasta_parallel` internally and defaults to all available CPU cores. Set this to a lower value to cap CPU usage. |
@@ -385,7 +390,8 @@ chr1    findHDNA  1001   1020  7           6              20            85.71   
 | Maximum spacer | `maxspacer` | `-maxspacer` | int | 10 | ≥ 0 | Set to 0 for zero-loop (adjacent arms) only |
 | Purity threshold | `purity` | `-purity` | float | 0.90 | 0.0–1.0 | Fraction GA or CT required in arm |
 | Mismatch tolerance | `mismatch` | `-mismatch` | float | 0.10 | 0.0–1.0 | Fraction of arm positions allowed to mismatch the mirror |
-| Overlap removal | `remove_overlaps` | `-skipoverlap` (inverts) | bool | True | — | When True, keeps only the longest non-overlapping hit |
+| Overlap removal | `remove_overlaps` | `-skipoverlap` (inverts) | bool | True | — | When True, filters overlapping hits using `overlap_strategy` |
+| Overlap strategy | `overlap_strategy` | `-overlap-strategy` | str | `greedy` | `greedy`, `score` | Greedy preserves the original arm-length rule; score mode filters after scoring all candidates |
 | Sequence offset | `seq_offset` | *(automatic in CLI)* | int | 1 | ≥ 1 | 1-based start coordinate of `seq[0]`; used for correct genomic coordinates |
 | Worker threads | *(CLI only)* | `-workers` | int | all cores | ≥ 1 | Number of parallel threads used by the CLI (via `scan_fasta_parallel`) |
 | Stability scoring | `score` | `-score` / `-no-score` | bool | True | — | When True, computes stacking and pairing scores and an optimised triplex sequence for each hit. Scoring adds `stacking_score`, `pairing_score`, `total_score`, and `putative_triplex` columns. |
@@ -449,7 +455,7 @@ Both are opt-in at the Python API level (`hseeker.scan_fasta(...)`, off by defau
 
 ### Overlap removal behaviour
 
-When `remove_overlaps=True` (default), two hits overlap if their genomic ranges on the DNA share at least one base. Among all overlapping hits, the one with the **longest arm** is retained. Ties are broken by **shorter spacer**. This keeps the most confident candidates and avoids redundant reporting of the same structural feature detected at slightly different boundaries.
+When `remove_overlaps=True` (default), two hits overlap if their 1-based, inclusive genomic ranges share at least one base. The default `overlap_strategy="greedy"` keeps the longer arm, breaking ties by shorter spacer, before scoring. Set `overlap_strategy="score"` (CLI: `-overlap-strategy score`) to score all candidates first, then accept hits in descending `total_score` order when they do not overlap a previously accepted hit. Score ties favor longer arms, shorter spacers, then earlier coordinates. `remove_overlaps=False` (CLI: `-skipoverlap`) retains all candidates regardless of strategy. Score mode can be substantially slower and use more memory on repetitive or chromosome-scale inputs because every raw candidate must be scored.
 
 ---
 

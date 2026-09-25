@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import os
 import re
+from bisect import bisect_right
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Generator
@@ -72,6 +73,104 @@ def _filter_at_content(hits: list[dict], threshold: float) -> list[dict]:
             kept.append(h)
     return kept
 
+def _filter_overlapping_hits(hits: list[dict], strategy: str = "score") -> list[dict]:
+    """Select nonoverlapping hits using ``score`` or ``greedy``.
+
+    ``greedy`` preserves the original Python cross-chunk sweep: process hits
+    by genomic start, replacing the last kept hit if the new one has a longer
+    arm (or an equal arm and shorter spacer). It needs no scores.
+
+    ``score`` (also called ``stability``) processes already scored hits by
+    descending ``total_score`` and keeps each hit only if it overlaps none
+    already selected. Ties favor a longer arm, then a shorter spacer, then
+    genomic position. An unscorable hit loses to any scored hit. This is a
+    score-priority maximal independent set, not an optimization of the sum.
+    Coordinates are 1-based and inclusive in both strategies.
+    """
+    if strategy not in ("greedy", "score", "stability"):
+        raise ValueError(f"Invalid deduplication strategy {strategy!r}.")
+    if not hits:
+        return []
+    if strategy == "greedy":
+        ordered = sorted(hits, key=lambda h: (
+            str(h.get("seq_id", "")), h["start"],
+            -h["arm_length"], h["spacer_length"],
+        ))
+        kept: list[dict] = []
+        for hit in ordered:
+            if not kept or hit.get("seq_id", "") != kept[-1].get("seq_id", ""):
+                kept.append(hit)
+            elif hit["start"] > kept[-1]["end"]:
+                kept.append(hit)
+            elif hit["arm_length"] > kept[-1]["arm_length"] or (
+                hit["arm_length"] == kept[-1]["arm_length"]
+                and hit["spacer_length"] < kept[-1]["spacer_length"]
+            ):
+                kept[-1] = hit
+        return kept
+
+    if any("total_score" not in hit for hit in hits):
+        raise ValueError("Score overlap filtering requires already scored hits")
+
+    def priority(hit: dict) -> tuple:
+        score = hit["total_score"]
+        # None and NaN carry no comparable stability evidence.
+        valid = score is not None and score == score
+        return (
+            0 if valid else 1,
+            -score if valid else 0,
+            -hit["arm_length"],
+            hit["spacer_length"],
+            str(hit.get("seq_id", "")),
+            hit["start"],
+            hit["end"],
+            str(hit.get("full_sequence", "")),
+        )
+
+    by_seq: dict[str, list[dict]] = {}
+    for hit in hits:
+        by_seq.setdefault(hit.get("seq_id", ""), []).append(hit)
+
+    kept: list[dict] = []
+    for seq_hits in by_seq.values():
+        starts = sorted({hit["start"] for hit in seq_hits})
+        rank = {start: i + 1 for i, start in enumerate(starts)}
+        # Fenwick prefix maximum: among accepted hits starting no later
+        # than candidate.end, find the furthest end. Overlap exists iff
+        # that end reaches candidate.start (inclusive coordinates).
+        furthest_end = [float("-inf")] * (len(starts) + 1)
+
+        def prefix_max(i: int) -> float:
+            result = float("-inf")
+            while i:
+                result = max(result, furthest_end[i])
+                i -= i & -i
+            return result
+
+        def mark(start: int, end: int) -> None:
+            i = rank[start]
+            while i < len(furthest_end):
+                furthest_end[i] = max(furthest_end[i], end)
+                i += i & -i
+
+        for hit in sorted(seq_hits, key=priority):
+            if prefix_max(bisect_right(starts, hit["end"])) >= hit["start"]:
+                continue
+            kept.append(hit)
+            mark(hit["start"], hit["end"])
+
+    return sorted(kept, key=lambda hit: (
+        str(hit.get("seq_id", "")), hit["start"], hit["end"]
+    ))
+
+
+def _check_overlap_strategy(remove_overlaps: bool, score: bool, strategy: str) -> None:
+    """Validate the overlap choice before scanning any sequence."""
+    if strategy not in ("greedy", "score", "stability"):
+        raise ValueError(f"Invalid deduplication strategy {strategy!r}.")
+    if remove_overlaps and strategy in ("score", "stability") and not score:
+        raise ValueError("Score overlap filtering requires score=True")
+
 
 def _filter_homopolymer_triplex(hits: list[dict]) -> list[dict]:
     """Drop hits whose scored ``putative_triplex`` is a pure homopolymer run.
@@ -124,6 +223,7 @@ def scan_sequence(
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
+    overlap_strategy: str = "greedy",
     seq_offset: int = 1,
     score: bool = True,
     purity_rmq: bool = False,
@@ -152,7 +252,12 @@ def scan_sequence(
         Maximum fraction of mirror-position mismatches allowed (default 0.10).
         Set to 0.0 for exact mirror only.
     remove_overlaps : bool
-        Remove overlapping hits, keeping the longest arm (default True).
+        Remove overlapping hits (default True). Set False to keep all hits.
+    overlap_strategy : {"greedy", "score"}
+        ``greedy`` (default) keeps the longest arm before scoring, preserving
+        historical behavior. ``score`` scores all candidates first, then
+        keeps the highest-scoring nonoverlapping set. ``stability`` is an
+        alias for ``score``. Score-based overlap removal requires score=True.
     seq_offset : int
         1-based genomic start coordinate of ``seq[0]`` (default 1).
         Pass the chromosomal start when ``seq`` is a genomic slice.
@@ -184,6 +289,8 @@ def scan_sequence(
         ``putative_triplex``.
         Coordinates are 1-based and inclusive.
     """
+    _check_overlap_strategy(remove_overlaps, score, overlap_strategy)
+    score_overlap = remove_overlaps and overlap_strategy in ("score", "stability")
     hits = _hdna.scan_sequence(
         seq,
         minrep=minrep,
@@ -191,7 +298,7 @@ def scan_sequence(
         maxspacer=maxspacer,
         purity=purity,
         mismatch=mismatch,
-        remove_overlaps=remove_overlaps,
+        remove_overlaps=remove_overlaps and not score_overlap,
         seq_offset=seq_offset,
         purity_rmq=purity_rmq,
     )
@@ -201,6 +308,8 @@ def scan_sequence(
         _apply_scoring(hits)
         if filter_homopolymers:
             hits = _filter_homopolymer_triplex(hits)
+    if score_overlap and hits:
+        hits = _filter_overlapping_hits(hits, strategy=overlap_strategy)
     return hits
 
 
@@ -272,6 +381,7 @@ def scan_fasta(
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
+    overlap_strategy: str = "greedy",
     score: bool = True,
     purity_rmq: bool = False,
     at_threshold: float | None = None,
@@ -290,7 +400,8 @@ def scan_fasta(
     ----------
     path : str | Path
         Path to a FASTA file (may contain multiple records).
-    minrep, maxrep, maxspacer, purity, mismatch, remove_overlaps, score,
+    minrep, maxrep, maxspacer, purity, mismatch, remove_overlaps,
+    overlap_strategy, score,
     at_threshold, filter_homopolymers :
         Same as :func:`scan_sequence`.
 
@@ -300,6 +411,8 @@ def scan_fasta(
         All hits from all records.  Each dict has the same keys as
         :func:`scan_sequence` plus ``seq_id``.
     """
+    _check_overlap_strategy(remove_overlaps, score, overlap_strategy)
+    score_overlap = remove_overlaps and overlap_strategy in ("score", "stability")
     results: list[dict] = []
     for seq_id, seq, offset in parse_fasta(path):
         hits = scan_sequence(
@@ -309,7 +422,7 @@ def scan_fasta(
             maxspacer=maxspacer,
             purity=purity,
             mismatch=mismatch,
-            remove_overlaps=remove_overlaps,
+            remove_overlaps=remove_overlaps and not score_overlap,
             seq_offset=offset,
             score=False,  # defer scoring to collect phase
             purity_rmq=purity_rmq,
@@ -322,6 +435,8 @@ def scan_fasta(
         _apply_scoring(results)
         if filter_homopolymers:
             results = _filter_homopolymer_triplex(results)
+    if score_overlap and results:
+        results = _filter_overlapping_hits(results, strategy=overlap_strategy)
     return results
 
 
@@ -334,6 +449,7 @@ def scan_fasta_iter(
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
+    overlap_strategy: str = "greedy",
     score: bool = True,
     purity_rmq: bool = False,
     at_threshold: float | None = None,
@@ -350,6 +466,7 @@ def scan_fasta_iter(
     dict
         Same keys as :func:`scan_fasta`.
     """
+    _check_overlap_strategy(remove_overlaps, score, overlap_strategy)
     for seq_id, seq, offset in parse_fasta(path):
         hits = scan_sequence(
             seq,
@@ -359,6 +476,7 @@ def scan_fasta_iter(
             purity=purity,
             mismatch=mismatch,
             remove_overlaps=remove_overlaps,
+            overlap_strategy=overlap_strategy,
             seq_offset=offset,
             score=score,  # score per-record for streaming
             purity_rmq=purity_rmq,
@@ -379,6 +497,7 @@ def scan_fasta_parallel(
     purity: float = 0.90,
     mismatch: float = 0.10,
     remove_overlaps: bool = True,
+    overlap_strategy: str = "greedy",
     workers: int | None = None,
     chunk_size: int = 1_000_000,
     score: bool = True,
@@ -409,6 +528,8 @@ def scan_fasta_parallel(
         All hits from all records.  Each dict has the same keys as
         :func:`scan_sequence` plus ``seq_id``.
     """
+    _check_overlap_strategy(remove_overlaps, score, overlap_strategy)
+    score_overlap = remove_overlaps and overlap_strategy in ("score", "stability")
     n_workers = workers if workers is not None else (os.cpu_count() or 1)
 
     # Overlap must cover the largest possible hit that can straddle a chunk
@@ -465,7 +586,7 @@ def scan_fasta_parallel(
             maxspacer=maxspacer,
             purity=purity,
             mismatch=mismatch,
-            remove_overlaps=(remove_overlaps and not defer_ovl),
+            remove_overlaps=(remove_overlaps and not score_overlap and not defer_ovl),
             seq_offset=chunk_offset,
             score=False,
             purity_rmq=purity_rmq,
@@ -493,41 +614,16 @@ def scan_fasta_parallel(
             results.extend(hits)
     del all_tasks  # free chunk strings now that all tasks have completed
 
-    # Cross-chunk overlap removal: each chunk's overlap removal is
-    # independent, so hits from different chunks of the same record
-    # can still overlap.  Use a sweep-line pass (O(n log n) sort +
-    # O(n) linear scan) instead of the previous O(n²) nested-loop
-    # approach which could not complete on chromosome-scale data.
-    if remove_overlaps and results:
-        # Sort by seq_id, then by start coordinate ascending.
-        # Among hits that start at the same position, keep the
-        # longest arm first (shortest spacer as tiebreak).
-        results.sort(key=lambda h: (
-            h["seq_id"],
-            h["start"],
-            -h["arm_length"],
-            h["spacer_length"],
-        ))
-        kept: list[dict] = []
-        for h in results:
-            if not kept or h["seq_id"] != kept[-1]["seq_id"]:
-                # First hit in this seq_id — always keep
-                kept.append(h)
-            elif h["start"] > kept[-1]["end"]:
-                # No overlap with the last kept hit — keep
-                kept.append(h)
-            elif h["arm_length"] > kept[-1]["arm_length"] or (
-                h["arm_length"] == kept[-1]["arm_length"]
-                and h["spacer_length"] < kept[-1]["spacer_length"]
-            ):
-                # Overlaps but is better — replace
-                kept[-1] = h
-            # else: overlaps and is not better — discard
-        results = kept
+    # In greedy mode, preserve the original pre-scoring overlap pass.
+    # Score mode keeps raw candidates until their scores are available.
+    if remove_overlaps and not score_overlap and results:
+        results = _filter_overlapping_hits(results, strategy="greedy")
 
     if score and results:
         _apply_scoring(results)
         if filter_homopolymers:
             results = _filter_homopolymer_triplex(results)
+    if score_overlap and results:
+        results = _filter_overlapping_hits(results, strategy=overlap_strategy)
 
     return results
