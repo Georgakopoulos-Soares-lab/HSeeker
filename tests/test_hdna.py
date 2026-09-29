@@ -1570,10 +1570,72 @@ def test_homopolymer_filter_keeps_mixed_triplex():
     assert len(filtered) == len(default)
 
 
-def test_homopolymer_filter_noop_when_score_false():
-    """filter_homopolymers requires putative_triplex, so it must be a no-op when score=False."""
+def test_homopolymer_filter_uses_full_sequence_when_score_false():
+    """Without scoring, the PRE filter excludes a pure homopolymer motif."""
     unscored = hseeker.scan_sequence(POLY_G_SEQ, minrep=6, score=False, filter_homopolymers=True)
-    assert len(unscored) > 0
+    assert unscored == []
+
+
+def test_homopolymer_filter_keeps_empty_unscorable_triplex():
+    seq = "G" * 6 + "T" * 10 + "G" * 6
+    hits = hseeker.scan_sequence(
+        seq, minrep=6, maxspacer=10, purity=1, mismatch=0,
+        filter_homopolymers=True,
+    )
+    assert len(hits) == 1
+    assert hits[0]["putative_triplex"] == ""
+
+
+def test_homopolymer_filter_drops_unscorable_pure_run_across_apis(tmp_path):
+    """A failed score cannot hide a pure homopolymer from POST filtering."""
+    seq = "G" * 22
+    options = dict(minrep=6, maxrep=6, maxspacer=10, purity=1,
+                   mismatch=0, remove_overlaps=False)
+    raw = hseeker.scan_sequence(seq, filter_homopolymers=False, **options)
+    assert any(hit["putative_triplex"] == "" for hit in raw)
+    assert hseeker.filter_homopolymers(raw, mode="POST") == []
+
+    path = tmp_path / "poly_g.fa"
+    path.write_text(f">poly_g\n{seq}\n")
+    assert hseeker.scan_sequence(seq, filter_homopolymers=True,
+                                 **options) == []
+    assert hseeker.scan_fasta(path, filter_homopolymers=True,
+                              **options) == []
+    assert list(hseeker.scan_fasta_iter(path, filter_homopolymers=True,
+                                       **options)) == []
+    assert hseeker.scan_fasta_parallel(
+        path, workers=2, chunk_size=100, filter_homopolymers=True,
+        **options,
+    ) == []
+
+
+@pytest.mark.parametrize("extra_args", [[], ["-no-score"]], ids=["scored", "unscored"])
+def test_cli_drops_unscorable_pure_homopolymer(tmp_path, extra_args):
+    """CLI homopolymer filtering works with and without scoring."""
+    path = tmp_path / "poly_g.fa"
+    path.write_text(f">poly_g\n{'G' * 22}\n")
+    out_prefix = tmp_path / "poly_g_result"
+    subprocess.run(
+        [sys.executable, "-m", "hseeker", "-seq", str(path),
+         "-out", str(out_prefix), "-minrep", "6", "-maxrep", "6",
+         "-maxspacer", "10", "-skipoverlap", *extra_args],
+        check=True, capture_output=True, text=True,
+    )
+    with open(f"{out_prefix}_HDNA.tsv") as fh:
+        assert list(csv.DictReader(fh, delimiter="\t")) == []
+
+
+def test_post_filter_catches_pure_optimized_triplex_from_mixed_hit():
+    seq = "GCCTGCACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCTGCAGGT"
+    hits = hseeker.scan_sequence(
+        seq, minrep=10, maxspacer=10, purity=0.9, mismatch=0.1,
+        at_threshold=0.8, remove_overlaps=False,
+    )
+    hit = next(h for h in hits if (h["start"], h["end"]) == (6, 25))
+    assert len(set(hit["full_sequence"])) > 1
+    assert hit["putative_triplex"] == "gggggggg[]gggggggg"
+    assert hseeker.filter_homopolymers([hit], mode="PRE") == [hit]
+    assert hseeker.filter_homopolymers([hit], mode="POST") == []
 
 
 def test_at_filter_applies_per_record_in_scan_fasta():
@@ -1638,12 +1700,8 @@ def test_cli_default_at_threshold_drops_poly_a_record():
 
 
 def test_cli_at_threshold_flag_is_configurable():
-    """Raising -at-threshold above the poly-A arm's AT content lets it through.
-
-    Scoring is disabled here so the always-on homopolymer post-filter (which
-    would also drop this poly-A hit) does not confound the AT-threshold check.
-    """
-    path = fasta_to_tmp([("poly_a", POLY_A_SEQ)])
+    """A nonhomopolymer with pure-A arms survives a relaxed AT threshold."""
+    path = fasta_to_tmp([("at_rich", "A" * 14 + "C" + "A" * 14)])
     out_prefix = str(path.parent / "cli_at_relaxed")
     tsv_path = Path(out_prefix + "_HDNA.tsv")
     try:
@@ -1655,7 +1713,7 @@ def test_cli_at_threshold_flag_is_configurable():
         )
         with open(tsv_path) as fh:
             rows = list(csv.DictReader(fh, delimiter="\t"))
-        assert len(rows) > 0, "poly-A record should survive a >1.0 AT threshold"
+        assert len(rows) > 0, "AT-rich record should survive a >1.0 AT threshold"
     finally:
         path.unlink(missing_ok=True)
         tsv_path.unlink(missing_ok=True)

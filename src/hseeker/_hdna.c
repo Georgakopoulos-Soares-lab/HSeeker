@@ -51,14 +51,29 @@ static const unsigned char BT[256] = {
     ['C']=2, ['c']=2, ['T']=2, ['t']=2,
 };
 
-/* ── profiling counters (zeroed per call, exposed via Python) ──────────── */
-static long long prof_inner_iters = 0;     /* total inner while-body executions  */
-static long long prof_ctr_sp_pairs = 0;    /* how many (ctr, sp) pairs explored */
+/* Each scan owns its counters while the GIL is released. */
+typedef struct {
+    long long inner_iters;
+    long long ctr_sp_pairs;
+} ScanProfile;
 
-static void prof_reset(void) {
-    prof_inner_iters  = 0;
-    prof_ctr_sp_pairs = 0;
+#ifndef STANDALONE
+/* Python module state is updated only after a scan reacquires the GIL. */
+typedef struct {
+    ScanProfile last;
+    ScanProfile total;
+    long long scans_completed;
+} ProfileState;
+
+static void profile_publish(ProfileState *state, const ScanProfile *scan)
+{
+    /* Called only with the GIL held; workers never mutate module state. */
+    state->last = *scan;
+    state->total.inner_iters += scan->inner_iters;
+    state->total.ctr_sp_pairs += scan->ctr_sp_pairs;
+    state->scans_completed++;
 }
+#endif
 
 /*
  * Initial capacity of the per-call hits buffer in py_scan_sequence().
@@ -236,6 +251,7 @@ static void range_max_tree_free(RangeMaxTree *t)
  * purity_thresh: min fraction of GA or CT in each arm
  * mismatch_tol : max fraction of mismatched mirror positions
  * seq_offset   : 1-based genomic position of dna[0]
+ * profile      : counters owned by this scan; never shared with other threads
  *
  * Returns
  * -------
@@ -247,16 +263,13 @@ static int findHDNA_core(
     HDNA_HIT **p_hits, int *p_capacity,
     int   minrep, int maxrep, int maxspacer,
     float purity_thresh, float mismatch_tol,
-    long  seq_offset)
+    long  seq_offset, ScanProfile *profile)
 {
     int   ndx             = 0;
-    float min_mirror_id   = 1.0f - mismatch_tol;
     int   mismatch_budget = (int)(mismatch_tol * maxrep);  /* loop-invariant */
     /* integer-scaled thresholds (×100) — eliminate float division from inner loop */
     int   purity_thresh_int = (int)(purity_thresh  * 100.0f + 0.5f);
     int   mismatch_tol_int  = (int)(mismatch_tol   * 100.0f + 0.5f);
-
-    prof_reset();
 
     for (int ctr = minrep - 1; ctr <= total_bases - minrep - 1; ctr++) {
         /* skip centers that are N or non-ACGT — no sp can succeed */
@@ -267,7 +280,7 @@ static int findHDNA_core(
                       : (total_bases - minrep - ctr - 1);
 
         for (int sp = 0; sp <= max_sp; sp++) {
-            prof_ctr_sp_pairs++;
+            profile->ctr_sp_pairs++;
 
             int   left_i    = ctr;
             int   right_j   = ctr + sp + 1;
@@ -291,6 +304,7 @@ static int findHDNA_core(
 
                 if (lb != dna[right_j]) mismatches++;
                 k++;
+                profile->inner_iters++;
 
                 /* track composition of the right arm (read forward) */
                 if (bt_rb == 1) ga_count++; else ct_count++;
@@ -366,7 +380,7 @@ static int findHDNA_purity_rmq_core(
     HDNA_HIT **p_hits, int *p_capacity,
     int   minrep, int maxrep, int maxspacer,
     float purity_thresh, float mismatch_tol,
-    long  seq_offset)
+    long  seq_offset, ScanProfile *profile)
 {
     int ndx = 0;
     int mismatch_budget = (int)(mismatch_tol * maxrep);
@@ -381,8 +395,6 @@ static int findHDNA_purity_rmq_core(
     int *f_ct = NULL;
     RangeMaxTree rmq_ga = {0, 0, NULL};
     RangeMaxTree rmq_ct = {0, 0, NULL};
-
-    prof_reset();
 
     if (!cls) goto oom;
     for (int i = 0; i < total_bases; i++)
@@ -415,7 +427,7 @@ static int findHDNA_purity_rmq_core(
                       : (total_bases - minrep - ctr - 1);
 
         for (int sp = 0; sp <= max_sp; sp++) {
-            prof_ctr_sp_pairs++;
+            profile->ctr_sp_pairs++;
 
             int right_start = ctr + sp + 1;
             int kmax = min4_int(maxrep, ctr + 1, total_bases - right_start,
@@ -448,7 +460,7 @@ static int findHDNA_purity_rmq_core(
 
                 if (lb != dna[right_j]) mismatches++;
                 k++;
-                prof_inner_iters++;
+                profile->inner_iters++;
 
                 if (bt_rb == 1) ga_count++; else ct_count++;
 
@@ -582,6 +594,9 @@ static int remove_overlaps_core(HDNA_HIT *hits, int nhits)
 static PyObject *
 py_scan_sequence(PyObject *self, PyObject *args, PyObject *kwargs)
 {
+    ProfileState *profile_state = (ProfileState *)PyModule_GetState(self);
+    if (!profile_state) return NULL;
+    ScanProfile profile = {0, 0};
     const char *raw_seq   = NULL;
     Py_ssize_t  raw_len   = 0;
     int         minrep    = 8;
@@ -621,8 +636,11 @@ py_scan_sequence(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-    if (raw_len == 0)
-        return PyList_New(0);
+    if (raw_len == 0) {
+        PyObject *empty = PyList_New(0);
+        if (empty) profile_publish(profile_state, &profile);
+        return empty;
+    }
 
     /* ---- allocate working buffers ---- */
 
@@ -666,14 +684,14 @@ py_scan_sequence(PyObject *self, PyObject *args, PyObject *kwargs)
                 &hits, &hit_capacity,
                 minrep, maxrep, maxspacer,
                 (float)purity, (float)mismatch,
-                seq_offset);
+                seq_offset, &profile);
         } else {
             nhits = findHDNA_core(
                 dna, (int)raw_len,
                 &hits, &hit_capacity,
                 minrep, maxrep, maxspacer,
                 (float)purity, (float)mismatch,
-                seq_offset);
+                seq_offset, &profile);
         }
 
         if (nhits >= 0 && do_overlap && nhits > 1)
@@ -688,6 +706,8 @@ py_scan_sequence(PyObject *self, PyObject *args, PyObject *kwargs)
         PyErr_NoMemory();
         return NULL;
     }
+
+    profile_publish(profile_state, &profile);
 
     /* ---- build Python result list ---- */
     PyObject *result = PyList_New((Py_ssize_t)nhits);
@@ -819,11 +839,25 @@ PyDoc_STRVAR(scan_sequence_doc,
 static PyObject *
 py_profiling_info(PyObject *self, PyObject *noargs)
 {
-    (void)self;
     (void)noargs;
-    return Py_BuildValue("{s:L, s:L}",
-        "inner_iters",  prof_inner_iters,
-        "ctr_sp_pairs", prof_ctr_sp_pairs);
+    ProfileState *state = (ProfileState *)PyModule_GetState(self);
+    if (!state) return NULL;
+    return Py_BuildValue("{s:L, s:L, s:L, s:L, s:L}",
+        "inner_iters", state->last.inner_iters,
+        "ctr_sp_pairs", state->last.ctr_sp_pairs,
+        "total_inner_iters", state->total.inner_iters,
+        "total_ctr_sp_pairs", state->total.ctr_sp_pairs,
+        "scans_completed", state->scans_completed);
+}
+
+static PyObject *
+py_reset_profiling(PyObject *self, PyObject *noargs)
+{
+    (void)noargs;
+    ProfileState *state = (ProfileState *)PyModule_GetState(self);
+    if (!state) return NULL;
+    memset(state, 0, sizeof(*state));
+    Py_RETURN_NONE;
 }
 
 static PyMethodDef HdnaMethods[] = {
@@ -837,7 +871,13 @@ static PyMethodDef HdnaMethods[] = {
         "profiling_info",
         (PyCFunction)py_profiling_info,
         METH_NOARGS,
-        "Return dict with {inner_iters, ctr_sp_pairs} since last reset."
+        "Return last completed scan counters and cumulative totals since reset."
+    },
+    {
+        "reset_profiling",
+        (PyCFunction)py_reset_profiling,
+        METH_NOARGS,
+        "Reset profiling counters for this module instance."
     },
     { NULL, NULL, 0, NULL }
 };
@@ -852,7 +892,7 @@ static struct PyModuleDef hdna_module = {
     PyModuleDef_HEAD_INIT,
     "_hdna",
     module_doc,
-    -1,
+    sizeof(ProfileState),
     HdnaMethods
 };
 
@@ -1024,13 +1064,15 @@ int main(int argc, char *argv[]) {
 
     int total_records = 0, total_hits = 0, bases;
     while ((bases = sa_read_fasta(fq)) > 0) {
+        ScanProfile profile = {0, 0};
         total_records++;
         if (verbose)
             fprintf(stderr, "Processing %s (%d bases, offset %ld)...\n",
                     sa_seq_id, bases, sa_seq_offset);
         int nhits = findHDNA_core(
             sa_dna, bases, &sa_hits, &sa_hits_cap,
-            minrep, maxrep, maxspacer, purity, mismatch, sa_seq_offset);
+            minrep, maxrep, maxspacer, purity, mismatch, sa_seq_offset,
+            &profile);
         if (nhits < 0) {
             fprintf(stderr, "ERROR: out of memory during scan of '%s'\n", sa_seq_id);
             fclose(fq); fclose(fo); free(sa_hits); return 5;

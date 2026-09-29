@@ -52,7 +52,9 @@ class _Scorer:
             return self.scoring[n1]
         return -(self.scoring["A"] + self.scoring["G"]) / 2.0
 
-    def score(self, full_sequence: str, arm_length: int) -> dict | None:
+    def score(self, full_sequence: str, arm_length: int, *,
+              include_stacking: bool = True,
+              optimize_boundaries: bool = True) -> dict | None:
         """Score an H-DNA hit and return adjusted triplex information.
 
         Parameters
@@ -69,11 +71,15 @@ class _Scorer:
             or ``None`` if scoring could not be applied.
         """
         try:
-            return self._score_impl(full_sequence, arm_length)
+            return self._score_impl(full_sequence, arm_length,
+                                    include_stacking=include_stacking,
+                                    optimize_boundaries=optimize_boundaries)
         except (ValueError, IndexError):
             return None
 
-    def _score_impl(self, s: str, al: int) -> dict:
+    def _score_impl(self, s: str, al: int, *,
+                    include_stacking: bool = True,
+                    optimize_boundaries: bool = True) -> dict:
         s = s.upper()
         s1 = s[:al]
         s2_rev = s[-al:]
@@ -102,31 +108,42 @@ class _Scorer:
             pairing_scores.append(self._pair_score(s1[j], s2[j]))
 
         # O(n^2) search: maximize pairing+stacking score over window [L, R)
-        # subject to: new_spacer_length = 2*(al-R)+ll <= (R-L)*v
+        # subject to: new_spacer_length = 2*(al-R)+ll <= (R-L)*v.
+        # Never shrink an arm below min_al, unless the detected arm was
+        # already shorter. The old min(L + min_al, al) lower bound let late
+        # windows shrink to just one base.
         best_score = -float("inf")
         best_pair: tuple[int, int] | None = None
-        for L in range(al):
-            for R in range(min(L + self.min_al, al), al + 1):
-                if 2 * (al - R) + ll <= (R - L) * self.v:
-                    sub = scoring_array[L:R]
-                    stacked = self._calc_stacking(sub)
-                    cur = round(sum(pairing_scores[L:R]) + sum(stacked), 3)
-                    if cur > best_score:
-                        best_score = cur
-                        best_pair = (L, R)
+        if optimize_boundaries:
+            min_window = min(self.min_al, al)
+            for L in range(al):
+                for R in range(L + min_window, al + 1):
+                    if 2 * (al - R) + ll <= (R - L) * self.v:
+                        sub = scoring_array[L:R]
+                        stacked = self._calc_stacking(sub) if include_stacking else []
+                        cur = round(sum(pairing_scores[L:R]) + sum(stacked), 3)
+                        if cur > best_score:
+                            best_score = cur
+                            best_pair = (L, R)
+        else:
+            best_pair = (0, al)
 
         if best_pair is None:
             raise ValueError("No valid arm window satisfies the spacer constraint")
 
         L, R = best_pair
         sub_scoring = scoring_array[L:R]
-        stacking_scores = self._calc_stacking(sub_scoring)
+        stacking_scores = self._calc_stacking(sub_scoring) if include_stacking else []
         stacking_score = sum(stacking_scores)
         pairing_score = sum(pairing_scores[L:R])
         total_score = round(stacking_score + pairing_score, 3)
 
         new_spacer = s1[R:] + s3 + s2[R:][::-1]
-        putative_triplex = s1[L:R] + "[" + new_spacer + "]" + s2[L:R][::-1]
+        # The detector returns lowercase arms and full_sequence. Keep the
+        # derived motif in the same case in every public scoring path.
+        putative_triplex = (
+            s1[L:R] + "[" + new_spacer + "]" + s2[L:R][::-1]
+        ).lower()
 
         return {
             "stacking_score": stacking_score,
@@ -159,8 +176,25 @@ def score_hit(left_arm: str, spacer: str, right_arm: str, arm_length: int) -> di
     -------
     dict or None
         ``{stacking_score, pairing_score, total_score, putative_triplex}``
-        or ``None`` if the sequence is not scorable.
+        or ``None`` if the sequence is not scorable. ``putative_triplex``
+        uses lowercase DNA bases, matching detector output.
     """
     sp = "" if spacer == "." else spacer
     full_seq = left_arm + sp + right_arm
     return _scorer.score(full_seq, arm_length)
+
+
+def score_hit_components(
+    left_arm: str, spacer: str, right_arm: str, arm_length: int, *,
+    include_stacking: bool = True, optimize_boundaries: bool = True,
+) -> dict | None:
+    """Score one hit with optional stacking and boundary optimization.
+
+    Intended for component ablations. With both options enabled, this is
+    equivalent to :func:`score_hit`. With boundary optimization disabled,
+    the entire detected arm is scored, including any mismatch penalties.
+    """
+    sp = "" if spacer == "." else spacer
+    return _scorer.score(left_arm + sp + right_arm, arm_length,
+                         include_stacking=include_stacking,
+                         optimize_boundaries=optimize_boundaries)
