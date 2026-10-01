@@ -1,5 +1,5 @@
 """
-webapp/main.py — HSeeker Web Application
+webapp/main.py — hosted HSeeker FastAPI Web Application
 =========================================
 Deploy:  uvicorn main:app --host 0.0.0.0 --port $PORT
 """

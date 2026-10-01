@@ -19,7 +19,7 @@ from setuptools import Extension, setup
 
 
 def _is_cross_compiling():
-    """Return True when cross-compiling (e.g. x86_64 wheel on an Apple M-series host).
+    """Guard the optional native build against a different macOS target.
 
     cibuildwheel sets ARCHFLAGS on macOS to declare the target architecture(s),
     e.g. ``-arch x86_64`` or ``-arch arm64 -arch x86_64`` (universal2).
@@ -44,7 +44,13 @@ if platform.system() == "Windows":
     libraries = []
 else:
     extra_compile_args = ["-O3", "-Wall"]
-    if not _is_cross_compiling():
+    # Distributed wheels and ordinary source installs must run on CPUs other
+    # than the build machine. Native tuning is only for explicit local builds.
+    if os.environ.get("HSEEKER_NATIVE_BUILD") == "1":
+        if _is_cross_compiling():
+            raise RuntimeError(
+                "HSEEKER_NATIVE_BUILD=1 cannot target a different architecture"
+            )
         extra_compile_args.append("-march=native")
     libraries = ["m"]
 

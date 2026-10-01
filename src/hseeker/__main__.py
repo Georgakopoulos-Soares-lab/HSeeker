@@ -38,6 +38,9 @@ def main() -> None:
 
     # mirroring the original findHDNA CLI flags exactly
     parser.add_argument("-seq",         required=True,       help="Input FASTA file")
+    parser.add_argument("-parser", choices=("biopython", "inhouse"),
+                        default="biopython",
+                        help="FASTA parser implementation (default: biopython)")
     parser.add_argument("-out",         required=True,       help="Output prefix → <prefix>_HDNA.tsv")
     parser.add_argument("-minrep",      type=int,   default=10,    metavar="INT",
                         help="Minimum arm length (default: 10)")
@@ -53,8 +56,9 @@ def main() -> None:
                         help="Skip overlap removal (keep all raw hits)")
     parser.add_argument("-overlap-strategy", choices=("greedy", "score"),
                         default="greedy",
-                        help="Choose overlap winner: longest arm (greedy, default) "
-                             "or highest stability score (score, applied after scoring)")
+                        help="Select nonoverlapping hits by longest arm "
+                             "(greedy, default) or descending individual score "
+                             "(score, applied after scoring)")
     parser.add_argument("-score", action="store_true", default=True,
                         help="Apply stability scoring (default: on)")
     parser.add_argument("-no-score", action="store_false", dest="score",
@@ -90,6 +94,7 @@ def main() -> None:
     print(
         f"hseeker v{hseeker.__version__} — H-DNA / Triplex Mirror Repeat Detector\n"
         f"  Input : {args.seq}\n"
+        f"  Parser: {args.parser}\n"
         f"  Output: {out_path}\n"
         f"  minrep={args.minrep}  maxrep={args.maxrep}  maxspacer={args.maxspacer}\n"
         f"  purity={args.purity:.2f}  mismatch={args.mismatch:.2f}\n"
@@ -100,6 +105,7 @@ def main() -> None:
 
     hits = hseeker.scan_fasta_parallel(
         args.seq,
+        parser=args.parser,
         minrep=args.minrep,
         maxrep=args.maxrep,
         maxspacer=args.maxspacer,

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-app.py — Streamlit web UI for hseeker.
+app.py — optional Streamlit demo for hseeker (not the hosted FastAPI app).
 
 Run:
     streamlit run src/hseeker/app.py
@@ -110,8 +110,8 @@ with st.sidebar:
     st.markdown("---")
     skip_overlap = st.checkbox("Skip overlap removal", value=False)
     overlap_strategy = st.selectbox(
-        "Overlap winner", ("greedy", "score"),
-        format_func=lambda choice: "Longest arm" if choice == "greedy" else "Highest stability score",
+        "Overlap selection", ("greedy", "score"),
+        format_func=lambda choice: "Longest arm" if choice == "greedy" else "Highest scores first",
         disabled=skip_overlap,
     )
     st.markdown("**Strict** = purity 1.0 · mismatch 0.0  \n**Relaxed** = purity 0.8 · mismatch 0.2")
