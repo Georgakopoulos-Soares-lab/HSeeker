@@ -5,6 +5,7 @@ Uses an O(n²) constrained maximum-subarray search over all (L, R) arm
 windows to find the globally optimal arm boundaries. The constraint
 2*(al-R)+ll <= (R-L)*v enforces that the new spacer (right tail x 2 +
 original spacer) does not exceed v times the selected arm length.
+If no window satisfies that constraint, score the original detected arms.
 
 No external dependencies (no Biopython, no attrs).
 """
@@ -129,7 +130,9 @@ class _Scorer:
             best_pair = (0, al)
 
         if best_pair is None:
-            raise ValueError("No valid arm window satisfies the spacer constraint")
+            # The constraint governs boundary adjustment, not whether a
+            # detected repeat can be scored at its original boundaries.
+            best_pair = (0, al)
 
         L, R = best_pair
         sub_scoring = scoring_array[L:R]

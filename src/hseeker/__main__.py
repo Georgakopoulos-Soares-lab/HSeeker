@@ -64,8 +64,8 @@ def main() -> None:
     parser.add_argument("-no-score", action="store_false", dest="score",
                         help="Disable stability scoring")
     parser.add_argument("-at-threshold", type=float, default=0.8, metavar="FLOAT",
-                        help="Drop hits whose left-arm AT content is >= this value, "
-                             "applied before scoring (default: 0.80). AT-rich arms "
+                        help="Drop hits whose full-motif AT content is >= this value, "
+                             "including the spacer, before scoring (default: 0.80). AT-rich motifs "
                              "are unlikely to form stable H-DNA triplexes.")
     parser.add_argument("-workers",     type=int,   default=None,  metavar="INT",
                         help="Parallel worker threads (default: all CPU cores)")

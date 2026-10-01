@@ -1576,14 +1576,15 @@ def test_homopolymer_filter_uses_full_sequence_when_score_false():
     assert unscored == []
 
 
-def test_homopolymer_filter_keeps_empty_unscorable_triplex():
+def test_long_spacer_repeat_is_scored_and_retained():
     seq = "G" * 6 + "T" * 10 + "G" * 6
     hits = hseeker.scan_sequence(
         seq, minrep=6, maxspacer=10, purity=1, mismatch=0,
         filter_homopolymers=True,
     )
     assert len(hits) == 1
-    assert hits[0]["putative_triplex"] == ""
+    assert hits[0]["putative_triplex"] == "gggggg[tttttttttt]gggggg"
+    assert hits[0]["total_score"] > 0
 
 
 def test_homopolymer_filter_drops_unscorable_pure_run_across_apis(tmp_path):
@@ -1592,7 +1593,8 @@ def test_homopolymer_filter_drops_unscorable_pure_run_across_apis(tmp_path):
     options = dict(minrep=6, maxrep=6, maxspacer=10, purity=1,
                    mismatch=0, remove_overlaps=False)
     raw = hseeker.scan_sequence(seq, filter_homopolymers=False, **options)
-    assert any(hit["putative_triplex"] == "" for hit in raw)
+    assert raw
+    assert all(hit["total_score"] is not None for hit in raw)
     assert hseeker.filter_homopolymers(raw, mode="POST") == []
 
     path = tmp_path / "poly_g.fa"

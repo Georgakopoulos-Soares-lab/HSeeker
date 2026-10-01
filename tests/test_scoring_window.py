@@ -16,6 +16,16 @@ def test_short_detected_arm_can_still_be_scored():
     assert result["putative_triplex"] == "g" * 6 + "[]" + "g" * 6
 
 
+def test_long_spacer_falls_back_to_original_b33_score():
+    result = score_hit("GCGGGAGG", "GGCGCTTAT", "GGAGGGGG", 8)
+    assert result is not None
+    assert result["putative_triplex"] == "gcgggagg[ggcgcttat]ggaggggg"
+    # Six G/G pairs, one A/A pair, and one mismatch penalty.
+    assert abs(result["pairing_score"] - 43.715) < 1e-9
+    assert result["stacking_score"] == 15.0
+    assert result["total_score"] == 58.715
+
+
 def test_stacking_penalty_grows_until_two_adjacent_matches_reset_it():
     stack = _scorer._calc_stacking
     assert sum(stack("1111111")) == 30.0

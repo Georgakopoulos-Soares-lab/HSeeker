@@ -68,14 +68,12 @@ def _filter_at_content(hits: list[dict], threshold: float) -> list[dict]:
     Applied before scoring: a full-sequence dominated by A/T bases is unlikely to
     stack into a stable triplex (poly-purine/poly-pyrimidine stacking
     relies on G/A tracts), so these hits are pruned early to skip the
-    O(n^2) scoring pass on unpromising candidates. The full sequence is
-    checked — for a mirror repeat the full sequence is the same bases in
-    reverse order, so its AT content is identical (or within one
-    mismatch) and checking both would be redundant.
+    O(n^2) scoring pass on unpromising candidates. The full detected motif,
+    including both arms and the spacer, is checked.
     """
     kept = []
     for h in hits:
-        sequence_length = h["full_sequence"]
+        sequence_length = len(h["full_sequence"])
         if sequence_length == 0:
             kept.append(h)
             continue
