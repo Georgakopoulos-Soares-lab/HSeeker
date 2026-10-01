@@ -63,24 +63,24 @@ _SCORE_KEYS = ("stacking_score", "pairing_score", "total_score", "putative_tripl
 
 
 def _filter_at_content(hits: list[dict], threshold: float) -> list[dict]:
-    """Drop hits whose left-arm AT content is >= *threshold*.
+    """Drop hits whose full-sequence AT content is >= *threshold*.
 
-    Applied before scoring: an arm dominated by A/T bases is unlikely to
+    Applied before scoring: a full-sequence dominated by A/T bases is unlikely to
     stack into a stable triplex (poly-purine/poly-pyrimidine stacking
     relies on G/A tracts), so these hits are pruned early to skip the
-    O(n^2) scoring pass on unpromising candidates. Only the left arm is
-    checked — for a mirror repeat the right arm is the same bases in
+    O(n^2) scoring pass on unpromising candidates. The full sequence is
+    checked — for a mirror repeat the full sequence is the same bases in
     reverse order, so its AT content is identical (or within one
     mismatch) and checking both would be redundant.
     """
     kept = []
     for h in hits:
-        arm_length = h["arm_length"]
-        if arm_length == 0:
+        sequence_length = h["full_sequence"]
+        if sequence_length == 0:
             kept.append(h)
             continue
-        at_count = sum(1 for b in h["left_arm"] if b in ("a", "t", "A", "T"))
-        if (at_count / arm_length) < threshold:
+        at_count = sum(1 for b in h["full_sequence"] if b in ("a", "t", "A", "T"))
+        if (at_count / sequence_length) < threshold:
             kept.append(h)
     return kept
 
