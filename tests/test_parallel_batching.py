@@ -7,11 +7,15 @@ implementation (main before the batching change) on tests/data/batching_genome.f
 (10 synthetic records, 300 bp to 20 kb, with 10-30 bp purine/pyrimidine mirror
 repeats, an N block and a lowercase record). Results differ between chunk sizes
 in a few hits because of chunk-boundary handling, which batching does not touch.
+
+Floats are compared up to 6 decimals: since Python 3.12 the built-in sum()
+uses compensated summation, so unrounded scores (pairing_score, stacking_score)
+differ in the last bits between Python versions.
 """
 
 import gzip
-import hashlib
 import json
+import math
 import random
 import shutil
 from pathlib import Path
@@ -33,13 +37,16 @@ FLAGS = [
 ]
 
 
-def _summary(hits):
-    return [[h["seq_id"], h["start"], h["end"], h["arm_length"], h["spacer_length"], h.get("total_score")]
-            for h in hits]
-
-
-def _digest(hits):
-    return hashlib.sha256(json.dumps(hits, sort_keys=True).encode()).hexdigest()
+def _assert_same_hits(got, expected):
+    """Every field equal; floats equal up to 6 decimals (Python-version float summation)."""
+    assert len(got) == len(expected)
+    for g, e in zip(got, expected):
+        assert g.keys() == e.keys()
+        for key, value in e.items():
+            if isinstance(value, float):
+                assert math.isclose(g[key], value, rel_tol=0, abs_tol=1e-6), (key, g, e)
+            else:
+                assert g[key] == value, (key, g, e)
 
 
 def _scan(path=GENOME, **kwargs):
@@ -101,8 +108,7 @@ def scoring_calls(monkeypatch):
 def test_matches_pre_batching_implementation(name, workers):
     expected = GOLDEN[name]
     hits = _scan(workers=workers, **expected["kwargs"])
-    assert _summary(hits) == expected["hits"]  # readable diff on failure
-    assert _digest(hits) == expected["sha256"]  # every field, incl. sequences and scores
+    _assert_same_hits(hits, expected["hits"])
 
 
 def test_golden_covers_every_mode():
@@ -149,7 +155,7 @@ def test_scoring_runs_per_batch_not_per_genome(scoring_calls):
     hits = _scan(workers=1, chunk_size=2_000, overlap_strategy="score", remove_overlaps=True)
     assert len(scoring_calls) > 1, "the genome should be split into several batches"
     assert max(scoring_calls) < sum(scoring_calls)
-    assert _summary(hits) == GOLDEN["score-overlaps1-filters0-chunk1000000"]["hits"]
+    _assert_same_hits(hits, GOLDEN["score-overlaps1-filters0-chunk1000000"]["hits"])
 
 
 def test_one_batch_when_everything_fits(scoring_calls):
