@@ -138,7 +138,7 @@ jobs:
         run: pip install build
 
       - name: Build sdist
-        run: python -m build --sdist
+        run: pyproject-build --sdist
 
       - name: Upload sdist artifact
         uses: actions/upload-artifact@v4
