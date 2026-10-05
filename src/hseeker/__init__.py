@@ -663,35 +663,47 @@ def scan_fasta_parallel(
             hits = [h for h in hits if h["start"] < excl_end]
         return hits
 
-    # Flatten all records into a list of chunk tasks.
-    # Each chunk_seq is a new str copy of a slice of the full sequence.
-    # Explicitly delete the full-sequence loop variable once chunking is done
-    # so the original full-sequence string can be freed before the scan starts.
-    all_tasks: list[tuple[str, str, int, int | None, bool]] = []
-    seq: str = ""  # pre-init so del below is safe even when FASTA has no records
-    for seq_id, seq, offset in parse_fasta(path, parser=parser):
-        all_tasks.extend(_build_tasks(seq_id, seq, offset))
-    del seq  # free the last full-sequence string (or the "" sentinel)
+    def _post_process(hits: list[dict]) -> list[dict]:
+        """Score and filter one batch. Every step works per hit or per seq_id,
+        so batching whole records gives the same hits as one genome-wide pass."""
+        # In greedy mode, preserve the original pre-scoring overlap pass.
+        # Score mode keeps raw candidates until their scores are available.
+        if remove_overlaps and not score_overlap and hits:
+            hits = _filter_overlapping_hits(hits, strategy="greedy")
+        if score and hits:
+            _apply_scoring(hits)
+            if filter_homopolymers:
+                hits = _filter_homopolymer_triplex(hits, mode="POST")
+        elif hits and filter_homopolymers:
+            hits = _filter_homopolymer_triplex(hits, mode="PRE")
+        if score_overlap and hits:
+            hits = _filter_overlapping_hits(hits, strategy=overlap_strategy)
+        return hits
 
+    # Scan whole records in batches of about n_workers * chunk_size bases and
+    # post-process each batch before reading the next. Raw candidates (all of
+    # them in score mode) are then held for one batch, not the whole assembly.
+    batch_bases = n_workers * chunk_size
     results: list[dict] = []
     with ThreadPoolExecutor(max_workers=n_workers) as executor:
-        for hits in executor.map(_scan_chunk, all_tasks):
-            results.extend(hits)
-    del all_tasks  # free chunk strings now that all tasks have completed
+        tasks: list[tuple[str, str, int, int | None, bool]] = []
+        bases = 0
+        for seq_id, seq, offset in parse_fasta(path, parser=parser):
+            tasks.extend(_build_tasks(seq_id, seq, offset))
+            bases += len(seq)
+            del seq
+            if bases >= batch_bases:
+                hits = [hit for chunk in executor.map(_scan_chunk, tasks) for hit in chunk]
+                results.extend(_post_process(hits))
+                tasks, bases = [], 0
+        if tasks:
+            hits = [hit for chunk in executor.map(_scan_chunk, tasks) for hit in chunk]
+            results.extend(_post_process(hits))
 
-    # In greedy mode, preserve the original pre-scoring overlap pass.
-    # Score mode keeps raw candidates until their scores are available.
-    if remove_overlaps and not score_overlap and results:
-        results = _filter_overlapping_hits(results, strategy="greedy")
-
-    if score and results:
-        _apply_scoring(results)
-        if filter_homopolymers:
-            results = _filter_homopolymer_triplex(results, mode="POST")
-    elif results and filter_homopolymers:
-        results = _filter_homopolymer_triplex(results, mode="PRE")
-    if score_overlap and results:
-        results = _filter_overlapping_hits(results, strategy=overlap_strategy)
+    # Batches come back in file order; the genome-wide overlap filters
+    # returned hits sorted by seq_id, so restore that order (stable sort).
+    if remove_overlaps and results:
+        results.sort(key=lambda hit: str(hit.get("seq_id", "")))
     return results
 
 
