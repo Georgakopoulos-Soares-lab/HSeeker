@@ -5,6 +5,9 @@
 (all `label=forming`, `confidence_tier=literature_curated`, `disposition=secondary`, `curation_decision=kept`)
 **Sequences:** pure (GAA)n tracts, n = 10, 20, 33, 66 (30, 60, 99, 198 nt)
 **Verified:** 2026-09-23, PubMed E-utilities + Crossref REST
+*Counts updated 2026-10-07 for the 128-record (64:64) benchmark after DEC-8 rebalance
+and DEC-9 score-informed overlap default; 124-record values in this file's 2026-10-02
+version. The citation evidence itself is unchanged.*
 
 ## 1. The citation currently in the CSV is wrong — confirmed two independent ways
 
@@ -67,7 +70,7 @@ DEC-2 decides, this field must be made truthful.
 | A | Cite **Wells 2008** (PMID 18211957) | Audit's candidate; real, on-topic; review, so records stay `secondary` |
 | B | Cite **Rajeswari 2012** (PMID 22750988) | Best match to the recorded title; review, so records stay `secondary` |
 | C | Find/supply the primary source for (GAA)10/20/33/66 | Only route to promoting these to `primary`; may not exist for n<59 |
-| D | Drop the 4 records | Removes an unverifiable citation; costs 4 forming records (65→61) and forces a rebalance |
+| D | Drop the 4 records | Removes an unverifiable citation; costs 4 forming records (64→60 forming, leaving 128→124 records at 60:64; was 65→61 before the 2026-10-02 homopolymer removal) and forces a rebalance |
 
 ## Evidence commands
 

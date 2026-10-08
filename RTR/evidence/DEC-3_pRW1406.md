@@ -5,6 +5,9 @@
 "Influence of DNA sequence on the formation of non-B right-handed helices in
 oligopurine.oligopyrimidine inserts in plasmids." PMID **2835375** (verified)
 **Verified:** 2026-09-23, PubMed E-utilities `efetch` (full abstract retrieved)
+*Counts updated 2026-10-07 for the 128-record (64:64) benchmark after DEC-8 rebalance
+and DEC-9 score-informed overlap default; 124-record values in this file's 2026-10-02
+version. The primary-source evidence is unchanged.*
 
 ## 1. The primary abstract resolves both the sequence and the label
 
@@ -29,7 +32,10 @@ The five inserts at 66–25% G+C are (TCC)8, (CT)12, (TTCC)6, **(TTC)8**, (GAAA)
 So **(TTC)8·(GAA)8 is one of the five that form the intramolecular triplex**:
 sequence and label are both established by the primary source.
 
-## 2. Current coverage of this study in the benchmark — 5 of 7 inserts
+## 2. Current coverage of this study in the benchmark — 4 of 7 inserts
+
+*Updated 2026-10-02:* was 5 of 7; HDNA0053 `pRW1405` (A20·T20) was removed from the
+benchmark with the other pure homopolymers (author decision 2026-10-02).
 
 | Insert (abstract) | G+C | Abstract verdict | In benchmark? |
 |---|---|---|---|
@@ -38,10 +44,10 @@ sequence and label are both established by the primary source.
 | (TTCC)6·(GGAA)6 | 50% | non-B / triplex | HDNA0051 `pRW1408` — forming ✓ |
 | **(TTC)8·(GAA)8** | **33%** | **non-B / triplex** | **absent — this is DEC-3** |
 | (GAAA)6·(TTTC)6 | 25% | non-B / triplex | HDNA0052 `pRW1410` — forming ✓ |
-| A20·T20 | 0% | stays B-form | HDNA0053 `pRW1405` — non_forming ✓ |
+| A20·T20 | 0% | stays B-form | HDNA0053 `pRW1405` — non_forming; **removed 2026-10-02** (pure homopolymer) |
 | G19·C19 | 100% | non-B but *different* conformation | absent — see §4 |
 
-Every existing record's label agrees with the abstract. The benchmark is missing
+Every record's label (including the removed HDNA0053) agrees with the abstract. The benchmark is missing
 exactly one unambiguous forming insert from this study.
 
 ## 3. The plasmid *name* is not verifiable; the sequence and label are
@@ -85,10 +91,25 @@ recorded. Noted here so the decision is explicit rather than an omission.
 
 | | Now | If (TTC)8 added |
 |---|---|---|
-| Kept experimental | 71 (65 forming / 6 non-forming) | 72 (66 / 6) |
-| Primary / secondary | 59 / 12 | 60 / 12 |
-| Balanced benchmark | 130 rows, 65:65 | 132 rows, 66:66 |
-| Synthetic negatives | 59 | 60 (regenerate; seed unchanged) |
+| Kept experimental | 69 (64 forming / 5 non-forming) | 70 (65 / 5) |
+| Primary / secondary | 57 / 12 | 58 / 12 |
+| Balanced benchmark | 128 rows, 64:64 | 129 rows, 65:64 if the synthetic set is left as is; restoring 1:1 needs 130 rows, 65:65 (generator output not recomputed) |
+| Synthetic negatives | 59 | 59 if left as is; 60 needed for 1:1 (which records the generator would draw: not recomputed) |
+
+*Updated 2026-10-02:* "Now" column was 71 (65/6), 59/12, 130 rows 65:65, 59
+synthetic; changed after the 6 pure homopolymers were removed (HDNA0053/HDNA0054 and
+SYN0053–SYN0056). The balanced file was then no longer 1:1, and the generator now drops
+pure homopolymers after drawing the pool, so the "if added" balanced/synthetic counts
+were not re-derived.
+
+*Updated 2026-10-07:* "Now" column changed from 124 rows 64:60 / 55 synthetic to
+128 rows 64:64 / 59 synthetic after DEC-8 added four replacement synthetic negatives
+(SYN0060–SYN0063). The experimental counts (69 = 64/5; 57/12) are unchanged. The
+"if added" column is now plain arithmetic: one extra forming record on the current
+file gives 129 rows at 65:64; a 1:1 balance would need one more synthetic negative
+(60, 130 rows at 65:65). The generator sizes its pool from the experimental class
+counts, so re-running it with the new record would change the draw; the exact
+records it would produce were not recomputed.
 
 The generator is deterministic and was verified to reproduce the current balanced
 file byte-for-byte, so the rebalance is mechanical: re-run
@@ -100,7 +121,7 @@ file byte-for-byte, so the rebalance is mechanical: re-run
 |---|---|---|
 | A | Add as `Hanvey1988_(TTC)8`, disposition `primary` (**recommended**) | +1 primary forming record with full primary-source backing; avoids the corrupted plasmid mapping |
 | B | Add as `pRW1406` | Same sequence/label, but re-imports the mapping the audit found conflated |
-| C | Do not add | Benchmark stays at 71/130; a verified primary positive is left on the table |
+| C | Do not add | Benchmark stays at 69/128 (was 69/124 on 2026-10-02 and 71/130 before that); a verified primary positive is left on the table |
 
 ## Evidence command
 

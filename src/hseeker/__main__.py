@@ -38,6 +38,9 @@ def main() -> None:
 
     # mirroring the original findHDNA CLI flags exactly
     parser.add_argument("-seq",         required=True,       help="Input FASTA file")
+    parser.add_argument("-parser", choices=("biopython", "inhouse"),
+                        default="biopython",
+                        help="FASTA parser implementation (default: biopython)")
     parser.add_argument("-out",         required=True,       help="Output prefix → <prefix>_HDNA.tsv")
     parser.add_argument("-minrep",      type=int,   default=10,    metavar="INT",
                         help="Minimum arm length (default: 10)")
@@ -51,13 +54,18 @@ def main() -> None:
                         help="Max mismatch fraction in mirror (default: 0.10)")
     parser.add_argument("-skipoverlap", action="store_true",
                         help="Skip overlap removal (keep all raw hits)")
+    parser.add_argument("-overlap-strategy", choices=("greedy", "score"),
+                        default="greedy",
+                        help="Select nonoverlapping hits by longest arm "
+                             "(greedy, default) or descending individual score "
+                             "(score, applied after scoring)")
     parser.add_argument("-score", action="store_true", default=True,
                         help="Apply stability scoring (default: on)")
     parser.add_argument("-no-score", action="store_false", dest="score",
                         help="Disable stability scoring")
     parser.add_argument("-at-threshold", type=float, default=0.8, metavar="FLOAT",
-                        help="Drop hits whose left-arm AT content is >= this value, "
-                             "applied before scoring (default: 0.80). AT-rich arms "
+                        help="Drop hits whose full-motif AT content is >= this value, "
+                             "including the spacer, before scoring (default: 0.80). AT-rich motifs "
                              "are unlikely to form stable H-DNA triplexes.")
     parser.add_argument("-workers",     type=int,   default=None,  metavar="INT",
                         help="Parallel worker threads (default: all CPU cores)")
@@ -86,22 +94,26 @@ def main() -> None:
     print(
         f"hseeker v{hseeker.__version__} — H-DNA / Triplex Mirror Repeat Detector\n"
         f"  Input : {args.seq}\n"
+        f"  Parser: {args.parser}\n"
         f"  Output: {out_path}\n"
         f"  minrep={args.minrep}  maxrep={args.maxrep}  maxspacer={args.maxspacer}\n"
         f"  purity={args.purity:.2f}  mismatch={args.mismatch:.2f}\n"
         f"  at_threshold={args.at_threshold:.2f}\n"
+        f"  overlap={'off' if args.skipoverlap else args.overlap_strategy}\n"
         f"  workers={n_workers}",
         file=sys.stderr,
     )
 
     hits = hseeker.scan_fasta_parallel(
         args.seq,
+        parser=args.parser,
         minrep=args.minrep,
         maxrep=args.maxrep,
         maxspacer=args.maxspacer,
         purity=args.purity,
         mismatch=args.mismatch,
         remove_overlaps=not args.skipoverlap,
+        overlap_strategy=args.overlap_strategy,
         workers=n_workers,
         score=args.score,
         purity_rmq=args.purity_rmq,

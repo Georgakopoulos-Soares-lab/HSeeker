@@ -6,10 +6,11 @@ the curated benchmark sequences, without genomic insertion. The E. coli
 injection benchmark is kept separately as a secondary/context validation.
 
 The default input is the class-balanced benchmark v3
-(``hdna_benchmark_balanced_v3.csv``, 130 records at 65 forming : 65 non-forming:
-71 curated experimental records plus 59 synthetic negatives). Use
-``--subset experimental`` to reproduce the experimental-only composition
-(71 records, 65:6) and ``--subset synthetic`` for the synthetic stress panel
+(``hdna_benchmark_balanced_v3.csv``, 128 records at 64 forming : 64 non-forming:
+69 curated experimental records plus 59 synthetic negatives; pure homopolymers
+were removed on 2026-10-02 and four replacement negatives added on 2026-10-07).
+Use ``--subset experimental`` to reproduce the experimental-only composition
+(69 records, 64:5) and ``--subset synthetic`` for the synthetic stress panel
 alone; metrics are reported for both compositions.
 """
 

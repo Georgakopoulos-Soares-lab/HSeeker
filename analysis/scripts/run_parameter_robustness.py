@@ -7,7 +7,8 @@ split only, and the selected configuration is scored once on a HELD-OUT EVAL spl
 that took no part in selection.
 
 Design (fixed by the authors, 2026-09-23):
-  * Data      : hdna_benchmark_balanced_v3.csv, the 65:65 balanced set only.
+  * Data      : hdna_benchmark_balanced_v3.csv only (124 kept records, 64 forming /
+                60 non-forming after the pure homopolymers were removed, 2026-10-02).
   * Splitting : SEQUENCE level, stratified by (label, record_type). Explicitly NOT
                 family- or study-aware -- see the leakage audit this script emits,
                 and the caveat it prints, because reviewer R3.2 asks for the
@@ -210,8 +211,8 @@ def predict_all(records: list[dict], configs: list[dict]) -> dict[tuple, list[in
 def stratified_split(records: list[dict], frac: float, seed: int) -> tuple[list[int], list[int]]:
     """Sequence-level stratified split on (label, record_type).
 
-    Per-label train sizes are computed from the label total so the EVAL split stays
-    exactly class-balanced, then divided across record_type in proportion.
+    Per-label train sizes are computed from the label total, so EVAL keeps the
+    class ratio of the input, then divided across record_type in proportion.
     """
     rng = random.Random(seed)
     by_label: dict[int, dict[str, list[int]]] = {}
@@ -397,8 +398,6 @@ def main() -> None:
     records = load_balanced(args.csv)
     npos = sum(r["y"] for r in records)
     print(f"Loaded {len(records)} kept records: {npos} forming / {len(records)-npos} non-forming")
-    if npos != len(records) - npos:
-        print("  WARNING: input is not class-balanced; this analysis assumes the 65:65 set")
 
     configs = grid_configs()
     print(f"Grid: {len(configs)} configurations "
@@ -551,7 +550,7 @@ def main() -> None:
                         "sens_CI95_lo": round(sl, 4), "sens_CI95_hi": round(sh, 4),
                         "spec_CI95_lo": round(kl, 4), "spec_CI95_hi": round(kh, 4)})
     write_csv(out / "nested_cv_summary.csv", cv_rows)
-    print("  out-of-fold metrics pooled over all 130 records, across repeats:")
+    print(f"  out-of-fold metrics pooled over all {len(records)} records, across repeats:")
     for r in cv_rows:
         print(f"    {r['config_name']:28s} MCC {r['MCC_median']:.3f} "
               f"boot95[{r['MCC_boot_lo']:.3f},{r['MCC_boot_hi']:.3f}]  "

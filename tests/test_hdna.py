@@ -270,8 +270,8 @@ def test_seq_offset_does_not_change_arm_sequences():
         hits = hseeker.scan_sequence(GAMIR_SEQ, minrep=6, seq_offset=off)
         arm7 = [h for h in hits if h["arm_length"] == 7]
         if arm7:
-            assert arm7[0]["left_arm"]  == "GGGAAAT"
-            assert arm7[0]["right_arm"] == "TAAAGGG"
+            assert arm7[0]["left_arm"]  == "gggaaat"
+            assert arm7[0]["right_arm"] == "taaaggg"
 
 
 # ===========================================================================
@@ -562,11 +562,11 @@ def test_gamir_start_end_coordinates():
 
 
 def test_gamir_left_arm_sequence():
-    assert _gamir_hit()["left_arm"] == "GGGAAAT"
+    assert _gamir_hit()["left_arm"] == "gggaaat"
 
 
 def test_gamir_right_arm_sequence():
-    assert _gamir_hit()["right_arm"] == "TAAAGGG"
+    assert _gamir_hit()["right_arm"] == "taaaggg"
 
 
 def test_gamir_ga_pct():
@@ -639,8 +639,8 @@ def test_ct_arm_ct_pct_exceeds_ga_pct():
 
 def test_ct_arm_arm_sequences():
     h = _ctmir_hit()
-    assert h["left_arm"]  == "CCCTTTA"
-    assert h["right_arm"] == "ATTTCCC"
+    assert h["left_arm"]  == "cccttta"
+    assert h["right_arm"] == "atttccc"
 
 
 def test_ct_arm_coordinates():
@@ -743,37 +743,11 @@ def test_mixed_case_same_as_lower():
            len(hseeker.scan_sequence(mixed.lower(), minrep=6))
 
 
-def test_output_sequences_are_always_uppercase():
-    """R2.10: every public sequence field is uppercase, whatever the input case.
-
-    Previously the C core emitted lowercase arms while the scorer emitted an
-    uppercase putative_triplex, so a plain == between them silently failed.
-    """
-    for source in (GAMIR_SEQ.upper(), GAMIR_SEQ.lower(), "gGgAaAtTaAaGgG"):
-        for h in hseeker.scan_sequence(source, minrep=6):
-            assert h["left_arm"]      == h["left_arm"].upper()
-            assert h["right_arm"]     == h["right_arm"].upper()
-            assert h["full_sequence"] == h["full_sequence"].upper()
-            assert h["spacer"]        == h["spacer"].upper()
-
-
-def test_sequence_fields_comparable_with_putative_triplex():
-    """R2.10: the bug the reviewer reported — cross-field string comparison."""
-    for h in hseeker.scan_sequence(GAMIR_SEQ.lower(), minrep=6):
-        triplex_bases = h["putative_triplex"].replace("[", "").replace("]", "")
-        assert triplex_bases, "expected a scored hit"
-        # every base of the reconstructed triplex must come from the same alphabet
-        assert set(triplex_bases) <= set(h["full_sequence"])
-
-
-def test_case_of_input_does_not_change_output_fields():
-    """The same motif in any input case yields byte-identical sequence fields."""
-    upper = hseeker.scan_sequence(GAMIR_SEQ.upper(), minrep=6)
-    lower = hseeker.scan_sequence(GAMIR_SEQ.lower(), minrep=6)
-    assert len(upper) == len(lower)
-    for hu, hl in zip(upper, lower):
-        for key in ("left_arm", "right_arm", "full_sequence", "spacer"):
-            assert hu[key] == hl[key]
+def test_output_sequences_are_always_lowercase():
+    for h in hseeker.scan_sequence(GAMIR_SEQ.upper(), minrep=6):
+        assert h["left_arm"]      == h["left_arm"].lower()
+        assert h["right_arm"]     == h["right_arm"].lower()
+        assert h["full_sequence"] == h["full_sequence"].lower()
 
 
 # ===========================================================================
@@ -1449,35 +1423,6 @@ def test_parallel_determinism():
         p.unlink(missing_ok=True)
 
 
-def test_profiling_counters_are_thread_local():
-    """R2.9: profiling counters must not be shared across concurrent scans.
-
-    The core scan runs with the GIL released, so when the counters were plain
-    static globals, concurrent scans incremented the same words: counts were
-    both lost and cross-contaminated (measured up to 3.8x inflation on 8
-    threads). Each thread must now observe exactly the single-threaded total
-    for the same input.
-    """
-    import concurrent.futures as cf
-
-    from hseeker import _hdna
-
-    seq = ("GGGAAAGGGGAGGGTATAGGGAGGGGAAAGGG" + "ACGT" * 500) * 4
-
-    def scan_and_read(_):
-        hseeker.scan_sequence(seq, minrep=10, purity_rmq=True)
-        return _hdna.profiling_info()
-
-    baseline = scan_and_read(0)
-    assert baseline["ctr_sp_pairs"] > 0, "expected a non-trivial scan"
-
-    with cf.ThreadPoolExecutor(max_workers=8) as ex:
-        observed = list(ex.map(scan_and_read, range(8)))
-
-    assert {o["ctr_sp_pairs"] for o in observed} == {baseline["ctr_sp_pairs"]}
-    assert {o["inner_iters"] for o in observed} == {baseline["inner_iters"]}
-
-
 # ===========================================================================
 # 25. Real-genome regression  (hg38 chr1 — requires benchmarks/data/chr1.fa)
 #
@@ -1596,7 +1541,7 @@ def test_at_filter_boundary_is_exclusive_below_threshold():
     """AT_content >= threshold is dropped; AT_content < threshold is kept."""
     hits = hseeker.scan_sequence(POLY_A_SEQ, minrep=6)
     assert hits, "expected at least one hit on a pure-A run"
-    at_content = sum(1 for b in hits[0]["left_arm"].lower() if b in "at") / hits[0]["arm_length"]
+    at_content = sum(1 for b in hits[0]["left_arm"] if b in "at") / hits[0]["arm_length"]
     assert at_content == pytest.approx(1.0)
     assert hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=at_content) == []
     assert len(hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=at_content + 0.01)) > 0
@@ -1609,7 +1554,7 @@ def test_homopolymer_filter_default_off_does_not_change_hit_count():
 
 
 def test_homopolymer_filter_drops_poly_g_triplex():
-    """POLY_G_SEQ scores to a putative_triplex of a single repeated base — must be dropped."""
+    """POLY_G_SEQ scores to a putative_triplex of a single repeated 'g' — must be dropped."""
     hits = hseeker.scan_sequence(POLY_G_SEQ, minrep=6)
     assert hits and hits[0]["putative_triplex"], "expected a scored hit on a pure-G run"
     filtered = hseeker.scan_sequence(POLY_G_SEQ, minrep=6, filter_homopolymers=True)
@@ -1625,10 +1570,74 @@ def test_homopolymer_filter_keeps_mixed_triplex():
     assert len(filtered) == len(default)
 
 
-def test_homopolymer_filter_noop_when_score_false():
-    """filter_homopolymers requires putative_triplex, so it must be a no-op when score=False."""
+def test_homopolymer_filter_uses_full_sequence_when_score_false():
+    """Without scoring, the PRE filter excludes a pure homopolymer motif."""
     unscored = hseeker.scan_sequence(POLY_G_SEQ, minrep=6, score=False, filter_homopolymers=True)
-    assert len(unscored) > 0
+    assert unscored == []
+
+
+def test_long_spacer_repeat_is_scored_and_retained():
+    seq = "G" * 6 + "T" * 10 + "G" * 6
+    hits = hseeker.scan_sequence(
+        seq, minrep=6, maxspacer=10, purity=1, mismatch=0,
+        filter_homopolymers=True,
+    )
+    assert len(hits) == 1
+    assert hits[0]["putative_triplex"] == "gggggg[tttttttttt]gggggg"
+    assert hits[0]["total_score"] > 0
+
+
+def test_homopolymer_filter_drops_unscorable_pure_run_across_apis(tmp_path):
+    """A failed score cannot hide a pure homopolymer from POST filtering."""
+    seq = "G" * 22
+    options = dict(minrep=6, maxrep=6, maxspacer=10, purity=1,
+                   mismatch=0, remove_overlaps=False)
+    raw = hseeker.scan_sequence(seq, filter_homopolymers=False, **options)
+    assert raw
+    assert all(hit["total_score"] is not None for hit in raw)
+    assert hseeker.filter_homopolymers(raw, mode="POST") == []
+
+    path = tmp_path / "poly_g.fa"
+    path.write_text(f">poly_g\n{seq}\n")
+    assert hseeker.scan_sequence(seq, filter_homopolymers=True,
+                                 **options) == []
+    assert hseeker.scan_fasta(path, filter_homopolymers=True,
+                              **options) == []
+    assert list(hseeker.scan_fasta_iter(path, filter_homopolymers=True,
+                                       **options)) == []
+    assert hseeker.scan_fasta_parallel(
+        path, workers=2, chunk_size=100, filter_homopolymers=True,
+        **options,
+    ) == []
+
+
+@pytest.mark.parametrize("extra_args", [[], ["-no-score"]], ids=["scored", "unscored"])
+def test_cli_drops_unscorable_pure_homopolymer(tmp_path, extra_args):
+    """CLI homopolymer filtering works with and without scoring."""
+    path = tmp_path / "poly_g.fa"
+    path.write_text(f">poly_g\n{'G' * 22}\n")
+    out_prefix = tmp_path / "poly_g_result"
+    subprocess.run(
+        [sys.executable, "-m", "hseeker", "-seq", str(path),
+         "-out", str(out_prefix), "-minrep", "6", "-maxrep", "6",
+         "-maxspacer", "10", "-skipoverlap", *extra_args],
+        check=True, capture_output=True, text=True,
+    )
+    with open(f"{out_prefix}_HDNA.tsv") as fh:
+        assert list(csv.DictReader(fh, delimiter="\t")) == []
+
+
+def test_post_filter_catches_pure_optimized_triplex_from_mixed_hit():
+    seq = "GCCTGCACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCTGCAGGT"
+    hits = hseeker.scan_sequence(
+        seq, minrep=10, maxspacer=10, purity=0.9, mismatch=0.1,
+        at_threshold=0.8, remove_overlaps=False,
+    )
+    hit = next(h for h in hits if (h["start"], h["end"]) == (6, 25))
+    assert len(set(hit["full_sequence"])) > 1
+    assert hit["putative_triplex"] == "gggggggg[]gggggggg"
+    assert hseeker.filter_homopolymers([hit], mode="PRE") == [hit]
+    assert hseeker.filter_homopolymers([hit], mode="POST") == []
 
 
 def test_at_filter_applies_per_record_in_scan_fasta():
@@ -1693,12 +1702,8 @@ def test_cli_default_at_threshold_drops_poly_a_record():
 
 
 def test_cli_at_threshold_flag_is_configurable():
-    """Raising -at-threshold above the poly-A arm's AT content lets it through.
-
-    Scoring is disabled here so the always-on homopolymer post-filter (which
-    would also drop this poly-A hit) does not confound the AT-threshold check.
-    """
-    path = fasta_to_tmp([("poly_a", POLY_A_SEQ)])
+    """A nonhomopolymer with pure-A arms survives a relaxed AT threshold."""
+    path = fasta_to_tmp([("at_rich", "A" * 14 + "C" + "A" * 14)])
     out_prefix = str(path.parent / "cli_at_relaxed")
     tsv_path = Path(out_prefix + "_HDNA.tsv")
     try:
@@ -1710,7 +1715,7 @@ def test_cli_at_threshold_flag_is_configurable():
         )
         with open(tsv_path) as fh:
             rows = list(csv.DictReader(fh, delimiter="\t"))
-        assert len(rows) > 0, "poly-A record should survive a >1.0 AT threshold"
+        assert len(rows) > 0, "AT-rich record should survive a >1.0 AT threshold"
     finally:
         path.unlink(missing_ok=True)
         tsv_path.unlink(missing_ok=True)

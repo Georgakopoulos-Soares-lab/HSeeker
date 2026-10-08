@@ -262,10 +262,55 @@
       "critical": false
     },
     {
+      "id": "DEC-6",
+      "type": "decision",
+      "label": "DEC-6",
+      "title": "Merge main into RTR; on code overlaps prefer Nikol's implementation (HSEEKER_NATIVE_BUILD opt-in, per-scan profiling under the GIL, lowercase sequence output). Resolved 2026-10-02.",
+      "status": "resolved",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "DEC-7",
+      "type": "decision",
+      "label": "DEC-7",
+      "title": "Keep RTR's benchmark data but remove the 6 pure single-base homopolymers (HDNA0053, HDNA0054, SYN0053-0056): balanced 124 records, 64 forming / 60 non-forming. Resolved 2026-10-02. Balance restored to 128 records (64:64) by DEC-8, 2026-10-07.",
+      "status": "resolved",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "DEC-8",
+      "type": "decision",
+      "label": "DEC-8",
+      "title": "Restore the 1:1 balance with 4 new synthetic non-forming records (SYN0060-0063: 2 mirror-disrupted mutants, 1 dinucleotide shuffle, 1 random; REPLACEMENT_SEED 20261002): balanced 128 records, 64 forming / 64 non-forming. Resolved 2026-10-07.",
+      "status": "resolved",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "DEC-9",
+      "type": "decision",
+      "label": "DEC-9",
+      "title": "Overlap removal defaulted to the score-informed strategy when scoring was on (greedy longest-arm with score=False / -no-score; explicit score without scoring still errors). Default superseded by DEC-10 on 2026-10-08 (greedy again); score mode is kept as an option. Score-based selection optimised with the logic unchanged; verified identical to the pre-optimisation code. No detection call changed on the benchmark (0 of 73,728 grid calls); with the homopolymer filter on, score can in general report a near-homopolymer hit where greedy reports none. The reported hit in overlapping clusters can change. Resolved 2026-10-07.",
+      "status": "resolved",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "DEC-10",
+      "type": "decision",
+      "label": "DEC-10",
+      "title": "Greedy (longest-arm) overlap removal is the default again in the library, CLI and webapp (author instruction 2026-10-08; identical to Nikol's main d237bca); supersedes DEC-9's default. Reason: score mode costs ~2.3x greedy on hg38 chr1 (16 workers: ~60 s vs 26.3 s; published triplex 57.7 s). Kept from DEC-9: score mode as an option with its verified optimisation, and the PR #18 memory fix. Benchmark calls unchanged (0 of 73,728 grid calls); the published chr1 speed and 96,729 count describe the default again. Resolved 2026-10-08.",
+      "status": "resolved",
+      "group": null,
+      "critical": false
+    },
+    {
       "id": "WS0-A1",
       "type": "action",
       "label": "WS0-A1",
-      "title": "WS0-A1 [WS0_benchmark_freeze]\nverify: 71 kept (65 forming / 6 non-forming); 0 low-tier rows kept; 59 primary / 12 secondary; all primary rows construct-level with valid citation; pCON terminal C corrected; 22 PMIDs + 2 DOIs corrected; family_id/study_id/evidence_level columns present; SHA-256 recorded.",
+      "title": "WS0-A1 [WS0_benchmark_freeze]\nverify: 69 kept (64 forming / 5 non-forming); 0 low-tier rows kept; 0 pure homopolymers kept; 57 primary / 12 secondary; all primary rows construct-level with valid citation; pCON terminal C corrected; 22 PMIDs + 2 DOIs corrected; family_id/study_id/evidence_level columns present; SHA-256 recorded.",
       "status": "pending",
       "group": "WS0_benchmark_freeze",
       "critical": false
@@ -310,7 +355,7 @@
       "id": "WS1-A3",
       "type": "action",
       "label": "WS1-A3",
-      "title": "WS1-A3 [WS1_code_fixes]\nverify: left_arm/right_arm/full_sequence/putative_triplex all uppercase; string round-trip test passes",
+      "title": "WS1-A3 [WS1_code_fixes]\nverify: left_arm/spacer/right_arm/full_sequence/putative_triplex all lowercase on every public path and the CLI TSV; string round-trip test passes",
       "status": "pending",
       "group": "WS1_code_fixes",
       "critical": false
@@ -364,7 +409,7 @@
       "id": "WS2-A4",
       "type": "action",
       "label": "WS2-A4",
-      "title": "WS2-A4 [WS2_benchmark_pipeline]\nverify: 130 rows; 65:65 balanced; 6 classes (mirror-disrupted, dinuc shuffle, random, other-structure, homopolymer, perfect-mirror); 0 H-DNA-competent synthetic rows; no exact/revcomp duplicates; never filtered by HSeeker predictions",
+      "title": "WS2-A4 [WS2_benchmark_pipeline]\nverify: 128 rows; 64 forming / 64 non-forming (1:1 restored by DEC-8); 5 synthetic classes written (mirror-disrupted, dinuc shuffle, random, other-structure, perfect-mirror; homopolymer class generated but excluded); 0 H-DNA-competent synthetic rows; no exact/revcomp duplicates; never filtered by HSeeker predictions",
       "status": "done",
       "group": "WS2_benchmark_pipeline",
       "critical": false
@@ -436,7 +481,7 @@
       "id": "WS4-A4",
       "type": "action",
       "label": "WS4-A4",
-      "title": "WS4-A4 [WS4_robustness]\nverify: concordance reported on benchmark and chr1; production rule changed only if justified",
+      "title": "WS4-A4 [WS4_robustness]\nverify: concordance of the reported hit reported on benchmark and chr1; keeping the longest-arm default (DEC-10) and offering score mode are justified by the comparison or explicitly in text, and a mode is recommended",
       "status": "pending",
       "group": "WS4_robustness",
       "critical": false
@@ -526,7 +571,7 @@
       "id": "AUDIT-1",
       "type": "action",
       "label": "AUDIT-1",
-      "title": "AUDIT-1 [WS0_benchmark_freeze]\nverify: 80 rows audited; 71 kept (65/6); 59 primary / 12 secondary / 7 removed / 2 excluded; all primary rows cited; 4 low-tier + 1 moderate-tier-weakest records removed by author decision; balanced benchmark 130 rows at 65:65",
+      "title": "AUDIT-1 [WS0_benchmark_freeze]\nverify: 80 rows audited; 71 kept (65/6); 59 primary / 12 secondary / 7 removed / 2 excluded; all primary rows cited; 4 low-tier + 1 moderate-tier-weakest records removed by author decision; balanced benchmark 130 rows at 65:65. Superseded 2026-10-02 by DEC-7 (2 further removals) - now 69 kept (64/5); 57 primary / 12 secondary / 9 removed / 2 excluded; balanced 124 rows at 64:60. Balanced set further superseded 2026-10-07 by DEC-8 (4 replacement synthetic negatives) - 128 rows at 64:64; experimental counts unchanged",
       "status": "verified",
       "group": "WS0_benchmark_freeze",
       "critical": true
@@ -535,7 +580,7 @@
       "id": "CUR-1",
       "type": "action",
       "label": "CUR-1",
-      "title": "Curate experimental benchmark v3\nRemoved 7 records: 3 unverifiable (HDNA0035/36/37) + 3 low-confidence-tier (HDNA0032/33/34, author decision; moots DEC-1 and DEC-4) + 1 weakest-provenance (HDNA0039: moderate tier, empty resolved_origin, generic poly-C homopolymer). Excluded 2 invalid (HDNA0026 inosine artifact, HDNA0080 intermolecular-TFO label-scope error). Kept 71 with per-record justification; zero low-tier records remain. Output: hdna_benchmark_experimental_v3.csv (65 forming / 6 non-forming).",
+      "title": "Curate experimental benchmark v3\nRemoved 9 records: 3 unverifiable (HDNA0035/36/37) + 3 low-confidence-tier (HDNA0032/33/34, author decision; moots DEC-1 and DEC-4) + 1 weakest-provenance (HDNA0039: moderate tier, empty resolved_origin, generic poly-C homopolymer) + 2 pure homopolymers (HDNA0053 pRW1405 A x20, HDNA0054 poly-(dC)30; author decision DEC-7, 2026-10-02). Excluded 2 invalid (HDNA0026 inosine artifact, HDNA0080 intermolecular-TFO label-scope error). Kept 69 with per-record justification; zero low-tier records and zero pure homopolymers remain. Output: hdna_benchmark_experimental_v3.csv (64 forming / 5 non-forming).",
       "status": "done",
       "group": "WS2_benchmark_v3",
       "critical": true
@@ -544,7 +589,7 @@
       "id": "SYN-1",
       "type": "action",
       "label": "SYN-1",
-      "title": "Generate 59 synthetic negatives (seed=20260922)\nSix classes per reviewer R2.1 menu: 20 mirror-disrupted mutants, 10 dinucleotide shuffles, 10 random GC/length-matched, 12 other-structure (G4/Z-DNA/B-DNA), 4 poly-A/T, 3 perfect-mirror balanced-GC. Script: generate_synthetic_negatives.py.",
+      "title": "Generate synthetic negatives (seed=20260922): 59 written\nSix classes drawn per reviewer R2.1 menu: 20 mirror-disrupted mutants, 10 dinucleotide shuffles, 10 random GC/length-matched, 12 other-structure (G4/Z-DNA/B-DNA), 4 poly-A/T (class E, dropped before writing by DEC-7, 2026-10-02), 3 perfect-mirror balanced-GC; plus 4 DEC-8 replacements (2 mirror-disrupted mutants, 1 dinucleotide shuffle, 1 random; REPLACEMENT_SEED=20261002, 2026-10-07). Script: generate_synthetic_negatives.py.",
       "status": "done",
       "group": "WS2_benchmark_v3",
       "critical": true
@@ -562,7 +607,7 @@
       "id": "SYN-3",
       "type": "action",
       "label": "SYN-3",
-      "title": "Freeze balanced benchmark v3 (65:65, 130 records)\nOutput: hdna_benchmark_balanced_v3.csv. Dual-reporting policy: metrics on experimental-only AND balanced sets.",
+      "title": "Freeze balanced benchmark v3 (64:64, 128 records)\nOutput: hdna_benchmark_balanced_v3.csv (69 experimental + 59 synthetic; 1:1 restored by DEC-8 after DEC-7 removed the 6 pure homopolymers). Dual-reporting policy: metrics on experimental-only AND balanced sets.",
       "status": "done",
       "group": "WS2_benchmark_v3",
       "critical": true
@@ -1328,6 +1373,111 @@
       "critical": false
     },
     {
+      "from": "DEC-6",
+      "to": "WS1-A1",
+      "type": "informs",
+      "note": "merged implementation: HSEEKER_NATIVE_BUILD=1, error on cross-arch native build",
+      "critical": false
+    },
+    {
+      "from": "DEC-6",
+      "to": "WS1-A2",
+      "type": "informs",
+      "note": "merged implementation: per-scan ScanProfile published under the GIL",
+      "critical": false
+    },
+    {
+      "from": "DEC-6",
+      "to": "WS1-A3",
+      "type": "informs",
+      "note": "merged implementation: all sequence fields lowercase incl. putative_triplex",
+      "critical": false
+    },
+    {
+      "from": "DEC-7",
+      "to": "CUR-1",
+      "type": "informs",
+      "note": "HDNA0053/HDNA0054 removed as pure homopolymers",
+      "critical": false
+    },
+    {
+      "from": "DEC-7",
+      "to": "SYN-1",
+      "type": "informs",
+      "note": "homopolymer class E dropped before writing",
+      "critical": false
+    },
+    {
+      "from": "DEC-8",
+      "to": "SYN-1",
+      "type": "informs",
+      "note": "4 replacement negatives drawn after the v3 pool (REPLACEMENT_SEED 20261002)",
+      "critical": false
+    },
+    {
+      "from": "DEC-8",
+      "to": "SYN-3",
+      "type": "informs",
+      "note": "balanced set 124 (64:60) to 128 (64:64)",
+      "critical": false
+    },
+    {
+      "from": "DEC-8",
+      "to": "WS2-A4",
+      "type": "informs",
+      "note": "stress panel 55 to 59 synthetic negatives; none are homopolymers",
+      "critical": false
+    },
+    {
+      "from": "DEC-9",
+      "to": "WS4-A4",
+      "type": "informs",
+      "note": "score-informed default adopted before the comparison (reverted by DEC-10); 0 of 73,728 benchmark grid calls differ",
+      "critical": false
+    },
+    {
+      "from": "DEC-9",
+      "to": "WS4-A3",
+      "type": "informs",
+      "note": "results regenerated under the score default; no detection call changed on the benchmark (0 of 73,728 grid calls)",
+      "critical": false
+    },
+    {
+      "from": "DEC-9",
+      "to": "WS2-A3",
+      "type": "informs",
+      "note": "results regenerated under the score default; no detection call changed on the benchmark (0 of 73,728 grid calls)",
+      "critical": false
+    },
+    {
+      "from": "DEC-9",
+      "to": "WS6-A4",
+      "type": "informs",
+      "note": "deposited timings and chr1 output were produced under greedy",
+      "critical": false
+    },
+    {
+      "from": "DEC-10",
+      "to": "WS4-A4",
+      "type": "informs",
+      "note": "greedy default kept for speed; the comparison must justify it and recommend a mode (chr1: score keeps all 96,729 greedy loci, 83.7 % identical, +1.5 % loci, ~2.3x runtime)",
+      "critical": false
+    },
+    {
+      "from": "DEC-10",
+      "to": "WS6-A4",
+      "type": "informs",
+      "note": "published chr1 runtime and 96,729 count describe the default again (greedy re-measured 26.3 s / 96,729 on the same CPU model)",
+      "critical": false
+    },
+    {
+      "from": "DEC-10",
+      "to": "WS4-A3",
+      "type": "informs",
+      "note": "no detection call changes (0 of 73,728 grid calls differ between the rules); results stand",
+      "critical": false
+    },
+    {
       "from": "AUDIT-1",
       "to": "ART_audit",
       "type": "produces",
@@ -1485,7 +1635,7 @@
     ],
     "counts": {
       "reviewer_items": 24,
-      "decisions": 5,
+      "decisions": 10,
       "actions": 34,
       "artifacts": 6,
       "gates": 2

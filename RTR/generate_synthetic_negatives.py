@@ -3,10 +3,17 @@
 generate_synthetic_negatives.py — HSeeker benchmark v3 synthetic negative generator.
 
 Generates synthetic non-forming controls to balance the curated experimental
-benchmark to exactly 1:1. The number needed is computed from the input CSV
-(forming minus non-forming); class counts follow the recipe in target_counts().
-Current curated set: 66 forming / 6 non-forming -> 60 synthetic negatives,
-132 records total (66:66).
+benchmark. The number needed is computed from the input CSV (forming minus
+non-forming); class counts follow the recipe in target_counts().
+v3 generation pool: 65 forming / 6 non-forming -> 59 synthetic negatives.
+
+Pure homopolymers are then excluded from the written benchmark (author decision,
+2026-10-02): the experimental HDNA0053 (poly-A20) and HDNA0054 (poly-dC30), which
+the experimental CSV marks 'Removed (pure homopolymer)', and the four class-E
+synthetics. The pool is still generated exactly as in v3 -- those two records drive
+the balance count and the class-C source draw -- so every other row, record id and
+sequence is byte-identical to the v3 release. Output: 124 records, 64 forming /
+60 non-forming.
 
 Classes (reviewer R2.1 menu, adapted for DNA; perturbation-focused core):
   A. mirror_disrupted_mutant  (20) — heavy purine-preserving disruption of the
@@ -17,7 +24,7 @@ Classes (reviewer R2.1 menu, adapted for DNA; perturbation-focused core):
   C. random_gc_length_matched (12) — random sequence, same length and GC count as a
      randomly chosen forming positive.
   D. other_structure          (12) — G4 (4), Z-DNA (3), mixed B-DNA (5).
-  E. homopolymer_AT           (4)  — poly-A/poly-T; poly-A20 is experimentally
+  E. homopolymer_AT           (4)  — EXCLUDED FROM OUTPUT (see above). poly-A/poly-T; poly-A20 is experimentally
      non-forming (Hanvey 1988, pRW1405 = HDNA0053, already in the experimental
      set); these lengths extend coverage and test the homopolymer filter.
      poly-G/poly-C are NOT used: poly-dG.dC genuinely forms H-DNA (Kohwi 1988;
@@ -51,6 +58,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)  # benchmark CSVs live at the repository root
 IN_CSV = os.path.join(ROOT, 'hdna_benchmark_experimental_v3.csv')
 OUT_CSV = os.path.join(ROOT, 'hdna_benchmark_balanced_v3.csv')
+
+# Records removed from the experimental set only because they are pure homopolymers.
+# They stay in the generation pool so the v3 synthetic set is reproduced unchanged.
+HOMOPOLYMER_REMOVAL = 'Removed (pure homopolymer)'
+
+# Replacement negatives for the four excluded class-E records (2026-10-07).
+REPLACEMENT_SEED = 20261002
+REPLACEMENT_COUNTS = {'mirror_disrupted_mutant': 2, 'dinucleotide_shuffle': 1,
+                      'random_gc_length_matched': 1}
 
 MIN_ARM = 6         # reporting floor for the best-mirror search
 MAX_SPACER = 12
@@ -206,6 +222,10 @@ HOMOPOLYMERS = {'poly-A15': 'A' * 15, 'poly-A30': 'A' * 30,
 FIXED_COUNTS = {'other_structure': 12, 'homopolymer_AT': 4, 'perfect_mirror_balanced': 3}
 
 
+def is_pure_homopolymer(seq):
+    return len(set(seq.upper())) == 1
+
+
 def target_counts(n_needed):
     fixed = sum(FIXED_COUNTS.values())
     rem = n_needed - fixed
@@ -221,7 +241,8 @@ def target_counts(n_needed):
 def main():
     rng = random.Random(SEED)
     rows = list(csv.DictReader(open(IN_CSV)))
-    kept = [r for r in rows if r['curation_decision'] == 'kept']
+    kept = [r for r in rows if r['curation_decision'] == 'kept'
+            or r['curation_justification'].startswith(HOMOPOLYMER_REMOVAL)]
     forming = [r for r in kept if r['label'] == 'forming']
     n_nonforming = len(kept) - len(forming)
     n_needed = len(forming) - n_nonforming
@@ -282,16 +303,14 @@ def main():
     def novel(seq):
         return seq not in taken and revcomp(seq) not in taken
 
-    # ---- class A: mirror-disrupted mutants (20)
-    src_iter = iter(sources)
-    made = 0
-    while made < COUNTS['mirror_disrupted_mutant']:
+    def add_mutant(rng):
+        """Class A: one mirror-disrupted mutant from the next unused source."""
         src = next(src_iter)
         mut, fid, L = disrupt_mirror(src['sequence_5to3'], rng)
         if L >= STRONG_ARM and fid >= STRONG_ID:
-            continue  # disruption failed; next source
+            return False  # disruption failed; next source
         if not novel(mut):
-            continue  # e.g. a mutant that accidentally equals another pXY32 variant
+            return False  # e.g. a mutant that accidentally equals another pXY32 variant
         register(mut, f"{src['sequence_name']}_mirrordisrupted", 'mirror_disrupted_mutant',
                  src['record_id'],
                  f"Heavy purine-preserving disruption of the longest mirror arm of "
@@ -299,18 +318,17 @@ def main():
                  f"< {STRONG_ID}). Heavy disruption required: single-mismatch mirrors still "
                  f"form H-DNA (Belotserkovskii 1990). Expected non-forming by design.",
                  f"SYN:{src['family_id']}")
-        made += 1
+        return True
 
-    # ---- class B: dinucleotide shuffles (12)
-    made = 0
-    while made < COUNTS['dinucleotide_shuffle']:
+    def add_shuffle(rng):
+        """Class B: one dinucleotide shuffle of the next unused source."""
         src = next(src_iter)
         for _ in range(25):
             sh = dinuc_shuffle(src['sequence_5to3'], rng)
             if sh != src['sequence_5to3'] and not has_strong_mirror(sh) and novel(sh):
                 break
         else:
-            continue
+            return False
         assert Counter(sh[i:i+2] for i in range(len(sh)-1)) == \
                Counter(src['sequence_5to3'][i:i+2] for i in range(len(src['sequence_5to3'])-1))
         fid, L, *_ = best_strong_mirror(sh)
@@ -320,15 +338,14 @@ def main():
                  f"composition, same length); arm>=8 mirror destroyed (residual arm={L}, "
                  f"identity={fid:.2f}). Expected non-forming by design.",
                  f"SYN:{src['family_id']}")
-        made += 1
+        return True
 
-    # ---- class C: random GC/length-matched (12)
-    made = 0
-    while made < COUNTS['random_gc_length_matched']:
-        src = forming[rng.randrange(len(forming))]
+    def add_random(rng, pool):
+        """Class C: one random sequence matched to a forming record from *pool*."""
+        src = pool[rng.randrange(len(pool))]
         s = random_matched(src['sequence_5to3'], rng)
         if has_strong_mirror(s) or not novel(s):
-            continue
+            return False
         fid, L, *_ = best_strong_mirror(s)
         register(s, f"random_matched_to_{src['record_id']}", 'random_gc_length_matched',
                  src['record_id'],
@@ -337,7 +354,16 @@ def main():
                  f"identity={fid:.2f}). Reviewer-requested random control. "
                  f"Expected non-forming by design.",
                  'SYN:random')
-        made += 1
+        return True
+
+    # ---- classes A-C (20 mutants, 10 shuffles, 10 random)
+    src_iter = iter(sources)
+    for method, add in (('mirror_disrupted_mutant', lambda: add_mutant(rng)),
+                        ('dinucleotide_shuffle', lambda: add_shuffle(rng)),
+                        ('random_gc_length_matched', lambda: add_random(rng, forming))):
+        made = 0
+        while made < COUNTS[method]:
+            made += add()
 
     # ---- class D: other structures (12 = 4 G4 + 3 Z-DNA + 5 B-DNA)
     for name, seq in G4S.items():
@@ -389,8 +415,32 @@ def main():
                  f"be called H-DNA. Reviewer-requested mirror control.", 'SYN:mirror')
         made += 1
 
-    # ---------------------------------------------------------------- write
     assert len(synth) == n_needed, (len(synth), n_needed)
+
+    # ---- replacements for the excluded class-E homopolymers (4)
+    # Drawn after the v3 pool from an independent RNG stream, so every v3 record is
+    # unchanged. They follow the perturbation-core split (2 mutants, 1 shuffle,
+    # 1 random) and use sources the v3 pool did not use; random controls are matched
+    # only to forming records that stay in the benchmark.
+    repl_rng = random.Random(REPLACEMENT_SEED)
+    repl_pool = [r for r in forming if not is_pure_homopolymer(r['sequence_5to3'])]
+    n_v3 = len(synth)
+    for method, n in REPLACEMENT_COUNTS.items():
+        add = {'mirror_disrupted_mutant': lambda: add_mutant(repl_rng),
+               'dinucleotide_shuffle': lambda: add_shuffle(repl_rng),
+               'random_gc_length_matched': lambda: add_random(repl_rng, repl_pool)}[method]
+        made = 0
+        while made < n:
+            made += add()
+    for rec in synth[n_v3:]:
+        rec['seed'] = str(REPLACEMENT_SEED)
+        rec['resolved_origin'] = rec['resolved_origin'].replace(
+            f'seed={SEED}', f'seed={REPLACEMENT_SEED}')
+        rec['expected_label_rationale'] += (
+            ' Added 2026-10-07 to restore the 1:1 balance after the pure-homopolymer '
+            'exclusion.')
+
+    # ---------------------------------------------------------------- write
     extra_cols = ['record_type', 'generation_method', 'source_record', 'seed',
                   'expected_label_rationale', 'validation_mirror_identity',
                   'validation_mirror_arm', 'validation_strong_mirror_identity',
@@ -398,7 +448,11 @@ def main():
     fieldnames = list(rows[0].keys()) + [c for c in extra_cols if c not in rows[0]]
     for r in kept:
         r['record_type'] = 'experimental'
-    out = kept + synth
+    pool = kept + synth
+    out = [r for r in pool if not is_pure_homopolymer(r['sequence_5to3'])]
+    excluded = [r['record_id'] for r in pool if is_pure_homopolymer(r['sequence_5to3'])]
+    for r in out:
+        r['curation_decision'] = 'kept'
     try:
         with open(OUT_CSV, 'w', newline='') as f:
             w = csv.DictWriter(f, fieldnames=fieldnames)
@@ -418,10 +472,12 @@ def main():
         print(f'(staged via {staging} — mount blocked direct overwrite)')
 
     # ---------------------------------------------------------------- summary
-    print(f'\nwrote {OUT_CSV}: {len(out)} rows '
-          f'({len(kept)} experimental + {len(synth)} synthetic)')
+    n_exp = sum(r['record_type'] == 'experimental' for r in out)
+    print(f'\nexcluded pure homopolymers: {excluded}')
+    print(f'wrote {OUT_CSV}: {len(out)} rows '
+          f'({n_exp} experimental + {len(out) - n_exp} synthetic)')
     print('label balance:', dict(Counter(r['label'] for r in out)))
-    print('\nper-class summary (strong mirror = arm>=8):')
+    print('\nper-class generation-pool summary (strong mirror = arm>=8):')
     for method in COUNTS:
         rs = [r for r in synth if r['generation_method'].startswith(method.split(':')[0])]
         sfids = [float(r['validation_strong_mirror_identity']) for r in rs]

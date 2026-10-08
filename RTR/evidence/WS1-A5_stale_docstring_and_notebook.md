@@ -1,7 +1,11 @@
 # WS1-A5 — stale docstring + notebook's missing input (reviewer R2.2)
 
+*Regenerated 2026-10-07 on 128 records (64:64) after DEC-8 rebalance and DEC-9
+score-informed overlap default; 124-record values in this file's 2026-10-02 version.*
+Only the record counts changed; the findings of this action are unaffected.
+
 **Status:** done, verified
-**Date:** 2026-09-23
+**Date:** 2026-09-23 (re-verified 2026-10-02 and 2026-10-07)
 **Reviewer item R2.2 (verbatim):** "The results are non-reproducible, as the
 sequences cannot be retrieved from the supplement. It would be much better if the
 sequences would be given as a csv file… Also, it would be good if in the repo there
@@ -15,8 +19,18 @@ Rewritten during the benchmark-v3 replacement to describe the real input (balanc
 v3: 130 records at 65:65, with `--subset experimental` for the 71-record
 composition).
 
-Verified: no occurrence of "54 experimentally curated" or "54 sequences" remains
-anywhere in the repository outside the revision archive.
+*Updated 2026-10-02:* after the author decision to remove the 6 pure homopolymers,
+the docstring now reads 124 records at 64 forming : 60 non-forming (69 experimental
++ 55 synthetic), `--subset experimental` = 69 records (64:5).
+
+*Updated 2026-10-07:* DEC-8 added four synthetic negatives, so the benchmark the
+docstring describes is now 128 records at 64 forming : 64 non-forming (69
+experimental + 59 synthetic); `--subset experimental` is unchanged (69 records,
+64:5). The docstring was updated the same day to read "128 records at 64 forming :
+64 non-forming: 69 curated experimental records plus 59 synthetic negatives".
+
+Verified (re-checked 2026-10-07): no occurrence of "54 experimentally curated" or
+"54 sequences" remains anywhere in the repository outside the revision archive.
 
 ## Part 2 — notebook could not run: missing `hseeker_additional_motifs.csv`
 
@@ -58,6 +72,14 @@ first FASTA lines:
   >HDNA0002, pGG32, experimental, forming
   AAGGGAGAAGGGGGTATAGGGGGAAGAGGGAA
 ```
+
+*Re-run 2026-10-02* (same two cells, merged tree, 124-record v3):
+`Wrote 124 sequences`, label counts `{'forming': 64, 'non_forming': 60}`; first
+FASTA lines unchanged.
+
+*Re-run 2026-10-07* (same two cells, 128-record v3 after DEC-8):
+`Wrote 128 sequences`, label counts `{'forming': 64, 'non_forming': 64}`
+(69 experimental + 59 synthetic); first FASTA lines unchanged.
 
 Notebook validates under `nbformat` (49 cells).
 

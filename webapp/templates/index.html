@@ -153,10 +153,18 @@
           <div class="param-group">
             <label class="param-label" for="remove_overlaps">Overlap handling</label>
             <select id="remove_overlaps" name="remove_overlaps" class="param-input">
-              <option value="1" selected>Remove overlaps (keep longest arm)</option>
+              <option value="1" selected>Remove overlaps</option>
               <option value="0">Keep all raw hits</option>
             </select>
-            <span class="param-hint">Overlap removal keeps the longest non-overlapping arm</span>
+            <span class="param-hint">Choose how overlapping candidates are handled</span>
+          </div>
+          <div class="param-group">
+            <label class="param-label" for="overlap_strategy">Overlap selection</label>
+            <select id="overlap_strategy" name="overlap_strategy" class="param-input">
+              <option value="greedy" selected>Longest arm (greedy)</option>
+              <option value="score">Highest scores first</option>
+            </select>
+            <span class="param-hint">Score mode evaluates candidates before removing overlaps; keep scoring enabled</span>
           </div>
         </div>
 

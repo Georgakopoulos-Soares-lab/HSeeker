@@ -1,25 +1,54 @@
 schema_version: 1
-last_updated: '2026-09-23'
+last_updated: '2026-10-08'
 artifacts:
   provenance_audit:
     path: hdna_benchmark_experimental_v3.csv
     status: verified
     produced_by: AUDIT + curation (this session)
-    sha256: 01c7fbeb3f6f63005904dd513425d459b0afa1304f0480eb4ced0110b0b4fbcd
-    notes: 80 rows; 71 kept (65 forming / 6 non-forming); 59 primary / 12 secondary / 7 removed / 2 excluded; 0 low-tier rows
-      kept; 4 moderate-tier kept. Moved to the repository root 2026-09-23; this is the
-      provenance/audit record, NOT the file the benchmark scripts read.
+    sha256: 7197c6df93781dfeacc8246db49b0af7c66e61984ae108a32d1ddfff02d322c1
+    previous_sha256: 01c7fbeb3f6f63005904dd513425d459b0afa1304f0480eb4ced0110b0b4fbcd
+    notes: 80 rows; 69 kept (64 forming / 5 non-forming); 57 primary / 12 secondary / 9 removed / 2 excluded; 0 low-tier rows
+      kept; 0 pure homopolymers kept. Moved to the repository root 2026-09-23; this is the
+      provenance/audit record, NOT the file the benchmark scripts read. Updated 2026-10-02
+      (DEC-7) - HDNA0053 pRW1405 (A x20, non-forming) and HDNA0054 poly-(dC)30 (forming)
+      set to curation_decision=removed ('Removed (pure homopolymer) - author decision
+      2026-10-02'); was 71 kept (65/6), 59 primary, 7 removed. Counts and sha256 re-computed
+      from the working tree 2026-10-02. Unchanged by DEC-8/DEC-9 (2026-10-07; the replacement
+      negatives were added to the balanced CSV only) - sha256 re-checked 2026-10-07.
   plan_v2:
     path: HSeeker_Reviewer_Answer_Plan_v2.md
     status: verified
     produced_by: AUDIT (this session)
-    notes: updated 2026-09-23 to reflect v3 curation numbers
+    notes: updated 2026-09-23 to reflect v3 curation numbers; updated 2026-10-02 for DEC-6 (merged
+      code - HSEEKER_NATIVE_BUILD, per-scan profiling, lowercase output) and DEC-7 (124-record
+      benchmark, regenerated results); updated 2026-10-07 for DEC-8 (128-record benchmark at
+      64:64, all executed results regenerated) and DEC-9 (score-informed overlap default and its
+      optimisation; R3.7/R3.10/R3.11 answers and WS4-A4/WS6-A4 rows revised, register row D-17
+      added); updated 2026-10-08 for DEC-10 (greedy overlap default again; header bullet, WS4-A4,
+      WS6-A4, R3.7, R3.10, R3.11 and register D-17 revised; R3.10 now justifies keeping the
+      longest-arm default and recommends a mode), for the configuration relabel (the minrep-8
+      MCC 0.969 result is the benchmark/script configuration, not the software default, which
+      is minrep 10 and MCC 0.882; register row D-18 added) and for the test count (344 passed, 3
+      skipped); contains TODO(authors) flags in R2.1, R2.6, WS2 (configuration / shipped
+      minrep, added 2026-10-08), R3.5, R3.10 and R3.11
   balanced_v3:
     path: hdna_benchmark_balanced_v3.csv
     status: done
     produced_by: SYN-1/2/3 (this session)
-    sha256: f4602d6453d0926c1eae10dd54311e9fad08afe2beb9e59a3a9a0153e3b2ad8c
-    notes: 130 rows; 65:65 balanced; 71 experimental + 59 synthetic (seed=20260922).
+    sha256: 7bb495444e91709fb0e322f08e5c9737e3a9419f94d9c881059073f725907cf9
+    previous_sha256: 7f78555dd7c788a75c012d1eef8a08306a65b7f9be1f3468e85ab37a5c5bde89
+    sha256_history: f4602d6453d0926c1eae10dd54311e9fad08afe2beb9e59a3a9a0153e3b2ad8c (130 rows,
+      65:65, pre-DEC-7) -> 7f78555dd7c788a75c012d1eef8a08306a65b7f9be1f3468e85ab37a5c5bde89 (124
+      rows, 64:60, DEC-7) -> 7bb495444e91709fb0e322f08e5c9737e3a9419f94d9c881059073f725907cf9
+      (128 rows, 64:64, DEC-8)
+    notes: 128 rows; 64 forming / 64 non-forming (1:1 again after DEC-8, 2026-10-07); 69
+      experimental + 59 synthetic (55 from the v3 pool, seed=20260922, + 4 DEC-8 replacements
+      SYN0060-SYN0063, REPLACEMENT_SEED=20261002). Synthetic classes A 22 / B 11 / C 11 / D 12 /
+      E 0 / F 3. The first 124 data rows are byte-identical to the DEC-7 file (cmp). Superseded
+      on 2026-10-07 - 124 rows at 64:60, 69 + 55. Updated 2026-10-02 (DEC-7) - the 6 pure
+      single-base homopolymers removed (HDNA0053, HDNA0054, SYN0053-SYN0056); every other row
+      byte-identical to the 130-row file, record IDs unchanged (SYN IDs skip 0053-0056). Was
+      130 rows at 65:65 (71 + 59).
       Moved to the repository root 2026-09-23 and adopted as THE benchmark input -
       run_direct_sensitivity_analysis.py and run_injected_sensitivity_analysis.py both
       default to it, filter to curation_decision=='kept', support
@@ -28,14 +57,28 @@ artifacts:
     path: RTR/generate_synthetic_negatives.py
     status: done
     produced_by: SYN-1 (this session)
-    notes: seeded generator (20260922); 6 classes; structural validation only. Reads/writes
-      the benchmark CSVs at the repository root. Re-run 2026-09-23 and reproduced
-      hdna_benchmark_balanced_v3.csv byte-for-byte.
+    notes: seeded generator (20260922); 6 classes drawn, 5 written - the homopolymer class E is
+      generated with the same RNG streams and then dropped before writing (DEC-7, 2026-10-02);
+      structural validation only. Reads/writes the benchmark CSVs at the repository root.
+      Re-run 2026-09-23 and reproduced the 130-row file byte-for-byte; 2026-10-02 output
+      verified equal to that file minus the 6 pure homopolymers. On 2026-10-07 (DEC-8) the class A-C
+      bodies refactored into helpers (add_mutant / add_shuffle / add_random), reused to draw 4
+      replacement negatives (2 A, 1 B, 1 C) from an independent RNG (REPLACEMENT_SEED=20261002)
+      AFTER the v3 pool; v3 pool output unchanged (first 124 rows byte-identical, cmp).
   revision_graph:
     path: hseeker_revision_graph.html
     status: done
     produced_by: graph build (this session)
-    notes: 71 nodes / 118 edges; interactive HTML + JSON + PNG preview
+    notes: 76 nodes / 133 edges (DEC-6, DEC-7 added 2026-10-02; DEC-8, DEC-9 and their 7
+      'informs' edges added 2026-10-07; DEC-10 and its 3 'informs' edges to WS4-A4, WS6-A4 and
+      WS4-A3 added 2026-10-08; was 75 / 130, before that 73 / 123); interactive HTML + JSON +
+      PNG preview. The DEC-9 node title, its WS4-A4 edge note and the WS4-A4 node's verify
+      text were updated 2026-10-08 for DEC-10.
+      Node titles in JSON and HTML hand-edited 2026-10-02 to match the merged code and the
+      124-record benchmark, and again 2026-10-07 for the 128-record benchmark (DEC-7, SYN-1,
+      SYN-3, WS2-A4, AUDIT-1, WS4-A4 titles). Node status fields in the graph were not
+      re-synchronised with the ledger. hseeker_revision_graph_preview.png is STALE (it still
+      shows the pre-merge graph and could not be regenerated in this environment).
 decisions:
 - id: DEC-1
   question: 'AG32-30nt (HDNA0033): relabel non-forming citing Rooney & Moore 1995, or exclude?'
@@ -63,7 +106,9 @@ decisions:
     carrying NO correction - the only 4 rows in that state; this must be made truthful
     whichever option is chosen.
   options: 'A=Wells 2008; B=Rajeswari 2012; C=supply primary source (only route to primary
-    disposition); D=drop the 4 records (65->61 forming, forces rebalance)'
+    disposition); D=drop the 4 records (64->60 forming; balanced set would become
+    124 at 60:64 after DEC-8 - updated 2026-10-07, was 120 at 60:60 after DEC-7; no synthetic
+    negative is derived from HDNA0060-0063)'
 - id: DEC-3
   question: Add pRW1406=(TTC)8 as a new verified primary forming record?
   status: blocked_on_author
@@ -85,8 +130,10 @@ decisions:
     DIFFERS from the other five - recommend NOT adding it as forming (HDNA0080-class
     label-scope risk).
   options: 'A=add as Hanvey1988_(TTC)8, disposition primary (RECOMMENDED); B=add as pRW1406;
-    C=do not add. A or B => 72 kept (66/6), 60 primary, balanced 132 at 66:66, regenerate
-    synthetic negatives'
+    C=do not add. A or B => 70 kept (65/5), 58 primary, balanced 129 at 65:64 (figures
+    updated 2026-10-07 for DEC-8; were 125 at 65:60 after DEC-7, and 72 kept (66/6), balanced
+    132 at 66:66 before it). Adding one positive would break the 1:1 balance DEC-8 restored,
+    so whether to add a matching synthetic negative is itself an author choice'
 - id: DEC-4
   question: Confirm MYCAA (HDNA0034) promotion to primary after figure-level check of Belotserkovskii 2007 Fig. 2?
   status: resolved
@@ -99,6 +146,214 @@ decisions:
   status: pending
   decider: authors
   note: "Recommended: yes \u2014 the reviewed manuscript's values are canonical; record any number changes."
+  evidence_update_2026-10-02: >-
+    The empirical support previously cited for this recommendation no longer holds on the
+    124-record benchmark (DEC-7). Out of fold the manuscript-stated config (purity 0.90,
+    mismatch 0.15, minrep 8, maxspacer 10, both filters) and the script default (mismatch
+    0.10, no filters) TIE: nested CV MCC 0.968 each, LOFO/LOSO 0.968 each; the script default
+    is marginally ahead on the collapsed variants (0.862 vs 0.834; 0.943 vs 0.940) and on the
+    single held-out split (0.949 vs 0.894). The filters change no call on this benchmark and
+    mismatch 0.10 and 0.15 have the same median held-out MCC across the grid (0.788). Both
+    fixed configs still beat per-fold tuning (nested CV 0.936, LOFO 0.920).
+    TODO(authors): the data no longer favour 0.15 over 0.10, so DEC-5 must be decided on
+    consistency with the reviewed manuscript rather than on benchmark performance.
+  evidence_update_2026-10-07: >-
+    Numbers in evidence_update_2026-10-02 are superseded by the 128-record benchmark
+    (DEC-8); the conclusion is unchanged. Out of fold the manuscript-stated config and the
+    script default still TIE: nested CV MCC 0.969 each (0.9688 vs 0.9692), LOFO/LOSO 0.969
+    each; the script default is marginally ahead on the collapsed variants (0.862 vs 0.834;
+    0.944 vs 0.942) and on the single held-out split (eval n=40; 1.000 vs 0.951). The filters
+    still change no call, and mismatch 0.10 and 0.15 again have the same median held-out MCC
+    across the grid (0.838). Both fixed configs still beat per-fold tuning (nested CV 0.938,
+    LOFO 0.923). The 2026-10-02 TODO(authors) above still applies unchanged.
+  evidence_update_2026-10-08: >-
+    Configuration label corrected. 'script default' above means the analysis scripts'
+    setting (run_direct_sensitivity_analysis.py, REFERENCES["script_default"] - minrep 8,
+    mismatch 0.10, no filters), NOT the software default. On the 128-record benchmark it
+    gives TP62 FN2 TN64 FP0, MCC 0.969 (experimental-only 62/2/5/0, MCC 0.832). The shipped
+    software defaults use minrep 10 (library - no filters; CLI - both filters) and give
+    TP56 FN8 TN64 FP0, MCC 0.882 (experimental-only 56/8/5/0, MCC 0.580). The manuscript
+    configuration (minrep 8, mismatch 0.15, both filters) gives TP63 FN1 TN63 FP1, MCC 0.969
+    (experimental-only 63/1/4/1, MCC 0.784; FP HDNA0028). TODO(authors) (plan WS2, added
+    2026-10-08) - decide which configuration the manuscript reports and whether the shipped
+    default minrep changes from 10 to 8. For 8 - nested CV selects minrep 8 in 100/100 folds
+    and minrep is the dominant parameter (spread 0.203 in median held-out MCC). For 10 - it
+    reproduces the published chr1 count (96,729). If it stays 10, every benchmark number must
+    name its configuration and the software-default result (0.882) must be reported beside it.
+- id: DEC-6
+  question: How to combine Nikol's main-branch changes (PRs #16, #17) with RTR's code fixes where they overlap?
+  status: resolved
+  decider: authors
+  resolution: >-
+    Merge origin/main into RTR; on every code overlap Nikol's implementation is preferred.
+    WS1-A1: HSEEKER_NATIVE_BUILD=1 opt-in that raises RuntimeError when ARCHFLAGS targets a
+    different macOS arch (replaces RTR's HSEEKER_NATIVE=1, which was silently ignored when
+    cross-compiling). WS1-A2: per-scan ScanProfile structs published into module ProfileState
+    under the GIL (replaces RTR's thread-local counters). WS1-A3: ALL sequence fields
+    lowercase, including putative_triplex (replaces RTR's uppercase _normalize_sequence_case).
+    WS1-A4 Streamlit removal kept (Nikol's app.py edit dropped with the file). Also brought
+    in: AT filter over the full motif, PRE/POST homopolymer filter, scoring boundary fix
+    (5386b9f), overlap_strategy, FASTA parser option, hseeker.ablation. Merged suite 211
+    passed / 3 skipped.
+  resolved_date: '2026-10-02'
+- id: DEC-7
+  question: Which benchmark data to keep after the main merge?
+  status: resolved
+  decider: authors
+  resolution: >-
+    Keep RTR's benchmark v3 data, except remove all 6 pure single-base homopolymers:
+    experimental HDNA0053 pRW1405 (A x20, non-forming) and HDNA0054 poly-(dC)30 (forming),
+    synthetic class E SYN0053 poly-A15, SYN0054 poly-A30, SYN0055 poly-T25, SYN0056 poly-T35.
+    Balanced set 130 (65:65) -> 124 (64 forming / 60 non-forming, no longer 1:1;
+    balance restored to 128 at 64:64 by DEC-8 on 2026-10-07); experimental kept 71 (65/6) ->
+    69 (64/5). All v3 results regenerated. Consequence: the AT
+    and homopolymer filters change no benchmark call (all 4 pre-removal FPs were
+    homopolymers), so the benchmark can no longer evaluate them (affects R2.1, R2.6, R3.9).
+    TODO(authors): the CSV justification records only the decision, not its scientific
+    rationale; supply it before the letter is written.
+  resolved_date: '2026-10-02'
+- id: DEC-8
+  question: Restore the 1:1 balance of the benchmark after the DEC-7 homopolymer removal?
+  status: resolved
+  decider: authors
+  resolution: >-
+    Add 4 new synthetic non-forming records to the balanced CSV only, replacing the 4
+    excluded class-E homopolymers in number (not in kind). They follow the generator's
+    perturbation-core split (50/25/25 -> 2 mirror-disrupted mutants, 1 dinucleotide shuffle,
+    1 random GC/length-matched control) and are drawn from an independent RNG
+    (REPLACEMENT_SEED=20261002) AFTER the v3 pool, so all 124 earlier rows stay
+    byte-identical (cmp). SYN0060 pAA32_mirrordisrupted (source HDNA0001, 32 nt, residual
+    strong mirror arm 9 / identity 0.778); SYN0061 GA32_mirrordisrupted (source HDNA0055,
+    30 nt, arm 8 / 0.750); SYN0062 pGC32_dinucshuffle (source HDNA0007, family
+    SYN:fam:pAA32, 32 nt, 0.750); SYN0063 random_matched_to_HDNA0004 (32 nt, 0.750).
+    Mutant/shuffle sources were not used by the v3 pool; random controls are matched only to
+    forming records still in the benchmark (excludes HDNA0054). Balanced set 124 (64:60) ->
+    128 (64 forming / 64 non-forming), 69 experimental + 59 synthetic, sha256
+    7bb495444e91709fb0e322f08e5c9737e3a9419f94d9c881059073f725907cf9; experimental CSV
+    unchanged. Validation (SYN-2 re-run) - 0 exact / 0 reverse-complement duplicates, no
+    H-DNA-competent synthetic row, max residual strong-mirror identity in classes A-C 0.778
+    (< 0.80), no homopolymers. All 4 new records are true negatives under every baseline
+    configuration. All executed v3 results regenerated on 128 records. The replacements are
+    not homopolymers, so the benchmark still cannot evaluate the AT/homopolymer filters and
+    the R2.1 poly-A TODO(authors) still stands.
+  evidence: RTR/evidence/DEC-8_rebalance_replacement_negatives.md
+  resolved_date: '2026-10-07'
+- id: DEC-9
+  question: Which overlap-removal strategy should be the default?
+  status: resolved
+  status_note: default superseded by DEC-10 (2026-10-08) - greedy is the default again; score mode, its
+    result-preserving optimisation and the PR #18 memory fix are kept
+  superseded_by: DEC-10
+  decider: authors
+  resolution: >-
+    (State as of 2026-10-07; the default part is superseded by DEC-10, see the end of this
+    entry.) Score-informed overlap removal (Nikol's overlap_strategy="score") is the default
+    whenever scoring is on. Library (scan_sequence, scan_fasta, scan_fasta_iter,
+    scan_fasta_parallel) - overlap_strategy=None resolves to "score" when score=True and to
+    "greedy" (the previous longest-arm rule) when score=False, since there is nothing to rank
+    by (helper _resolve_overlap_strategy in src/hseeker/__init__.py). An explicit "score"
+    with score=False still raises ValueError (unchanged). CLI - -overlap-strategy defaults to
+    score, -no-score gives greedy, and the startup banner prints the overlap mode. Webapp -
+    form default "score"; if scoring is unchecked the server falls back to greedy instead of
+    returning 400. hseeker.ablation keeps its explicit per-model handling (greedy default
+    there). README updated. Effect - no detection call changed on the benchmark (0
+    binary-call differences greedy vs score across the full WS4-A3 grid, 576 configs x 128
+    records = 73,728 calls, all four filter states), so no reported metric moves. Without
+    the homopolymer filter a call cannot change (score selection keeps the top-scoring
+    candidate); with it a call CAN differ in general - greedy's longest-arm pick may be a
+    pure homopolymer that the filter drops, leaving nothing, while score can report an
+    overlapping near-homopolymer candidate (ACGT x10 + G x100 + C x100 + ACGT x10 with the
+    CLI filters - 0 hits greedy, 3 score). Also WHICH hit is reported in an overlapping cluster can change (GAMIR_SEQ -
+    score keeps the higher-scoring arm-6 hit, greedy the arm-7 hit; GAAGGAAAGAAAGAAAGGG -
+    score (3,19) vs greedy (1,17)). The WS3 smoke-test HSeeker values are unchanged.
+    Score-based selection was also optimised, required to keep logic and results identical
+    - incremental window search in _scoring.py (O(arm^3) -> O(arm^2) per hit, same terms in
+    the same order), an O(arm) _Scorer.upper_bound(), and lazy score-ordered selection
+    (__init__._score_and_select, POST homopolymer filter per hit; _filter_overlapping_hits
+    unchanged). Timings on the development machine - poly-G 100/200/400 bp 0.43 / 6.5 / 96 s
+    -> ~0.01 / 0.05 / 0.06 s; G3000+C2000+A5000 did not finish in minutes -> 5.4 s (greedy
+    1.6 s); 2 Mb random genome with GA/CT islands 39 s -> 8.8 s (greedy 7.8 s); hg38 chr1
+    (measured 2026-10-07, AMD EPYC 7763, 16 workers) ~60 s vs 26.3 s greedy - the genome-scale
+    cost that led to DEC-10. Test suite before the optimisation with the score default - 35
+    failures incl. 11 parallel-scan timeouts; after - all passing (~21 s; 344 passed, 3
+    skipped as of 2026-10-08). Equivalence against the
+    pre-optimisation code VERIFIED 2026-10-07 (one-off side-by-side harness, evidence
+    section 4) - 70,984 candidates x 4 flag combinations in the scorer, 19,710 scan_sequence
+    calls, scan_fasta / scan_fasta_iter / scan_fasta_parallel paths and long runs, all
+    identical; the optimisation gives identical results to the pre-optimisation code.
+    Remaining worst case - long G/C homopolymer runs with the homopolymer filter on (G400+C400
+    40 s score vs 0.02 s greedy; cost grows roughly with the cube of the run length);
+    -overlap-strategy greedy avoids it. This decision changes the production rule
+    BEFORE the WS4-A4 comparison that was meant to gate it (see WS4-A4 and plan R3.10).
+    SUPERSEDED 2026-10-08 (DEC-10) as far as the DEFAULT is concerned - the library, CLI and
+    webapp defaults are greedy again (identical to Nikol's main d237bca), the
+    _resolve_overlap_strategy None-default semantics and the webapp greedy fallback are
+    gone, and the 24 greedy pins in tests/test_hdna.py are no longer needed. Score mode
+    (overlap_strategy="score"), the optimisation above and its equivalence verification
+    are kept unchanged.
+  outputs:
+  - src/hseeker/__init__.py - _resolve_overlap_strategy (default semantics; removed by DEC-10) and _score_and_select (lazy
+    score-ordered selection replacing score-all -> POST filter -> _filter_overlapping_hits(score) in scan_sequence /
+    scan_fasta / scan_fasta_parallel; kept)
+  - src/hseeker/_scoring.py - incremental window search, _arms() factored out, set-based non-ACGT check,
+    _Scorer.upper_bound()
+  - src/hseeker/__main__.py - -overlap-strategy default None (score; greedy with -no-score), overlap mode in the banner
+    (default reverted to greedy by DEC-10; the banner is kept)
+  - webapp - form default score; greedy fallback when scoring is unchecked (reverted by DEC-10)
+  - README.md - signatures, parameter tables, overlap-removal section with performance note
+  - tests/test_score_overlap.py - test_default_is_score_with_scoring_and_greedy_without,
+    test_cli_default_is_score_and_no_score_falls_back_to_greedy (replace
+    test_greedy_remains_the_default_in_public_api), test_lazy_score_selection_matches_scoring_every_candidate (12
+    cases), test_incremental_window_search_matches_naive_recomputation (300 random arms; bound >= score); the two
+    default-semantics tests were replaced by greedy-default tests under DEC-10, the equivalence guards are kept
+  - tests/test_hdna.py - 24 detector-geometry tests pinned overlap_strategy="greedy" (they assert the longest-arm hit);
+    the pins are gone since DEC-10
+  evidence: RTR/evidence/DEC-9_score_overlap_default_and_optimisation.md
+  resolved_date: '2026-10-07'
+- id: DEC-10
+  question: Which overlap-removal strategy should be the default, given score mode's genome-scale cost?
+  status: resolved
+  decider: authors
+  supersedes: DEC-9 (default only)
+  resolution: >-
+    Author instruction 2026-10-08 - "make the greedy the default". overlap_strategy defaults
+    to "greedy" in the library (scan_sequence, scan_fasta, scan_fasta_iter,
+    scan_fasta_parallel), whether or not scoring is on; the CLI -overlap-strategy defaults to
+    greedy and the startup banner now prints the overlap mode; the webapp form defaults to
+    greedy, and choosing score with scoring off returns HTTP 400, as in Nikol's original code.
+    These defaults are identical to Nikol's main (d237bca). An explicit
+    overlap_strategy="score" with score=False still raises ValueError. REASON - the
+    genome-scale cost of score mode, measured on hg38 chr1 on an AMD EPYC 7763 with 16 vCPUs
+    (the manuscript benchmark node's CPU model) - score ~60 s vs greedy 26.3 s at 16 workers
+    (205.2 vs 172.1 s at 1 worker); published triplex 57.7 s. A further pure-Python
+    optimisation (staged bounds) gave identical output but no speedup and was reverted; a
+    C-level selection was not done. KEPT FROM DEC-9 - score mode as an option, with its
+    verified result-preserving optimisation (DEC-9 evidence sections 3-4), and the PR #18
+    memory fix (chr1 peak RSS 2,704 -> 1,979 MB; output-neutral; not yet committed). EFFECTS -
+    benchmark detection metrics unchanged (0 of 73,728 WS4-A3 grid calls differ between the
+    rules). The published speed numbers (25.2 s chr1 at 16 workers; '2.3x faster than
+    triplex') and the chr1 count 96,729 describe the DEFAULT mode again - greedy reproduces
+    96,729 exactly and runs in 26.3 s on the same CPU model - subject to re-measurement on the
+    final code (X6) and to committing the memory fix. The near-homopolymer edge-hit
+    TODO(authors) (plan R3.10) concerns only the optional score mode. R3.10 must now justify
+    KEEPING the longest-arm default (speed) while offering score mode, using the chr1
+    comparison (score mode retains every greedy locus, 100 % overlapped; 83.7 % identical
+    coordinates; +1.5 % loci, 98,223 vs 96,729; ~2.3x runtime), and recommend a mode (greedy
+    for genome-wide scans; score where the most stable overlapping variant matters;
+    -skipoverlap for exhaustive analysis); the R3.10 TODO(authors) on how to justify the
+    choice is reworded for DEC-10. R3.11 - the published runtime and hit numbers are valid
+    for the default again; the whole-genome figure is still an extrapolation and must be
+    labelled as such or measured (X6). Test suite 344 passed, 3 skipped (2026-10-08).
+  outputs:
+  - src/hseeker/__init__.py - overlap_strategy="greedy" default in scan_sequence / scan_fasta / scan_fasta_iter /
+    scan_fasta_parallel; _score_and_select (lazy score-ordered selection) kept for score mode
+  - src/hseeker/__main__.py - -overlap-strategy default greedy; overlap mode in the startup banner
+  - webapp - form default greedy; score with scoring off returns HTTP 400
+  - tests/test_score_overlap.py - test_greedy_remains_the_default_in_public_api,
+    test_default_reports_the_longest_arm_where_score_would_differ, test_cli_default_is_greedy,
+    test_score_overlap_requires_scoring_but_skipoverlap_does_not; the DEC-9 equivalence guards are kept
+  evidence: RTR/evidence/WS6-A4_chr1_runtime_memory_2026-10-07.md; RTR/evidence/DEC-9_score_overlap_default_and_optimisation.md
+  resolved_date: '2026-10-08'
 actions:
 - id: WS0-A1
   workstream: WS0_benchmark_freeze
@@ -112,8 +367,8 @@ actions:
   - hdna_benchmark_experimental_v3.csv
   outputs:
   - hdna_benchmark_experimental_v3.csv (frozen)
-  verify: 71 kept (65 forming / 6 non-forming); 0 low-tier rows kept; 59 primary / 12 secondary; all primary rows construct-level
-    with valid citation; pCON terminal C corrected; 22 PMIDs + 2 DOIs corrected; family_id/study_id/evidence_level columns
+  verify: 69 kept (64 forming / 5 non-forming); 0 low-tier rows kept; 0 pure homopolymers kept; 57 primary / 12 secondary;
+    all primary rows construct-level with valid citation; pCON terminal C corrected; 22 PMIDs + 2 DOIs corrected; family_id/study_id/evidence_level columns
     present; SHA-256 recorded.
   evidence: experimental v3 CSV curation_decision column
   sha256: {}
@@ -153,21 +408,32 @@ actions:
   inputs:
   - setup.py (lines 21-49)
   outputs:
-  - setup.py with opt-in HSEEKER_NATIVE (_native_requested)
-  - README.md 'Optional: CPU-native optimization'
+  - setup.py with opt-in HSEEKER_NATIVE_BUILD=1 (merged implementation from main, DEC-6)
+  - README.md 'HSEEKER_NATIVE_BUILD=1 pip install .'
+  - tests/test_build_flags.py (3 tests)
   verify: default Linux source build log contains no -march=native; CI wheels build
+  resolution_change: >-
+    DEC-6 (2026-10-02): RTR's fix (HSEEKER_NATIVE=1 via _native_requested(), silently
+    ignored when cross-compiling) is superseded by Nikol's implementation from main:
+    HSEEKER_NATIVE_BUILD=1 opt-in, and a RuntimeError if ARCHFLAGS targets a different macOS
+    architecture instead of silently dropping the flag. Default build is -O3 -Wall only.
   verified_result: >-
-    PASS. Reviewer's reading confirmed exactly: ARCHFLAGS is macOS/cibuildwheel-only, so
-    _is_cross_compiling() returned False for every Linux build and -march=native was
-    applied unconditionally, producing non-portable binaries (SIGILL risk on other hosts).
-    Now opt-in via HSEEKER_NATIVE=1, with the cross-compile guard retained as a second
-    safety net. Real build matrix (grep -c march=native on forced rebuilds):
-    default=0, HSEEKER_NATIVE=1 -> 1, HSEEKER_NATIVE=0 -> 0,
-    HSEEKER_NATIVE=1+ARCHFLAGS=-arch ppc64 -> 0. cibuildwheel sets no HSEEKER_NATIVE,
-    so CI wheels are now built portably. Suite 149 passed / 3 skipped after restoring
-    a default build.
+    PASS (merged implementation). Reviewer's reading confirmed exactly: ARCHFLAGS is
+    macOS/cibuildwheel-only, so _is_cross_compiling() returned False for every Linux build
+    and -march=native was applied unconditionally, producing non-portable binaries (SIGILL
+    risk on other hosts). Merged tree: tests/test_build_flags.py covers the default build
+    (no build-CPU features required), explicit opt-in, and rejection of a different macOS
+    target; merged suite 211 passed / 3 skipped. cibuildwheel sets no HSEEKER_NATIVE_BUILD,
+    so CI wheels are built portably. The forced-rebuild build matrix recorded 2026-09-23
+    (default=0 / opt-in=1 / cross-compile=0 occurrences of -march=native) was measured on
+    RTR's superseded HSEEKER_NATIVE implementation. RE-VERIFIED 2026-10-07 on the final code
+    (after DEC-8/DEC-9) - the default build has 0 occurrences of -march=native and the
+    HSEEKER_NATIVE_BUILD=1 build has 1, so the default/opt-in half of the build matrix is now
+    measured on the merged build; the cross-architecture case is covered by
+    tests/test_build_flags.py only (pass; the full suite passes - 344 passed / 3 skipped as of
+    2026-10-08).
   evidence: RTR/evidence/WS1-A1_march_native_optin.md
-  last_updated: '2026-09-23'
+  last_updated: '2026-10-07'
 - id: WS1-A2
   workstream: WS1_code_fixes
   reviewer_items:
@@ -178,24 +444,35 @@ actions:
   - src/hseeker/_hdna.c (lines 54-61
   - 659-681)
   outputs:
-  - src/hseeker/_hdna.c counters declared HDNA_THREAD_LOCAL (portable MSVC/gcc/clang macro)
-  - tests/test_hdna.py::test_profiling_counters_are_thread_local
+  - src/hseeker/_hdna.c per-scan ScanProfile structs published into module ProfileState under the GIL (merged implementation
+    from main, DEC-6); new _hdna.reset_profiling()
+  - tests/test_profiling_threadsafe.py (2 tests)
   verify: parallel chr1-chunk scan returns identical hits; counters per-call if kept
+  resolution_change: >-
+    DEC-6 (2026-10-02): RTR's fix (counters declared HDNA_THREAD_LOCAL / __thread) is
+    superseded by Nikol's implementation from main. Each scan owns a ScanProfile struct while
+    the GIL is released; results are published into module ProfileState (last scan +
+    cumulative totals + scans_completed) only after the GIL is reacquired. profiling_info()
+    returns inner_iters, ctr_sp_pairs (last scan), total_inner_iters, total_ctr_sp_pairs,
+    scans_completed. RTR's test_profiling_counters_are_thread_local was dropped as redundant.
   verified_result: >-
-    PASS, and the defect was larger than the reviewer stated. Measured pre-fix: 8 concurrent
-    scans of IDENTICAL input returned 8 distinct totals, none correct, max inner_iters
-    6,993,228 vs single-thread baseline 1,823,346 = 3.84x inflation - counts were not just
-    lost but cross-contaminated between threads. Fixed with thread-local storage rather than
-    atomics, deliberately: the counters increment in the innermost loop (1.8M times/scan) so
-    an atomic RMW per iteration would tax the hot path the paper's speed claim rests on.
-    Post-fix all 8 threads report exactly the baseline. Parallel results verified unchanged:
-    workers=2/4/8/16, 3 repeats each, digest identical to serial. Regression test confirmed
-    to FAIL on the pre-fix build and pass on the fixed build. Suite 150 passed / 3 skipped.
+    PASS (merged implementation), and the defect was larger than the reviewer stated.
+    Measured pre-fix (2026-09-23): 8 concurrent scans of IDENTICAL input returned 8 distinct
+    totals, none correct, max inner_iters 6,993,228 vs single-thread baseline 1,823,346 =
+    3.84x inflation - counts were not just lost but cross-contaminated between threads.
+    The merged per-scan struct keeps the hot loop free of atomics (counts accumulate in
+    scan-local storage) and, unlike RTR's thread-local version, also yields exact totals
+    across threads. tests/test_profiling_threadsafe.py checks that parallel scans preserve
+    every profile count and that an empty scan reports zero last counts while keeping
+    totals; merged suite 211 passed / 3 skipped. RTR's post-fix parallel-digest check
+    (workers=2/4/8/16) was run on the superseded build and has not been repeated.
     No published manuscript number is affected - these counters are diagnostic-only with no
     consumer anywhere in the repo; benchmark timings come from /usr/bin/time -v and
-    perf_counter.
+    perf_counter. RE-VERIFIED 2026-10-07 on the final code (after DEC-8/DEC-9) -
+    tests/test_profiling_threadsafe.py passes within the full suite (344 passed / 3 skipped as
+    of 2026-10-08); the parallel-digest check is still not repeated.
   evidence: RTR/evidence/WS1-A2_profiling_counters.md
-  last_updated: '2026-09-23'
+  last_updated: '2026-10-07'
 - id: WS1-A3
   workstream: WS1_code_fixes
   reviewer_items:
@@ -206,20 +483,32 @@ actions:
   - src/hseeker/_hdna.c (629-752)
   - src/hseeker/_scoring.py (76-136)
   outputs:
-  - src/hseeker/__init__.py _normalize_sequence_case() applied in scan_sequence
-  - tests/test_hdna.py 7 assertions updated + 2 regression tests added
-  verify: left_arm/right_arm/full_sequence/putative_triplex all uppercase; string round-trip test passes
+  - all sequence fields lowercase incl. putative_triplex (scorer lowercases its output in src/hseeker/_scoring.py; merged
+    implementation from main, DEC-6)
+  - tests/test_output_case.py (2 tests, incl. CLI)
+  verify: left_arm/spacer/right_arm/full_sequence/putative_triplex all lowercase on every public path and the CLI TSV; string
+    round-trip test passes
+  resolution_change: >-
+    DEC-6 (2026-10-02): RTR's fix (Python-boundary _normalize_sequence_case() to UPPERCASE)
+    is superseded by Nikol's implementation from main: all sequence fields, including
+    putative_triplex, are LOWERCASE, consistently across scan_sequence / scan_fasta /
+    scan_fasta_iter / scan_fasta_parallel, hseeker.ablation score_candidates and the CLI
+    TSV; the scan_sequence docstring states it. RTR's _normalize_sequence_case and its 3
+    uppercase tests were removed. The reviewer's bug (cross-field == failing) is fixed
+    either way.
   verified_result: >-
-    PASS. Reviewer's reading confirmed (_hdna.c:633 tolower vs _scoring.py:77 upper).
-    Fixed at the Python boundary; C core unchanged so detection carries no risk.
-    full_sequence == putative_triplex bases now True (was False). Field-by-field
-    comparison of raw C output vs public API: hit counts equal, ZERO non-sequence
-    field differences, sequence fields equal ignoring case - this change cannot move
-    any benchmark number. AT and homopolymer filters verified unaffected (both were
-    already case-safe). All four public paths + CLI TSV verified on upper/lower/mixed
-    input. Suite 149 passed / 3 skipped (was 147/3).
+    PASS (merged implementation). Reviewer's reading confirmed (_hdna.c:633 tolower vs
+    _scoring.py:77 upper in the reviewed code). tests/test_output_case.py checks that
+    sequence and ablation scores use the detected case and that the CLI writes detected and
+    scored motifs in the same case; merged suite 211 passed / 3 skipped. Case alone cannot
+    move a benchmark call; note however that the merge ALSO changed detection-adjacent code
+    (AT filter over the full motif, scoring boundary fix 5386b9f), which is why all v3
+    results were regenerated 2026-10-02. RE-VERIFIED 2026-10-07 on the final code (after
+    DEC-8/DEC-9) - tests/test_output_case.py passes within the full suite (344 passed / 3
+    skipped as of 2026-10-08). DEC-9's lazy score selection and incremental window search keep the scorer's
+    lowercase output; the case contract is unchanged.
   evidence: RTR/evidence/WS1-A3_case_normalization.md
-  last_updated: '2026-09-23'
+  last_updated: '2026-10-07'
 - id: WS1-A4
   workstream: WS1_code_fixes
   reviewer_items:
@@ -250,9 +539,16 @@ actions:
     webapp.main:app). Plan doc corrected in both places so the response letter cannot claim
     'renamed'. Suite 150 passed / 3 skipped. Caveat: the web front-end is not covered by the
     test suite (unchanged by this action), so verification is import/dependency resolution,
-    syntax and absence of stale references - not a live HTTP check.
+    syntax and absence of stale references - not a live HTTP check. 2026-10-02 (DEC-6):
+    kept through the main merge; Nikol's main-branch edit to src/hseeker/app.py
+    (overlap-strategy dropdown) was dropped with the file. RE-VERIFIED 2026-10-07 on the
+    final code - no streamlit reference outside RTR/, and neither src/hseeker/app.py nor
+    streamlit_app.py exists. DEC-9 changed the FastAPI webapp's overlap default (score, with
+    greedy fallback when scoring is unchecked); DEC-10 (2026-10-08) restored the greedy form
+    default and the HTTP 400 for score with scoring off, as in Nikol's main; still one web
+    entry point.
   evidence: RTR/evidence/WS1-A4_streamlit_removal.md
-  last_updated: '2026-09-23'
+  last_updated: '2026-10-07'
 - id: WS1-A5
   workstream: WS1_code_fixes
   reviewer_items:
@@ -277,10 +573,13 @@ actions:
     headers from first_author/year - columns that exist in the old CSV but NOT in v3
     (KeyError); header now uses record_id/sequence_name/record_type/label. Data path
     EXECUTED, not just parsed: 130 records written, 65 forming / 65 non_forming, headers
-    verified. nbformat validates (49 cells). Scope limit: only load + FASTA cells were run;
+    verified (2026-09-23, on the pre-DEC-7 file). RE-VERIFIED 2026-10-07 on the 128-record
+    file - no '54 sequences' text; the notebook load cells give 128 rows (64 forming / 64
+    non-forming; 69 experimental + 59 synthetic). (The 124-record state of 2026-10-02 was
+    never executed.) nbformat validates (49 cells). Scope limit: only load + FASTA cells were run;
     downstream cells need the E. coli genome and are TACC-bound (WS2-A1).
   evidence: RTR/evidence/WS1-A5_stale_docstring_and_notebook.md
-  last_updated: '2026-09-23'
+  last_updated: '2026-10-07'
 - id: WS2-A1
   workstream: WS2_benchmark_pipeline
   reviewer_items:
@@ -301,6 +600,18 @@ actions:
   verify: both arms' metadata.json report identical parameter blocks; filters explicit; mismatch/minrep/triplex args match
     manuscript
   evidence: run_direct_sensitivity_analysis.py:99-141; __main__.py:97-110
+  note: >-
+    2026-10-07 (DEC-9; updated 2026-10-08 for DEC-10): the overlap-removal default is greedy
+    again (DEC-10), but the pinned config should still record overlap_strategy explicitly
+    for both arms, so no result depends on a default that has already changed twice.
+    Detection calls on the benchmark are unaffected (0/128 differ; 0 of 73,728 across the
+    WS4-A3 grid; in general, with the homopolymer filter on, score can report a
+    near-homopolymer hit where greedy reports none), but the injected arm scores recovery by
+    hit position, which the strategy can change. 2026-10-08 - the config must also state
+    minrep explicitly - the direct script uses minrep 8 (benchmark/script configuration, MCC
+    0.969 on 128 records) while the software defaults use minrep 10 (MCC 0.882); which one the
+    manuscript reports, and whether the shipped default changes, is a TODO(authors) (plan
+    WS2; DEC-5 evidence_update_2026-10-08).
 - id: WS2-A2
   workstream: WS2_benchmark_pipeline
   reviewer_items:
@@ -316,23 +627,42 @@ actions:
     observed sample, the cluster interval is R3.2's question of what happens if the
     FAMILIES had differed. Estimator validated by construction: with every record placed
     in its own group the cluster CI collapses to exactly the record-level CI
-    ([0.876,0.985] both). STILL OPEN: NPV/PPV are computed but the tool-vs-tool
+    ([0.876,0.985] both, on the 130-record run of 2026-09-23; not re-checked on 124 or 128).
+    Regenerated 2026-10-02 on the merged code and the 124-record set (DEC-6/DEC-7) and again
+    2026-10-07 on the final code and the 128-record set (DEC-8/DEC-9) - see WS2-A3 for the
+    current intervals. STILL OPEN: NPV/PPV are computed but the tool-vs-tool
     comparison and its difference CIs are not - R/Triplex is unavailable in this
     environment, so no comparative claim is yet supported.
   prework: >-
-    PROVISIONAL baseline run 2026-09-23 - see RTR/evidence/WS2-PRE_hseeker_baseline_v3.md.
-    First HSeeker result ever produced on benchmark v3 (all deposited results in
-    analysis/results/ date from 2026-06-24 on the OLD 80-row CSV, pre-filter-commit code).
-    Balanced n=130: sens 0.969 spec 0.938 MCC 0.908 AUC 0.963. Experimental n=71: sens 0.969
-    spec 0.833 MCC 0.749. KEY FINDING for DEC-5/D-4: all 4 false positives are homopolymers
-    (poly-A20/A30, poly-T25/T35) - exactly what the production CLI filters remove and the
-    direct script's library defaults do not. Either filter alone drives specificity to 1.000
-    (MCC 0.908 -> 0.955); the full production config gives sens 0.938 / spec 1.000 /
-    MCC 0.940. So the filter switch alone decides whether the headline specificity is 0.938
-    or 1.000 - D-4 must be pinned before any number is quoted. Both false negatives
-    (HDNA0058, HDNA0078) are pyrimidine-rich tandem DIRECT repeats, not mirror repeats -
-    explain explicitly in WS2-A5. NOT WS2-A2: pre-DEC-5 parameters, benchmark not frozen,
-    HSeeker-only (no R/Triplex in that environment), no CIs, no family-aware evaluation.
+    PROVISIONAL baseline - see RTR/evidence/WS2-PRE_hseeker_baseline_v3.md. Re-run 2026-10-07
+    on the code of that day (DEC-9 score-informed overlap default, reverted to greedy by
+    DEC-10 on 2026-10-08; no call depends on the rule) and the 128-record benchmark (DEC-8);
+    benchmark/script configuration - minrep 8, maxspacer 10, purity 0.90, mismatch 0.10,
+    purity_rmq, no filters (relabelled 2026-10-08 - previously called 'library defaults',
+    but the library default is minrep 10). Balanced n=128 (64/64), script configuration - TP62
+    FN2 TN64 FP0, sens 0.969 spec 1.000 precision 1.000 MCC 0.969 accuracy 0.984 AUC 0.984
+    (AUC = (1+sens)/2 because no negative has any hit). Experimental n=69 (64/5), unchanged
+    from the 124-record round - script configuration TP62 FN2 TN5 FP0, MCC 0.832, AUC 0.984;
+    software defaults (production CLI) MCC 0.580. Synthetic n=59 - 59 TN / 0 FP under every
+    configuration (the 4 DEC-8 records are all true negatives). Filters (DEC-5/D-4) - script
+    configuration, + AT filter only and + homopolymer filter only are IDENTICAL (62/2/64/0,
+    MCC 0.969); the filters change no call because the 4 false positives of the 130-record
+    run (HDNA0053, SYN0054, SYN0055, SYN0056 - all homopolymers) are out of the benchmark and
+    the DEC-8 replacements are not homopolymers. Software defaults (minrep 10) - production
+    CLI (both filters) and library (no filters) both TP56 FN8 TN64 FP0, sens 0.875, MCC 0.882
+    (experimental-only 56/8/5/0, MCC 0.580); the misses (HDNA0022, 0023, 0024, 0025, 0027,
+    0030, plus 0058, 0078) come from minrep=10, not from the filters. So D-4 does not move the
+    benchmark headline, but the benchmark cannot evaluate the filters either (R2.6). Both
+    script-configuration false negatives (HDNA0058, HDNA0078, unchanged) are pyrimidine-rich
+    tandem DIRECT repeats, not mirror repeats - explain explicitly in WS2-A5. Neither DEC-9
+    nor DEC-10 changes a binary call here (0/128 differ greedy vs score; 0 of 73,728 across
+    the WS4-A3 grid), although in general, with the homopolymer filter on, score can report a
+    near-homopolymer hit where greedy reports none (see DEC-9 evidence). Superseded 124-record
+    values (2026-10-02) - TP62 FN2 TN60 FP0, MCC 0.968 (either filter identical); production
+    TP56 FN8 TN60 FP0, MCC 0.879. Superseded 130-record values - sens 0.969 spec 0.938 MCC
+    0.908 AUC 0.963; either filter MCC 0.955; production 0.940; experimental n=71 MCC 0.749.
+    NOT WS2-A2: pre-DEC-5 parameters, benchmark not frozen, HSeeker-only (no R/Triplex in
+    that environment), no CIs, no family-aware evaluation.
   depends_on:
   - WS2-A1
   inputs:
@@ -342,6 +672,7 @@ actions:
     NPV added
   verify: CI columns present; unit test recomputes one Wilson interval by hand
   evidence: run_direct_sensitivity_analysis.py:191-207
+  last_updated: '2026-10-08'
 - id: WS2-A3
   workstream: WS2_benchmark_pipeline
   reviewer_items:
@@ -357,30 +688,50 @@ actions:
   - loso_metrics.csv; out-of-fold Youden threshold evaluation
   verify: no reported confusion matrix uses a threshold selected on its own rows
   progress: >-
-    DONE 2026-09-23 for the DETECTION CALL; the stability-score threshold half remains open.
-    Implemented all three schemes R3.2 names, meeting its 'ideally' bar not its minimum:
-    leave-one-family-out (54 groups), leave-one-study-out (27 groups), and both collapsed
-    variants. Leakage-safe grouping: synthetic negatives generated from an experimental
-    positive INHERIT that positive's family and study (40 of 59 do), so holding out
-    fam:pAA32 cannot leave its own mirror-disrupted mutant in the training portion.
-    fam:pAA32 - the pXY32 series the reviewer names by name - is a single group of 34 of
-    the 130 records. RESULT: the manuscript's pre-specified parameters win under every
-    scheme - LOFO/LOSO sens 0.954 spec 0.985 MCC 0.939, vs per-fold tuned 0.895,
-    script_default 0.908, production_cli 0.856. KEY INSIGHT verified not assumed: LOFO,
-    LOSO and full-data evaluation are NUMERICALLY IDENTICAL (TP62 FN3 TN64 FP1) because
-    with parameters fixed HSeeker's call depends only on the record's own sequence -
-    nothing is fitted, so grouping CANNOT bias the point estimate. What family structure
-    actually affects is PRECISION, exactly as R3.2 says ('inflate apparent statistical
-    power'): the family-cluster CI is 1.26x wider than the record-level CI
-    ([0.845,0.988] vs [0.877,0.985]), ratio 0.91-1.61 across all 14 reported rows.
-    Collapsed-per-family (the literal 'at minimum') is reported but NOT recommended as
-    primary: it leaves 45 forming / 9 non-forming because synthetics collapse away with
-    their source positive, reinstating the imbalance the balanced set removes; the
-    class-preserving variant (n=74, MCC 0.889) is the better figure.
+    DONE for the DETECTION CALL (2026-09-23; regenerated 2026-10-02 on the merged code and the
+    124-record benchmark, and 2026-10-07 on the final code and the 128-record benchmark,
+    DEC-8/DEC-9); the stability-score threshold half remains open. Implemented all three
+    schemes R3.2 names, meeting its 'ideally' bar not its minimum - leave-one-family-out (51
+    groups, 25 singletons; was 54 before DEC-7), leave-one-study-out (26 groups, 4
+    singletons; was 27), and both collapsed variants. Leakage-safe grouping - synthetic
+    negatives generated from an experimental positive INHERIT that positive's family and
+    study (44 of 59 do; was 40 of 55), so holding out fam:pAA32 cannot leave its own
+    mirror-disrupted mutant in the training portion. fam:pAA32 - the pXY32 series the
+    reviewer names by name - is a single group of 37 of the 128 records (was 34 of 124); the
+    largest study (10.1093/nar/18.22.6621) also holds 37. RESULT (128) - the two FIXED
+    configurations tie at the top under LOFO and LOSO - script_default (0.90/0.10/8/10/none;
+    the benchmark/script configuration, not the software default, which is minrep 10)
+    TP62 FN2 TN64 FP0, sens 0.969 spec 1.000 MCC 0.9692 (record CI [0.925, 1.000], family
+    cluster CI [0.909, 1.000], study cluster CI [0.899, 1.000]), and manuscript_stated
+    (0.90/0.15/8/10/both) TP63 FN1 TN63 FP1, sens 0.984 spec 0.984 MCC 0.9688 (record
+    [0.922, 1.000], family cluster [0.901, 1.000], study cluster [0.892, 1.000]) - both
+    beating per-fold tuned (TP60 FN4 TN63 FP1, MCC 0.9229; family cluster [0.816, 0.983],
+    study cluster [0.800, 0.986]) and production_cli (= the software defaults, minrep 10; TP56
+    FN8 TN64 FP0, MCC 0.8819; family cluster [0.750, 0.961], study cluster [0.716, 0.981]). Per-fold selection - purity 0.85
+    and minrep 8 in 51/51 family folds; mismatch 0.10 in 47/51 (0.15 in 4); maxspacer 10 in
+    49/51 (5 in 2); filters 'none' in 51/51; LOSO 26 folds - mismatch 0.10 23/26, maxspacer
+    10 25/26, filters 'none' 26/26. The old claim 'the manuscript's parameters win under
+    every scheme' DOES NOT HOLD - they tie script_default (LOFO/LOSO) and trail it slightly
+    on the collapsed variants. KEY INSIGHT verified not assumed (still holds) - LOFO, LOSO
+    and full-data evaluation are NUMERICALLY IDENTICAL for a fixed config (manuscript_stated
+    TP63 FN1 TN63 FP1 in LOFO, LOSO and nested CV) because with parameters fixed HSeeker's
+    call depends only on the record's own sequence - nothing is fitted, so grouping CANNOT
+    bias the point estimate. What family structure affects is PRECISION, as R3.2 says - for
+    manuscript_stated the family-cluster MCC CI is 1.26x wider than the record-level CI;
+    ratio 0.91-1.75 (median 1.23) across all 14 reported rows. Collapsed-per-family (the
+    literal 'at minimum') is reported but NOT recommended as primary - it leaves 44 forming
+    / 7 non-forming (n=51, unchanged by DEC-8) because synthetics collapse away with their
+    source positive, reinstating the imbalance (script_default 0.862, production 0.648,
+    manuscript 0.834); the class-preserving variant (n=72, 44/28) is the better figure -
+    script_default MCC 0.944, manuscript_stated 0.942, production_cli 0.820. Superseded
+    124-record values (2026-10-02) - tuned 0.920, script_default 0.968, manuscript 0.968,
+    production 0.879, cluster/record 1.23x (median 1.20), collapsed2 (n=71) 0.943 / 0.940 /
+    0.817. Superseded 130-record values - manuscript 0.939, tuned 0.895, script_default
+    0.908, production 0.856, cluster/record 1.26x, collapsed2 (n=74) 0.889.
   evidence: RTR/evidence/WS2-A3_family_aware_validation.md
   outputs_deposited: analysis/results/grouped_validation_v3/
   script: analysis/scripts/run_grouped_validation.py
-  last_updated: '2026-09-23'
+  last_updated: '2026-10-08'
 - id: WS2-A4
   workstream: WS2_benchmark_pipeline
   reviewer_items:
@@ -391,10 +742,13 @@ actions:
   inputs:
   - hdna_benchmark_experimental_v3.csv
   outputs:
-  - hdna_benchmark_balanced_v3.csv (60 synthetic negatives, seed=20260922)
-  verify: 130 rows; 65:65 balanced; 6 classes (mirror-disrupted, dinuc shuffle, random, other-structure, homopolymer, perfect-mirror);
-    0 H-DNA-competent synthetic rows; no exact/revcomp duplicates; never filtered by HSeeker predictions
-  evidence: generate_synthetic_negatives.py output + validation checks
+  - hdna_benchmark_balanced_v3.csv (59 synthetic negatives - 55 from the v3 pool, seed=20260922, homopolymer class removed
+    by DEC-7; + 4 DEC-8 replacements, REPLACEMENT_SEED=20261002)
+  verify: 128 rows; 64 forming / 64 non-forming (1:1 restored by DEC-8); 5 synthetic classes written (mirror-disrupted,
+    dinuc shuffle, random, other-structure, perfect-mirror; homopolymer class generated but excluded); 0 H-DNA-competent
+    synthetic rows; no exact/revcomp duplicates; never filtered by HSeeker predictions
+  evidence: generate_synthetic_negatives.py output + validation checks; RTR/evidence/DEC-8_rebalance_replacement_negatives.md
+  last_updated: '2026-10-07'
 - id: WS2-A5
   workstream: WS2_benchmark_pipeline
   reviewer_items:
@@ -431,12 +785,18 @@ actions:
     changes how R3.6 must be answered: NeSSie -M reports k-mers that are THEMSELVES
     mirror-symmetric and -T reports purine-rich k-mers; neither models an arm-spacer-arm
     motif. Measured: canonical H-DNA positive HDNA0002/pGG32 yields NO -M hit at k=8, while
-    poly-A20 does. Output is motif string/counts/indexes with no per-locus score and no
+    poly-A20 does (poly-A20 = HDNA0053, removed from the benchmark 2026-10-02 by DEC-7; the
+    observation still characterises the tool). Output is motif string/counts/indexes with no per-locus score and no
     arm/spacer decomposition, so NeSSie cannot be scored as a drop-in H-DNA classifier - an
     explicit hit-to-call mapping rule or a target-class caveat is mandatory. This is the
-    'technical limitation' R3.6 asks to be documented.
+    'technical limitation' R3.6 asks to be documented. 2026-10-07 - the comparator binaries
+    are not installed in this environment (they were built elsewhere), so only the HSeeker
+    side of the smoke test was re-run under the DEC-9 default; it is unchanged (HDNA0002
+    pGG32 arm 15 / spacer 2 / score 152.55; HDNA0053 poly-A20 arm 10 / spacer 0 / 83.30).
+    These values are the same under greedy and score, so DEC-10 (greedy default again,
+    2026-10-08) does not change them.
   evidence: RTR/evidence/WS3-A1_A2_comparator_builds.md
-  last_updated: '2026-09-23'
+  last_updated: '2026-10-07'
 - id: WS3-A2
   workstream: WS3_comparators
   reviewer_items:
@@ -462,11 +822,17 @@ actions:
     Score column is literally 'NA' (motif geometry, not a propensity score), so a hit-to-call
     rule is mandatory; nBMST MISSED pcMyc (HDNA0030), a canonical H-DNA former HSeeker
     detects; and both tools call poly-A20 a mirror repeat, which HSeeker's production
-    homopolymer filter drops - a concrete illustration for R2.6. NOTE this 4-sequence smoke
+    homopolymer filter drops - a concrete illustration for R2.6 (poly-A20 = HDNA0053, removed
+    from the benchmark by DEC-7, so the benchmark run will no longer contain it). NOTE this 4-sequence smoke
     test is an interface check, NOT a benchmark: it supports no performance claim, and the
-    RTR's existing 'nBMST performance lower than ours' sentence remains blocked.
+    RTR's existing 'nBMST performance lower than ours' sentence remains blocked. 2026-10-07 -
+    non-B_gfa is not installed in this environment, so only the HSeeker side was re-run under
+    the DEC-9 default; unchanged (HDNA0002 arm 15 / spacer 2 / 152.55; HDNA0030 pcMyc arm 8 /
+    spacer 7 / 92.03; HDNA0053 poly-A20 arm 10 / spacer 0 / 83.30; SYN0001 no hit; HDNA0063
+    FXN_GAA66 arm 98 / 984.75), so the 'HSeeker detects pcMyc' observation stands. These
+    values are the same under greedy and score, so DEC-10 (2026-10-08) does not change them.
   evidence: RTR/evidence/WS3-A1_A2_comparator_builds.md
-  last_updated: '2026-09-23'
+  last_updated: '2026-10-07'
 - id: WS3-A3
   workstream: WS3_comparators
   reviewer_items:
@@ -508,7 +874,16 @@ actions:
   outputs:
   - ablation_metrics.csv: detection-only / +AT / +homopolymer / pairing-only / pairing+stacking / full
   verify: each ablation reproducible from the pinned config with one component toggled
-  evidence: src/hseeker/__init__.py:53-89; src/hseeker/_scoring.py
+  evidence: src/hseeker/__init__.py:65-83, 191-220; src/hseeker/_scoring.py
+  note: >-
+    2026-10-02: the main merge (DEC-6) brought Nikol's hseeker.ablation module and
+    analysis/scripts/ablation_eval.py (not yet run on v3). After DEC-7 the +AT and
+    +homopolymer arms are null by construction (updated 2026-10-07 to the 128-record
+    benchmark, DEC-8 - benchmark/script configuration (minrep 8) with either filter TP62 FN2
+    TN64 FP0, identical to no filter; software defaults (minrep 10) TP56 FN8 TN64 FP0 with or
+    without filters; the 4 DEC-8 replacements are not homopolymers), so this ablation cannot
+    say anything about the filters. hseeker.ablation keeps its own explicit overlap handling
+    (greedy default) under DEC-9 and DEC-10.
 - id: WS4-A3
   workstream: WS4_robustness
   reviewer_items:
@@ -526,72 +901,120 @@ actions:
   verify: sensitivity/specificity/MCC per setting; one-at-a-time around canonical config
   primary_estimate: >-
     Repeated stratified 5-fold nested CV (20 repeats, every record held out once per
-    repeat, pooled out-of-fold over all 130 records). Design fixed a priori, NOT chosen
-    by comparing results - picking a flattering partition would reintroduce R3.3's
-    circularity at the split level. RESULT: the manuscript's own pre-specified parameters
-    (mismatch 0.15, minrep 8, purity 0.90, maxspacer 10, both filters) give
-    sens 0.954 / spec 0.985 / MCC 0.939 [0.877, 0.985] and BEAT per-fold tuning
-    (MCC 0.909 [0.857, 0.985]); script_default 0.908, production_cli 0.856. Tuning adds
-    selection variance without signal. THIS is the configuration to report: best
-    performing AND most defensible, because nothing was selected on the data, so R3.3
-    does not apply to it at all. Selection-frequency across 100 outer folds: minrep=8 and
-    purity=0.85 in 100% of folds, some composition filter in 100% (AT 86% / homopolymer
-    14%), maxspacer=10 in 77%, mismatch=0.10 in only 60% - mismatch is the least settled
-    axis, exactly the one DEC-5 asks about, and the fixed 0.15 wins out of fold.
-    CV correctness: exact partition of all 130 records in every one of 20x5 folds, all
-    folds class-balanced within 1, every pooled confusion sums to 130, selection-frequency
-    totals 100 per axis. Zero-width across-repeat intervals for FIXED configs are expected,
-    not a defect (a fixed config predicts each record identically regardless of fold), so
-    record-level bootstrap CIs were added for the headline numbers.
+    repeat, pooled out-of-fold over all 128 records; regenerated 2026-10-07 on the final code
+    and the 128-record benchmark, DEC-8/DEC-9). Design fixed a priori, NOT chosen by
+    comparing results - picking a flattering partition would reintroduce R3.3's circularity
+    at the split level. RESULT - the two FIXED configurations tie at the top and both BEAT
+    per-fold tuning (MCC 0.938, across-repeat [0.923, 0.969], bootstrap [0.875, 0.985];
+    sens 0.953 spec 0.984; TP61 FN3 TN63 FP1) - script_default (purity 0.90, mismatch 0.10,
+    minrep 8, maxspacer 10, no filters) sens 0.969 / spec 1.000 / MCC 0.969 [0.924, 1.000]
+    (TP62 FN2 TN64 FP0), and the manuscript's pre-specified parameters (mismatch 0.15,
+    minrep 8, purity 0.90, maxspacer 10, both filters) sens 0.984 / spec 0.984 / MCC 0.969
+    [0.922, 1.000] (TP63 FN1 TN63 FP1); production_cli (= the software defaults, minrep 10;
+    the library default without filters gives identical predictions here) 0.882 [0.802,
+    0.954] (TP56 FN8 TN64 FP0). Label note (2026-10-08) - script_default is the analysis
+    scripts' setting (minrep 8, no filters), not the software default. Tuning adds selection variance without signal. The manuscript config still beats
+    tuning (0.969 vs 0.938) and requires no selection, so R3.3 does not apply to it, but it
+    does not beat script_default. Selection frequency across 100 outer folds - purity=0.85
+    and minrep=8 in 100%, filters 'none' in 100%, maxspacer=10 in 80% (5 in 20%),
+    mismatch=0.10 in 54% / 0.15 in 46% - mismatch is still the least settled axis, and out of
+    fold 0.10 and 0.15 perform equally (DEC-5). Zero-width across-repeat intervals for FIXED
+    configs are expected, not a defect (a fixed config predicts each record identically
+    regardless of fold), so record-level bootstrap CIs are reported for the headline
+    numbers. Superseded 124-record values (2026-10-02) - tuned 0.936 [0.871, 0.984],
+    script_default 0.968, manuscript 0.968, production_cli 0.879; mismatch 60/40, maxspacer
+    76/24. Superseded 130-record values - manuscript 0.939 [0.877, 0.985], tuned 0.909
+    [0.857, 0.985], script_default 0.908, production_cli 0.856.
   progress: >-
-    DONE 2026-09-23 for the detection-parameter half of R3.9; PROVISIONAL (pre-freeze,
-    pre-DEC-5) and the scoring-component ablation half remains open as WS4-A2.
-    Design per author instruction: 65:65 balanced set only, SEQUENCE-level stratified
-    70/30 split (train 90 at 45:45, eval 40 at 20:20, seed 20260923), full factorial
-    576 configs (purity x mismatch x minrep x maxspacer x filter-state), selection by
-    max MCC on TRAIN only with a deterministic simplicity-preferring tie-break,
-    evaluated once on the held-out split. Upgraded from the plan's one-at-a-time sweep
-    to full factorial because compute was negligible (14.7 s for the whole matrix).
-    HEADLINE: tuning does NOT reliably beat the shipped default - over 200 repeated
-    splits the median tuned-minus-default eval MCC is exactly +0.0000 (95% [-0.0955,
-    +0.1001]), winning 99/200, tied 43, losing 58. The surface is broad: 108 of 576
-    configs lie within 0.05 MCC of the maximum and 75 tie at it. Parameter importance
-    by spread in median eval MCC: minrep 0.278 (dominant) > mismatch 0.166 >
-    maxspacer 0.083 > filter-state 0.060 > purity 0.041. The three filter states are
-    indistinguishable from each other and all beat 'none', consistent with every false
-    positive being a homopolymer. INFORMS DEC-5: mismatch=0.15, the manuscript's stated
-    value, has the best median eval MCC (0.860), and the manuscript's full stated
-    configuration ties the tuned one on held-out data (MCC 0.951) - so adopting the
-    manuscript values as canonical is supported by data, not just by consistency.
-    CORRECTNESS: 10 checks pass including determinism (byte-identical re-run), grid
-    completeness, hand-recomputed Wilson CI, and 6 grid cells recomputed from direct
-    hseeker calls. Two initial FAILs were defects in the CHECKING code (label
-    'non_forming' vs normalised 'non-forming'; rounded-vs-unrounded MCC comparison),
-    both re-verified after correction and recorded rather than quietly fixed.
-    PARITY CAVEAT: this is sequence-level by instruction, so it does NOT answer R3.2.
-    Leakage measured, not assumed - of 40 eval records, 24 share a family with train,
-    8 have a >=90% identical train record, and 7 synthetic negatives have their source
-    record in train. The held-out estimate is therefore optimistic relative to a
-    family-aware design and must not be presented as answering R3.2.
+    DONE for the detection-parameter half of R3.9 (2026-09-23; regenerated 2026-10-02 and
+    2026-10-07); PROVISIONAL (pre-freeze, pre-DEC-5) and the scoring-component ablation half
+    remains open as WS4-A2. Design per author instruction - balanced set only,
+    SEQUENCE-level stratified 70/30 split (seed 20260923; after DEC-8 train 88 at 44:44, eval
+    40 at 20:20 - balanced again; 124-round 86/38 at 44:42 / 20:18; 130-round 90/40 at 45:45
+    / 20:20), full factorial 576 configs (purity x mismatch x minrep x maxspacer x
+    filter-state), selection by max MCC on TRAIN only with a deterministic
+    simplicity-preferring tie-break, evaluated once on the held-out split. Train-tuned
+    selection - purity 0.85, mismatch 0.15, minrep 8, maxspacer 5, filters none (train MCC
+    0.9775; 124-round maxspacer 10, train MCC 1.000). Held-out EVAL (n=40) - SELECTED TP18
+    FN2 TN20 FP0 MCC 0.905 [0.775, 1.000]; script_default TP20 FN0 TN20 FP0 MCC 1.000 [1.000,
+    1.000]; production_cli TP19 FN1 TN20 FP0 MCC 0.951 [0.854, 1.000]; manuscript_stated
+    TP20 FN0 TN19 FP1 MCC 0.951 [0.854, 1.000]. HEADLINE - tuning does NOT beat the fixed
+    benchmark/script configuration (script_default, minrep 8, no filters; relabelled
+    2026-10-08 - previously called 'the shipped default', but the shipped software default is
+    minrep 10 = production_cli here) - over 200 repeated splits the median
+    tuned-minus-script_default eval MCC is +0.000 (95% [-0.0955, +0.000]); tuning beat
+    script_default in 0/200 splits, tied 112, lost 88 (124-round
+    0/109/91; 130-round 99 won / 43 tied / 58 lost); selected-config eval MCC median 0.951
+    [0.900, 1.000]. Surface (single held-out split, eval MCC over 576 configs; computed
+    2026-10-07 from grid_eval_metrics.csv) - min 0.577, median 0.734, max 1.000; 104 of 576
+    within 0.05 MCC of the maximum and 32 tie at it (124-round 76 / 16; 130-round 108 / 75).
+    Parameter importance by spread in median eval MCC - minrep 0.203 (dominant; 8 -> 0.838,
+    10 -> 0.734, 12 -> 0.635) > mismatch 0.183 (0.10 and 0.15 both 0.838) ~ maxspacer 0.183
+    > purity 0.144 > filter-state 0.000. The four filter states are IDENTICAL in median MCC,
+    consistent with the filters changing no call once the homopolymers are gone. INFORMS
+    DEC-5 - the earlier support for the manuscript values does not hold; mismatch 0.10 and
+    0.15 tie (0.838), and on this split the manuscript config (0.951) trails script_default
+    (1.000). INFORMS the configuration TODO(authors) (plan WS2, 2026-10-08) - minrep is
+    selected as 8 in 100/100 nested-CV folds and is the dominant axis (spread 0.203), while
+    the shipped default is minrep 10. Neither DEC-9 nor DEC-10 changes a binary call on the
+    benchmark (0 of the 73,728 grid calls differ greedy vs score), so they move none of
+    these numbers; in general, with the homopolymer filter on, score can report a
+    near-homopolymer hit where greedy reports none (see DEC-9 evidence).
+    CORRECTNESS - the 10 checks recorded 2026-09-23 (determinism, grid completeness,
+    hand-recomputed Wilson CI, 6 grid cells recomputed from direct hseeker calls) were run on
+    the 130-record version; re-running them on the 128-record version is not recorded. PARITY
+    CAVEAT - this is sequence-level by instruction, so it does NOT answer R3.2. Leakage
+    measured, not assumed - of 40 eval records, 25 share a family with train, 8 have a >=90%
+    identical train record, and 7 synthetic negatives have their source record in train
+    (124-round 20 / 7 / 7 of 38; 130-round 24 / 8 / 7 of 40). The held-out estimate is
+    therefore optimistic relative to a family-aware design and must not be presented as
+    answering R3.2.
   evidence: RTR/evidence/WS4-A3_parameter_robustness.md
   outputs_deposited: analysis/results/robustness_v3/ (grid_train_metrics.csv,
     grid_eval_metrics.csv, selected_vs_reference.csv, split_manifest.csv,
-    leakage_audit.csv, repeated_split_stability.csv, metadata.json)
+    leakage_audit.csv, repeated_split_stability.csv, nested_cv_*.csv, metadata.json;
+    metadata input_csv_sha256 7bb495444e91709fb0e322f08e5c9737e3a9419f94d9c881059073f725907cf9,
+    n_records 128, run 2026-10-07)
   script: analysis/scripts/run_parameter_robustness.py
-  last_updated: '2026-09-23'
+  last_updated: '2026-10-08'
 - id: WS4-A4
   workstream: WS4_robustness
   reviewer_items:
   - R3.10
-  status: pending
+  status: in_progress
   depends_on:
   - WS2-A1
   inputs:
   - remove_overlaps=False candidate sets
   outputs:
   - overlap_selection_comparison.csv: longest-arm vs highest-score
-  verify: concordance reported on benchmark and chr1; production rule changed only if justified
-  evidence: src/hseeker/_hdna.c:499-558
+  verify: concordance of the reported hit reported on benchmark and chr1; keeping the longest-arm default (DEC-10) and
+    offering score mode are justified by the comparison or explicitly in text, and a mode is recommended
+  evidence: src/hseeker/_hdna.c:499-558; RTR/evidence/WS6-A4_chr1_runtime_memory_2026-10-07.md (section 2, chr1
+    concordance); RTR/evidence/DEC-9_score_overlap_default_and_optimisation.md (section 1, benchmark)
+  note: >-
+    2026-10-07 (DEC-9): the authors made score-informed selection the default (whenever
+    scoring is on) BEFORE this comparison was run, so the original verify ('production rule
+    changed only if justified') was rewritten - the comparison now has to justify an
+    adopted rule, or the text has to justify it on other grounds (TODO(authors) under plan
+    R3.10). 2026-10-08 (DEC-10): greedy is the default again, so the comparison now has to
+    justify KEEPING the longest-arm default (speed) while offering score mode, and the
+    letter has to recommend a mode; verify rewritten accordingly. Established - 0
+    detection-call differences greedy vs score on the benchmark (all 128 records under all
+    576 WS4-A3 grid configs, 73,728 calls); in general, with the homopolymer filter on,
+    score can report a near-homopolymer hit where greedy reports none (DEC-9 evidence; score
+    mode only); the reported hit differs within overlapping clusters (GAMIR_SEQ arm 6 vs 7).
+    MEASURED 2026-10-07 on hg38 chr1 (library parameters, WS6-A4 evidence section 2) - score
+    mode retains every greedy locus (96,729 of 96,729 greedy hits overlap a score hit),
+    80,932 (83.7 %) have identical coordinates, score adds 1.5 % loci (98,223 vs 96,729;
+    1,076 score-only loci, 32 of them >= 90 % one base), runtime ~2.3x at 16 workers (~60 s
+    vs 26.3 s); CLI filters - 41,937 vs 43,150 hits, 91.5 % identical, 936 score-only loci (5
+    >= 90 % one base). Status set to in_progress 2026-10-08 because these numbers exist only
+    in the evidence file. Still to do - deposit them as overlap_selection_comparison.csv with
+    a script that regenerates them (X7 in RTR/REMAINING_WORK_PLAN_2026-10-07.md). The
+    implementation and its optimisation are listed as DEC-9 outputs; the default change as a
+    DEC-10 output.
+  last_updated: '2026-10-08'
 - id: WS5-A1
   workstream: WS5_genome_scale_validation
   reviewer_items:
@@ -693,7 +1116,20 @@ actions:
   outputs:
   - extrapolation labeled; Data Availability rewritten; optional full-hg38 run
   verify: no unlabeled whole-genome runtime claim; deposited artifacts referenced
-  evidence: ''
+  evidence: RTR/evidence/WS6-A4_chr1_runtime_memory_2026-10-07.md (chr1 re-measurement; provisional)
+  note: >-
+    2026-10-07 (DEC-9) the deposited timings (benchmarks/) and chr1 output
+    (analysis/results/chr1/) were produced under greedy while the default was score.
+    2026-10-08 (DEC-10) greedy is the default again, so the published numbers describe the
+    default mode - a re-run on the manuscript node's CPU model (AMD EPYC 7763, 16 vCPUs) gave
+    greedy 26.3 s at 16 workers (published 25.2 s), 172.1 s at 1 worker (published 187.7 s)
+    and exactly 96,729 hits; the optional score mode ~60 s / 205.2 s and 98,223 hits;
+    published triplex 57.7 s. PR #18 raised chr1 peak RSS to 2,704 MB; the output-neutral fix
+    restores 1,979 MB (published 1,965 MB) and is not yet committed. Still to do - label the
+    whole-genome figure as an extrapolation (or measure full hg38), re-measure on the final
+    code with -overlap-strategy pinned (X6), rewrite Data Availability. Status stays pending -
+    none of the outputs above exists yet.
+  last_updated: '2026-10-08'
 - id: WS6-A5
   workstream: WS6_manuscript_sync
   reviewer_items:
@@ -737,18 +1173,23 @@ actions:
   - provenance audit (AUDIT-1)
   outputs:
   - hdna_benchmark_experimental_v3.csv
-  verify: 80 rows = 71 kept / 7 removed / 2 excluded; kept = 65 forming / 6 non-forming;
-    every non-kept row carries a written curation_justification; 0 low-tier rows kept
+  verify: 80 rows = 69 kept / 9 removed / 2 excluded; kept = 64 forming / 5 non-forming;
+    every non-kept row carries a written curation_justification; 0 low-tier rows kept; 0 pure
+    homopolymers kept
   verified_result: >-
-    Re-verified 2026-09-23 in this repo: 80 rows, curation_decision = 71 kept / 7 removed /
-    2 excluded; kept split 65 forming / 6 non-forming; 59 primary / 12 secondary.
-    sha256 01c7fbeb3f6f63005904dd513425d459b0afa1304f0480eb4ced0110b0b4fbcd.
+    Re-verified 2026-10-02 after DEC-7: 80 rows, curation_decision = 69 kept / 9 removed /
+    2 excluded; kept split 64 forming / 5 non-forming; 57 primary / 12 secondary; HDNA0053
+    and HDNA0054 now removed with justification 'Removed (pure homopolymer): author decision
+    (2026-10-02)'. sha256 7197c6df93781dfeacc8246db49b0af7c66e61984ae108a32d1ddfff02d322c1
+    (was 01c7fbeb3f6f63005904dd513425d459b0afa1304f0480eb4ced0110b0b4fbcd at 71 kept /
+    7 removed, 65/6, 59 primary).
     NOTE this action is NOT the WS0-A1 freeze: the citation corrections (22 PMIDs, 2 DOIs)
     are recorded in corrected_pmid/corrected_doi but NOT applied to cited_pmid/cited_doi,
     and the pCON terminal-C fix (register D-9) is not applied - HDNA0029 is still 31 nt.
-    WS0-A1 remains open for exactly that work.
+    WS0-A1 remains open for exactly that work. RE-VERIFIED 2026-10-07 - the experimental CSV is
+    unchanged by DEC-8/DEC-9 (same sha256 7197c6df..., 69 kept = 64/5).
   evidence: hdna_benchmark_experimental_v3.csv curation_decision/curation_justification columns
-  last_updated: '2026-09-23'
+  last_updated: '2026-10-07'
 - id: SYN-1
   workstream: WS2_benchmark_v3
   reviewer_items:
@@ -762,13 +1203,22 @@ actions:
   - RTR/generate_synthetic_negatives.py (seed 20260922)
   verify: six classes per the reviewer R2.1 menu; seed fixed; all parameters in-script
   verified_result: >-
-    59 synthetic negatives across 6 classes: 20 mirror-disrupted mutants, 10 dinucleotide
-    shuffles, 10 random GC/length-matched, 12 other-structure (4 G4 / 3 Z-DNA / 5 B-DNA),
-    4 poly-A/T, 3 perfect-mirror balanced-GC. Generator re-run 2026-09-23 from its new
-    location and reproduced the delivered CSV BYTE-FOR-BYTE, so the seed and pipeline are
-    genuinely deterministic.
-  evidence: RTR/generate_synthetic_negatives.py
-  last_updated: '2026-09-23'
+    59 synthetic negatives written across 5 classes (2026-10-07, after DEC-8) - 22
+    mirror-disrupted mutants (A), 11 dinucleotide shuffles (B), 11 random GC/length-matched
+    (C), 12 other-structure (D - 4 G4 / 3 Z-DNA / 5 B-DNA), 3 perfect-mirror balanced-GC (F).
+    Class E (4 poly-A/T - SYN0053-0056) is still generated with the same RNG streams but
+    dropped before writing (DEC-7, 2026-10-02), so it contributes 0 records. The 4 DEC-8
+    replacements (SYN0060-SYN0063 - 2 A, 1 B, 1 C) are drawn from an independent RNG
+    (REPLACEMENT_SEED=20261002) after the v3 pool, by helpers refactored out of the class
+    A-C bodies; the v3 pool output is unchanged (first 124 rows byte-identical, cmp).
+    Superseded - 55 across 5 classes (20/10/10/12/3; 2026-10-02); 59 across 6 classes
+    incl. the 4 homopolymers (before DEC-7). Generator re-run 2026-09-23 reproduced the
+    then-delivered CSV BYTE-FOR-BYTE; 2026-10-02 output verified equal to that file minus the
+    6 pure homopolymers, so the seed and pipeline remain deterministic. TODO(authors): R2.1
+    asks for poly-A as a hard test, and the DEC-8 replacements are not homopolymers, so this
+    still stands - see plan Part C R2.1.
+  evidence: RTR/generate_synthetic_negatives.py; RTR/evidence/DEC-8_rebalance_replacement_negatives.md
+  last_updated: '2026-10-07'
 - id: SYN-2
   workstream: WS2_benchmark_v3
   reviewer_items:
@@ -784,11 +1234,14 @@ actions:
     purine-rich strand); no exact or reverse-complement duplicate; never filtered by
     HSeeker's own predictions (avoids circular benchmarking)
   verified_result: >-
-    Re-run 2026-09-23 - 'H-DNA-competent synthetic rows (must be []): []'. Max residual
-    strong-mirror identity 0.78 (< 0.80) across all perturbation/random classes. Independent
-    dedup check over all 130 sequences found 0 exact and 0 reverse-complement duplicates.
+    Re-run 2026-10-07 on the 128-record file (DEC-8) - 'H-DNA-competent synthetic rows
+    (must be []): []'; max residual strong-mirror identity in classes A-C 0.778 (< 0.80; the
+    new SYN0060 is at 0.778, the other 3 at 0.750); 0 exact and 0 reverse-complement
+    duplicates across all 128 sequences; no homopolymers. Earlier runs - 2026-09-23 on 130
+    records (same checks, max identity 0.78); the 124-record set (DEC-7) was a row subset
+    of that file.
   evidence: RTR/generate_synthetic_negatives.py (validation printed by the script on each run)
-  last_updated: '2026-09-23'
+  last_updated: '2026-10-07'
 - id: SYN-3
   workstream: WS2_benchmark_v3
   reviewer_items:
@@ -801,16 +1254,21 @@ actions:
   - kept experimental records + validated synthetic negatives
   outputs:
   - hdna_benchmark_balanced_v3.csv
-  verify: 130 rows at 65:65; 71 experimental + 59 synthetic; experimental rows identical to
-    the kept rows of the experimental v3 CSV
+  verify: 128 rows at 64:64 (1:1 restored by DEC-8); 69 experimental + 59 synthetic; experimental
+    rows identical to the kept rows of the experimental v3 CSV
   verified_result: >-
-    Re-verified 2026-09-23: 130 rows, 65 forming / 65 non-forming, 71 experimental + 59
-    synthetic. The 71 experimental rows match the kept rows of hdna_benchmark_experimental_v3
-    with ZERO field differences. sha256
-    f4602d6453d0926c1eae10dd54311e9fad08afe2beb9e59a3a9a0153e3b2ad8c. This file is now the
-    repo's benchmark: both analysis scripts default to it and record its sha256 per run.
-  evidence: hdna_benchmark_balanced_v3.csv
-  last_updated: '2026-09-23'
+    Re-verified 2026-10-07 after DEC-8 - 128 rows, 64 forming / 64 non-forming, 69
+    experimental + 59 synthetic; the first 124 data rows are byte-identical to the DEC-7 file
+    and the experimental CSV is unchanged. sha256
+    7bb495444e91709fb0e322f08e5c9737e3a9419f94d9c881059073f725907cf9 (superseded -
+    7f78555dd7c788a75c012d1eef8a08306a65b7f9be1f3468e85ab37a5c5bde89 at 124 rows, 64:60, 69 +
+    55, DEC-7; f4602d6453d0926c1eae10dd54311e9fad08afe2beb9e59a3a9a0153e3b2ad8c at 130 rows,
+    65:65, 71 + 59). On 2026-10-02 the 69 experimental rows were checked against the kept
+    rows of hdna_benchmark_experimental_v3 with ZERO field differences; neither file's
+    experimental rows changed since. This file is the repo's benchmark: both analysis scripts default to it and
+    record its sha256 per run.
+  evidence: hdna_benchmark_balanced_v3.csv; RTR/evidence/DEC-8_rebalance_replacement_negatives.md
+  last_updated: '2026-10-07'
 - id: AUDIT-1
   workstream: WS0_benchmark_freeze
   reviewer_items:
@@ -826,7 +1284,10 @@ actions:
   - generate_synthetic_negatives.py
   - hseeker_revision_graph.html
   verify: 80 rows audited; 71 kept (65/6); 59 primary / 12 secondary / 7 removed / 2 excluded; all primary rows cited; 4 low-tier
-    + 1 moderate-tier-weakest records removed by author decision; balanced benchmark 130 rows at 65:65
+    + 1 moderate-tier-weakest records removed by author decision; balanced benchmark 130 rows at 65:65. Superseded
+    2026-10-02 by DEC-7 (2 further removals) - now 69 kept (64/5); 57 primary / 12 secondary / 9 removed / 2 excluded;
+    balanced 124 rows at 64:60. Balanced set further superseded 2026-10-07 by DEC-8 (4 replacement synthetic negatives) -
+    128 rows at 64:64; experimental counts unchanged
   evidence: sequence analysis + PubMed/Crossref verification + Wang 2004 Fig 1A image + Rooney 1995 template match + Belotserkovskii
     2007 design match + Hanvey 1988 abstracts
-  last_updated: '2026-09-23'
+  last_updated: '2026-10-07'

@@ -1,5 +1,5 @@
 """
-webapp/main.py — HSeeker Web Application
+webapp/main.py — hosted HSeeker FastAPI Web Application
 =========================================
 Deploy:  uvicorn main:app --host 0.0.0.0 --port $PORT
 """
@@ -579,6 +579,7 @@ def _run_job(job_id: str, fasta_path: str) -> None:
                 purity=params["purity"],
                 mismatch=params["mismatch"],
                 remove_overlaps=params["remove_overlaps"],
+                overlap_strategy=params["overlap_strategy"],
                 seq_offset=offset,
                 score=params.get("score", True),
             )
@@ -631,8 +632,13 @@ async def submit(
     purity: float = Form(0.90),
     mismatch: float = Form(0.10),
     remove_overlaps: int = Form(1),
-    score: int = Form(1),
+    overlap_strategy: str = Form("greedy"),
+    score: int = Form(0),
 ):
+    if overlap_strategy not in ("greedy", "score"):
+        raise HTTPException(400, "Choose greedy or score overlap strategy")
+    if remove_overlaps and overlap_strategy == "score" and not score:
+        raise HTTPException(400, "Score overlap filtering requires scoring enabled")
     has_file = file is not None and bool(file.filename)
     has_text = bool(seq_text.strip())
     if not has_file and not has_text:
@@ -686,6 +692,7 @@ async def submit(
         purity=purity,
         mismatch=mismatch,
         remove_overlaps=bool(remove_overlaps),
+        overlap_strategy=overlap_strategy,
         score=bool(score),
     )
     job_id = _new_job(filename, params)

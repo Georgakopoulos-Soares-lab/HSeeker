@@ -17,7 +17,7 @@ Grouping rule (the part that makes it honest):
   family/study. A mirror-disrupted mutant of pGG32 carries pGG32's sequence, so
   leaving out the pGG32 family while training on its mutant would leak precisely
   what the family-aware design exists to prevent. Synthetic records with no source
-  (G4, Z-DNA, B-DNA, homopolymer, perfect-mirror controls) form their own groups.
+  (G4, Z-DNA, B-DNA, perfect-mirror controls) form their own groups.
 
 Parameters are selected on the retained groups only and the held-out group is
 predicted with that selection; predictions are pooled across folds so one confusion

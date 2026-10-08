@@ -2,7 +2,10 @@
 
 **Status:** **PARTIAL — builds and interface characterization done; benchmark runs
 still blocked on WS0-A1 (benchmark freeze).** Not to be marked complete.
-**Date:** 2026-09-23
+**Date:** 2026-09-23 (HSeeker side re-checked 2026-10-02 and 2026-10-07)
+*Note 2026-10-07: benchmark is now 128 records (64:64) after DEC-8 rebalance, and
+overlap removal defaults to score-informed (DEC-9); see the dated note under WS3-A2.
+Nothing in this file depended on the 124-record counts.*
 **Reviewer item R3.6 (extract):** "The manuscript also discusses NeSSie and nBMST as
 relevant tools but does not include them in the main experimental benchmark. A more
 comprehensive comparison with algorithms designed specifically to identify mirror
@@ -119,6 +122,23 @@ Three things this establishes:
    via the homopolymer filter; the library default used here does not. This is a
    concrete illustration of why the composition filters exist (R2.6) — and a
    reminder that the two arms must be run under one pinned configuration (WS2-A1).
+
+*Note 2026-10-02:* HDNA0053 poly-A20 has since been **removed from the benchmark**
+with the other pure homopolymers (author decision 2026-10-02), so it will not appear
+in the frozen-set runs; the smoke-test observations above still stand as measured.
+HSeeker's numbers in both tables were re-checked on the merged tree
+(`minrep=8, maxspacer=10`) and are unchanged.
+
+*Note 2026-10-07:* overlap removal now defaults to the score-informed strategy
+(DEC-9: `overlap_strategy="score"` whenever scoring is on). HSeeker's smoke-test values
+were re-checked under the new default (`minrep=8, maxspacer=10, score=True`, no explicit
+strategy) and against explicit `overlap_strategy="greedy"`; both give the same single hit
+and the values are unchanged: HDNA0002 `pGG32` arm 15 / spacer 2 / score 152.55;
+HDNA0030 `pcMyc` arm 8 / spacer 7 / 92.03; HDNA0053 poly-A20 arm 10 / spacer 0 / 83.30;
+SYN0001 no hit; HDNA0063 `FXN_GAA66` arm 98 / spacer 0 / 984.75. The comparator side
+was **not** re-run: the NeSSie and `gfa` binaries are not installed in this
+environment (they were built elsewhere), so the NeSSie and nBMST observations above
+are as measured on 2026-09-23.
 
 ---
 

@@ -106,7 +106,7 @@ The inner loop has been hand-tuned for throughput. Do not regress these:
 
 ### Compiler flags
 
-Compiled with `-O3 -march=native -Wall` (declared in `setup.py`).
+Compiled with `-O3 -Wall` (declared in `setup.py`); `-march=native` is added only when building with `HSEEKER_NATIVE_BUILD=1`.
 Previously used `-O2`.
 
 ---

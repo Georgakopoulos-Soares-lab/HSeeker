@@ -1,11 +1,11 @@
 {
-  "date": "2026-09-23 19:05:55",
+  "date": "2026-10-07 14:31:56",
   "status": "PROVISIONAL - benchmark not frozen (WS0-A1) and DEC-5 unresolved",
-  "input_csv": "/workspaces/HSeeker/hdna_benchmark_balanced_v3.csv",
-  "input_csv_sha256": "f4602d6453d0926c1eae10dd54311e9fad08afe2beb9e59a3a9a0153e3b2ad8c",
-  "n_records": 130,
-  "n_forming": 65,
-  "n_non_forming": 65,
+  "input_csv": "hdna_benchmark_balanced_v3.csv",
+  "input_csv_sha256": "7bb495444e91709fb0e322f08e5c9737e3a9419f94d9c881059073f725907cf9",
+  "n_records": 128,
+  "n_forming": 64,
+  "n_non_forming": 64,
   "split": {
     "level": "sequence (NOT family/study aware, by author instruction)",
     "stratified_by": [
@@ -14,7 +14,7 @@
     ],
     "train_frac": 0.7,
     "seed": 20260923,
-    "n_train": 90,
+    "n_train": 88,
     "n_eval": 40
   },
   "grid": {
@@ -51,15 +51,15 @@
   "selection_rule": "max MCC on TRAIN; ties -> higher sensitivity, then fewer filters, then larger minrep, smaller maxspacer, lower mismatch",
   "selected_config": {
     "purity": 0.85,
-    "mismatch": 0.1,
+    "mismatch": 0.15,
     "minrep": 8,
-    "maxspacer": 10,
-    "filters": "at"
+    "maxspacer": 5,
+    "filters": "none"
   },
-  "selected_train_MCC": 0.9565,
+  "selected_train_MCC": 0.9775,
   "leakage": {
     "eval_n": 40,
-    "family_in_train": 24,
+    "family_in_train": 25,
     "synthetic_source_in_train": 7,
     "near_duplicate_ge_0.90": 8
   },
@@ -68,9 +68,9 @@
     "folds": 5,
     "cv_repeats": 20,
     "note": "PRIMARY estimate. Design fixed a priori; not tuned against the resulting metrics.",
-    "MCC_median": 0.9094,
-    "MCC_p2.5": 0.895,
-    "MCC_p97.5": 0.9402
+    "MCC_median": 0.938,
+    "MCC_p2.5": 0.9229,
+    "MCC_p97.5": 0.9692
   },
   "hseeker_version": "0.1.0"
 }

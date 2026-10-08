@@ -1,14 +1,14 @@
 # WS1-A2 — profiling counters must not be shared across threads (reviewer R2.9)
 
-**Status:** done, verified
-**Date:** 2026-09-23
+**Status (2026-10-02):** resolved — RTR implementation superseded by Nikol's fix on main (merged)
+**Date:** 2026-09-23 (RTR fix); updated 2026-10-02 after merging main
 **Reviewer item R2.9 (verbatim):** "There is no synchronization in mutating
 prof_inner_iters and prof_ctr_sp_pairs in src/hseeker/_hdna.c. It may lead to
 losing the counting."
 
 ## Reviewer's reading confirmed — and the defect is larger than "may"
 
-Before the fix, `_hdna.c:54-61` declared both counters as plain static globals.
+Before either fix, `_hdna.c:54-61` declared both counters as plain static globals.
 They are incremented inside the two scan cores (`findHDNA_core`,
 `findHDNA_purity_rmq_core`) which run **with the GIL released**
 (`Py_BEGIN_ALLOW_THREADS` in `py_scan_sequence`), and `scan_fasta_parallel()`
@@ -19,7 +19,7 @@ incremented the same two words concurrently, with no synchronization.
 starting mid-flight reset a concurrent scan's totals.
 
 **Measured, not assumed.** Eight concurrent scans of *identical* input, compared
-against the single-threaded total for that same input (pre-fix build):
+against the single-threaded total for that same input (original, pre-fix build):
 
 ```
 single-thread baseline : inner_iters = 1,823,346   ctr_sp_pairs = 659,736
@@ -34,72 +34,60 @@ Every thread reported a different number, none correct. The counts were not mere
 "lost" — they were cross-contaminated, each thread reading a total that included
 other threads' work.
 
-## Fix — thread-local storage, not atomics
+## Resolution (current tree) — per-scan counters, published under the GIL
 
-Both counters are now declared `HDNA_THREAD_LOCAL`, via a portable macro:
+The shared static counters are gone. In the merged tree (`src/hseeker/_hdna.c`):
 
-```c
-#if defined(_MSC_VER)
-#  define HDNA_THREAD_LOCAL __declspec(thread)
-#elif defined(__GNUC__) || defined(__clang__)
-#  define HDNA_THREAD_LOCAL __thread
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-#  define HDNA_THREAD_LOCAL _Thread_local
-#else
-#  define HDNA_THREAD_LOCAL   /* single-threaded fallback */
-#endif
-```
+- `ScanProfile` (`_hdna.c:54-58`, `{inner_iters, ctr_sp_pairs}`) is a local in each
+  `py_scan_sequence` call (`_hdna.c:599`) and is passed by pointer to the scan cores
+  (`findHDNA_core`, `findHDNA_purity_rmq_core`; `_hdna.c:266`, `:383`). While the
+  GIL is released (`Py_BEGIN_ALLOW_THREADS`, `_hdna.c:680-699`) each scan writes only
+  its own struct — no shared mutation, no atomics in the hot loop.
+- Module state `ProfileState` (`_hdna.c:61-66`: `last`, `total`, `scans_completed`)
+  is updated by `profile_publish()` (`_hdna.c:68-75`) only **after the GIL is
+  reacquired** (`_hdna.c:710`; empty input publishes at `:641`).
+- Python API: `_hdna.profiling_info()` returns `inner_iters`, `ctr_sp_pairs` (last
+  completed scan), `total_inner_iters`, `total_ctr_sp_pairs`, `scans_completed`;
+  `_hdna.reset_profiling()` zeroes the module state (`_hdna.c:838-862`).
 
-Each thread accumulates privately; `prof_reset()` and `profiling_info()` act on the
-calling thread's own copy.
-
-**Why thread-local rather than atomics:** these counters are incremented in the
-innermost scan loop (millions of times per scan — 1.8M in the measurement above).
-An atomic read-modify-write per iteration would tax the exact hot path whose speed
-is this tool's central claim. Thread-local storage costs essentially nothing and
-removes the race completely.
-
-**Why not delete them:** they are diagnostic-only and have **no consumer anywhere**
-in the repository (verified: no reference in any `.py`, `.ipynb`, `.md` outside the
-revision plan). Deletion is therefore also defensible and remains open to the
-authors; thread-local was chosen as the smaller change, since it fixes the defect
-without altering the `_hdna` module's surface.
-
-The macro covers the full wheel matrix (MSVC / clang / gcc), so no platform loses
-the counters.
+So a concurrent scan can neither reset nor contaminate another's counts, and the
+totals across threads are exact. Still diagnostic-only: no consumer outside the test.
 
 ## Verification
 
-**1. Post-fix, every thread reports exactly the single-threaded total:**
+**1. Totals across threads are exact** (merged tree, 2026-10-02): 300 kb random
+sequence, default parameters; 8 concurrent scans vs one scan:
 
 ```
-baseline: inner_iters = 1,823,346   ctr_sp_pairs = 659,736
-8 concurrent -> distinct ctr_sp_pairs: [659736]   distinct inner_iters: [1823346]
-ALL threads exactly match baseline: True
+single scan : inner_iters = 2,524,852,128   ctr_sp_pairs = 6,299,475
+8 concurrent: total_inner_iters = 20,198,817,024 (= 8x)   total_ctr_sp_pairs = 50,395,800 (= 8x)
+scans_completed = 8; last-scan counts equal the single-scan counts
 ```
 
-**2. Parallel scan results unchanged and deterministic.** 6-record FASTA (~720 kb),
-digest over `(seq_id, start, end, arm_length, full_sequence, total_score)`:
+**2. Regression tests** — `tests/test_profiling_threadsafe.py` (2 tests, both pass):
 
-```
-serial hits: 9   digest b6582aeefa925b9a
-workers= 2  3 repeats identical to serial: True
-workers= 4  3 repeats identical to serial: True
-workers= 8  3 repeats identical to serial: True
-workers=16  3 repeats identical to serial: True
-```
+- `test_parallel_scans_preserve_every_profile_count`: 40 scans (both scan cores,
+  8 workers); `scans_completed` and both totals equal the sum of the per-scan
+  single-threaded counts.
+- `test_empty_scan_has_zero_last_counts_and_keeps_totals`: an empty scan reports
+  zero last-scan counts and leaves totals unchanged.
 
-**3. Regression test added and proven to bite.**
-`test_profiling_counters_are_thread_local` (tests/test_hdna.py, section 24):
+**3. Full suite on the merged tree: 211 passed, 3 skipped** (chr1 tests skip without
+`benchmarks/data/chr1.fa`).
 
-- against the **pre-fix** build: **FAILED** (as required)
-- against the **fixed** build: **passed**
+## History (superseded RTR implementation)
 
-A regression test that passed on the broken code would guard nothing; this one was
-explicitly checked both ways.
-
-**4. Full suite: 150 passed, 3 skipped** (chr1 tests skip without
-`benchmarks/data/chr1.fa`). Was 149/3 before this action.
+RTR (2026-09-23) declared both static counters thread-local (`HDNA_THREAD_LOCAL`
+macro: `__declspec(thread)` / `__thread` / `_Thread_local`), leaving the module
+surface unchanged. Verified then: 8 concurrent identical scans each reported exactly
+the single-thread baseline (1,823,346 / 659,736); parallel `scan_fasta` output
+identical to serial for 2–16 workers; regression test
+`test_profiling_counters_are_thread_local` (tests/test_hdna.py) failed on the pre-fix
+build and passed on the fix; suite 150 passed, 3 skipped. Nikol fixed the same defect
+independently on main; on merging, the authors chose Nikol's version (2026-10-02).
+It additionally gives exact cross-thread totals (thread-local copies could not be
+summed from Python). The macro and `test_profiling_counters_are_thread_local` were
+removed (the test was redundant with the new tests).
 
 ## Note for the response letter
 
@@ -109,13 +97,14 @@ by an unbounded factor. Since the counters are diagnostic and unused, **no publi
 number in the manuscript is affected** — the benchmark timings come from
 `/usr/bin/time -v` and Python `perf_counter`, not from these counters.
 
-## Files changed
+## Files changed (current tree, Nikol's fix)
 
-- `src/hseeker/_hdna.c` (counters → thread-local + rationale comment; +26/-3)
-- `tests/test_hdna.py` (+1 regression test)
+- `src/hseeker/_hdna.c` (`ScanProfile` / `ProfileState`, `profile_publish`,
+  `reset_profiling`, extended `profiling_info`)
+- `tests/test_profiling_threadsafe.py` (new, 2 tests)
 
 ## Reproduce
 
 ```
-python3 -m pytest -q tests -k thread_local
+python3 -m pytest -q tests/test_profiling_threadsafe.py
 ```

@@ -1,7 +1,14 @@
 # WS1-A4 — remove the Streamlit front-end entirely (reviewer R2.11)
 
-**Status:** done, verified
+**Status:** done, verified (re-checked 2026-10-02 on the merged tree)
 **Date:** 2026-09-23
+
+**Merge note (2026-10-02):** Nikol's later edit to `src/hseeker/app.py` on main (an
+overlap-strategy dropdown) was dropped along with the file during the merge of main
+into RTR; Streamlit stays removed. Re-checked on the merged tree: no `streamlit`
+reference outside `RTR/` (README, pyproject, src, webapp all clean), no `app.py` /
+`streamlit_app.py` in `src/hseeker/`, `[app]` extra = `pandas`, `plotly`, Dockerfile
+lines 15/42 unchanged, `webapp/main.py` parses; suite 211 passed, 3 skipped.
 **Reviewer item R2.11 (verbatim):** "It seems there is some Streamlit demo, while
 the app stands on FastAPI, giving rise to two app.py files. This might be
 misleading. Apart from this, I really acknowledge the IT part of the project — the
