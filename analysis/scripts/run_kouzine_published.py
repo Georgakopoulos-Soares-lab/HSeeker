@@ -113,10 +113,10 @@ def analysed_universe(genome: str, predicted):
             if not sidx.any(m[0], (m[1] + m[2]) // 2 - SINE_HALF_WINDOW, (m[1] + m[2]) // 2 + SINE_HALF_WINDOW)]
 
 
-def mappability(genome: str, motifs) -> dict:
+def mappability(genome: str, motifs, tag: str = "motifs") -> dict:
     """Mean 36-mer mappability over the starts of every read that overlaps each motif."""
     work = rk.KOUZINE / "work" / genome
-    bed, tab = work / "mappability_motifs.bed", work / "mappability_motifs.tab"
+    bed, tab = work / f"mappability_{tag}.bed", work / f"mappability_{tag}.tab"
     uniq = sorted(set(motifs))
     with open(bed, "w") as fo:
         for k, (c, s, e) in enumerate(uniq):
