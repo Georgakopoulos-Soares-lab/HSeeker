@@ -365,9 +365,9 @@ def scan_sequence(
         (default False). This preserves output semantics while skipping
         center/spacer pairs that cannot satisfy the purity rule.
     at_threshold : float | None
-        Drop hits whose left-arm AT content is >= this value (default None,
-        i.e. no filtering). Applied before scoring. AT-rich arms are
-        unlikely to form stable H-DNA triplexes.
+        Drop hits whose AT fraction over the full motif (both arms and the
+        spacer) is >= this value (default None, i.e. no filtering). Applied
+        before scoring. AT-rich motifs are unlikely to form stable H-DNA.
     filter_homopolymers : bool
         Drop homopolymer hits (default False). Always inspect the detected
         ``full_sequence``; with scoring, also inspect ``putative_triplex``.
