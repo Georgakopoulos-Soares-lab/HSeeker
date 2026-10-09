@@ -56,6 +56,9 @@ GENOMES = {
                              input="mouse_activated_input")),
     "hg38": dict(primary=[f"chr{i}" for i in range(1, 23)] + ["chrX", "chrY"],
                  groups=dict(raji="human_raji_ssDNA")),
+    # builds of the authors' published calls (deviation 4); used for scan + controls only
+    "mm9": dict(primary=[f"chr{i}" for i in range(1, 20)] + ["chrX", "chrY"], groups={}),
+    "hg19": dict(primary=[f"chr{i}" for i in range(1, 23)] + ["chrX", "chrY"], groups={}),
 }
 CONFIGS = {
     # shipped command-line defaults
