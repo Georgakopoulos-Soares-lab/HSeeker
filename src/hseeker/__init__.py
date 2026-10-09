@@ -689,13 +689,16 @@ def scan_fasta_parallel(
         tasks: list[tuple[str, str, int, int | None, bool]] = []
         bases = 0
         for seq_id, seq, offset in parse_fasta(path, parser=parser):
-            tasks.extend(_build_tasks(seq_id, seq, offset))
-            bases += len(seq)
-            del seq
+            # Flush a full batch only once the parser has moved on, so the
+            # parser no longer holds the previous record's full sequence
+            # while its chunks are scanned. Batch contents are unchanged.
             if bases >= batch_bases:
                 hits = [hit for chunk in executor.map(_scan_chunk, tasks) for hit in chunk]
                 results.extend(_post_process(hits))
                 tasks, bases = [], 0
+            tasks.extend(_build_tasks(seq_id, seq, offset))
+            bases += len(seq)
+            del seq
         if tasks:
             hits = [hit for chunk in executor.map(_scan_chunk, tasks) for hit in chunk]
             results.extend(_post_process(hits))
