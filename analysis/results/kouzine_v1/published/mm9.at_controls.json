@@ -1,0 +1,319 @@
+{
+ "genome": "mm9",
+ "n_per_group": 3000,
+ "n_controls": 10,
+ "pad": 100,
+ "local_window": 50000,
+ "mappability_min": 0.5,
+ "groups": {
+  "A/T<0.8": {
+   "motifs_mappable": 133319,
+   "sampled": 3000,
+   "ssDNA_plus_rate_in_sample": 0.0437
+  },
+  "A/T>=0.8": {
+   "motifs_mappable": 68915,
+   "sampled": 3000,
+   "ssDNA_plus_rate_in_sample": 0.0267
+  },
+  "homopolymer": {
+   "motifs_mappable": 36764,
+   "sampled": 3000,
+   "ssDNA_plus_rate_in_sample": 0.0173
+  }
+ },
+ "signal": {
+  "activated": {
+   "A/T<0.8 | chromosome | C": {
+    "motifs_with_controls": 2621,
+    "controls_per_motif": 7.98,
+    "motif_mean": 0.004762007224494133,
+    "control_mean": 0.0032264854709966456,
+    "ratio_of_means": 1.476,
+    "ratio_ci95": [
+     1.295,
+     1.673
+    ],
+    "share_motif_above_its_controls": 0.216
+   },
+   "A/T<0.8 | chromosome | G": {
+    "motifs_with_controls": 2995,
+    "controls_per_motif": 9.93,
+    "motif_mean": 0.0048016249524936985,
+    "control_mean": 0.013836166213882464,
+    "ratio_of_means": 0.347,
+    "ratio_ci95": [
+     0.306,
+     0.395
+    ],
+    "share_motif_above_its_controls": 0.176
+   },
+   "A/T<0.8 | local | C": {
+    "motifs_with_controls": 2408,
+    "controls_per_motif": 8.42,
+    "motif_mean": 0.004546614617434207,
+    "control_mean": 0.0028454650364556438,
+    "ratio_of_means": 1.598,
+    "ratio_ci95": [
+     1.364,
+     1.851
+    ],
+    "share_motif_above_its_controls": 0.21
+   },
+   "A/T<0.8 | local | G": {
+    "motifs_with_controls": 2959,
+    "controls_per_motif": 9.86,
+    "motif_mean": 0.00481840974958135,
+    "control_mean": 0.008858950540094038,
+    "ratio_of_means": 0.544,
+    "ratio_ci95": [
+     0.466,
+     0.624
+    ],
+    "share_motif_above_its_controls": 0.193
+   },
+   "A/T>=0.8 | chromosome | C": {
+    "motifs_with_controls": 2390,
+    "controls_per_motif": 7.06,
+    "motif_mean": 0.0005091018536594714,
+    "control_mean": 0.0011641988718374145,
+    "ratio_of_means": 0.437,
+    "ratio_ci95": [
+     0.333,
+     0.566
+    ],
+    "share_motif_above_its_controls": 0.044
+   },
+   "A/T>=0.8 | chromosome | G": {
+    "motifs_with_controls": 3000,
+    "controls_per_motif": 9.98,
+    "motif_mean": 0.00048086555748390726,
+    "control_mean": 0.000610616431909313,
+    "ratio_of_means": 0.788,
+    "ratio_ci95": [
+     0.62,
+     0.99
+    ],
+    "share_motif_above_its_controls": 0.044
+   },
+   "A/T>=0.8 | local | C": {
+    "motifs_with_controls": 2136,
+    "controls_per_motif": 7.67,
+    "motif_mean": 0.0005263137320733148,
+    "control_mean": 0.0009358673956302976,
+    "ratio_of_means": 0.562,
+    "ratio_ci95": [
+     0.417,
+     0.744
+    ],
+    "share_motif_above_its_controls": 0.045
+   },
+   "A/T>=0.8 | local | G": {
+    "motifs_with_controls": 2993,
+    "controls_per_motif": 9.91,
+    "motif_mean": 0.00048199020128691006,
+    "control_mean": 0.000523551873260093,
+    "ratio_of_means": 0.921,
+    "ratio_ci95": [
+     0.714,
+     1.152
+    ],
+    "share_motif_above_its_controls": 0.044
+   },
+   "homopolymer | chromosome | C": {
+    "motifs_with_controls": 1381,
+    "controls_per_motif": 2.09,
+    "motif_mean": 0.0007435104436797392,
+    "control_mean": 0.0015371744189369627,
+    "ratio_of_means": 0.484,
+    "ratio_ci95": [
+     0.33,
+     0.686
+    ],
+    "share_motif_above_its_controls": 0.051
+   },
+   "homopolymer | chromosome | G": {
+    "motifs_with_controls": 2971,
+    "controls_per_motif": 9.36,
+    "motif_mean": 0.000728783949155976,
+    "control_mean": 0.005399235873584714,
+    "ratio_of_means": 0.135,
+    "ratio_ci95": [
+     0.106,
+     0.17
+    ],
+    "share_motif_above_its_controls": 0.049
+   },
+   "homopolymer | local | C": {
+    "motifs_with_controls": 845,
+    "controls_per_motif": 3.38,
+    "motif_mean": 0.0009176910574385423,
+    "control_mean": 0.0013925359738007608,
+    "ratio_of_means": 0.659,
+    "ratio_ci95": [
+     0.422,
+     1.019
+    ],
+    "share_motif_above_its_controls": 0.057
+   },
+   "homopolymer | local | G": {
+    "motifs_with_controls": 2809,
+    "controls_per_motif": 9.22,
+    "motif_mean": 0.0006986782621038424,
+    "control_mean": 0.0031929629001888494,
+    "ratio_of_means": 0.219,
+    "ratio_ci95": [
+     0.168,
+     0.295
+    ],
+    "share_motif_above_its_controls": 0.053
+   }
+  },
+  "resting": {
+   "A/T<0.8 | chromosome | C": {
+    "motifs_with_controls": 2621,
+    "controls_per_motif": 7.98,
+    "motif_mean": 0.0027480138873958574,
+    "control_mean": 0.00324654465369705,
+    "ratio_of_means": 0.846,
+    "ratio_ci95": [
+     0.777,
+     0.921
+    ],
+    "share_motif_above_its_controls": 0.256
+   },
+   "A/T<0.8 | chromosome | G": {
+    "motifs_with_controls": 2995,
+    "controls_per_motif": 9.93,
+    "motif_mean": 0.0026060777378536944,
+    "control_mean": 0.005350155306371729,
+    "ratio_of_means": 0.487,
+    "ratio_ci95": [
+     0.453,
+     0.525
+    ],
+    "share_motif_above_its_controls": 0.203
+   },
+   "A/T<0.8 | local | C": {
+    "motifs_with_controls": 2408,
+    "controls_per_motif": 8.42,
+    "motif_mean": 0.0028391553780212977,
+    "control_mean": 0.0033851473828811597,
+    "ratio_of_means": 0.839,
+    "ratio_ci95": [
+     0.772,
+     0.92
+    ],
+    "share_motif_above_its_controls": 0.253
+   },
+   "A/T<0.8 | local | G": {
+    "motifs_with_controls": 2959,
+    "controls_per_motif": 9.86,
+    "motif_mean": 0.002622677929775735,
+    "control_mean": 0.0049453864429001475,
+    "ratio_of_means": 0.53,
+    "ratio_ci95": [
+     0.492,
+     0.575
+    ],
+    "share_motif_above_its_controls": 0.21
+   },
+   "A/T>=0.8 | chromosome | C": {
+    "motifs_with_controls": 2390,
+    "controls_per_motif": 7.06,
+    "motif_mean": 0.0025938807229237914,
+    "control_mean": 0.002532963404588416,
+    "ratio_of_means": 1.024,
+    "ratio_ci95": [
+     0.935,
+     1.123
+    ],
+    "share_motif_above_its_controls": 0.277
+   },
+   "A/T>=0.8 | chromosome | G": {
+    "motifs_with_controls": 3000,
+    "controls_per_motif": 9.98,
+    "motif_mean": 0.0025280829623489467,
+    "control_mean": 0.0029420413413046493,
+    "ratio_of_means": 0.859,
+    "ratio_ci95": [
+     0.799,
+     0.921
+    ],
+    "share_motif_above_its_controls": 0.272
+   },
+   "A/T>=0.8 | local | C": {
+    "motifs_with_controls": 2136,
+    "controls_per_motif": 7.67,
+    "motif_mean": 0.0026328739085766687,
+    "control_mean": 0.002573017576237753,
+    "ratio_of_means": 1.023,
+    "ratio_ci95": [
+     0.929,
+     1.121
+    ],
+    "share_motif_above_its_controls": 0.272
+   },
+   "A/T>=0.8 | local | G": {
+    "motifs_with_controls": 2993,
+    "controls_per_motif": 9.91,
+    "motif_mean": 0.002529672486419719,
+    "control_mean": 0.002915042432527766,
+    "ratio_of_means": 0.868,
+    "ratio_ci95": [
+     0.804,
+     0.926
+    ],
+    "share_motif_above_its_controls": 0.264
+   },
+   "homopolymer | chromosome | C": {
+    "motifs_with_controls": 1381,
+    "controls_per_motif": 2.09,
+    "motif_mean": 0.0025139791666788664,
+    "control_mean": 0.0023621402032878436,
+    "ratio_of_means": 1.064,
+    "ratio_ci95": [
+     0.939,
+     1.213
+    ],
+    "share_motif_above_its_controls": 0.244
+   },
+   "homopolymer | chromosome | G": {
+    "motifs_with_controls": 2971,
+    "controls_per_motif": 9.36,
+    "motif_mean": 0.0024616466160801804,
+    "control_mean": 0.0023840284933617016,
+    "ratio_of_means": 1.033,
+    "ratio_ci95": [
+     0.95,
+     1.112
+    ],
+    "share_motif_above_its_controls": 0.277
+   },
+   "homopolymer | local | C": {
+    "motifs_with_controls": 845,
+    "controls_per_motif": 3.38,
+    "motif_mean": 0.002646293276080806,
+    "control_mean": 0.002519560635429742,
+    "ratio_of_means": 1.05,
+    "ratio_ci95": [
+     0.888,
+     1.26
+    ],
+    "share_motif_above_its_controls": 0.275
+   },
+   "homopolymer | local | G": {
+    "motifs_with_controls": 2809,
+    "controls_per_motif": 9.22,
+    "motif_mean": 0.0025194860933984587,
+    "control_mean": 0.002388242528108934,
+    "ratio_of_means": 1.055,
+    "ratio_ci95": [
+     0.976,
+     1.143
+    ],
+    "share_motif_above_its_controls": 0.275
+   }
+  }
+ }
+}

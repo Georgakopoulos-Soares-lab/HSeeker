@@ -580,6 +580,9 @@ def _run_job(job_id: str, fasta_path: str) -> None:
                 mismatch=params["mismatch"],
                 remove_overlaps=params["remove_overlaps"],
                 overlap_strategy=params["overlap_strategy"],
+                # Same composition filters as the CLI (__main__.py).
+                at_threshold=params.get("at_threshold", 0.8),
+                filter_homopolymers=params.get("filter_homopolymers", True),
                 seq_offset=offset,
                 score=params.get("score", True),
             )
@@ -634,7 +637,10 @@ async def submit(
     remove_overlaps: int = Form(1),
     overlap_strategy: str = Form("greedy"),
     score: int = Form(0),
+    at_threshold: float = Form(0.80),
 ):
+    if not 0.0 <= at_threshold <= 1.5:
+        raise HTTPException(400, "AT threshold must be between 0 and 1.5")
     if overlap_strategy not in ("greedy", "score"):
         raise HTTPException(400, "Choose greedy or score overlap strategy")
     if remove_overlaps and overlap_strategy == "score" and not score:
@@ -694,6 +700,8 @@ async def submit(
         remove_overlaps=bool(remove_overlaps),
         overlap_strategy=overlap_strategy,
         score=bool(score),
+        at_threshold=at_threshold,
+        filter_homopolymers=True,  # always on, as in the CLI
     )
     job_id = _new_job(filename, params)
     threading.Thread(target=_run_job, args=(job_id, tmp_path), daemon=True).start()

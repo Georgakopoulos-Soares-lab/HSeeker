@@ -7,6 +7,11 @@ implementation (main before the batching change) on tests/data/batching_genome.f
 (10 synthetic records, 300 bp to 20 kb, with 10-30 bp purine/pyrimidine mirror
 repeats, an N block and a lowercase record). Results differ between chunk sizes
 in a few hits because of chunk-boundary handling, which batching does not touch.
+After merging fix/hdna-maximal-representation-v3 (inward extension and removal
+of duplicate arm/spacer representations in _hdna.c) the golden hits were
+regenerated with that same pre-batching Python code (4784c4b) built against the
+merged C detector: the 10 configurations with overlap removal were unchanged,
+the 10 without it changed as the detector change intends.
 
 Floats are compared up to 6 decimals: since Python 3.12 the built-in sum()
 uses compensated summation, so unrounded scores (pairing_score, stacking_score)
@@ -87,15 +92,32 @@ def _write_fasta(path, records):
 
 @pytest.fixture
 def scoring_calls(monkeypatch):
-    """Record the number of hits passed to each _apply_scoring call (one call per batch)."""
+    """Record the number of hits in each batch's scoring pass (one entry per batch).
+
+    Greedy mode scores a batch with one _apply_scoring call. Score mode hands
+    the batch to _score_and_select, which scores hits lazily one at a time, so
+    the batch is counted there and its nested _apply_scoring calls are not.
+    """
     calls = []
+    inside_select = [False]
     real_apply_scoring = hseeker._apply_scoring
+    real_score_and_select = hseeker._score_and_select
 
     def recording_apply_scoring(hits):
-        calls.append(len(hits))
+        if not inside_select[0]:
+            calls.append(len(hits))
         return real_apply_scoring(hits)
 
+    def recording_score_and_select(hits, filter_homopolymers):
+        calls.append(len(hits))
+        inside_select[0] = True
+        try:
+            return real_score_and_select(hits, filter_homopolymers)
+        finally:
+            inside_select[0] = False
+
     monkeypatch.setattr(hseeker, "_apply_scoring", recording_apply_scoring)
+    monkeypatch.setattr(hseeker, "_score_and_select", recording_score_and_select)
     return calls
 
 

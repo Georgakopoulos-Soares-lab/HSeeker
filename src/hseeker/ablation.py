@@ -52,7 +52,7 @@ def detect_candidates(
 
 
 def filter_at_content(hits: list[dict], threshold: float) -> list[dict]:
-    """Return candidates below the left-arm AT fraction threshold."""
+    """Return candidates whose full-motif AT fraction is below the threshold."""
     return _filter_at_content(hits, threshold)
 
 

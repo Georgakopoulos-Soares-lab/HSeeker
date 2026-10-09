@@ -1,0 +1,5 @@
+config_name,n_records,repeats,MCC_median,MCC_p2.5,MCC_p97.5,sensitivity_median,specificity_median,TP,FN,TN,FP,MCC_boot_lo,MCC_boot_hi,sens_CI95_lo,sens_CI95_hi,spec_CI95_lo,spec_CI95_hi
+NESTED-CV (per-fold tuned),128,20,0.938,0.9229,0.9692,0.9531,0.9844,61,3,63,1,0.875,0.9845,0.871,0.9839,0.9167,0.9972
+fixed: script_default,128,20,0.9692,0.9692,0.9692,0.9688,1.0,62,2,64,0,0.9235,1.0,0.893,0.9914,0.9434,1.0
+fixed: production_cli,128,20,0.8819,0.8819,0.8819,0.875,1.0,56,8,64,0,0.802,0.954,0.7723,0.9353,0.9434,1.0
+fixed: manuscript_stated,128,20,0.9688,0.9688,0.9688,0.9844,0.9844,63,1,63,1,0.9219,1.0,0.9167,0.9972,0.9167,0.9972

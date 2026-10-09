@@ -1,0 +1,140 @@
+{
+ "genome": "hg19",
+ "hseeker_config": "cli",
+ "hseeker_params": {
+  "minrep": 10,
+  "maxrep": 1000,
+  "maxspacer": 10,
+  "purity": 0.9,
+  "mismatch": 0.1,
+  "at_threshold": 0.8,
+  "filter_homopolymers": true,
+  "overlap_strategy": "greedy"
+ },
+ "hseeker_loci": 508864,
+ "P1_recall": {
+  "called_ssDNA_plus": 8356,
+  "called_in_paper": 8356,
+  "overlapped_by_hseeker": 5679,
+  "fraction": 0.6796314025849689
+ },
+ "P2_selectivity": {
+  "analysed_in_paper": 158370,
+  "analysed_motifs": 206902,
+  "called_in_analysed": 8356,
+  "hseeker_called": {
+   "ssDNA_plus": 5679,
+   "ssDNA_minus": 95965,
+   "rate": 0.055871472984140726
+  },
+  "not_hseeker_called": {
+   "ssDNA_plus": 2677,
+   "ssDNA_minus": 102581,
+   "rate": 0.025432746204564025
+  },
+  "odds_ratio": 2.267433397820697,
+  "or_ci95": [
+   2.1637991226597935,
+   2.376031194260287
+  ],
+  "fisher_p_greater": 3.5263449296922466e-276,
+  "score_ssDNA_plus_median": 101.575,
+  "score_ssDNA_minus_median": 100.86,
+  "score_mannwhitney_p_greater": 3.2047667949717516e-05
+ },
+ "P2_selectivity_mappable_sensitivity": {
+  "mean_ge_0.5": {
+   "threshold": 0.5,
+   "analysed_motifs": 169963,
+   "called_in_analysed": 7188,
+   "hseeker_called": {
+    "ssDNA_plus": 4835,
+    "ssDNA_minus": 71254,
+    "rate": 0.06354400767522243
+   },
+   "not_hseeker_called": {
+    "ssDNA_plus": 2353,
+    "ssDNA_minus": 91521,
+    "rate": 0.025065513347678803
+   },
+   "odds_ratio": 2.6389916584055473,
+   "or_ci95": [
+    2.5097195672442294,
+    2.774922371419015
+   ],
+   "fisher_p_greater": 0.0,
+   "score_ssDNA_plus_median": 100.285,
+   "score_ssDNA_minus_median": 94.035,
+   "score_mannwhitney_p_greater": 2.85421661693809e-44
+  },
+  "unique": {
+   "threshold": 0.999,
+   "analysed_motifs": 83971,
+   "called_in_analysed": 4278,
+   "hseeker_called": {
+    "ssDNA_plus": 2791,
+    "ssDNA_minus": 32332,
+    "rate": 0.07946359935085272
+   },
+   "not_hseeker_called": {
+    "ssDNA_plus": 1487,
+    "ssDNA_minus": 47361,
+    "rate": 0.03044136914510318
+   },
+   "odds_ratio": 2.7489498702751805,
+   "or_ci95": [
+    2.5772708765381127,
+    2.9320648667851352
+   ],
+   "fisher_p_greater": 6.184839731737215e-220,
+   "score_ssDNA_plus_median": 93.32,
+   "score_ssDNA_minus_median": 85.78,
+   "score_mannwhitney_p_greater": 4.790889057423328e-146
+  }
+ },
+ "P3_enrichment_authors_signal": {
+  "raji": {
+   "asymmetry_matched": {
+    "loci_used": 504871,
+    "locus_mean": 0.0030188177420820026,
+    "control_mean": 0.0031191403072173495,
+    "ratio_of_means": 0.9678364692658386,
+    "ratio_ci95": [
+     0.9597698875376386,
+     0.9759164177107136
+    ],
+    "mannwhitney_p_greater": 0.9999999999999988
+   },
+   "gc_matched": {
+    "loci_used": 508864,
+    "locus_mean": 0.003010286970150398,
+    "control_mean": 0.00524698210557098,
+    "ratio_of_means": 0.5737177885463394,
+    "ratio_ci95": [
+     0.5686324078018126,
+     0.5789368694083369
+    ],
+    "mannwhitney_p_greater": 1.0
+   }
+  }
+ },
+ "controls_meta": {
+  "method": "genome-wide pool; exact length + GC/purine counts for loci <= 60 bp, length classes + 0.02 bins above",
+  "exact_max": 60,
+  "long_classes": {
+   "(60, 100)": 71,
+   "(100, 200)": 115,
+   "(200, 1000000000)": 228
+  },
+  "loci": 508864,
+  "loci_with_N_excluded": 0,
+  "asymmetry_matched": 504871,
+  "asymmetry_unmatched": 3993,
+  "widened_by_1": 5948,
+  "widened_by_2": 4578,
+  "gc_matched": 508864,
+  "gc_unmatched": 0,
+  "pool_cells": 37591,
+  "pool_windows": 109447291
+ }
+}
