@@ -95,3 +95,19 @@ h = hseeker.scan_fasta_parallel("chr1.fa", workers=16, minrep=10, maxrep=1000, m
 print(time.perf_counter() - t, len(h), resource.getrusage(resource.RUSAGE_SELF).ru_maxrss // 1024)
 EOF
 ```
+
+## 4. Upstream baseline and PRs (2026-10-09)
+
+Measured on Nikol's unmodified main (`d237bca`) and on the two PR branches, each tested against
+its own source tree (`PYTHONPATH=src`), fresh process per run, chr1, 16 workers, minrep 10:
+
+| Code | greedy | score | output sha256 (greedy / score) |
+|---|---|---|---|
+| main `d237bca` | 29.4 s, 2,708 MB | 193.0 s, 2,779 MB | `da869cb2…` / `8c5d8f12…` |
+| PR #19 memory fix | 29.3 s, 1,978 MB | 193.3 s, 2,043 MB | identical |
+| PR #20 score speed-up | 26.5 s, 2,702 MB | 60.1 s, 2,712 MB | identical |
+
+Unmodified main's score mode takes 193 s on chr1; the RTR branch (both changes) takes ~60 s.
+Earlier "origin/main" memory figures in §3 were measured the same way and agree (2,704 MB).
+Caution for reruns: inside a git worktree, `import hseeker` resolves to the editable install of
+the main checkout unless `PYTHONPATH=src` is set.

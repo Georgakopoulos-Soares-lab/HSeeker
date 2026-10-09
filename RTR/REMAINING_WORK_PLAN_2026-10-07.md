@@ -198,7 +198,11 @@ Phase 2 describes only greedy longest-arm removal **before** scoring (:99-119) �
 Rule: nothing that produces a reported number runs before Phase 1 is closed; anything that does
 not produce a reported number starts now, in parallel.
 
-### Phase 0: protect and coordinate (today)
+### Phase 0: protect and coordinate: DONE 2026-10-09
+- 0.1 committed `cbb4713` (merge parents `007288b` RTR, `d237bca` main) and pushed `origin/RTR-merge-main`.
+- 0.2 PRs to main for Nikol: **#19** memory fix (`fix/parallel-batch-memory`, chr1 peak RSS 2,708 → 1,978 MB greedy, 2,779 → 2,043 MB score; output sha256 identical) and **#20** optional score-mode speed-up (`perf/lazy-score-selection`, chr1 score 193.0 → 60.1 s, greedy 29.4 → 26.5 s; output identical on chr1 and on 5,152 `scan_sequence` calls). The question about `fix/hdna-maximal-representation-v3` still has to be asked (draft message given to Kimon).
+
+### Phase 0: protect and coordinate (original task list)
 | # | Task | Why first | Owner |
 |---|---|---|---|
 | 0.1 | Commit `RTR-merge-main` (merge of main `d237bca` + RTR + DEC-6…10 + memory fix) and push the branch | 65 uncommitted files; the session scratchpad was wiped twice, losing intermediate data | Kimon |
