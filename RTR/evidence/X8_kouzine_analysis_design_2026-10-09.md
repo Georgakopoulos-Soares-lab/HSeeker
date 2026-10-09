@@ -143,3 +143,33 @@ step proves infeasible, the change and its reason are recorded here.
   Loci longer than 60 bp keep the length-class pools with 0.02 bins.
 - *Unchanged.* All tests and thresholds.
 
+**Deviation 4 (2026-10-09, before any ssDNA signal was computed): the authors' own data become primary.**
+- *What we found.* The authors' processed data are public on the Przytycka lab page cited in the
+  paper's Key Resources table:
+  https://www.ncbi.nlm.nih.gov/CBBresearch/Przytycka/software/nonbdna.html
+  It holds:
+  - `nonB_DNA_predicted.tar` — predicted non-B motifs (SMnB), mm9 / hg19;
+  - `nonB_DNA_ssDNA_enriched.tar` — the motifs the authors called as formed non-B structures
+    (ssDNA+ SMnB);
+  - `ssDNA_wiggle.tar` — their ssDNA-seq signal for activated B, resting B and Raji.
+- *Verified against the paper.* Mouse activated-B ssDNA+ H-DNA = 17,109 = 16,876 + 233 (Table 1).
+  Raji ssDNA+ H-DNA = 8,356 = 8,008 + 348 (Table S1B). Predicted mouse H-DNA SMnB = 728,355
+  (main text).
+- *Change.* Because these are the authors' published calls, they are independent of any processing
+  choice of ours. They therefore become the **primary** comparison. HSeeker scans mm9 and hg19
+  directly (no liftover), with the same configurations.
+- *Primary tests (fixed now):*
+  - **P1, recall:** fraction of the authors' ssDNA+ H-DNA structures overlapped by an HSeeker locus
+    (mouse activated B; Raji).
+  - **P2, selectivity:** among the authors' predicted H-DNA motifs, the odds that a motif is ssDNA+
+    when HSeeker calls it vs when it does not (odds ratio, 95 % CI). Within HSeeker-called motifs,
+    stability score of ssDNA+ vs ssDNA− motifs (Mann–Whitney).
+  - **P3, enrichment:** the authors' activated-B and resting-B ssDNA signal (wiggle) at HSeeker loci
+    vs the composition-matched controls, with exactly the control construction and statistics
+    specified above.
+- *Demoted.* Our reprocessing of the raw reads (mm10 / hg38) becomes a secondary reproducibility
+  check, with the analysis as originally specified.
+- *Note on comparability.* The authors' H-DNA motif definition (Inverted Repeats Finder with mirror
+  option; ≥ 90 % purine or pyrimidine; loop ≤ 4 bp; motif ≤ 80 bp; ≥ 90 % matching; SINE-proximal
+  motifs removed) differs from HSeeker's. P2 compares the two directly.
+
