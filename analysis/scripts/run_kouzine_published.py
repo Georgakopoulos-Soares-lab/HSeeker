@@ -98,8 +98,8 @@ def sine_index(genome: str) -> Index:
     return Index(rows)
 
 
-def load_hseeker(genome: str):
-    loci = rk.load_loci(rk.KOUZINE / "work" / genome / "cli" / "loci.tsv")
+def load_hseeker(genome: str, config: str = "cli"):
+    loci = rk.load_loci(rk.KOUZINE / "work" / genome / config / "loci.tsv")
     return loci, Index([(l["chrom"], l["start"], l["end"]) for l in loci])
 
 
@@ -129,11 +129,12 @@ def wig_signal(cs: dict[str, np.ndarray], c: str, s: int, e: int, total_m: float
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--genome", choices=SETS, required=True)
+    ap.add_argument("--config", choices=rk.CONFIGS, default="cli")
     args = ap.parse_args()
     g = args.genome
     cfg = SETS[g]
-    res: dict = dict(genome=g, hseeker_config="cli", hseeker_params=rk.CONFIGS["cli"])
-    loci, hidx = load_hseeker(g)
+    res: dict = dict(genome=g, hseeker_config=args.config, hseeker_params=rk.CONFIGS[args.config])
+    loci, hidx = load_hseeker(g, args.config)
     res["hseeker_loci"] = len(loci)
 
     predicted = read_bed(AUTH / "nonB_DNA_predicted" / cfg["species"] / "H-DNA.bed.gz")
@@ -179,9 +180,12 @@ def main() -> None:
         if len(ps) and len(ns) else None)
 
     # --- P3 enrichment with the authors' ssDNA coverage (needs the matched controls)
-    work = rk.KOUZINE / "work" / g / "cli"
+    out = rk.ROOT / "analysis" / "results" / "kouzine_v1" / "published"
+    out.mkdir(parents=True, exist_ok=True)
+    work = rk.KOUZINE / "work" / g / args.config
     if not (work / "controls_meta.json").exists():
         res["P3_enrichment_authors_signal"] = "pending: controls not yet sampled"
+        (out / f"{g}.{args.config}.json").write_text(json.dumps(res, indent=1))
         print(json.dumps(res, indent=1))
         return
     lengths = {c_: len(s_) for c_, s_ in rk.read_fasta(work.parent / f"{g}.primary.fa", primary)}
@@ -222,9 +226,7 @@ def main() -> None:
                                                     / p3["resting"][cset]["ratio_of_means"])
     res["P3_enrichment_authors_signal"] = p3
     res["controls_meta"] = json.load(open(work / "controls_meta.json"))
-    out = rk.ROOT / "analysis" / "results" / "kouzine_v1" / "published"
-    out.mkdir(parents=True, exist_ok=True)
-    (out / f"{g}.json").write_text(json.dumps(res, indent=1))
+    (out / f"{g}.{args.config}.json").write_text(json.dumps(res, indent=1))
     print(json.dumps(res, indent=1))
 
 

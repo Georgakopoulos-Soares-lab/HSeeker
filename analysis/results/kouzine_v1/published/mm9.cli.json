@@ -1,0 +1,46 @@
+{
+ "genome": "mm9",
+ "hseeker_config": "cli",
+ "hseeker_params": {
+  "minrep": 10,
+  "maxrep": 1000,
+  "maxspacer": 10,
+  "purity": 0.9,
+  "mismatch": 0.1,
+  "at_threshold": 0.8,
+  "filter_homopolymers": true,
+  "overlap_strategy": "greedy"
+ },
+ "hseeker_loci": 801282,
+ "P1_recall": {
+  "called_ssDNA_plus": 17109,
+  "called_in_paper": 17109,
+  "overlapped_by_hseeker": 12676,
+  "fraction": 0.7408966041264832
+ },
+ "P2_selectivity": {
+  "analysed_motifs": 428237,
+  "analysed_in_paper": 341431,
+  "called_in_analysed": 17109,
+  "hseeker_called": {
+   "ssDNA_plus": 12676,
+   "ssDNA_minus": 265141,
+   "rate": 0.045627157445368716
+  },
+  "not_hseeker_called": {
+   "ssDNA_plus": 4433,
+   "ssDNA_minus": 145987,
+   "rate": 0.02947081505119
+  },
+  "odds_ratio": 1.5743112919521642,
+  "or_ci95": [
+   1.5204827336939386,
+   1.6300455040004331
+  ],
+  "fisher_p_greater": 1.4453951510223081e-153,
+  "score_ssDNA_plus_median": 161.45,
+  "score_ssDNA_minus_median": 172.93,
+  "score_mannwhitney_p_greater": 0.9329245528038144
+ },
+ "P3_enrichment_authors_signal": "pending: controls not yet sampled"
+}

@@ -1,0 +1,205 @@
+{
+ "genome": "mm9",
+ "hseeker_config": "cli",
+ "called": 17109,
+ "caught": 12676,
+ "missed": 4433,
+ "missed_fraction": 0.2591033958735169,
+ "missed_by_reason": {
+  "AT filter (motif >= 80% A/T)": {
+   "n": 1819,
+   "share": 0.41,
+   "hseeker_locus_within_100bp": 0.15
+  },
+  "arm length 8-9 (< minrep 10)": {
+   "n": 1191,
+   "share": 0.269,
+   "hseeker_locus_within_100bp": 0.19
+  },
+  "homopolymer filter": {
+   "n": 686,
+   "share": 0.155,
+   "hseeker_locus_within_100bp": 0.073
+  },
+  "overlap removal (a longer neighbouring locus was kept)": {
+   "n": 463,
+   "share": 0.104,
+   "hseeker_locus_within_100bp": 0.974
+  },
+  "mirror mismatch 10-20%": {
+   "n": 235,
+   "share": 0.053,
+   "hseeker_locus_within_100bp": 0.915
+  },
+  "arm length 6-7": {
+   "n": 20,
+   "share": 0.005,
+   "hseeker_locus_within_100bp": 0.25
+  },
+  "not recovered by any relaxation": {
+   "n": 18,
+   "share": 0.004,
+   "hseeker_locus_within_100bp": 1.0
+  },
+  "purine/pyrimidine purity 80-90%": {
+   "n": 1,
+   "share": 0.0,
+   "hseeker_locus_within_100bp": 0.0
+  }
+ },
+ "sidd_overlap": {
+  "caught | A/T<0.8": {
+   "n": 12215,
+   "sidd_motif": 0.035,
+   "ssDNA_plus_sidd": 0.026
+  },
+  "caught | A/T>=0.8": {
+   "n": 360,
+   "sidd_motif": 0.367,
+   "ssDNA_plus_sidd": 0.306
+  },
+  "caught | homopolymer": {
+   "n": 101,
+   "sidd_motif": 0.079,
+   "ssDNA_plus_sidd": 0.059
+  },
+  "missed | A/T<0.8": {
+   "n": 1578,
+   "sidd_motif": 0.049,
+   "ssDNA_plus_sidd": 0.038
+  },
+  "missed | A/T>=0.8": {
+   "n": 1966,
+   "sidd_motif": 0.503,
+   "ssDNA_plus_sidd": 0.441
+  },
+  "missed | homopolymer": {
+   "n": 889,
+   "sidd_motif": 0.354,
+   "ssDNA_plus_sidd": 0.305
+  }
+ },
+ "examples": {
+  "AT filter (motif >= 80% A/T)": [
+   "chr1:3165320-3165336 AAAAAGAAAAGAAAAA",
+   "chr1:5778333-5778351 AAAAAAAAGGAAAAAAAA",
+   "chr1:6322183-6322208 ATTTCTTTCTTTATTTCTTCCTTTA",
+   "chr1:7269019-7269068 AAAAAAAAAAAAAAAAAAAAAACCACCAAAAAAACAAAAAACAAAAAAA",
+   "chr1:8380038-8380059 TTTTTTGTTTGTTTGTTTTTT",
+   "chr1:10435055-10435072 TTTTCTTTCTTTCTTTT"
+  ],
+  "arm length 8-9 (< minrep 10)": [
+   "chr1:3984423-3984442 TCTCTCTCTTGCTCTCTCT",
+   "chr1:4678452-4678470 TCTTCTCCATCCTCTTCT",
+   "chr1:7675605-7675621 CCTCTCTCCTCTCTCC",
+   "chr1:7970148-7970167 AAAAAAAATGGAAAAAAAA",
+   "chr1:9403941-9403957 AGAAAAAAAAAAAAGA",
+   "chr1:11404778-11404794 AAAAAAAAAAAAAAAA"
+  ],
+  "homopolymer filter": [
+   "chr1:5368356-5368386 TTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+   "chr1:6373288-6373306 GGGGGGGGGGGGGGGGGG",
+   "chr1:7537713-7537739 AAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "chr1:7926150-7926172 AAAAAAAAAAAAAAAAAAAAAA",
+   "chr1:10583477-10583493 TTTTTTTTTTTTTTTT",
+   "chr1:13944971-13944987 AAAAAAAAAAAAAAAA"
+  ],
+  "mirror mismatch 10-20%": [
+   "chr1:8784839-8784866 AAAAAAAGAAAAAGAAAAAGAAAAAAA",
+   "chr1:22271071-22271091 GGGAGAGGGAGGGGAGAGGG",
+   "chr1:28146826-28146844 TCTCCCTCTCCTCCCTCT",
+   "chr1:42257869-42257887 GAAGGGAGAGGAGGGAAG",
+   "chr1:49792440-49792456 AAAGGAAGGAAGGAAA",
+   "chr1:126836312-126836329 GGGGGAGGGGGAGGGGG"
+  ],
+  "overlap removal (a longer neighbouring locus was kept)": [
+   "chr1:15117501-15117543 CCTTCCTTCCTTCCTTCCTTCCTTCCTTCCTTCCTTCCTTCC",
+   "chr1:15491244-15491275 CCTCCTCCTTCTCCTCTCCTCCTCCTCCTCC",
+   "chr1:19155266-19155302 AGGGAAGAGGGAAGGAAAGAAGGAAGGGAGGAGGGA",
+   "chr1:23154415-23154439 GAGAAGGAGGAGGAGGAGGAAGAG",
+   "chr1:26963749-26963765 TTCTCCTCCTCCTCTT",
+   "chr1:28146849-28146880 TCTCCCTCTCTCCCTCTCCCTCTCCCCCTCT"
+  ],
+  "not recovered by any relaxation": [
+   "chr1:91837321-91837339 TTTCTTTTCTTTTTCTTT",
+   "chr11:21541001-21541024 TTTTTCTTTTTCTTTTTCTTTTT",
+   "chr11:22994881-22994901 AGAGAGAAGGGAAAGAGAGA",
+   "chr11:31854140-31854160 GAGGAGGAGAGGAGGAGGAG",
+   "chr14:122241020-122241037 AGGGAGGGAGGGAGGGA",
+   "chr15:58570369-58570390 CTCCTCACTCTCTCACTCCTC"
+  ],
+  "arm length 6-7": [
+   "chr10:52859925-52859951 AACAAAAGGAAATCAAAGGAATACAA",
+   "chr10:108546330-108546357 GGGTAGGGGAGGGGGGGAGGGTATGGG",
+   "chr11:63233102-63233128 TCCTCCTCCATCATCTACATCCTCCT",
+   "chr12:52694249-52694274 GGGGGCGGGAGGGGGAGGGCTGGGG",
+   "chr12:99852017-99852048 AAAAGAAAACAAAAAACAAAACAAAACAAAA",
+   "chr14:76864270-76864291 CTTCTTCCTTCTTCCTTCTTC"
+  ],
+  "purine/pyrimidine purity 80-90%": [
+   "chr12:68323190-68323215 AGGTGGAGGGGGTGGGGGCGGTGGA"
+  ]
+ },
+ "features": {
+  "caught": {
+   "length": {
+    "median": 28.0,
+    "p10": 18.0,
+    "p90": 67.0
+   },
+   "at": {
+    "median": 0.4262295081967213,
+    "p10": 0.2631578947368421,
+    "p90": 0.6666666666666666
+   },
+   "purine_skew": {
+    "median": 1.0,
+    "p10": 0.9259259259259259,
+    "p90": 1.0
+   },
+   "longest_run_frac": {
+    "median": 0.09090909090909091,
+    "p10": 0.030303030303030304,
+    "p90": 0.23529411764705882
+   },
+   "repeat_period_share": {
+    "none": 0.676,
+    "1-mer": 0.009,
+    "2-mer": 0.126,
+    "3-mer": 0.115,
+    "4-mer": 0.073
+   },
+   "at_ge_0.8_share": 0.03
+  },
+  "missed": {
+   "length": {
+    "median": 20.0,
+    "p10": 16.0,
+    "p90": 30.0
+   },
+   "at": {
+    "median": 0.8695652173913043,
+    "p10": 0.2777777777777778,
+    "p90": 1.0
+   },
+   "purine_skew": {
+    "median": 1.0,
+    "p10": 0.8928571428571429,
+    "p90": 1.0
+   },
+   "longest_run_frac": {
+    "median": 0.3181818181818182,
+    "p10": 0.1111111111111111,
+    "p90": 1.0
+   },
+   "repeat_period_share": {
+    "none": 0.699,
+    "1-mer": 0.242,
+    "2-mer": 0.017,
+    "3-mer": 0.024,
+    "4-mer": 0.017
+   },
+   "at_ge_0.8_share": 0.619
+  }
+ }
+}
