@@ -16,6 +16,7 @@ from __future__ import annotations
 import os
 import re
 import gzip
+import heapq
 from bisect import bisect_right
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -23,7 +24,7 @@ from typing import Generator
 from Bio.SeqIO.FastaIO import SimpleFastaParser
 
 from hseeker import _hdna  # compiled C extension
-from hseeker._scoring import score_hit, score_hit_components
+from hseeker._scoring import _scorer, score_hit, score_hit_components
 
 __version__: str = "0.1.0"
 
@@ -180,6 +181,70 @@ def _filter_overlapping_hits(hits: list[dict], strategy: str = "score") -> list[
     ))
 
 
+def _score_and_select(hits: list[dict], filter_homopolymers: bool) -> list[dict]:
+    """Score hits and select nonoverlapping ones by score, scoring lazily.
+
+    Returns exactly what ``_apply_scoring``, then (if *filter_homopolymers*)
+    the POST homopolymer filter, then ``_filter_overlapping_hits(strategy=
+    "score")`` would return, but avoids scoring candidates that cannot be kept.
+
+    Candidates enter a heap under an optimistic key: ``_score_priority`` with
+    the score replaced by an upper bound on it. A popped candidate whose exact
+    score is known has a key no larger than any remaining candidate's true key,
+    so it is the next hit in true priority order and is accepted or rejected
+    exactly as the full sort would. A popped candidate holding only a bound is
+    dropped unscored if it already overlaps an accepted hit (accepted hits only
+    accumulate, so it would be rejected at its true turn too); otherwise it is
+    scored and pushed back under its exact key. In long low-complexity runs,
+    where nearly every candidate overlaps the first accepted hit, this skips
+    almost all scoring. With *filter_homopolymers*, candidates whose detected
+    sequence is a single base are dropped before scoring, since the POST
+    filter removes them regardless of score.
+    """
+    by_seq: dict[str, list[int]] = {}
+    for i, hit in enumerate(hits):
+        by_seq.setdefault(hit.get("seq_id", ""), []).append(i)
+
+    kept: list[dict] = []
+    for indices in by_seq.values():
+        heap: list[tuple] = []
+        for i in indices:
+            h = hits[i]
+            if filter_homopolymers and not _filter_homopolymer_triplex([h], mode="PRE"):
+                # POST drops a homopolymer full_sequence whatever its score.
+                continue
+            spacer = "" if h["spacer"] == "." else h["spacer"]
+            bound = _scorer.upper_bound(
+                h["left_arm"] + spacer + h["right_arm"], h["arm_length"])
+            if bound is None:
+                _apply_scoring([h])
+                heap.append((_score_priority(h), i, True))
+            else:
+                optimistic = (0, -bound) + _score_priority(
+                    {**h, "total_score": 0})[2:]
+                heap.append((optimistic, i, False))
+        heapq.heapify(heap)
+
+        accepted = _AcceptedIntervals([hits[i]["start"] for i in indices])
+        while heap:
+            _, i, exact = heapq.heappop(heap)
+            h = hits[i]
+            if accepted.overlaps(h["start"], h["end"]):
+                continue
+            if not exact:
+                _apply_scoring([h])
+                heapq.heappush(heap, (_score_priority(h), i, True))
+                continue
+            if filter_homopolymers and not _filter_homopolymer_triplex([h], mode="POST"):
+                continue
+            kept.append(h)
+            accepted.add(h["start"], h["end"])
+
+    return sorted(kept, key=lambda hit: (
+        str(hit.get("seq_id", "")), hit["start"], hit["end"]
+    ))
+
+
 def _check_overlap_strategy(remove_overlaps: bool, score: bool, strategy: str) -> None:
     """Validate the overlap choice before scanning any sequence."""
     if strategy not in ("greedy", "score", "stability"):
@@ -196,10 +261,7 @@ def _filter_homopolymer_triplex(hits: list[dict], mode: str = "POST") -> list[di
     sequence checked; a mixed-base unscorable candidate is retained.
     """
     def is_homopolymer(seq: str) -> bool:
-        if not seq:
-            return False
-        first = seq[0].lower()
-        return all(base.lower() == first for base in seq)
+        return len(set(seq.lower())) == 1
 
     kept = []
     if mode == "POST":
@@ -336,14 +398,14 @@ def scan_sequence(
     )
     if at_threshold is not None and hits:
         hits = _filter_at_content(hits, at_threshold)
+    if score_overlap and hits:
+        return _score_and_select(hits, filter_homopolymers)
     if score and hits:
         _apply_scoring(hits)
         if filter_homopolymers:
             hits = _filter_homopolymer_triplex(hits, mode="POST")
     elif filter_homopolymers:
         hits = _filter_homopolymer_triplex(hits, mode="PRE")
-    if score_overlap and hits:
-        hits = _filter_overlapping_hits(hits, strategy=overlap_strategy)
     return hits
 
 
@@ -492,14 +554,14 @@ def scan_fasta(
         for h in hits:
             h["seq_id"] = seq_id
         results.extend(hits)
+    if score_overlap and results:
+        return _score_and_select(results, filter_homopolymers)
     if score and results:
         _apply_scoring(results)
         if filter_homopolymers:
             results = _filter_homopolymer_triplex(results)
     elif results and filter_homopolymers:
         results = _filter_homopolymer_triplex(results, mode="PRE")
-    if score_overlap and results:
-        results = _filter_overlapping_hits(results, strategy=overlap_strategy)
     return results
 
 
@@ -670,14 +732,14 @@ def scan_fasta_parallel(
         # Score mode keeps raw candidates until their scores are available.
         if remove_overlaps and not score_overlap and hits:
             hits = _filter_overlapping_hits(hits, strategy="greedy")
+        if score_overlap and hits:
+            return _score_and_select(hits, filter_homopolymers)
         if score and hits:
             _apply_scoring(hits)
             if filter_homopolymers:
                 hits = _filter_homopolymer_triplex(hits, mode="POST")
         elif hits and filter_homopolymers:
             hits = _filter_homopolymer_triplex(hits, mode="PRE")
-        if score_overlap and hits:
-            hits = _filter_overlapping_hits(hits, strategy=overlap_strategy)
         return hits
 
     # Scan whole records in batches of about n_workers * chunk_size bases and

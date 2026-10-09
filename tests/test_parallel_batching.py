@@ -87,15 +87,32 @@ def _write_fasta(path, records):
 
 @pytest.fixture
 def scoring_calls(monkeypatch):
-    """Record the number of hits passed to each _apply_scoring call (one call per batch)."""
+    """Record the number of hits in each batch's scoring pass (one entry per batch).
+
+    Greedy mode scores a batch with one _apply_scoring call. Score mode hands
+    the batch to _score_and_select, which scores hits lazily one at a time, so
+    the batch is counted there and its nested _apply_scoring calls are not.
+    """
     calls = []
+    inside_select = [False]
     real_apply_scoring = hseeker._apply_scoring
+    real_score_and_select = hseeker._score_and_select
 
     def recording_apply_scoring(hits):
-        calls.append(len(hits))
+        if not inside_select[0]:
+            calls.append(len(hits))
         return real_apply_scoring(hits)
 
+    def recording_score_and_select(hits, filter_homopolymers):
+        calls.append(len(hits))
+        inside_select[0] = True
+        try:
+            return real_score_and_select(hits, filter_homopolymers)
+        finally:
+            inside_select[0] = False
+
     monkeypatch.setattr(hseeker, "_apply_scoring", recording_apply_scoring)
+    monkeypatch.setattr(hseeker, "_score_and_select", recording_score_and_select)
     return calls
 
 

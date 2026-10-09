@@ -8,12 +8,17 @@ import sys
 import pytest
 
 from hseeker import (
+    _apply_scoring,
+    _filter_homopolymer_triplex,
     _filter_overlapping_hits,
+    _hdna,
+    _score_and_select,
     scan_fasta,
     scan_fasta_iter,
     scan_fasta_parallel,
     scan_sequence,
 )
+from hseeker._scoring import _scorer
 
 
 def hit(start, end, score, *, seq_id="chr1", arm=8, spacer=2):
@@ -312,6 +317,71 @@ def test_greedy_remains_the_default_in_public_api():
     assert scan_sequence(sequence, **options) == scan_sequence(
         sequence, overlap_strategy="greedy", **options
     )
+
+
+def _score_everything_then_select(hits, filter_homopolymers):
+    """The straightforward pipeline that lazy score selection must reproduce."""
+    _apply_scoring(hits)
+    if filter_homopolymers:
+        hits = _filter_homopolymer_triplex(hits, mode="POST")
+    return _filter_overlapping_hits(hits, strategy="score")
+
+
+@pytest.mark.parametrize("sequence", [
+    "G" * 120, "GA" * 60, "GAA" * 40, "CT" * 50 + "ACGT" * 5 + "G" * 70,
+    "GAAGGAAAGAAAGAAAGGG", "AGGGAGGAGGGAGGAGGGAGGAGGGTTTAGGAGGGAGG",
+])
+@pytest.mark.parametrize("filter_homopolymers", [False, True])
+def test_lazy_score_selection_matches_scoring_every_candidate(sequence,
+                                                             filter_homopolymers):
+    options = dict(minrep=6, maxrep=1000, maxspacer=10, purity=0.8,
+                   mismatch=0.2, seq_offset=1, remove_overlaps=False)
+    reference = _score_everything_then_select(
+        _hdna.scan_sequence(sequence, **options), filter_homopolymers)
+    lazy = _score_and_select(
+        _hdna.scan_sequence(sequence, **options), filter_homopolymers)
+    assert lazy == reference
+
+
+def _naive_best_window(scorer, s1, s2, ll):
+    """Rebuild every window score from scratch, as the scorer once did."""
+    al = len(s1)
+    scoring_array = "".join(
+        "1" if (a == b == "G") or (a == b == "A") else "0" for a, b in zip(s1, s2))
+    pairing = [scorer._pair_score(a, b) for a, b in zip(s1, s2)]
+    best, best_pair = -float("inf"), None
+    for L in range(al):
+        for R in range(L + min(scorer.min_al, al), al + 1):
+            if 2 * (al - R) + ll <= (R - L) * scorer.v:
+                cur = round(sum(pairing[L:R])
+                            + sum(scorer._calc_stacking(scoring_array[L:R])), 3)
+                if cur > best:
+                    best, best_pair = cur, (L, R)
+    return best_pair
+
+
+def test_incremental_window_search_matches_naive_recomputation():
+    rng = random.Random(11)
+    for _ in range(300):
+        al = rng.randint(1, 40)
+        ll = rng.randint(0, 12)
+        s1 = "".join(rng.choice("GGGAAC") for _ in range(al))
+        s2 = "".join(rng.choice("GGGAAT") for _ in range(al))
+        full = s1 + "C" * ll + s2[::-1]
+        result = _scorer.score(full, al)
+
+        s1o, s2o, _, llo = _scorer._arms(full, al)
+        L, R = _naive_best_window(_scorer, s1o, s2o, llo) or (0, al)
+        scoring_array = "".join("1" if (a == b == "G") or (a == b == "A") else "0"
+                                for a, b in zip(s1o, s2o))
+        pairing = sum([_scorer._pair_score(a, b)
+                       for a, b in zip(s1o[L:R], s2o[L:R])])
+        stacking = sum(_scorer._calc_stacking(scoring_array[L:R]))
+        assert result["pairing_score"] == pairing
+        assert result["stacking_score"] == stacking
+        assert result["total_score"] == max(round(pairing + stacking, 3), 0)
+        assert result["total_score"] <= _scorer.upper_bound(full, al)
+
 
 
 def test_score_overlap_requires_scoring_but_skipoverlap_does_not():
