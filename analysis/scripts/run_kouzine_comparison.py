@@ -64,6 +64,9 @@ CONFIGS = {
     # shipped command-line defaults
     "cli": dict(minrep=10, maxrep=1000, maxspacer=10, purity=0.90, mismatch=0.10,
                 at_threshold=0.8, filter_homopolymers=True, overlap_strategy="greedy"),
+    # shipped defaults with the benchmark's minimum arm length (minrep 10 vs 8 decision)
+    "cli_minrep8": dict(minrep=8, maxrep=1000, maxspacer=10, purity=0.90, mismatch=0.10,
+                        at_threshold=0.8, filter_homopolymers=True, overlap_strategy="greedy"),
     # benchmark configuration (analysis scripts)
     "benchmark": dict(minrep=8, maxrep=1000, maxspacer=10, purity=0.90, mismatch=0.10,
                       overlap_strategy="greedy"),

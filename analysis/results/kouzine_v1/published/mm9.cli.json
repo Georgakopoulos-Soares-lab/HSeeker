@@ -19,8 +19,8 @@
   "fraction": 0.7408966041264832
  },
  "P2_selectivity": {
-  "analysed_motifs": 428237,
   "analysed_in_paper": 341431,
+  "analysed_motifs": 428237,
   "called_in_analysed": 17109,
   "hseeker_called": {
    "ssDNA_plus": 12676,
@@ -41,6 +41,56 @@
   "score_ssDNA_plus_median": 161.45,
   "score_ssDNA_minus_median": 172.93,
   "score_mannwhitney_p_greater": 0.9329245528038144
+ },
+ "P2_selectivity_mappable_sensitivity": {
+  "mean_ge_0.5": {
+   "threshold": 0.5,
+   "analysed_motifs": 238998,
+   "called_in_analysed": 8147,
+   "hseeker_called": {
+    "ssDNA_plus": 5010,
+    "ssDNA_minus": 114601,
+    "rate": 0.04188577973597746
+   },
+   "not_hseeker_called": {
+    "ssDNA_plus": 3137,
+    "ssDNA_minus": 116250,
+    "rate": 0.026275892685133223
+   },
+   "odds_ratio": 1.619950929561858,
+   "or_ci95": [
+    1.5481088260040157,
+    1.6951269640145572
+   ],
+   "fisher_p_greater": 3.3409347493771434e-99,
+   "score_ssDNA_plus_median": 107.925,
+   "score_ssDNA_minus_median": 101.575,
+   "score_mannwhitney_p_greater": 3.4714784576486324e-25
+  },
+  "unique": {
+   "threshold": 0.999,
+   "analysed_motifs": 88267,
+   "called_in_analysed": 2110,
+   "hseeker_called": {
+    "ssDNA_plus": 1235,
+    "ssDNA_minus": 37014,
+    "rate": 0.03228842584119846
+   },
+   "not_hseeker_called": {
+    "ssDNA_plus": 875,
+    "ssDNA_minus": 49143,
+    "rate": 0.017493702267183813
+   },
+   "odds_ratio": 1.873616903138558,
+   "or_ci95": [
+    1.7164182373018322,
+    2.0452126547226905
+   ],
+   "fisher_p_greater": 8.560513241252587e-46,
+   "score_ssDNA_plus_median": 94.035,
+   "score_ssDNA_minus_median": 88.975,
+   "score_mannwhitney_p_greater": 5.97661366929834e-32
+  }
  },
  "P3_enrichment_authors_signal": "pending: controls not yet sampled"
 }

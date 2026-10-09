@@ -14,7 +14,11 @@ Tests (pre-specified in RTR/evidence/X8_kouzine_analysis_design_2026-10-09.md):
   P3 enrichment   authors' ssDNA signal at HSeeker loci vs composition-matched controls
                   (controls from run_kouzine_comparison.py), activated vs resting
 
-Usage:  python3 analysis/scripts/run_kouzine_published.py --genome mm9|hg19
+Sensitivity (not pre-specified): P2 repeated on motifs that 36 bp reads can map to (ENCODE CRG
+36-mer mappability, the reads' length), approximating the authors' mappability filter, which the
+SINE-only universe does not reproduce.
+
+Usage:  python3 analysis/scripts/run_kouzine_published.py --genome mm9|hg19 [--config cli]
 """
 
 from __future__ import annotations
@@ -23,6 +27,7 @@ import argparse
 import gzip
 import json
 import math
+import subprocess
 import sys
 from pathlib import Path
 
@@ -35,6 +40,9 @@ import run_kouzine_comparison as rk  # noqa: E402
 AUTH = rk.KOUZINE / "authors"
 SINE_HALF_WINDOW = 250
 BIN = 10
+READ_LEN = 36                       # SRA072844 read length
+MAPPABLE = {"mean_ge_0.5": 0.5, "unique": 0.999}   # mean CRG 36-mer mappability thresholds
+BW_AVG = rk.KOUZINE / "tools" / "bigWigAverageOverBed"
 SETS = {
     "mm9": dict(species="mouse_mm9", called="actB_ssDNA_enriched_H-DNA",
                 wig=dict(activated="actB_ssDNA", resting="resB_ssDNA"),
@@ -98,6 +106,59 @@ def sine_index(genome: str) -> Index:
     return Index(rows)
 
 
+def analysed_universe(genome: str, predicted):
+    """The authors' predicted motifs with no SINE within a 500 bp window centred on the motif."""
+    sidx = sine_index(genome)
+    return [m for m in predicted
+            if not sidx.any(m[0], (m[1] + m[2]) // 2 - SINE_HALF_WINDOW, (m[1] + m[2]) // 2 + SINE_HALF_WINDOW)]
+
+
+def mappability(genome: str, motifs) -> dict:
+    """Mean 36-mer mappability over the starts of every read that overlaps each motif."""
+    work = rk.KOUZINE / "work" / genome
+    bed, tab = work / "mappability_motifs.bed", work / "mappability_motifs.tab"
+    uniq = sorted(set(motifs))
+    with open(bed, "w") as fo:
+        for k, (c, s, e) in enumerate(uniq):
+            fo.write(f"{c}\t{max(0, s - READ_LEN + 1)}\t{e}\tm{k}\n")
+    subprocess.run([str(BW_AVG), str(AUTH / "mappability" / f"{genome}_align36.bigWig"), str(bed), str(tab)],
+                   check=True)
+    out = {}
+    with open(tab) as fh:
+        for line in fh:
+            name, _, _, _, mean0, _ = line.split("\t")
+            out[uniq[int(name[1:])]] = float(mean0)
+    return out
+
+
+def selectivity(analysed, called, loci, hidx) -> dict:
+    a = b = c = d = 0
+    pos_scores, neg_scores = [], []
+    for m in analysed:
+        hs = hidx.hits(*m)
+        plus = m in called
+        if hs:
+            sc = max((loci[i]["score"] for i in hs if not math.isnan(loci[i]["score"])), default=math.nan)
+            (pos_scores if plus else neg_scores).append(sc)
+            a += plus
+            b += not plus
+        else:
+            c += plus
+            d += not plus
+    o, lo, hi = rk.odds_ratio(a, b, c, d)
+    fisher_p = stats.fisher_exact([[a, b], [c, d]], alternative="greater").pvalue
+    ps, ns = np.array([x for x in pos_scores if not math.isnan(x)]), np.array([x for x in neg_scores if not math.isnan(x)])
+    return dict(
+        analysed_motifs=len(analysed), called_in_analysed=sum(m in called for m in analysed),
+        hseeker_called=dict(ssDNA_plus=a, ssDNA_minus=b, rate=a / (a + b) if a + b else None),
+        not_hseeker_called=dict(ssDNA_plus=c, ssDNA_minus=d, rate=c / (c + d) if c + d else None),
+        odds_ratio=o, or_ci95=[lo, hi], fisher_p_greater=float(fisher_p),
+        score_ssDNA_plus_median=float(np.median(ps)) if len(ps) else None,
+        score_ssDNA_minus_median=float(np.median(ns)) if len(ns) else None,
+        score_mannwhitney_p_greater=float(stats.mannwhitneyu(ps, ns, alternative="greater").pvalue)
+        if len(ps) and len(ns) else None)
+
+
 def load_hseeker(genome: str, config: str = "cli"):
     loci = rk.load_loci(rk.KOUZINE / "work" / genome / config / "loci.tsv")
     return loci, Index([(l["chrom"], l["start"], l["end"]) for l in loci])
@@ -149,35 +210,13 @@ def main() -> None:
                             overlapped_by_hseeker=rec, fraction=rec / len(called))
 
     # --- P2 selectivity on the authors' analysed universe (SINE filter re-applied)
-    sidx = sine_index(g)
-    analysed = [m for m in predicted
-                if not sidx.any(m[0], (m[1] + m[2]) // 2 - SINE_HALF_WINDOW, (m[1] + m[2]) // 2 + SINE_HALF_WINDOW)]
-    a = b = c = d = 0
-    pos_scores, neg_scores = [], []
-    for m in analysed:
-        hs = hidx.hits(*m)
-        plus = m in called
-        if hs:
-            sc = max((loci[i]["score"] for i in hs if not math.isnan(loci[i]["score"])), default=math.nan)
-            (pos_scores if plus else neg_scores).append(sc)
-            a += plus
-            b += not plus
-        else:
-            c += plus
-            d += not plus
-    o, lo, hi = rk.odds_ratio(a, b, c, d)
-    fisher_p = stats.fisher_exact([[a, b], [c, d]], alternative="greater").pvalue
-    ps, ns = np.array([x for x in pos_scores if not math.isnan(x)]), np.array([x for x in neg_scores if not math.isnan(x)])
-    res["P2_selectivity"] = dict(
-        analysed_motifs=len(analysed), analysed_in_paper=cfg["analysed_in_paper"],
-        called_in_analysed=sum(m in called for m in analysed),
-        hseeker_called=dict(ssDNA_plus=a, ssDNA_minus=b, rate=a / (a + b) if a + b else None),
-        not_hseeker_called=dict(ssDNA_plus=c, ssDNA_minus=d, rate=c / (c + d) if c + d else None),
-        odds_ratio=o, or_ci95=[lo, hi], fisher_p_greater=float(fisher_p),
-        score_ssDNA_plus_median=float(np.median(ps)) if len(ps) else None,
-        score_ssDNA_minus_median=float(np.median(ns)) if len(ns) else None,
-        score_mannwhitney_p_greater=float(stats.mannwhitneyu(ps, ns, alternative="greater").pvalue)
-        if len(ps) and len(ns) else None)
+    analysed = analysed_universe(g, predicted)
+    res["P2_selectivity"] = dict(analysed_in_paper=cfg["analysed_in_paper"],
+                                 **selectivity(analysed, called, loci, hidx))
+    mp = mappability(g, analysed)
+    res["P2_selectivity_mappable_sensitivity"] = {
+        k: dict(threshold=t, **selectivity([m for m in analysed if mp[m] >= t], called, loci, hidx))
+        for k, t in MAPPABLE.items()}
 
     # --- P3 enrichment with the authors' ssDNA coverage (needs the matched controls)
     out = rk.ROOT / "analysis" / "results" / "kouzine_v1" / "published"

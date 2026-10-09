@@ -341,7 +341,7 @@ python -m hseeker -seq <FASTA> -out <PREFIX> [options]
 | `-skipoverlap` | flag | *(off)* | **Skip overlap removal**. Keep distinct overlapping candidates after inward extension and removal of duplicate representations. |
 | `-overlap-strategy greedy\|score` | choice | `greedy` | Choose the longest arm before scoring (`greedy`, default) or score all candidates and retain the highest-scoring nonoverlapping hits (`score`). Score mode requires scoring to be enabled and is slower on genome-scale input (see Overlap removal behaviour). |
 | `-score` | flag | *(on)* | **Apply thermodynamic stability scoring**. Enables stacking and pairing score computation for each hit. Pass `-no-score` to disable and keep only the core detection columns. |
-| `-at-threshold FLOAT` | float | `0.80` | **Left-arm AT-content filter**, applied before scoring. Hits whose left arm has AT content ≥ this value are dropped — AT-rich arms are dominated by weak A·A stacking and are unlikely to fold into stable H-DNA. Raise it (e.g. `1.5`) to effectively disable it. |
+| `-at-threshold FLOAT` | float | `0.80` | **AT-content filter**, applied before scoring. Hits whose full motif (both arms and the spacer) has AT content ≥ this value are dropped: triplex stability rests mainly on G/C-containing triplets, so A/T-dominated motifs are unlikely to fold into stable H-DNA. Raise it (e.g. `1.5`) to effectively disable it. |
 | `-workers INT` | int | *(all cores)* | **Parallel worker threads**. The CLI uses `scan_fasta_parallel` internally and defaults to all available CPU cores. Set this to a lower value to cap CPU usage. |
 | `-v` | flag | *(off)* | **Verbose mode**. Prints progress information to `stderr`. Useful for monitoring large jobs. |
 

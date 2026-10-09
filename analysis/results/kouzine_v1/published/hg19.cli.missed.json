@@ -1,0 +1,498 @@
+{
+ "genome": "hg19",
+ "hseeker_config": "cli",
+ "hseeker_params": {
+  "minrep": 10,
+  "maxrep": 1000,
+  "maxspacer": 10,
+  "purity": 0.9,
+  "mismatch": 0.1,
+  "at_threshold": 0.8,
+  "filter_homopolymers": true,
+  "overlap_strategy": "greedy"
+ },
+ "hseeker_loci": 508864,
+ "called": 8356,
+ "caught": 5679,
+ "missed": 2677,
+ "missed_fraction": 0.3203685974150311,
+ "missed_by_reason": {
+  "arm length 8-9 (< minrep 10)": {
+   "n": 1383,
+   "share": 0.517,
+   "hseeker_locus_within_100bp": 0.121
+  },
+  "AT filter (motif >= 80% A/T)": {
+   "n": 709,
+   "share": 0.265,
+   "hseeker_locus_within_100bp": 0.056
+  },
+  "homopolymer filter": {
+   "n": 435,
+   "share": 0.162,
+   "hseeker_locus_within_100bp": 0.069
+  },
+  "mirror mismatch 10-20%": {
+   "n": 76,
+   "share": 0.028,
+   "hseeker_locus_within_100bp": 0.724
+  },
+  "overlap removal (a longer neighbouring locus was kept)": {
+   "n": 48,
+   "share": 0.018,
+   "hseeker_locus_within_100bp": 0.979
+  },
+  "arm length 6-7": {
+   "n": 21,
+   "share": 0.008,
+   "hseeker_locus_within_100bp": 0.333
+  },
+  "not recovered by any relaxation": {
+   "n": 3,
+   "share": 0.001,
+   "hseeker_locus_within_100bp": 1.0
+  },
+  "purine/pyrimidine purity 80-90%": {
+   "n": 2,
+   "share": 0.001,
+   "hseeker_locus_within_100bp": 0.5
+  }
+ },
+ "sidd_overlap": {
+  "caught | A/T<0.8": {
+   "n": 5541,
+   "sidd_motif": 0.025,
+   "ssDNA_plus_sidd": 0.018
+  },
+  "caught | A/T>=0.8": {
+   "n": 109,
+   "sidd_motif": 0.183,
+   "ssDNA_plus_sidd": 0.156
+  },
+  "caught | homopolymer": {
+   "n": 29,
+   "sidd_motif": 0.207,
+   "ssDNA_plus_sidd": 0.207
+  },
+  "missed | A/T<0.8": {
+   "n": 1352,
+   "sidd_motif": 0.031,
+   "ssDNA_plus_sidd": 0.025
+  },
+  "missed | A/T>=0.8": {
+   "n": 742,
+   "sidd_motif": 0.419,
+   "ssDNA_plus_sidd": 0.338
+  },
+  "missed | homopolymer": {
+   "n": 583,
+   "sidd_motif": 0.444,
+   "ssDNA_plus_sidd": 0.377
+  }
+ },
+ "at_stratification": {
+  "note": "authors' analysed H-DNA motifs (SINE filter re-applied); SIDD = overlaps a predicted SIDD motif; mappable_* = mean CRG 36-mer mappability over read starts overlapping the motif at or above the threshold",
+  "all": {
+   "motifs": 206902,
+   "ssDNA_plus": 8356,
+   "overall_ssDNA_plus_rate": 0.0404,
+   "by_composition": {
+    "A/T<0.8": {
+     "n": 118140,
+     "ssDNA_plus": 6893,
+     "ssDNA_plus_rate": 0.0583,
+     "share_of_ssDNA_plus": 0.825,
+     "sidd_share_of_motifs": 0.057,
+     "or_sidd_vs_no_sidd": [
+      0.436,
+      0.376,
+      0.506
+     ]
+    },
+    "A/T>=0.8": {
+     "n": 55627,
+     "ssDNA_plus": 851,
+     "ssDNA_plus_rate": 0.0153,
+     "share_of_ssDNA_plus": 0.102,
+     "sidd_share_of_motifs": 0.294,
+     "or_sidd_vs_no_sidd": [
+      1.541,
+      1.341,
+      1.771
+     ],
+     "or_vs_at_below_0.8": [
+      0.251,
+      0.233,
+      0.27
+     ],
+     "fisher_p": 0.0
+    },
+    "homopolymer": {
+     "n": 33135,
+     "ssDNA_plus": 612,
+     "ssDNA_plus_rate": 0.0185,
+     "share_of_ssDNA_plus": 0.073,
+     "sidd_share_of_motifs": 0.3,
+     "or_sidd_vs_no_sidd": [
+      1.802,
+      1.534,
+      2.118
+     ],
+     "or_vs_at_below_0.8": [
+      0.304,
+      0.28,
+      0.33
+     ],
+     "fisher_p": 2.664995938853459e-234
+    }
+   },
+   "strata": {
+    "A/T<0.8 | SIDD": {
+     "n": 6747,
+     "ssDNA_plus": 183,
+     "ssDNA_plus_rate": 0.0271,
+     "hseeker_called_rate": 0.7878
+    },
+    "A/T<0.8 | no SIDD": {
+     "n": 111393,
+     "ssDNA_plus": 6710,
+     "ssDNA_plus_rate": 0.0602,
+     "hseeker_called_rate": 0.8047
+    },
+    "A/T>=0.8 | SIDD": {
+     "n": 16347,
+     "ssDNA_plus": 331,
+     "ssDNA_plus_rate": 0.0202,
+     "hseeker_called_rate": 0.0661
+    },
+    "A/T>=0.8 | no SIDD": {
+     "n": 39280,
+     "ssDNA_plus": 520,
+     "ssDNA_plus_rate": 0.0132,
+     "hseeker_called_rate": 0.1231
+    },
+    "homopolymer | SIDD": {
+     "n": 9947,
+     "ssDNA_plus": 265,
+     "ssDNA_plus_rate": 0.0266,
+     "hseeker_called_rate": 0.0207
+    },
+    "homopolymer | no SIDD": {
+     "n": 23188,
+     "ssDNA_plus": 347,
+     "ssDNA_plus_rate": 0.015,
+     "hseeker_called_rate": 0.0244
+    }
+   }
+  },
+  "mappable_mean_ge_0.5": {
+   "threshold": 0.5,
+   "motifs": 169963,
+   "ssDNA_plus": 7188,
+   "overall_ssDNA_plus_rate": 0.0423,
+   "by_composition": {
+    "A/T<0.8": {
+     "n": 90198,
+     "ssDNA_plus": 5968,
+     "ssDNA_plus_rate": 0.0662,
+     "share_of_ssDNA_plus": 0.83,
+     "sidd_share_of_motifs": 0.055,
+     "or_sidd_vs_no_sidd": [
+      0.433,
+      0.368,
+      0.51
+     ]
+    },
+    "A/T>=0.8": {
+     "n": 50357,
+     "ssDNA_plus": 748,
+     "ssDNA_plus_rate": 0.0149,
+     "share_of_ssDNA_plus": 0.104,
+     "sidd_share_of_motifs": 0.273,
+     "or_sidd_vs_no_sidd": [
+      1.652,
+      1.423,
+      1.916
+     ],
+     "or_vs_at_below_0.8": [
+      0.213,
+      0.197,
+      0.23
+     ],
+     "fisher_p": 0.0
+    },
+    "homopolymer": {
+     "n": 29408,
+     "ssDNA_plus": 472,
+     "ssDNA_plus_rate": 0.0161,
+     "share_of_ssDNA_plus": 0.066,
+     "sidd_share_of_motifs": 0.284,
+     "or_sidd_vs_no_sidd": [
+      2.014,
+      1.677,
+      2.419
+     ],
+     "or_vs_at_below_0.8": [
+      0.23,
+      0.21,
+      0.253
+     ],
+     "fisher_p": 7.507624030189671e-301
+    }
+   },
+   "strata": {
+    "A/T<0.8 | SIDD": {
+     "n": 4957,
+     "ssDNA_plus": 152,
+     "ssDNA_plus_rate": 0.0307,
+     "hseeker_called_rate": 0.7559
+    },
+    "A/T<0.8 | no SIDD": {
+     "n": 85241,
+     "ssDNA_plus": 5816,
+     "ssDNA_plus_rate": 0.0682,
+     "hseeker_called_rate": 0.7779
+    },
+    "A/T>=0.8 | SIDD": {
+     "n": 13761,
+     "ssDNA_plus": 285,
+     "ssDNA_plus_rate": 0.0207,
+     "hseeker_called_rate": 0.0669
+    },
+    "A/T>=0.8 | no SIDD": {
+     "n": 36596,
+     "ssDNA_plus": 463,
+     "ssDNA_plus_rate": 0.0127,
+     "hseeker_called_rate": 0.1212
+    },
+    "homopolymer | SIDD": {
+     "n": 8347,
+     "ssDNA_plus": 208,
+     "ssDNA_plus_rate": 0.0249,
+     "hseeker_called_rate": 0.0181
+    },
+    "homopolymer | no SIDD": {
+     "n": 21061,
+     "ssDNA_plus": 264,
+     "ssDNA_plus_rate": 0.0125,
+     "hseeker_called_rate": 0.0247
+    }
+   }
+  },
+  "mappable_unique": {
+   "threshold": 0.999,
+   "motifs": 83971,
+   "ssDNA_plus": 4278,
+   "overall_ssDNA_plus_rate": 0.0509,
+   "by_composition": {
+    "A/T<0.8": {
+     "n": 47387,
+     "ssDNA_plus": 3798,
+     "ssDNA_plus_rate": 0.0801,
+     "share_of_ssDNA_plus": 0.888,
+     "sidd_share_of_motifs": 0.056,
+     "or_sidd_vs_no_sidd": [
+      0.284,
+      0.222,
+      0.363
+     ]
+    },
+    "A/T>=0.8": {
+     "n": 24120,
+     "ssDNA_plus": 303,
+     "ssDNA_plus_rate": 0.0126,
+     "share_of_ssDNA_plus": 0.071,
+     "sidd_share_of_motifs": 0.203,
+     "or_sidd_vs_no_sidd": [
+      1.345,
+      1.037,
+      1.744
+     ],
+     "or_vs_at_below_0.8": [
+      0.146,
+      0.13,
+      0.165
+     ],
+     "fisher_p": 0.0
+    },
+    "homopolymer": {
+     "n": 12464,
+     "ssDNA_plus": 177,
+     "ssDNA_plus_rate": 0.0142,
+     "share_of_ssDNA_plus": 0.041,
+     "sidd_share_of_motifs": 0.209,
+     "or_sidd_vs_no_sidd": [
+      1.636,
+      1.184,
+      2.26
+     ],
+     "or_vs_at_below_0.8": [
+      0.166,
+      0.142,
+      0.193
+     ],
+     "fisher_p": 3.92770102553693e-203
+    }
+   },
+   "strata": {
+    "A/T<0.8 | SIDD": {
+     "n": 2637,
+     "ssDNA_plus": 66,
+     "ssDNA_plus_rate": 0.025,
+     "hseeker_called_rate": 0.6523
+    },
+    "A/T<0.8 | no SIDD": {
+     "n": 44750,
+     "ssDNA_plus": 3732,
+     "ssDNA_plus_rate": 0.0834,
+     "hseeker_called_rate": 0.6813
+    },
+    "A/T>=0.8 | SIDD": {
+     "n": 4908,
+     "ssDNA_plus": 77,
+     "ssDNA_plus_rate": 0.0157,
+     "hseeker_called_rate": 0.0723
+    },
+    "A/T>=0.8 | no SIDD": {
+     "n": 19212,
+     "ssDNA_plus": 226,
+     "ssDNA_plus_rate": 0.0118,
+     "hseeker_called_rate": 0.1212
+    },
+    "homopolymer | SIDD": {
+     "n": 2609,
+     "ssDNA_plus": 53,
+     "ssDNA_plus_rate": 0.0203,
+     "hseeker_called_rate": 0.0123
+    },
+    "homopolymer | no SIDD": {
+     "n": 9855,
+     "ssDNA_plus": 124,
+     "ssDNA_plus_rate": 0.0126,
+     "hseeker_called_rate": 0.0205
+    }
+   }
+  }
+ },
+ "examples": {
+  "arm length 8-9 (< minrep 10)": [
+   "chr1:958095-958111 CCTCCTCCCCTCCTCC",
+   "chr1:978018-978038 TCTTCTCTTTGGTCTCTTCT",
+   "chr1:1008013-1008031 TCTCTCCCTCCCCTCTCT",
+   "chr1:1015808-1015824 GGGAGGAGGAGGAGGG",
+   "chr1:1018823-1018842 GAGAGAGAGGCAGAGAGAG",
+   "chr1:1071772-1071788 AGGGAAGGGGAAGGGA"
+  ],
+  "homopolymer filter": [
+   "chr1:963698-963718 CGCCCCCCCCCCCCCCCCGC",
+   "chr1:1677614-1677634 TTTTTTTTTTTTTTTTTTTT",
+   "chr1:3073986-3074006 AAAAAAAAAAAAAAAAAAAA",
+   "chr1:3306513-3306529 CCCCCCCCCCCCCCCC",
+   "chr1:3650483-3650501 TTTTTTTTTTTTTTTTTT",
+   "chr1:6300917-6300952 TGTTCTTTTTTTTTTTTTTTTTTTTTTTTTTTTGT"
+  ],
+  "mirror mismatch 10-20%": [
+   "chr1:1363360-1363394 GGGGAGGGGAGGGGAAGAGAGGGGAGGGGAGGGG",
+   "chr1:1530637-1530658 GAGAGACAGAGAGACAGAGAG",
+   "chr1:22874494-22874511 TCTCTCTTTTTCTCTCT",
+   "chr1:154297464-154297491 GGGGCGGAGGGAAGGAGGGCGGCGGGG",
+   "chr1:155102942-155102963 GGGGAGAGGAGGGGAGAGGGG",
+   "chr10:102448046-102448071 GGGAGACAGAGATAGAGACCGAGGG"
+  ],
+  "overlap removal (a longer neighbouring locus was kept)": [
+   "chr1:2367462-2367482 TCCCTCCTCCCCTCCTCCCT",
+   "chr1:10760029-10760064 AGAGAGAAAGAGAGACAGGCAGAGAGAGAGAGAGA",
+   "chr1:12023765-12023781 TCCTCCTCCTCCTCCT",
+   "chr1:30180213-30180243 GGAGAGGAGAGGAGAGGAGGAGAGGGGAGG",
+   "chr1:30180285-30180301 AGGGGAGGGGAGGGGA",
+   "chr10:9316037-9316058 AGAGGGAGAGGGAGAGGGAGA"
+  ],
+  "AT filter (motif >= 80% A/T)": [
+   "chr1:2389317-2389336 GAAAAAAAAAAAAAAAAAG",
+   "chr1:9222015-9222042 AAAAAAAAAGAAAGAAAGAAAAAAAAA",
+   "chr1:12677517-12677548 AGAAAAAGAAAAAAAAAAAAAAAAAAAAAGA",
+   "chr1:12677863-12677885 GAAAAAAAAAAAAAAAAAAAAG",
+   "chr1:18082048-18082071 CTGTTTTTTTTTTTTTTTTTGTC",
+   "chr1:19042991-19043011 TTTTTTGTTTTTTGTTTTTT"
+  ],
+  "arm length 6-7": [
+   "chr1:32158411-32158436 GGGAGTAGGGAACAAGGGATCAGGG",
+   "chr10:134066822-134066857 GAGGGAGCAGAGGGAGCTGGAGGGAGCCGAGGGAG",
+   "chr12:52242213-52242241 CCCCGCCCTCTCGGCCCTCTCCGGCCCC",
+   "chr13:112758149-112758182 AGGAGGGGGGCGGGGGCGGGGGCGCGGGGAGGA",
+   "chr17:35300485-35300516 GAAAAATAGAAAAAAAAAAAAACATAAAAAG",
+   "chr17:42335590-42335617 GGAGGTGAGGGGAAAGGGGACTGGAGG"
+  ],
+  "purine/pyrimidine purity 80-90%": [
+   "chr1:212688578-212688602 CCCCCCCCCGCCCCGCCCCGCCCC",
+   "chr20:60948340-60948361 TCTCTTTGTCTCTGTTTCTCT"
+  ],
+  "not recovered by any relaxation": [
+   "chr17:77363263-77363281 TTCCTTCTTCTCTTCCTT",
+   "chr2:176970121-176970138 GGAAGGAGAGAGGAAGG",
+   "chr7:157406798-157406815 AGGAGGAAAAAGGAGGA"
+  ]
+ },
+ "features": {
+  "caught": {
+   "length": {
+    "median": 22.0,
+    "p10": 17.0,
+    "p90": 37.0
+   },
+   "at": {
+    "median": 0.36363636363636365,
+    "p10": 0.17391304347826086,
+    "p90": 0.6
+   },
+   "purine_skew": {
+    "median": 1.0,
+    "p10": 0.8947368421052632,
+    "p90": 1.0
+   },
+   "longest_run_frac": {
+    "median": 0.14285714285714285,
+    "p10": 0.058823529411764705,
+    "p90": 0.2631578947368421
+   },
+   "repeat_period_share": {
+    "none": 0.844,
+    "1-mer": 0.007,
+    "2-mer": 0.055,
+    "3-mer": 0.048,
+    "4-mer": 0.047
+   },
+   "at_ge_0.8_share": 0.022
+  },
+  "missed": {
+   "length": {
+    "median": 18.0,
+    "p10": 16.0,
+    "p90": 26.0
+   },
+   "at": {
+    "median": 0.7647058823529411,
+    "p10": 0.25,
+    "p90": 1.0
+   },
+   "purine_skew": {
+    "median": 1.0,
+    "p10": 0.9,
+    "p90": 1.0
+   },
+   "longest_run_frac": {
+    "median": 0.2727272727272727,
+    "p10": 0.125,
+    "p90": 1.0
+   },
+   "repeat_period_share": {
+    "none": 0.71,
+    "1-mer": 0.248,
+    "2-mer": 0.012,
+    "3-mer": 0.013,
+    "4-mer": 0.016
+   },
+   "at_ge_0.8_share": 0.49
+  }
+ }
+}
