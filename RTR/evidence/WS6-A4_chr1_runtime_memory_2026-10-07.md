@@ -4,6 +4,7 @@
 **Code:** branch `RTR-merge-main` = origin/main `d237bca` (Nikol, PR #18) + DEC-9 score-informed
 default + score-selection optimisation + PR #18 memory-regression fix (§3). Python 3.14.
 **Default since 2026-10-08 (DEC-10):** greedy again, so the "greedy" rows below are the default-mode numbers and the "score" rows describe the optional score mode.
+**Update 2026-10-09 (DEC-11):** §1–2 describe the code **before** Nikol's maximal-representation branch was merged (merge commit `94742b3`). The numbers for the current, merged code are in §5: chr1 greedy default **96,731** loci (96,729 in §1–2 and in the published run), score 98,222.
 **Input:** hg38 chr1, UCSC `goldenPath/hg38/chromosomes/chr1.fa.gz` (248,956,422 bp).
 
 ## Hardware
@@ -111,3 +112,40 @@ Unmodified main's score mode takes 193 s on chr1; the RTR branch (both changes) 
 Earlier "origin/main" memory figures in §3 were measured the same way and agree (2,704 MB).
 Caution for reruns: inside a git worktree, `import hseeker` resolves to the editable install of
 the main checkout unless `PYTHONPATH=src` is set.
+
+## 5. Merged code (DEC-11), 2026-10-09
+
+**Code:** `RTR-merge-main` with Nikol's `fix/hdna-maximal-representation-v3` (`75c3494`) merged in
+`94742b3` (spacer-end pairs that match exactly are moved into both arms; each arm/spacer partition
+is emitted once, before overlap removal and with `-skipoverlap`). hg38 chr1, AMD EPYC 7763 (the CPU
+model of §1), 16 workers, minrep 10; "library" = no composition filters, "CLI" = AT and homopolymer
+filters (the command-line defaults).
+**Single run each** — re-measured in X6 before any of these runtimes is final.
+
+| Mode | Workers | Wall (s) | Loci |
+|---|---|---|---|
+| greedy, library (default) | 16 | 25.9 | **96,731** |
+| score, library | 16 | 42.6 | 98,222 |
+| greedy, CLI | 16 | 22.9 | 41,939 |
+| score, CLI | 16 | 30.9 | 43,137 |
+
+- The greedy default gives 96,731 loci instead of the published and pre-merge 96,729.
+- Score mode takes 42.6 s instead of about 60 s before the merge (§1): deduplication removes
+  redundant candidates before overlap removal.
+- Peak RSS of one merged greedy run: **1,353 MB**. This is a single measurement, to be re-confirmed
+  in X6; do not quote it as final.
+
+**Score vs greedy on the merged code (chr1):**
+
+| | library | CLI |
+|---|---|---|
+| greedy loci | 96,731 | 41,939 |
+| score loci | 98,222 | 43,137 |
+| greedy loci overlapped by a score hit | 96,731 (100 %) | — |
+| greedy loci with identical coordinates in score output | 80,932 (83.7 %) | 91.5 % |
+| score-only loci | 1,075 | 923 |
+| loci where the reported motif differs | 15,799 | — |
+
+(— = not reported for this run.) On the benchmark, greedy and score still give the same call for
+all 73,728 grid calls, and the merge itself changes none of them. These are the numbers used in
+`RTR/evidence/R3.10_overlap_response_2026-10-09.md`.

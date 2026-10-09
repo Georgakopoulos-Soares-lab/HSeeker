@@ -1,6 +1,6 @@
 # DEC-2 — FXN records (HDNA0060–0063): intended citation
 
-**Status:** evidence complete, awaiting author decision
+**Status:** **RESOLVED 2026-10-09** (author decision by Kimon; commit `8e781ca`); see "Resolution" below. Sections 1–4 and the options table are the evidence as it stood before the decision.
 **Records:** HDNA0060 `FXN_GAA10`, HDNA0061 `FXN_GAA20`, HDNA0062 `FXN_GAA33`, HDNA0063 `FXN_GAA66`
 (all `label=forming`, `confidence_tier=literature_curated`, `disposition=secondary`, `curation_decision=kept`)
 **Sequences:** pure (GAA)n tracts, n = 10, 20, 33, 66 (30, 60, 99, 198 nt)
@@ -9,7 +9,32 @@
 and DEC-9 score-informed overlap default; 124-record values in this file's 2026-10-02
 version. The citation evidence itself is unchanged.*
 
-## 1. The citation currently in the CSV is wrong — confirmed two independent ways
+## Resolution (2026-10-09)
+
+Neither review candidate (options A and B) was adopted. The records now cite **primary experimental
+studies**, which settles the open question in §3:
+
+| Records | Source now recorded in `corrected_pmid` / `corrected_doi` | What it shows |
+|---|---|---|
+| HDNA0060–0062 ((GAA)10/20/33) | Potaman VN et al. 2004, *Nucleic Acids Res* 32(3):1224-31; PMID 14978261; DOI 10.1093/nar/gkh274 | in supercoiled plasmids at pH 7.4, (GAA)9 forms a stable intramolecular H-DNA, (GAA)23 a family of H-DNAs, and (GAA)42 a bi-triplex at higher supercoiling |
+| HDNA0063 ((GAA)66) | Sakamoto N et al. 1999, *Mol Cell* 3(4):465-75; PMID 10230399; DOI 10.1016/s1097-2765(00)80474-8 | R·R·Y triplex / sticky DNA for more than 59 repeats |
+
+- The records stay **secondary**: the evidence is class-level, and the exact constructs (pure
+  (GAA)n tracts of n = 10, 20, 33, 66) were not tested in either study.
+- The originally cited PMID 18024960 / DOI 10.1074/jbc.R700013200 stay in the `cited_*` fields
+  as an audit trail. The recorded title matches only the review Rajeswari 2012 (PMID 22750988).
+- Only `corrected_pmid`, `corrected_doi`, `resolved_origin`, `evidence` and
+  `curation_justification` changed, in these 4 rows of both CSVs. Sequences, labels and
+  `study_id` are unchanged, so no detection call changes. `verification_status=citation_corrected`
+  is now truthful, which resolves the inconsistency in §4.
+- New sha256: experimental `dfa31654559e366fd666e98c0476349d9e6cb51c4e0fe36813f8caddbae0e273`,
+  balanced `c5177b2479a5da4414aefa3c6ac6251f5645868260d2b5cefe9189de182f1ae4` (previously
+  `7197c6df…` and `7bb49544…`). `analysis/results/*/metadata.json` still record the previous
+  balanced sha; they are refreshed at the final benchmark freeze (only metadata differs).
+- The §3 open question (no primary support for the `forming` label of (GAA)10/20/33) is answered
+  by Potaman et al. 2004.
+
+## 1. The citation in the CSV before the resolution was wrong — confirmed two independent ways
 
 The four records carry `cited_pmid=18024960` **and** `cited_doi=10.1074/jbc.R700013200`.
 These do not point to the same paper, and neither is about H-DNA:
@@ -63,7 +88,7 @@ All four records have `verification_status=citation_corrected` while
 no correction. These are the only 4 records in the file in that state. Whatever
 DEC-2 decides, this field must be made truthful.
 
-## Options
+## Options (as presented before the decision; the outcome is closest to C — primary sources were found — but the records stay secondary, see Resolution)
 
 | # | Option | Consequence |
 |---|---|---|

@@ -98,4 +98,48 @@ step proves infeasible, the change and its reason are recorded here.
 
 ## Deviations log
 
-(none yet)
+**Deviation 1 (2026-10-09, before any ssDNA signal was computed): control sampling.**
+- *What failed.* The pre-specified sampling (1,000 random draws per locus on the same chromosome,
+  GC and purine asymmetry within ±0.02) produced only 0.18 controls per locus on mm10, and
+  828,757 of 828,939 loci had fewer than 10.
+- *Why.* HSeeker loci are strongly purine-asymmetric: on chr19 the asymmetry quartiles are
+  0.87 / 0.95 / 1.00. Windows that asymmetric are rare among random genomic positions. On chr19
+  only 7,213 of 3.38 M unblocked 30-bp windows (stride 10) reach asymmetry ≥ 0.88, and the ±1 kb
+  exclusion blocks 39 % of chr19. Random draws therefore almost never hit a match.
+- *Change.* Controls are now drawn from a genome-wide pool:
+  - every N-free window outside the ±1 kb exclusion is enumerated at a 10 bp stride, for each
+    locus-length class (window length = median locus length in the class);
+  - windows are binned by GC (0.02) × asymmetry (0.02);
+  - each locus draws 10 controls with replacement from its own cell;
+  - only if a cell is empty is the asymmetry bin widened by one, then two, bins, and every widening
+    is counted;
+  - unmatched loci are excluded and counted.
+- *What this gives up.* The same-chromosome requirement and sampling without replacement. Both
+  are reported in `controls_meta.json`.
+- *What is unchanged.* Matching on GC, purine asymmetry and length, and every test and threshold.
+- *Why the controls are meaningful.* They are purine-rich windows that HSeeker does not call,
+  i.e. purine richness without mirror-repeat structure. The comparison therefore asks whether H-DNA
+  potential adds single-stranded signal beyond composition.
+
+**Deviation 2 (2026-10-09, before any ssDNA signal was computed): second control set.**
+- *Why.* With pool matching, 525,092 of 828,939 mm10 loci (63 %) found asymmetry-matched controls
+  (62,133 after widening by 1 bin, 9,564 by 2 bins). The 303,847 unmatched loci are mostly the
+  purest purine/pyrimidine runs. Excluding them would drop HSeeker's most H-DNA-like calls and
+  bias the comparison.
+- *Change.* A second control set (names `G{i}_{k}`, 10 per locus) is matched on length class and
+  GC bin only, drawn from the same pool aggregated over asymmetry, and covers all loci.
+- *Which is primary.* The asymmetry-matched set remains **primary**: it answers "beyond
+  composition?". The GC-matched set answers "across all loci?". Both are reported, with every test
+  run identically on each.
+
+**Deviation 3 (2026-10-09, before any ssDNA signal was computed): implementation bug in deviation 1.**
+- *The bug.* Pool windows of a class length cannot take every GC or asymmetry bin. Their fractions
+  come in steps of 1/length, e.g. 1/22 ≈ 0.045, which is coarser than the 0.02 bins. A 21-bp locus
+  with GC 7/21 (bin 16) could never match a 22-bp window (bins 15 or 18). That is why 280,021 loci
+  found no GC-only match.
+- *The fix.* Loci up to 60 bp (≈ 90 % of loci; p90 length 73) are matched against windows of
+  **their exact length**, with the same GC count and the same purine-asymmetry count. Widening is
+  by ±1, then ±2 asymmetry counts. This is stricter than ±0.02 and has no discretisation mismatch.
+  Loci longer than 60 bp keep the length-class pools with 0.02 bins.
+- *Unchanged.* All tests and thresholds.
+

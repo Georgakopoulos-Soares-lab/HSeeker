@@ -229,8 +229,8 @@
       "id": "DEC-2",
       "type": "decision",
       "label": "DEC-2",
-      "title": "FXN records (HDNA0060-0063): confirm intended citation (candidate: Wells 2008 FASEB J, PMID 18211957)?",
-      "status": "pending",
+      "title": "FXN records (HDNA0060-0063): confirm intended citation (candidate: Wells 2008 FASEB J, PMID 18211957)? Resolved 2026-10-09: primary experimental sources, Potaman 2004 (PMID 14978261) for (GAA)10/20/33 and Sakamoto 1999 (PMID 10230399) for (GAA)66; records stay secondary; original identifiers kept in cited_* as an audit trail; no detection call changes.",
+      "status": "resolved",
       "group": null,
       "critical": false
     },
@@ -307,10 +307,46 @@
       "critical": false
     },
     {
+      "id": "DEC-11",
+      "type": "decision",
+      "label": "DEC-11",
+      "title": "Nikol's fix/hdna-maximal-representation-v3 (75c3494) merged into RTR-merge-main (merge commit 94742b3): exact-matching spacer-end pairs moved into both arms, each arm/spacer partition emitted once (also with -skipoverlap). Benchmark unchanged (0 of 73,728 grid calls); hg38 chr1 greedy default 96,729 -> 96,731 loci; -skipoverlap candidate sets roughly halve. Not merged upstream (no PR). Resolved 2026-10-09.",
+      "status": "resolved",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "DEC-12",
+      "type": "decision",
+      "label": "DEC-12",
+      "title": "Webapp applies the CLI composition filters (commit 013be97): AT threshold as a form field (default 0.80, range 0-1.5), homopolymer filter always on, both shown on the job page; webapp hits = CLI hits for the defaults and -at-threshold 1.5. Resolved 2026-10-09.",
+      "status": "resolved",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "DEC-13",
+      "type": "decision",
+      "label": "DEC-13",
+      "title": "pCON (HDNA0029) kept exactly as in the submitted manuscript's Supplementary Table (31 nt); the audit's terminal-C correction (register D-9) is not applied. HSeeker calls pCON non-forming with or without the terminal C, so no result changes. Resolved 2026-10-09.",
+      "status": "resolved",
+      "group": null,
+      "critical": false
+    },
+    {
+      "id": "DEC-14",
+      "type": "decision",
+      "label": "DEC-14",
+      "title": "E. coli insertion experiment replaced by a genome-wide comparison with Kouzine et al. 2017 ssDNA-seq (SRA072844, reprocessed: mouse activated/resting B cells + input on mm10, human Raji on hg38). X5 and the WS4-A1 overlap-threshold sweep dropped; WS5-A2 superseded; S1-END-seq not pursued; Figure 3 to be replaced. Resolved 2026-10-09.",
+      "status": "resolved",
+      "group": null,
+      "critical": false
+    },
+    {
       "id": "WS0-A1",
       "type": "action",
       "label": "WS0-A1",
-      "title": "WS0-A1 [WS0_benchmark_freeze]\nverify: 69 kept (64 forming / 5 non-forming); 0 low-tier rows kept; 0 pure homopolymers kept; 57 primary / 12 secondary; all primary rows construct-level with valid citation; pCON terminal C corrected; 22 PMIDs + 2 DOIs corrected; family_id/study_id/evidence_level columns present; SHA-256 recorded.",
+      "title": "WS0-A1 [WS0_benchmark_freeze]\nverify: 69 kept (64 forming / 5 non-forming); 0 low-tier rows kept; 0 pure homopolymers kept; 57 primary / 12 secondary; all primary rows construct-level with valid citation; pCON (HDNA0029) kept as published, 31 nt (DEC-13); 22 PMIDs + 2 DOIs corrected; family_id/study_id/evidence_level columns present; SHA-256 recorded.",
       "status": "pending",
       "group": "WS0_benchmark_freeze",
       "critical": false
@@ -454,8 +490,8 @@
       "id": "WS4-A1",
       "type": "action",
       "label": "WS4-A1",
-      "title": "WS4-A1 [WS4_robustness]\nverify: tool rankings reported at each threshold; conclusion stated",
-      "status": "pending",
+      "title": "WS4-A1 [WS4_robustness]\nverify: tool rankings reported at each threshold; conclusion stated\nCANCELLED 2026-10-09 (DEC-14): the E. coli insertion experiment leaves the manuscript, so the overlap-threshold sweep is not run",
+      "status": "cancelled",
       "group": "WS4_robustness",
       "critical": false
     },
@@ -490,8 +526,8 @@
       "id": "WS5-A1",
       "type": "action",
       "label": "WS5-A1",
-      "title": "WS5-A1 [WS5_genome_scale_validation]\nverify: composition-matched control intervals (GC + purine content, length); enrichment statistic with CI",
-      "status": "pending",
+      "title": "WS5-A1 [WS5_genome_scale_validation]\nverify: pre-specified design followed (deviations logged in the design file); composition-matched control intervals (GC, purine asymmetry, length); mouse signal normalised to input; enrichment statistic with CI; fraction of HSeeker loci in ssDNA-enriched regions vs controls\nREVISED 2026-10-09 (DEC-14): Kouzine 2017 ssDNA-seq, mouse B cells (mm10) + human Raji (hg38)",
+      "status": "in_progress",
       "group": "WS5_genome_scale_validation",
       "critical": false
     },
@@ -499,8 +535,8 @@
       "id": "WS5-A2",
       "type": "action",
       "label": "WS5-A2",
-      "title": "WS5-A2 [WS5_genome_scale_validation]\nverify: same-species comparison; document why human data were unusable if fallback taken",
-      "status": "pending",
+      "title": "WS5-A2 [WS5_genome_scale_validation]\nverify: same-species comparison; document why human data were unusable if fallback taken\nSUPERSEDED 2026-10-09 (DEC-14): the mouse comparison is now part of WS5-A1 (Kouzine 2017)",
+      "status": "superseded",
       "group": "WS5_genome_scale_validation",
       "critical": false
     },
@@ -508,7 +544,7 @@
       "id": "WS5-A3",
       "type": "action",
       "label": "WS5-A3",
-      "title": "WS5-A3 [WS5_genome_scale_validation]\nverify: E. coli experiment nowhere framed as biological validation",
+      "title": "WS5-A3 [WS5_genome_scale_validation]\nverify: the E. coli insertion experiment and the old Figure 3 are absent from the manuscript; R2.3 and R3.7 explain the removal and that the overlap criterion no longer applies; WS5-A1 described as orthogonal validation",
       "status": "pending",
       "group": "WS5_genome_scale_validation",
       "critical": false
@@ -1348,7 +1384,7 @@
       "from": "DEC-2",
       "to": "WS0-A1",
       "type": "informs",
-      "note": "FXN citation confirmation",
+      "note": "FXN citation confirmation (resolved 2026-10-09: Potaman 2004, Sakamoto 1999)",
       "critical": false
     },
     {
@@ -1475,6 +1511,48 @@
       "to": "WS4-A3",
       "type": "informs",
       "note": "no detection call changes (0 of 73,728 grid calls differ between the rules); results stand",
+      "critical": false
+    },
+    {
+      "from": "DEC-11",
+      "to": "WS4-A4",
+      "type": "informs",
+      "note": "merged detector: chr1 greedy 96,731 vs score 98,222 loci, 83.7 % identical, 1,075 score-only, 25.9 s vs 42.6 s; 0 of 73,728 benchmark calls differ",
+      "critical": false
+    },
+    {
+      "from": "DEC-11",
+      "to": "WS6-A4",
+      "type": "informs",
+      "note": "chr1 greedy default now 96,731 loci in 25.9 s on the merged code (published 96,729 is pre-merge); RSS 1,353 MB single run, re-confirm in X6",
+      "critical": false
+    },
+    {
+      "from": "DEC-12",
+      "to": "WS1-A4",
+      "type": "informs",
+      "note": "webapp applies the CLI composition filters (AT threshold field, homopolymer filter always on); webapp hits = CLI hits",
+      "critical": false
+    },
+    {
+      "from": "DEC-13",
+      "to": "WS0-A1",
+      "type": "informs",
+      "note": "pCON kept as published (31 nt); terminal-C correction not applied; no call changes",
+      "critical": false
+    },
+    {
+      "from": "DEC-14",
+      "to": "WS5-A1",
+      "type": "informs",
+      "note": "Kouzine 2017 ssDNA-seq (mouse B cells on mm10, human Raji on hg38) replaces the S1-END-seq plan; pipeline running",
+      "critical": false
+    },
+    {
+      "from": "DEC-14",
+      "to": "WS4-A1",
+      "type": "informs",
+      "note": "E. coli insertion experiment removed: overlap-threshold sweep cancelled",
       "critical": false
     },
     {
@@ -1635,7 +1713,7 @@
     ],
     "counts": {
       "reviewer_items": 24,
-      "decisions": 10,
+      "decisions": 14,
       "actions": 34,
       "artifacts": 6,
       "gates": 2

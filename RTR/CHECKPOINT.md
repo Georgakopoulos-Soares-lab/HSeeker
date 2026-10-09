@@ -1,10 +1,10 @@
 # RTR revision — session checkpoint
 
-**Date:** 2026-10-08 (previous checkpoints 2026-10-07, 2026-10-02, 2026-09-24)
-**Branch:** `RTR-merge-main` (uncommitted merge of `origin/main` into `origin/RTR`)
-**Benchmark:** `hdna_benchmark_balanced_v3.csv` (128 records, 64 forming / 64 non-forming — 1:1 again after DEC-8; 69 experimental + 59 synthetic), sha256 `7bb495444e91709fb0e322f08e5c9737e3a9419f94d9c881059073f725907cf9` (superseded: 124 records at 64:60, sha256 `7f78555d…5bde89`)
-**Overlap default:** greedy (longest arm) in the library, CLI and webapp, identical to Nikol's main (DEC-10, 2026-10-08; supersedes DEC-9's score-informed default). Score mode is an option (`overlap_strategy="score"` / `-overlap-strategy score`)
-**Tests:** 344 passed, 3 skipped (2026-10-08) on the final tree (chr1 regression tests skip without `benchmarks/data/chr1.fa`)
+**Date:** 2026-10-09 (previous checkpoints 2026-10-08, 2026-10-07, 2026-10-02, 2026-09-24)
+**Branch:** `RTR-merge-main`, committed (the merge of `origin/main` into `origin/RTR` is `cbb4713`). Code as of `8e781ca`: Nikol's `fix/hdna-maximal-representation-v3` merged in `94742b3` (DEC-11), webapp filters `013be97` (DEC-12), FXN citations `8e781ca` (DEC-2). Upstream PRs #19 (memory fix) and #20 (score-mode speed-up) are open; Nikol's branch is merged only here, not in `main`
+**Benchmark:** `hdna_benchmark_balanced_v3.csv` (128 records, 64 forming / 64 non-forming — 1:1 again after DEC-8; 69 experimental + 59 synthetic), sha256 `c5177b2479a5da4414aefa3c6ac6251f5645868260d2b5cefe9189de182f1ae4` since DEC-2 (2026-10-09; citation metadata of 4 FXN rows only). Superseded: `7bb49544…5907cf9` (still recorded in `analysis/results/*/metadata.json`, refreshed at the final freeze), `7f78555d…5bde89` (124 records at 64:60). Experimental CSV sha256 `dfa31654559e366fd666e98c0476349d9e6cb51c4e0fe36813f8caddbae0e273`
+**Overlap default:** greedy (longest arm) in the library, CLI and webapp, identical to Nikol's main (DEC-10, 2026-10-08; supersedes DEC-9's score-informed default). Score mode is an option (`overlap_strategy="score"` / `-overlap-strategy score`). The detector includes Nikol's inward extension and partition deduplication (DEC-11); hg38 chr1 greedy default 96,731 loci (published, pre-merge: 96,729)
+**Tests:** 349 passed, 3 skipped (2026-10-09) on the merged tree (chr1 regression tests skip without `benchmarks/data/chr1.fa`)
 **Configuration labels:** the MCC 0.969 result with no filters is the **benchmark/script configuration** (minrep 8, mismatch 0.10, no filters), not the software default. The shipped defaults (minrep 10) give MCC 0.882 (see §0, 2026-10-08)
 
 This file records where the revision stands so a fresh session can resume without
@@ -14,6 +14,102 @@ re-deriving anything. The machine-readable state is
 ---
 
 ## 0. Update log
+
+### 2026-10-09 — Nikol's detector branch merged (DEC-11); webapp filters (DEC-12); FXN citations (DEC-2); pCON kept (DEC-13); Kouzine replaces E. coli (DEC-14)
+
+Author decisions, all by Kimon and checked by him:
+
+1. **DEC-11: Nikol's `fix/hdna-maximal-representation-v3` (`75c3494`) is merged into
+   `RTR-merge-main`** (merge commit `94742b3`). `_hdna.c` now moves exact-matching spacer-end
+   pairs into both arms (purity and maximal representation rechecked) and emits each
+   arm/spacer partition once, before overlap removal and also with `-skipoverlap`. The
+   benchmark is unchanged (0 of 73,728 detection calls across the 576-configuration grid
+   differ). The hg38 chr1 greedy default (minrep 10, library, 16 workers) goes from 96,729 to
+   **96,731** loci; 96,729 stays as the published, pre-merge number. `-skipoverlap`
+   candidate sets roughly halve (golden file: e.g. 861 → 423 hits). The golden file
+   `tests/data/batching_golden.json.gz` was regenerated with the pre-batching code (`4784c4b`)
+   built against the merged detector: the 10 overlap-removal configurations are unchanged and
+   the 10 `-skipoverlap` configurations changed. A stray file in the branch,
+   `test_no.tsv_HDNA.tsv`, was not merged. Tests: 349 passed, 3 skipped. Not merged upstream
+   (no PR exists).
+2. **chr1 on the merged code** (16 workers, AMD EPYC 7763, single run each; WS6-A4 evidence
+   §5):
+
+   | mode | loci | wall |
+   |---|---|---|
+   | library greedy (default) | 96,731 | 25.9 s |
+   | library score | 98,222 | 42.6 s (about 60 s before the merge: deduplication removes redundant candidates) |
+   | CLI greedy | 41,939 | 22.9 s |
+   | CLI score | 43,137 | 30.9 s |
+
+   Greedy vs score, library: 100 % of greedy loci are overlapped by a score hit; 80,932
+   (83.7 %) have identical coordinates; 1,075 loci are score-only; the reported motif differs
+   at 15,799 loci. CLI: 91.5 % identical, 923 score-only. Benchmark grid, greedy vs score: 0 of
+   73,728 calls differ. One merged greedy run peaked at 1,353 MB RSS. That is a single
+   measurement: re-confirm it in X6 and do not quote it as final.
+3. **DEC-12: the webapp applies the CLI composition filters** (commit `013be97`). The AT
+   threshold is a form field (default 0.80, range 0–1.5), the homopolymer filter is always on,
+   and the job page shows both. Checked with the FastAPI TestClient: webapp hits equal CLI hits
+   for the defaults and for `-at-threshold 1.5`. The About page's "matches CLI defaults"
+   statement is now true for the filters (plan register D-19).
+4. **DEC-2 resolved: FXN records** (commit `8e781ca`). HDNA0060–0062 ((GAA)10/20/33) now cite
+   Potaman VN et al. 2004, Nucleic Acids Res 32(3):1224-31 (PMID 14978261, DOI
+   10.1093/nar/gkh274): in supercoiled plasmids at pH 7.4, (GAA)9 forms a stable
+   intramolecular H-DNA, (GAA)23 a family of H-DNAs, and (GAA)42 a bi-triplex at higher
+   supercoiling. HDNA0063 ((GAA)66) cites Sakamoto N et al. 1999, Mol Cell 3(4):465-75 (PMID
+   10230399, DOI 10.1016/s1097-2765(00)80474-8): R·R·Y triplex / sticky DNA for more than 59
+   repeats. The records stay secondary (class-level evidence; the exact constructs were not
+   tested). The original PMID 18024960 / DOI 10.1074/jbc.R700013200 stay in the `cited_*`
+   fields as an audit trail; the recorded title matches only the review Rajeswari 2012 (PMID
+   22750988). Only `corrected_pmid`, `corrected_doi`, `resolved_origin`, `evidence` and
+   `curation_justification` changed, in those 4 rows of both CSVs, so no detection call
+   changes. New sha256: experimental `dfa31654…caddbae0e273`, balanced `c5177b24…de182f1ae4`.
+   `analysis/results/*/metadata.json` still record the previous balanced sha; they are
+   refreshed at the final benchmark freeze. This also settles the audit's open question that
+   the forming label of (GAA)10/20/33 had no primary support.
+5. **DEC-13: pCON (HDNA0029) is kept exactly as published** in the submitted manuscript's
+   Supplementary Table: 31 nt `TTGCTGAACTTGATTCGACTCAGATGCAGTG`, identical in the original
+   `hdna_experimental_sequences_final.csv` and in v3. The audit's terminal-C correction
+   (register D-9, plan A.3 item 4) is **not** applied. HSeeker calls pCON non-forming with or
+   without the terminal C (0 hits under the script, manuscript and shipped configurations), so
+   no result changes. Every claim that the pCON sequence was "fixed" or "corrected" was removed
+   (plan A.3, WS0-A1, R2.2, R3.5, D-9; this file §4).
+6. **DEC-14: the E. coli insertion experiment is replaced by a genome-wide comparison with
+   Kouzine et al. 2017** (Cell Systems 4:344-356, PMID 28237796; the dataset Reviewer 2 names
+   in R2.3). Data: SRA072844 (KMnO4/S1 ssDNA-seq), raw reads only, because the paper's
+   supplementary peak tables are not reachable from here (not open access in Europe PMC;
+   cell.com returns 403). We reprocess mouse LPS+IL4-activated B-cell ssDNA (13 runs), resting
+   B-cell ssDNA (4 runs) and activated-B input/sonicated DNA (2 runs) on mm10, and human Raji
+   ssDNA (7 runs) on hg38 (no liftover; covers R3.8 on a human genome from the same study).
+   bowtie2 2.5.5, samtools 1.24, iGenomes prebuilt indexes; MAPQ ≥ 10. The pipeline is running
+   at `/workspaces/.hseeker-pr/kouzine` (`pipeline.sh`, `logs/pipeline.log`). The analysis
+   design (ssDNA signal at HSeeker loci vs composition-matched controls, normalised to input;
+   fraction of HSeeker loci in ssDNA-enriched regions) is fixed in
+   `RTR/evidence/X8_kouzine_analysis_design_2026-10-09.md` (commit `a8d52e4`, before any
+   result). **Dropped:** X5 (E. coli rerun) and WS4-A1 (overlap-threshold sweep); the
+   experiment leaves the manuscript and Figure 3 will be replaced. R3.7 now explains the
+   removal and that the overlap criterion no longer applies. X8 / WS5-A1 is now Kouzine (mouse)
+   + Raji (human); WS5-A2 is superseded; the S1-END-seq KM12 plan (§5 below) is optional and
+   not pursued.
+7. **R3.10:** the final draft response is `RTR/evidence/R3.10_overlap_response_2026-10-09.md`.
+   Plan Part C now points to it with a short summary, and its two `TODO(authors)` items are
+   resolved by that text: the longest-arm default is kept (justified by geometry, the
+   heuristic score's calibration and runtime), score mode is offered, a mode is recommended for
+   each use, and near-homopolymer edge hits in score mode are reported (they are negligible on
+   chr1).
+8. **Phase 1 of `RTR/REMAINING_WORK_PLAN_2026-10-07.md`:** 1.1 code freeze **done** (DEC-11,
+   DEC-12); 1.2 benchmark freeze partly done (DEC-2 and pCON/DEC-13 resolved; DEC-3 and the
+   homopolymer panel pending); 1.3 configuration freeze pending (DEC-5, reporting
+   configuration / minrep, comparator arguments); 1.4 genome-validation dataset **done**
+   (DEC-14, Kouzine).
+9. **Bookkeeping.** Ledger: DEC-2 resolved; DEC-11–DEC-14 added; WS4-A1 `cancelled`, WS5-A2
+   `superseded`, WS5-A1 `in_progress`; WS0-A1, WS1-A4, WS4-A4, WS5-A3, WS6-A1, WS6-A4, CUR-1,
+   SYN-3, WS4-A3 notes; artifact sha256s updated. Graph: DEC-11–DEC-14 and 6 `informs` edges
+   (DEC-11 → WS4-A4, WS6-A4; DEC-12 → WS1-A4; DEC-13 → WS0-A1; DEC-14 → WS5-A1, WS4-A1) →
+   80 nodes / 139 edges; DEC-2 resolved. Plan: 2026-10-09 header block; A.3, A.4, WS0-A1,
+   WS0-A2, WS1-A4, WS4-A1, WS4-A4, WS5-A1–A3, WS6-A4, R2.2, R2.3, R3.5, R3.7, R3.8, R3.10,
+   R3.11, D-5, D-9, D-10 revised; D-19 and D-20 added. Statements giving 96,729 as the current
+   default chr1 count now give 96,731.
 
 ### 2026-10-08 — greedy is the overlap default again (DEC-10); configuration labels corrected
 
@@ -177,7 +273,7 @@ it, filter to `curation_decision == 'kept'`, accept
 
 ---
 
-## 2. Status — 11 complete, 5 part-done, 18 pending (unchanged by the 2026-10-02 merge, by DEC-8/DEC-9 on 2026-10-07 and by DEC-10 on 2026-10-08; all complete items re-verified 2026-10-07)
+## 2. Status — 11 complete, 7 part-done, 14 pending, 2 dropped (2026-10-09, counted from the ledger; was 11 / 5 / 18 before WS4-A4 started on 2026-10-08 and DEC-14 on 2026-10-09; all complete items re-verified 2026-10-07)
 
 ### Complete and verified
 
@@ -199,6 +295,15 @@ it, filter to `curation_decision == 'kept'`, accept
 | WS4-A3 | R3.9 | Full-factorial 576-config sweep done. Missing: pairing-only vs pairing+stacking ablation (WS4-A2) |
 | WS3-A1 | R3.6 | NeSSie builds (commit `dbe6cb2`); interface characterised. Missing: the benchmark run. Binary not installed in this environment, so only the HSeeker side was re-checked 2026-10-07 (unchanged) |
 | WS3-A2 | R3.6 | non-B_gfa builds (commit `a891b59`). Missing: the benchmark run. Same 2026-10-07 caveat as WS3-A1 |
+| WS4-A4 | R3.10 | chr1 greedy-vs-score comparison measured (2026-10-07 pre-merge; 2026-10-09 on the merged code) and the final R3.10 text written (`RTR/evidence/R3.10_overlap_response_2026-10-09.md`). Missing: `overlap_selection_comparison.csv` and the script that regenerates it (X7) |
+| WS5-A1 | R2.3, R3.8 | Kouzine 2017 comparison (DEC-14): design pre-specified (`RTR/evidence/X8_kouzine_analysis_design_2026-10-09.md`), download and alignment running. Missing: HSeeker scans of mm10/hg38 in the frozen configuration, the analysis, every result |
+
+### Dropped by an author decision (2026-10-09, DEC-14)
+
+| action | item | why |
+|---|---|---|
+| WS4-A1 | R3.7 | `cancelled`: the E. coli insertion experiment leaves the manuscript, so the overlap-threshold sweep is not run (nor X5) |
+| WS5-A2 | R3.8 | `superseded`: the mouse comparison is now part of WS5-A1 (Kouzine 2017 on mm10) |
 
 ---
 
@@ -235,7 +340,10 @@ filters change no call, because the four homopolymer false positives they remove
 of the benchmark and the DEC-8 replacements are not homopolymers. Neither DEC-9 nor
 DEC-10 changes a detection call on the benchmark (0 of 73,728 grid calls differ between
 the rules), so they move none of these numbers; in general, with the homopolymer filter on, score can report a near-homopolymer
-hit where greedy reports none (see DEC-9 evidence).
+hit where greedy reports none (see DEC-9 evidence). DEC-11 (Nikol's detector branch, merged
+2026-10-09) changes none of the 73,728 grid calls either, and DEC-2 changed only citation
+metadata, so every number in this section stands; only the input sha256 recorded in the
+results' `metadata.json` is now out of date (refreshed at the final freeze).
 
 ### Why we can say HSeeker is not overfitted (R2.6)
 
@@ -273,19 +381,21 @@ answers R2.7, the cluster interval answers R3.2's "inflate apparent statistical 
 
 ---
 
-## 4. Blocked on three author decisions
+## 4. Blocked on two author decisions (DEC-2 resolved 2026-10-09)
 
 | decision | blocks | evidence |
 |---|---|---|
-| **DEC-2** FXN citation | WS0-A1 → 21 actions | `RTR/evidence/DEC-2_fxn_citation.md` |
+| ~~**DEC-2** FXN citation~~ | resolved 2026-10-09 | `RTR/evidence/DEC-2_fxn_citation.md` |
 | **DEC-3** add Hanvey 1988 `(TTC)8` | WS0-A1 → 21 actions | `RTR/evidence/DEC-3_pRW1406.md` |
 | **DEC-5** canonical parameters | WS2-A1 → 16 actions | **no longer settled by data** (§3: tie) |
 
-- **DEC-2:** the cited PMID (Romney 2008, a *C. elegans* ferritin paper — likely an
-  FTN-1/FXN symbol confusion) and the cited DOI (Samuel 2007 innate-immunity
-  minireview) are two *different* wrong papers. Both candidate replacements are
-  reviews. No primary source was found for n = 10/20/33/66; Sakamoto 1999 used 75–270
-  repeats and requires >59, so the `forming` label on GAA10/20/33 is itself untraced.
+- **DEC-2 (resolved 2026-10-09):** the cited PMID (Romney 2008, a *C. elegans* ferritin
+  paper — likely an FTN-1/FXN symbol confusion) and the cited DOI (Samuel 2007
+  innate-immunity minireview) were two *different* wrong papers. The records now cite primary
+  experimental studies: Potaman 2004 (PMID 14978261) for (GAA)10/20/33 and Sakamoto 1999
+  (PMID 10230399) for (GAA)66. They stay secondary, and the original identifiers stay in
+  `cited_*` as an audit trail. Potaman 2004 also supplies the primary support for the
+  `forming` label of the short tracts that the audit had found missing.
 - **DEC-3:** Hanvey 1988's abstract establishes both the sequence and the forming
   label for `(TTC)8`. Recommend adding it as `Hanvey1988_(TTC)8` rather than
   `pRW1406`, because the plasmid-number mapping comes from the document already shown
@@ -302,14 +412,17 @@ answers R2.7, the cluster interval answers R3.2's "inflate apparent statistical 
   MCC 0.882 vs 0.969 for both minrep-8 configurations).
 
 **WS0-A1 is not finished** even once decided: the 22 PMID and 2 DOI corrections sit
-in `corrected_*` columns without being applied to `cited_*`, and the pCON terminal-C
-fix (register D-9) is not applied — HDNA0029 is still 31 nt.
+in `corrected_*` columns without being applied to `cited_*` (for the 4 FXN rows DEC-2
+filled `corrected_*` and deliberately kept the original `cited_*` as an audit trail), and
+the `metadata.json` sha256s have to be refreshed at the freeze. pCON is **not** an open item:
+DEC-13 (2026-10-09) keeps HDNA0029 exactly as published (31 nt), so the audit's terminal-C
+correction (register D-9) is not applied and no text may claim it was.
 
 ---
 
 ## 5. Next steps (planned, not started)
 
-Four items need no decision. Two verified facts collapse the work:
+Four items needed no decision (item 4 was dropped 2026-10-09 by DEC-14, item 3 now has its final text). Two verified facts collapse the work:
 `pairing_score`/`stacking_score` are already emitted per hit (`total == pairing +
 stacking` exactly), and `--overlap-fraction` is consumed *after* the scan.
 
@@ -317,12 +430,18 @@ stacking` exactly), and `--overlap-fraction` is consumed *after* the scan.
 |---|---|---|---|
 | 1 | Score threshold out-of-fold | R3.3 | ~0 — one 27 ms scan, reuse fold machinery |
 | 2 | Scoring ablation | R3.9 | **0** — re-threshold on components already returned |
-| 3 | Overlap-selection rule | R3.10 | chr1 comparison **measured 2026-10-07** (WS6-A4 evidence §2: score keeps all 96,729 greedy loci, 83.7 % identical, +1.5 % loci, ~2.3× runtime); still to deposit as `overlap_selection_comparison.csv` (X7). DEC-10 restored greedy as the default, so this now justifies keeping it and recommends a mode (plan R3.10 `TODO(authors)`); 0/128 benchmark calls differ (0 of 73,728 across the WS4-A3 grid), though with the homopolymer filter on score can in general report near-homopolymer hits greedy does not |
-| 4 | Overlap-threshold sweep | R3.7 | **one** E. coli scan (genome already cached); sweep post-hoc |
+| 3 | Overlap-selection rule | R3.10 | chr1 comparison **re-measured 2026-10-09 on the merged code** (WS6-A4 evidence §5: score keeps all 96,731 greedy loci, 83.7 % identical, 1,075 score-only loci, 42.6 s vs 25.9 s; pre-merge 2026-10-07: 96,729 / +1.5 % / ~60 s vs 26.3 s); the final R3.10 text exists (`RTR/evidence/R3.10_overlap_response_2026-10-09.md`), and its two `TODO(authors)` are resolved; still to deposit as `overlap_selection_comparison.csv` (X7). 0/128 benchmark calls differ (0 of 73,728 across the WS4-A3 grid), though with the homopolymer filter on score can in general report near-homopolymer hits greedy does not |
+| 4 | ~~Overlap-threshold sweep~~ | R3.7 | **dropped 2026-10-09 (DEC-14):** the E. coli experiment leaves the manuscript, so there is nothing to sweep |
 
 **Item 1 is the priority** — it is the last live circularity, and the one R3.3 named.
 
 ### WS5 data is fetched and validated (not committed — 208 MB)
+
+**Superseded 2026-10-09 (DEC-14):** WS5 now uses Kouzine et al. 2017 ssDNA-seq (SRA072844;
+mouse B cells on mm10 + human Raji on hg38), reprocessed from raw reads; the pipeline is
+running at `/workspaces/.hseeker-pr/kouzine` and the design is fixed in
+`RTR/evidence/X8_kouzine_analysis_design_2026-10-09.md`. The S1-END-seq KM12 plan below is
+kept for the record; it is optional and not pursued.
 
 In the session scratchpad: S1-END-seq KM12 rep1 (pos+neg) plus the **matched END-seq
 no-S1 control**, from GSE204808/GSE203632 (which are the same file set).
@@ -345,6 +464,8 @@ Risks: the chr1 `remove_overlaps=False` run may exhaust memory (cf. the OOM fix 
 re-implementation of the longest-arm rule. The existing chr1 output
 (`analysis/results/chr1/`, 96,729 loci) was produced under greedy, before DEC-9; greedy is
 the default again (DEC-10), and a fresh greedy run on 2026-10-07 reproduced 96,729 exactly.
+Since DEC-11 (2026-10-09) the merged code gives 96,731 loci with the same parameters; 96,729
+is the published, pre-merge count.
 
 ---
 
@@ -371,3 +492,6 @@ Results in `analysis/results/` other than `robustness_v3/` and
 `grouped_validation_v3/` (both regenerated 2026-10-07 on the final code and the
 128-record set; previously 2026-10-02 on 124 records) are from **2026-06-24 against the old 80-row CSV** with
 pre-filter code. They do not reflect benchmark v3 and should be treated as superseded.
+`robustness_v3/` and `grouped_validation_v3/` record the balanced sha256 `7bb49544…`; since
+DEC-2 (2026-10-09) the CSV is `c5177b24…` (citation metadata only, no call changes), so their
+`metadata.json` is refreshed at the final benchmark freeze.

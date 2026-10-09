@@ -1,6 +1,7 @@
 # DEC-9 — score-informed overlap removal becomes the default; its cost is removed without changing results
 
 **Status:** done, verified (2026-10-07). **Default superseded 2026-10-08 by DEC-10:** the longest-arm (greedy) rule is the default again in the library, CLI and webapp (author instruction "make the greedy the default"), because score mode costs ~2.3x greedy on a genome (chr1, 16 workers: ~60 s vs 26.3 s; `WS6-A4_chr1_runtime_memory_2026-10-07.md`). Score mode remains available (`overlap_strategy="score"`, CLI `-overlap-strategy score`) and keeps the result-preserving optimisation in §3-4. §1 below describes the 2026-10-07 state.
+**Note 2026-10-09 (chr1 score-mode runtime on the merged code, DEC-11):** after Nikol's `fix/hdna-maximal-representation-v3` was merged (`94742b3`), score mode on hg38 chr1 (library, minrep 10, 16 workers, AMD EPYC 7763, single run) takes **42.6 s** for 98,222 loci, against 25.9 s for 96,731 loci under greedy. Before the merge it took about 60 s (vs 26.3 s greedy); the merged detector's deduplication removes redundant candidates. The "~60 s vs 26.3 s" figures in this file are pre-merge. Details: `WS6-A4_chr1_runtime_memory_2026-10-07.md` §5.
 **Decision:** author instruction, 2026-10-07 — "In overlap remove pick the default (scoring
 informed)", then "optimize the score based overlapping while keeping the logic and results the
 same."
