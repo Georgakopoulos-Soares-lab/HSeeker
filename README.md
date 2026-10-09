@@ -82,8 +82,9 @@ $$\text{purity} = \max\!\left(\frac{\text{GA count}}{k},\ \frac{\text{CT count}}
 
 If both $\text{mirror identity} \geq 1 - \texttt{mismatch}$ and $\text{purity} \geq \texttt{purity}$, the current arm length is recorded as a valid candidate.
 
-4. **Longest-arm retention** — For each `(ctr, sp)` pair, only the longest valid arm is kept. This ensures no redundant shorter arms at the same position.
-5. **Overlap removal** — After scanning the full sequence, overlapping hits are resolved by keeping the **longest arm first**; ties are broken by **shorter spacer**.
+4. **Longest-arm retention** — For each `(ctr, sp)` pair, only the longest valid arm is kept.
+5. **Inward extension** — Matching bases at both ends of a spacer move into the arms while purity and `maxrep` still permit it. Duplicate representations of the same arm and spacer are removed. A nonmatching pair remains in the spacer; the mirror mismatch rule is unchanged.
+6. **Overlap removal** — After inward extension, overlapping hits are resolved by keeping the **longest arm first**; ties are broken by **shorter spacer**.
 
 ### `is_perfect` classification
 
@@ -337,7 +338,7 @@ python -m hseeker -seq <FASTA> -out <PREFIX> [options]
 | `-maxspacer INT` | int | `10` | **Maximum spacer / hinge loop length** in base pairs. The spacer is the single-stranded loop between the two mirror arms. H-DNA with spacers > 10 bp is thermodynamically unfavoured. |
 | `-purity FLOAT` | float | `0.90` | **Minimum compositional purity** of each arm (0.0–1.0). The arm must be ≥ `purity` fraction GA (purine) **or** ≥ `purity` fraction CT (pyrimidine). Set to 1.0 for perfect purine or pyrimidine tracts. |
 | `-mismatch FLOAT` | float | `0.10` | **Maximum mirror mismatch fraction** (0.0–1.0). Fraction of base positions in the arm where `dna[left] ≠ dna[right]` (i.e. the mirror is broken). `0.0` requires perfect mirror symmetry; `0.10` allows up to 10 % divergence. |
-| `-skipoverlap` | flag | *(off)* | **Skip overlap removal**. By default, overlapping hits are collapsed to the longest arm (ties broken by shortest spacer). Pass this flag to disable overlap removal (useful for downstream ML or analysis). |
+| `-skipoverlap` | flag | *(off)* | **Skip overlap removal**. Keep distinct overlapping candidates after inward extension and removal of duplicate representations. |
 | `-overlap-strategy greedy\|score` | choice | `greedy` | Choose the longest arm before scoring (`greedy`, default) or score all candidates and retain the highest-scoring nonoverlapping hits (`score`). Score mode requires scoring to be enabled and is slower on genome-scale input (see Overlap removal behaviour). |
 | `-score` | flag | *(on)* | **Apply thermodynamic stability scoring**. Enables stacking and pairing score computation for each hit. Pass `-no-score` to disable and keep only the core detection columns. |
 | `-at-threshold FLOAT` | float | `0.80` | **Left-arm AT-content filter**, applied before scoring. Hits whose left arm has AT content ≥ this value are dropped — AT-rich arms are dominated by weak A·A stacking and are unlikely to fold into stable H-DNA. Raise it (e.g. `1.5`) to effectively disable it. |
@@ -356,7 +357,7 @@ hseeker -seq genome.fa -out strict -purity 1.0 -mismatch 0.0
 # 3. Whole-genome scan with minimum arm length 10 for high confidence
 hseeker -seq hg38.fa -out hg38_hdna -minrep 10 -purity 0.85 -v
 
-# 4. Exploratory scan — very permissive, keep all raw hits
+# 4. Exploratory scan — very permissive, keep overlapping candidates
 hseeker -seq region.fa -out explore -purity 0.80 -mismatch 0.20 \
             -minrep 8 -maxspacer 10 -skipoverlap
 
@@ -435,7 +436,7 @@ minrep=10, maxrep=1000, maxspacer=10, purity=0.90, mismatch=0.10
 minrep=8, maxrep=1000, maxspacer=10, purity=0.80, mismatch=0.20
 ```
 
-**Downstream ML or statistical analysis (all raw candidates)**
+**Downstream ML or statistical analysis (overlapping candidates)**
 ```
 remove_overlaps=False, skipoverlap (CLI)
 ```
@@ -482,7 +483,9 @@ Both are opt-in at the Python API level (`hseeker.scan_fasta(...)`, off by defau
 
 ### Overlap removal behaviour
 
-When `remove_overlaps=True` (default), two hits overlap if their 1-based, inclusive genomic ranges share at least one base. The default `overlap_strategy="greedy"` keeps the longer arm, breaking ties by shorter spacer, before scoring. Set `overlap_strategy="score"` (CLI: `-overlap-strategy score`) to keep, instead, the highest-scoring candidate of each overlapping group: candidates are visited in descending `total_score` order and a hit is accepted when it does not overlap a previously accepted hit (ties favor longer arms, shorter spacers, then earlier coordinates); this requires scoring. `remove_overlaps=False` (CLI: `-skipoverlap`) retains all candidates regardless of strategy. Score mode is slower on genome-scale input because it has to consider every raw candidate rather than only the overlap-free set: on hg38 chromosome 1 with 16 workers it took about 60 s versus 26 s for greedy (AMD EPYC 7763), and it reports 1.5% more loci, all greedy loci being retained.
+Inward extension runs first, even when overlap removal is disabled. This keeps only one copy of an identical arm/spacer representation while allowing distinct overlapping candidates to remain.
+
+When `remove_overlaps=True` (default), two hits overlap if their 1-based, inclusive genomic ranges share at least one base. The default `overlap_strategy="greedy"` keeps the longer arm, breaking ties by shorter spacer, before scoring. Set `overlap_strategy="score"` (CLI: `-overlap-strategy score`) to keep, instead, the highest-scoring candidate of each overlapping group: candidates are visited in descending `total_score` order and a hit is accepted when it does not overlap a previously accepted hit (ties favor longer arms, shorter spacers, then earlier coordinates); this requires scoring. `remove_overlaps=False` (CLI: `-skipoverlap`) retains every distinct candidate (after inward extension and removal of duplicate representations) regardless of strategy. Score mode is slower on genome-scale input because it has to consider every raw candidate rather than only the overlap-free set: on hg38 chromosome 1 with 16 workers it took about 60 s versus 26 s for greedy (AMD EPYC 7763), and it reports 1.5% more loci, all greedy loci being retained.
 
 ---
 

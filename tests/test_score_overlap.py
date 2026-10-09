@@ -198,7 +198,9 @@ def test_real_sequence_score_selection_can_beat_greedy():
 @pytest.mark.parametrize("sequence, expected_raw, greedy_winner, score_winner", [
     (
         "GAGAAAAGAGGGAGAAAAAGGAA",
-        [(1, 21, 10, 1, 53.635), (3, 19, 7, 3, 41.035)],
+        # (3, 19) was arm 7 / spacer 3 / 41.035 before inward extension moved
+        # the matching spacer ends into the arms.
+        [(1, 21, 10, 1, 53.635), (3, 19, 8, 1, 53.635)],
         (1, 21), (1, 21),
     ),
     (

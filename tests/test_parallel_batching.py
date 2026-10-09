@@ -7,6 +7,11 @@ implementation (main before the batching change) on tests/data/batching_genome.f
 (10 synthetic records, 300 bp to 20 kb, with 10-30 bp purine/pyrimidine mirror
 repeats, an N block and a lowercase record). Results differ between chunk sizes
 in a few hits because of chunk-boundary handling, which batching does not touch.
+After merging fix/hdna-maximal-representation-v3 (inward extension and removal
+of duplicate arm/spacer representations in _hdna.c) the golden hits were
+regenerated with that same pre-batching Python code (4784c4b) built against the
+merged C detector: the 10 configurations with overlap removal were unchanged,
+the 10 without it changed as the detector change intends.
 
 Floats are compared up to 6 decimals: since Python 3.12 the built-in sum()
 uses compensated summation, so unrounded scores (pairing_score, stacking_score)
