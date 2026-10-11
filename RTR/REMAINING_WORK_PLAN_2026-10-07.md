@@ -56,7 +56,7 @@ on mm9 and hg19 for `cli_minrep8` only (author decision 2026-10-11: no minimum-a
 the two answers; make the figure that replaces Figure 3. Status at the end of 2026-10-11 is recorded in
 `RTR/evidence/X8_kouzine_results_2026-10-09.md`.
 
-**B. Tool comparison on the frozen benchmark (R2.1, R2.7, R3.1, R3.6) — highest-risk claim.**
+**B. Tool comparison on the frozen benchmark (R2.1, R2.7, R3.1, R3.6) — DONE 2026-10-11** (`RTR/evidence/tool_comparison_2026-10-11.md`). Original item:
 1. Conda env with R + `bioconductor-triplex` 1.50.0 (published version) on TACC; the `Rstats/4.0.3`
    module is too old.
 2. Build Triplexator 1.3.2 from source (`/scratch/10899/kimopro/triplexator/bin` is empty).
@@ -66,23 +66,23 @@ the two answers; make the figure that replaces Figure 3. Status at the end of 20
    family-cluster bootstrap CIs on HSeeker-minus-tool differences → `summary_metrics_v2.csv`.
 5. Change "outperformed existing tools" to "at least comparable" unless the difference CIs exclude 0.
 
-**C. NeSSie and nBMST (R3.6).** Build both on TACC (builds existed on another machine; WS3 evidence) and
+**C. NeSSie and nBMST (R3.6) — DONE 2026-10-11** (part of B). Original item: Build both on TACC (builds existed on another machine; WS3 evidence) and
 run with a stated hit→call rule, or document the technical limitation in the letter (R3.6 allows it)
 and delete the "nBMST lower than ours" sentence.
 
-**D. Score threshold (R3.3) — decision needed.** Recommended: drop the Youden threshold and the
+**D. Score threshold (R3.3) — DONE 2026-10-11** (no cut-off; out-of-fold analysis). Original item: Recommended: drop the Youden threshold and the
 AUC 0.981 claim (on 130 records the score AUROC is 0.985 = (1 + sensitivity)/2 because no negative has
 a hit after purity; the threshold adds nothing), state that calls use no score threshold, and remove
 the web app's "Stable Sites (score ≥ 50)" tile (`webapp/templates/job.html:151`, `main.py`). The
 alternative is an out-of-fold threshold analysis.
 
-**E. Runtime and memory (R3.11) ⛔ needs a compute node** (`sbatch` from a login node: password +
+**E. Runtime and memory (R3.11) — DONE 2026-10-11** on the interactive node, which has the manuscript's hardware (`RTR/evidence/R3.11_runtime_memory_2026-10-11.md`). Original item: (`sbatch` from a login node: password +
 token). chr1 at minrep 8, 1–16 workers, greedy and score, on `normal` (EPYC 7763, the manuscript CPU);
 full hg38 run or label the genome figure as an extrapolation; peak RSS; deposit raw commands, outputs
 and timings; update `benchmarks/benchmark_comparison.md` and the sweep plot (its comparator numbers are
 hard-coded). Fill the runtime TODO in the R3.10 answer.
 
-**F. Assay conditions per benchmark record (promised in the R3.4 answer).** Add columns (pH, Mg²⁺,
+**F. Assay conditions per benchmark record — DONE 2026-10-11** (`RTR/evidence/assay_conditions_2026-10-11.md`). Original item: Add columns (pH, Mg²⁺,
 supercoiling/plasmid vs oligo, method) from each cited paper for the 70 experimental records; show them
 in Supplementary Table 1.
 
@@ -100,7 +100,7 @@ the generator for the dot plot (the SVG has none); chr1 counts change with minre
 - Archive the June 2026 results and notebook outputs (old 80-row CSV) to
   `analysis/results/archive_2026-06/` with a README.
 
-**I. Library filter defaults — decision needed.** The library leaves the AT and homopolymer filters
+**I. Library filter defaults — DONE 2026-10-11** (library = CLI = web). Original item: The library leaves the AT and homopolymer filters
 off; the CLI and web app apply them. chr1 at minrep 8 is 106,481 loci (library) vs 45,927 (CLI). Either
 align the defaults or state both in the paper.
 

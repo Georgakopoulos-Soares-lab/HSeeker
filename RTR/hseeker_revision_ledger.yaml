@@ -816,7 +816,10 @@ actions:
   - R2.2
   - R2.6
   - R3.11
-  status: in_progress
+  status: done
+  note_2026-10-11b: >-
+    Comparator arguments pinned in the tool-comparison plan and metadata (2026-10-11); configuration
+    frozen (DEC-5, DEC-15, DEC-18).
   note_2026-10-11: >-
     DEC-5 and DEC-15 resolved 2026-10-11 (minrep 8, mismatch 0.10, purity 0.90, maxspacer 10,
     filters on in CLI/webapp). Still open - analysis/benchmark_config.json with the comparator
@@ -851,7 +854,14 @@ actions:
   reviewer_items:
   - R2.7
   - R3.1
-  status: in_progress
+  status: done
+  note_2026-10-11b: >-
+    Tool comparison run 2026-10-11 per RTR/TOOL_COMPARISON_PLAN_2026-10-11.md (settings fixed and
+    committed before running): HSeeker MCC 0.970, triplex 0.819, NeSSie 0.583, nBMST 0.449, Triplexator
+    0.024 at defaults; HSeeker better than all four by the pre-specified rule (vs triplex only through the
+    designed negatives; comparable on experimental records). Evidence RTR/evidence/tool_comparison_2026-10-11.md;
+    outputs analysis/results/tool_comparison/.
+    Paired differences with record and family bootstrap CIs and exact McNemar tests: paired_differences.csv.
   ci_work: >-
     DONE 2026-09-23 for HSeeker: every reported figure now carries Wilson intervals for
     sensitivity/specificity, a record-level bootstrap CI for MCC, AND a family-cluster
@@ -1008,7 +1018,15 @@ actions:
   workstream: WS3_comparators
   reviewer_items:
   - R3.6
-  status: in_progress
+  status: done
+  note_2026-10-11b: >-
+    Tool comparison run 2026-10-11 per RTR/TOOL_COMPARISON_PLAN_2026-10-11.md (settings fixed and
+    committed before running): HSeeker MCC 0.970, triplex 0.819, NeSSie 0.583, nBMST 0.449, Triplexator
+    0.024 at defaults; HSeeker better than all four by the pre-specified rule (vs triplex only through the
+    designed negatives; comparable on experimental records). Evidence RTR/evidence/tool_comparison_2026-10-11.md;
+    outputs analysis/results/tool_comparison/.
+    NeSSie rebuilt on TACC ($WORK/tools); range searches (-K) stop after the first record, so unions of
+    fixed lengths are used.
   depends_on:
   - WS0-A1
   inputs:
@@ -1039,7 +1057,15 @@ actions:
   workstream: WS3_comparators
   reviewer_items:
   - R3.6
-  status: in_progress
+  status: done
+  note_2026-10-11b: >-
+    Tool comparison run 2026-10-11 per RTR/TOOL_COMPARISON_PLAN_2026-10-11.md (settings fixed and
+    committed before running): HSeeker MCC 0.970, triplex 0.819, NeSSie 0.583, nBMST 0.449, Triplexator
+    0.024 at defaults; HSeeker better than all four by the pre-specified rule (vs triplex only through the
+    designed negatives; comparable on experimental records). Evidence RTR/evidence/tool_comparison_2026-10-11.md;
+    outputs analysis/results/tool_comparison/.
+    nBMST rebuilt on TACC; its triplex classification uses integer division and finds none of the 19
+    forming records written on the pyrimidine-rich strand.
   depends_on:
   - WS0-A1
   inputs:

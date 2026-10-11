@@ -1,0 +1,1 @@
+/work/10899/kimopro/ls6/tools/nessie/nessie -I /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/benchmark130.fa -O /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/NeSSie/benchmark130__grid_T_k16_p20__00d496c4/out_k20 -T -k 20 -p 20

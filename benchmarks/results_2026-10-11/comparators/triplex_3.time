@@ -1,0 +1,79 @@
+Warning message:
+replacing previous import ‘grid::pattern’ by ‘Biostrings::pattern’ when loading ‘triplex’ 
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+	Command being timed: "/home1/10899/kimopro/WORK/miniconda3/envs/r_triplex/bin/Rscript benchmarks/triplex_benchmark.R /scratch/10899/kimopro/kouzine/dl/hg38/chr1.fa /scratch/10899/kimopro/kouzine/runtime/comparators/triplex_chr1_3.csv 16"
+	User time (seconds): 803.49
+	System time (seconds): 24.67
+	Percent of CPU this job got: 1309%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:03.24
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 676912
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 2849541
+	Voluntary context switches: 4849
+	Involuntary context switches: 15996
+	Swaps: 0
+	File system inputs: 992046
+	File system outputs: 41364
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

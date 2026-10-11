@@ -1,0 +1,16 @@
+tool,scheme,grid_size,TP,FN,TN,FP,MCC,MCC_ci95_family
+HSeeker,5-fold x 20,576,1238,62,1284,16,0.9406,
+HSeeker,leave-one-family-out,576,62,3,64,1,0.9389,"[0.8482, 0.9883]"
+HSeeker,leave-one-study-out,576,60,5,64,1,0.9094,"[0.7973, 0.9718]"
+triplex,5-fold x 20,16,1240,60,1120,180,0.8189,
+triplex,leave-one-family-out,16,62,3,56,9,0.8189,"[0.7437, 0.9374]"
+triplex,leave-one-study-out,16,62,3,56,9,0.8189,"[0.7387, 0.9364]"
+Triplexator,5-fold x 20,18,1104,196,782,518,0.4653,
+Triplexator,leave-one-family-out,18,56,9,42,23,0.5199,"[0.3762, 0.7457]"
+Triplexator,leave-one-study-out,18,56,9,42,23,0.5199,"[0.3718, 0.7444]"
+NeSSie,5-fold x 20,21,834,466,1183,117,0.5726,
+NeSSie,leave-one-family-out,21,40,25,59,6,0.547,"[0.3908, 0.7319]"
+NeSSie,leave-one-study-out,21,41,24,57,8,0.5238,"[0.3655, 0.7132]"
+nBMST,5-fold x 20,12,900,400,1161,139,0.5976,
+nBMST,leave-one-family-out,12,45,20,58,7,0.5967,"[0.446, 0.8115]"
+nBMST,leave-one-study-out,12,42,23,58,7,0.5556,"[0.4071, 0.7463]"

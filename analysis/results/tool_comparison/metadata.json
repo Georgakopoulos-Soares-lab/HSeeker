@@ -1,0 +1,1348 @@
+{
+ "date": "2026-10-11 13:24:25",
+ "plan": "RTR/TOOL_COMPARISON_PLAN_2026-10-11.md",
+ "input_csv": "hdna_benchmark_balanced_v3.csv",
+ "input_csv_sha256": "c3f3b842464c7d881fb37c843cecdfc5c03d4c9a4052663191beb1c95ca9ed3e",
+ "n_records": 130,
+ "seed": 20261011,
+ "n_boot": 2000,
+ "settings": [
+  {
+   "tool": "HSeeker",
+   "id": "defaults",
+   "tier": "A",
+   "hit": "any hit",
+   "args": {}
+  },
+  {
+   "tool": "triplex",
+   "id": "defaults",
+   "tier": "A",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 15,
+    "pv": 0.05,
+    "mn": 6,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "matched",
+   "tier": "B",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 15,
+    "pv": 0.05,
+    "mn": 8,
+    "mx": 50,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "manuscript",
+   "tier": "manuscript",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 15,
+    "pv": 0.05,
+    "mn": 8,
+    "mx": 50,
+    "st": "prokaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s10_p0.01_l6",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 10,
+    "pv": 0.01,
+    "mn": 6,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s10_p0.01_l8",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 10,
+    "pv": 0.01,
+    "mn": 8,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s10_p0.05_l6",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 10,
+    "pv": 0.05,
+    "mn": 6,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s10_p0.05_l8",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 10,
+    "pv": 0.05,
+    "mn": 8,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s15_p0.01_l6",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 15,
+    "pv": 0.01,
+    "mn": 6,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s15_p0.01_l8",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 15,
+    "pv": 0.01,
+    "mn": 8,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s15_p0.05_l6",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 15,
+    "pv": 0.05,
+    "mn": 6,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s15_p0.05_l8",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 15,
+    "pv": 0.05,
+    "mn": 8,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s20_p0.01_l6",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 20,
+    "pv": 0.01,
+    "mn": 6,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s20_p0.01_l8",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 20,
+    "pv": 0.01,
+    "mn": 8,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s20_p0.05_l6",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 20,
+    "pv": 0.05,
+    "mn": 6,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s20_p0.05_l8",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 20,
+    "pv": 0.05,
+    "mn": 8,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s25_p0.01_l6",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 25,
+    "pv": 0.01,
+    "mn": 6,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s25_p0.01_l8",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 25,
+    "pv": 0.01,
+    "mn": 8,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s25_p0.05_l6",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 25,
+    "pv": 0.05,
+    "mn": 6,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "triplex",
+   "id": "grid_s25_p0.05_l8",
+   "tier": "C",
+   "hit": "any triplex.search hit",
+   "args": {
+    "ms": 25,
+    "pv": 0.05,
+    "mn": 8,
+    "mx": 25,
+    "st": "eukaryotic"
+   }
+  },
+  {
+   "tool": "Triplexator",
+   "id": "defaults",
+   "tier": "A",
+   "hit": "triplex target site (-ds)",
+   "args": []
+  },
+  {
+   "tool": "Triplexator",
+   "id": "matched",
+   "tier": "B",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "16",
+    "-e",
+    "10"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "manuscript",
+   "tier": "manuscript",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "10",
+    "-L",
+    "-1",
+    "-e",
+    "15",
+    "-fr",
+    "off"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l10_e5_fron",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "10",
+    "-e",
+    "5",
+    "-fr",
+    "on"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l10_e5_froff",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "10",
+    "-e",
+    "5",
+    "-fr",
+    "off"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l10_e10_fron",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "10",
+    "-e",
+    "10",
+    "-fr",
+    "on"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l10_e10_froff",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "10",
+    "-e",
+    "10",
+    "-fr",
+    "off"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l10_e15_fron",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "10",
+    "-e",
+    "15",
+    "-fr",
+    "on"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l10_e15_froff",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "10",
+    "-e",
+    "15",
+    "-fr",
+    "off"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l12_e5_fron",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "12",
+    "-e",
+    "5",
+    "-fr",
+    "on"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l12_e5_froff",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "12",
+    "-e",
+    "5",
+    "-fr",
+    "off"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l12_e10_fron",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "12",
+    "-e",
+    "10",
+    "-fr",
+    "on"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l12_e10_froff",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "12",
+    "-e",
+    "10",
+    "-fr",
+    "off"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l12_e15_fron",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "12",
+    "-e",
+    "15",
+    "-fr",
+    "on"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l12_e15_froff",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "12",
+    "-e",
+    "15",
+    "-fr",
+    "off"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l16_e5_fron",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "16",
+    "-e",
+    "5",
+    "-fr",
+    "on"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l16_e5_froff",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "16",
+    "-e",
+    "5",
+    "-fr",
+    "off"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l16_e10_fron",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "16",
+    "-e",
+    "10",
+    "-fr",
+    "on"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l16_e10_froff",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "16",
+    "-e",
+    "10",
+    "-fr",
+    "off"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l16_e15_fron",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "16",
+    "-e",
+    "15",
+    "-fr",
+    "on"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "grid_l16_e15_froff",
+   "tier": "C",
+   "hit": "triplex target site (-ds)",
+   "args": [
+    "-l",
+    "16",
+    "-e",
+    "15",
+    "-fr",
+    "off"
+   ]
+  },
+  {
+   "tool": "Triplexator",
+   "id": "tfo_tts_same_molecule",
+   "tier": "exploratory",
+   "hit": "TFO-TTS pair within the same record (-ss and -ds)",
+   "args": []
+  },
+  {
+   "tool": "NeSSie",
+   "id": "T_defaults",
+   "tier": "A",
+   "hit": "triplex-potential motif (-T)",
+   "args": {
+    "mode": "-T",
+    "ks": [
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "extra": []
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "T_matched",
+   "tier": "B",
+   "hit": "triplex-potential motif (-T)",
+   "args": {
+    "mode": "-T",
+    "ks": [
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "extra": [
+     "-p",
+     "10",
+     "-m",
+     "10"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "M_defaults",
+   "tier": "A2",
+   "hit": "mirror motif (-M)",
+   "args": {
+    "mode": "-M",
+    "ks": [
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "extra": []
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "M_matched",
+   "tier": "B2",
+   "hit": "mirror motif (-M)",
+   "args": {
+    "mode": "-M",
+    "ks": [
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "extra": [
+     "-m",
+     "10",
+     "-g",
+     "10"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_T_k12_p0",
+   "tier": "C",
+   "hit": "triplex-potential motif (-T)",
+   "args": {
+    "mode": "-T",
+    "ks": [
+     12,
+     13,
+     14,
+     15,
+     16
+    ],
+    "extra": [
+     "-p",
+     "0"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_T_k12_p10",
+   "tier": "C",
+   "hit": "triplex-potential motif (-T)",
+   "args": {
+    "mode": "-T",
+    "ks": [
+     12,
+     13,
+     14,
+     15,
+     16
+    ],
+    "extra": [
+     "-p",
+     "10"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_T_k12_p20",
+   "tier": "C",
+   "hit": "triplex-potential motif (-T)",
+   "args": {
+    "mode": "-T",
+    "ks": [
+     12,
+     13,
+     14,
+     15,
+     16
+    ],
+    "extra": [
+     "-p",
+     "20"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_T_k16_p0",
+   "tier": "C",
+   "hit": "triplex-potential motif (-T)",
+   "args": {
+    "mode": "-T",
+    "ks": [
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "extra": [
+     "-p",
+     "0"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_T_k16_p10",
+   "tier": "C",
+   "hit": "triplex-potential motif (-T)",
+   "args": {
+    "mode": "-T",
+    "ks": [
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "extra": [
+     "-p",
+     "10"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_T_k16_p20",
+   "tier": "C",
+   "hit": "triplex-potential motif (-T)",
+   "args": {
+    "mode": "-T",
+    "ks": [
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "extra": [
+     "-p",
+     "20"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_T_k20_p0",
+   "tier": "C",
+   "hit": "triplex-potential motif (-T)",
+   "args": {
+    "mode": "-T",
+    "ks": [
+     20,
+     21,
+     22,
+     23,
+     24
+    ],
+    "extra": [
+     "-p",
+     "0"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_T_k20_p10",
+   "tier": "C",
+   "hit": "triplex-potential motif (-T)",
+   "args": {
+    "mode": "-T",
+    "ks": [
+     20,
+     21,
+     22,
+     23,
+     24
+    ],
+    "extra": [
+     "-p",
+     "10"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_T_k20_p20",
+   "tier": "C",
+   "hit": "triplex-potential motif (-T)",
+   "args": {
+    "mode": "-T",
+    "ks": [
+     20,
+     21,
+     22,
+     23,
+     24
+    ],
+    "extra": [
+     "-p",
+     "20"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_M_k12_m0_g0",
+   "tier": "C2",
+   "hit": "mirror motif (-M)",
+   "args": {
+    "mode": "-M",
+    "ks": [
+     12,
+     13,
+     14,
+     15,
+     16
+    ],
+    "extra": [
+     "-m",
+     "0",
+     "-g",
+     "0"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_M_k12_m0_g10",
+   "tier": "C2",
+   "hit": "mirror motif (-M)",
+   "args": {
+    "mode": "-M",
+    "ks": [
+     12,
+     13,
+     14,
+     15,
+     16
+    ],
+    "extra": [
+     "-m",
+     "0",
+     "-g",
+     "10"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_M_k12_m10_g0",
+   "tier": "C2",
+   "hit": "mirror motif (-M)",
+   "args": {
+    "mode": "-M",
+    "ks": [
+     12,
+     13,
+     14,
+     15,
+     16
+    ],
+    "extra": [
+     "-m",
+     "10",
+     "-g",
+     "0"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_M_k12_m10_g10",
+   "tier": "C2",
+   "hit": "mirror motif (-M)",
+   "args": {
+    "mode": "-M",
+    "ks": [
+     12,
+     13,
+     14,
+     15,
+     16
+    ],
+    "extra": [
+     "-m",
+     "10",
+     "-g",
+     "10"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_M_k16_m0_g0",
+   "tier": "C2",
+   "hit": "mirror motif (-M)",
+   "args": {
+    "mode": "-M",
+    "ks": [
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "extra": [
+     "-m",
+     "0",
+     "-g",
+     "0"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_M_k16_m0_g10",
+   "tier": "C2",
+   "hit": "mirror motif (-M)",
+   "args": {
+    "mode": "-M",
+    "ks": [
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "extra": [
+     "-m",
+     "0",
+     "-g",
+     "10"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_M_k16_m10_g0",
+   "tier": "C2",
+   "hit": "mirror motif (-M)",
+   "args": {
+    "mode": "-M",
+    "ks": [
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "extra": [
+     "-m",
+     "10",
+     "-g",
+     "0"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_M_k16_m10_g10",
+   "tier": "C2",
+   "hit": "mirror motif (-M)",
+   "args": {
+    "mode": "-M",
+    "ks": [
+     16,
+     17,
+     18,
+     19,
+     20
+    ],
+    "extra": [
+     "-m",
+     "10",
+     "-g",
+     "10"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_M_k20_m0_g0",
+   "tier": "C2",
+   "hit": "mirror motif (-M)",
+   "args": {
+    "mode": "-M",
+    "ks": [
+     20,
+     21,
+     22,
+     23,
+     24
+    ],
+    "extra": [
+     "-m",
+     "0",
+     "-g",
+     "0"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_M_k20_m0_g10",
+   "tier": "C2",
+   "hit": "mirror motif (-M)",
+   "args": {
+    "mode": "-M",
+    "ks": [
+     20,
+     21,
+     22,
+     23,
+     24
+    ],
+    "extra": [
+     "-m",
+     "0",
+     "-g",
+     "10"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_M_k20_m10_g0",
+   "tier": "C2",
+   "hit": "mirror motif (-M)",
+   "args": {
+    "mode": "-M",
+    "ks": [
+     20,
+     21,
+     22,
+     23,
+     24
+    ],
+    "extra": [
+     "-m",
+     "10",
+     "-g",
+     "0"
+    ]
+   }
+  },
+  {
+   "tool": "NeSSie",
+   "id": "grid_M_k20_m10_g10",
+   "tier": "C2",
+   "hit": "mirror motif (-M)",
+   "args": {
+    "mode": "-M",
+    "ks": [
+     20,
+     21,
+     22,
+     23,
+     24
+    ],
+    "extra": [
+     "-m",
+     "10",
+     "-g",
+     "10"
+    ]
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "triplex_defaults",
+   "tier": "A",
+   "hit": "mirror repeat, triplex subset",
+   "args": {
+    "extra": [],
+    "subset": true
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "triplex_matched",
+   "tier": "B",
+   "hit": "mirror repeat, triplex subset",
+   "args": {
+    "extra": [
+     "-minMRrep",
+     "8",
+     "-maxMRspacer",
+     "10",
+     "-maxTriplexSpacer",
+     "11"
+    ],
+    "subset": true
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "MR_defaults",
+   "tier": "A2",
+   "hit": "any mirror repeat",
+   "args": {
+    "extra": [],
+    "subset": false
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "MR_matched",
+   "tier": "B2",
+   "hit": "any mirror repeat",
+   "args": {
+    "extra": [
+     "-minMRrep",
+     "8",
+     "-maxMRspacer",
+     "10",
+     "-maxTriplexSpacer",
+     "11"
+    ],
+    "subset": false
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "grid_rep8_sp5_tri",
+   "tier": "C",
+   "hit": "mirror repeat, triplex subset",
+   "args": {
+    "extra": [
+     "-minMRrep",
+     "8",
+     "-maxMRspacer",
+     "5",
+     "-maxTriplexSpacer",
+     "6"
+    ],
+    "subset": true
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "grid_rep8_sp5_MR",
+   "tier": "C",
+   "hit": "any mirror repeat",
+   "args": {
+    "extra": [
+     "-minMRrep",
+     "8",
+     "-maxMRspacer",
+     "5",
+     "-maxTriplexSpacer",
+     "6"
+    ],
+    "subset": false
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "grid_rep8_sp10_tri",
+   "tier": "C",
+   "hit": "mirror repeat, triplex subset",
+   "args": {
+    "extra": [
+     "-minMRrep",
+     "8",
+     "-maxMRspacer",
+     "10",
+     "-maxTriplexSpacer",
+     "11"
+    ],
+    "subset": true
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "grid_rep8_sp10_MR",
+   "tier": "C",
+   "hit": "any mirror repeat",
+   "args": {
+    "extra": [
+     "-minMRrep",
+     "8",
+     "-maxMRspacer",
+     "10",
+     "-maxTriplexSpacer",
+     "11"
+    ],
+    "subset": false
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "grid_rep10_sp5_tri",
+   "tier": "C",
+   "hit": "mirror repeat, triplex subset",
+   "args": {
+    "extra": [
+     "-minMRrep",
+     "10",
+     "-maxMRspacer",
+     "5",
+     "-maxTriplexSpacer",
+     "6"
+    ],
+    "subset": true
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "grid_rep10_sp5_MR",
+   "tier": "C",
+   "hit": "any mirror repeat",
+   "args": {
+    "extra": [
+     "-minMRrep",
+     "10",
+     "-maxMRspacer",
+     "5",
+     "-maxTriplexSpacer",
+     "6"
+    ],
+    "subset": false
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "grid_rep10_sp10_tri",
+   "tier": "C",
+   "hit": "mirror repeat, triplex subset",
+   "args": {
+    "extra": [
+     "-minMRrep",
+     "10",
+     "-maxMRspacer",
+     "10",
+     "-maxTriplexSpacer",
+     "11"
+    ],
+    "subset": true
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "grid_rep10_sp10_MR",
+   "tier": "C",
+   "hit": "any mirror repeat",
+   "args": {
+    "extra": [
+     "-minMRrep",
+     "10",
+     "-maxMRspacer",
+     "10",
+     "-maxTriplexSpacer",
+     "11"
+    ],
+    "subset": false
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "grid_rep12_sp5_tri",
+   "tier": "C",
+   "hit": "mirror repeat, triplex subset",
+   "args": {
+    "extra": [
+     "-minMRrep",
+     "12",
+     "-maxMRspacer",
+     "5",
+     "-maxTriplexSpacer",
+     "6"
+    ],
+    "subset": true
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "grid_rep12_sp5_MR",
+   "tier": "C",
+   "hit": "any mirror repeat",
+   "args": {
+    "extra": [
+     "-minMRrep",
+     "12",
+     "-maxMRspacer",
+     "5",
+     "-maxTriplexSpacer",
+     "6"
+    ],
+    "subset": false
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "grid_rep12_sp10_tri",
+   "tier": "C",
+   "hit": "mirror repeat, triplex subset",
+   "args": {
+    "extra": [
+     "-minMRrep",
+     "12",
+     "-maxMRspacer",
+     "10",
+     "-maxTriplexSpacer",
+     "11"
+    ],
+    "subset": true
+   }
+  },
+  {
+   "tool": "nBMST",
+   "id": "grid_rep12_sp10_MR",
+   "tier": "C",
+   "hit": "any mirror repeat",
+   "args": {
+    "extra": [
+     "-minMRrep",
+     "12",
+     "-maxMRspacer",
+     "10",
+     "-maxTriplexSpacer",
+     "11"
+    ],
+    "subset": false
+   }
+  }
+ ],
+ "tools": {
+  "triplexator": "/work/10899/kimopro/ls6/tools/triplexator/bin/triplexator",
+  "nessie": "/work/10899/kimopro/ls6/tools/nessie/nessie",
+  "gfa": "/work/10899/kimopro/ls6/tools/non-B_gfa/gfa",
+  "rscript": "/home1/10899/kimopro/WORK/miniconda3/envs/r_triplex/bin/Rscript",
+  "hseeker": "0.1.0"
+ },
+ "git_commit": "ca63f0b443fd3b6eb320ed32a52f11694b67a107",
+ "failures": []
+}

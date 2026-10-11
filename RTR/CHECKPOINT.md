@@ -72,6 +72,17 @@ Author instructions 2026-10-11, all applied (details:
 9. **Ledger:** DEC-3, DEC-5 resolved; DEC-15–17 added; WS0-A1, WS2-A3, WS4-A2, WS4-A3, WS4-A4 done;
    WS2-A1 in progress (comparator arguments). Graph not yet resynchronised.
 
+### 2026-10-11 (evening) — tool comparison done
+
+Triplexator 1.3.2, NeSSie and nBMST rebuilt in `$WORK/tools` (`benchmarks/tools/build_comparators.sh`;
+Triplexator needs a two-line SeqAn patch and `-std=gnu++98`; all pass their own reference tests); triplex
+1.50.0 from the `r_triplex` conda env. Plan and settings committed before any run. Results on the
+130-record benchmark at default settings: HSeeker MCC 0.970, triplex 0.819, NeSSie 0.583, nBMST 0.449,
+Triplexator 0.024; HSeeker better than all four by the pre-specified rule; against triplex only through the
+designed negatives (comparable on the 70 experimental records). Speed on chr1, same node: HSeeker 16.3 s,
+Triplexator 45.0 s, triplex 64.7 s (16 cores); nBMST 96.5 s, NeSSie 295.7 s (1 core). Evidence
+`RTR/evidence/tool_comparison_2026-10-11.md`; the response letter has no placeholders left.
+
 ### 2026-10-11 (afternoon) — filters, score threshold, Figure 3, runtime, assay conditions, letter
 
 1. **Library filters = CLI/web** (DEC-18); fixed `scan_fasta`/`scan_fasta_parallel` ignoring

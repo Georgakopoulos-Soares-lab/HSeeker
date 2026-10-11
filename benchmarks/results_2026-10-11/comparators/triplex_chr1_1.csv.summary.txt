@@ -1,0 +1,7 @@
+triplex_version=1.50.0
+fasta=/scratch/10899/kimopro/kouzine/dl/hg38/chr1.fa
+ncores=16
+total_hits=81906
+wall_sec=59.938
+wall_min=0.999
+throughput_mbps=4.1536

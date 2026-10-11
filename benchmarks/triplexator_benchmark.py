@@ -21,13 +21,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
-TRIPLEXATOR = Path("/scratch/10899/kimopro/triplexator/bin/triplexator")
+TRIPLEXATOR = Path(os.environ.get("TRIPLEXATOR", Path(os.environ.get("WORK", "")) / "tools/triplexator/bin/triplexator"))
 CHR1_FA     = Path(__file__).parent / "data" / "chr1.fa"
 
 _RSS_RE  = re.compile(r"Maximum resident set size \(kbytes\):\s*(\d+)")

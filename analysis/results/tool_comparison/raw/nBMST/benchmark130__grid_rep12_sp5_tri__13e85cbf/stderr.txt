@@ -1,0 +1,858 @@
+ 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 99 bases 
+Total Bases Read=99 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 2; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 198 bases 
+Total Bases Read=198 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 2; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 50 bases 
+Total Bases Read=50 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 2; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 60 bases 
+Total Bases Read=60 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 2; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 41 bases 
+Total Bases Read=41 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 1; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 1
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 1
+TSV write done
+ INFO: Program read 33 bases 
+Total Bases Read=33 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 1; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 1
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 1
+TSV write done
+ INFO: Program read 50 bases 
+Total Bases Read=50 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 2; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 22 bases 
+Total Bases Read=22 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 0; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 40 bases 
+Total Bases Read=40 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 2; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 88 bases 
+Total Bases Read=88 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 2; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 2; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 40 bases 
+Total Bases Read=40 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 2; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 40 bases 
+Total Bases Read=40 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 2; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 44 bases 
+Total Bases Read=44 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 2; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 34 bases 
+Total Bases Read=34 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 2; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 100 bases 
+Total Bases Read=100 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 2; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 37 bases 
+Total Bases Read=37 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 0; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 46 bases 
+Total Bases Read=46 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 2; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 2
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 2
+TSV write done
+ INFO: Program read 24 bases 
+Total Bases Read=24 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 0; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 46 bases 
+Total Bases Read=46 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 0; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 0; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 0; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:08 2026
+MRs found = 0; Sun Oct 11 13:23:08 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 29 bases 
+Total Bases Read=29 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 30 bases 
+Total Bases Read=30 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 23 bases 
+Total Bases Read=23 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 53 bases 
+Total Bases Read=53 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 31 bases 
+Total Bases Read=31 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 33 bases 
+Total Bases Read=33 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 36 bases 
+Total Bases Read=36 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 27 bases 
+Total Bases Read=27 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 27 bases 
+Total Bases Read=27 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 36 bases 
+Total Bases Read=36 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 46 bases 
+Total Bases Read=46 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 27 bases 
+Total Bases Read=27 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 37 bases 
+Total Bases Read=37 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 36 bases 
+Total Bases Read=36 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 24 bases 
+Total Bases Read=24 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 27 bases 
+Total Bases Read=27 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 50 bases 
+Total Bases Read=50 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 44 bases 
+Total Bases Read=44 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 24 bases 
+Total Bases Read=24 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 24 bases 
+Total Bases Read=24 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 46 bases 
+Total Bases Read=46 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 24 bases 
+Total Bases Read=24 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 18 bases 
+Total Bases Read=18 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 22 bases 
+Total Bases Read=22 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 15 bases 
+Total Bases Read=15 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 16 bases 
+Total Bases Read=16 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 20 bases 
+Total Bases Read=20 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 24 bases 
+Total Bases Read=24 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 30 bases 
+Total Bases Read=30 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 45 bases 
+Total Bases Read=45 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 25 bases 
+Total Bases Read=25 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 45 bases 
+Total Bases Read=45 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 35 bases 
+Total Bases Read=35 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 26 bases 
+Total Bases Read=26 
+Starting Mirror Repeat search; Sun Oct 11 13:23:09 2026
+MRs found = 0; Sun Oct 11 13:23:09 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 28 bases 
+Total Bases Read=28 
+Starting Mirror Repeat search; Sun Oct 11 13:23:10 2026
+MRs found = 0; Sun Oct 11 13:23:10 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 26 bases 
+Total Bases Read=26 
+Starting Mirror Repeat search; Sun Oct 11 13:23:10 2026
+MRs found = 0; Sun Oct 11 13:23:10 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:10 2026
+MRs found = 0; Sun Oct 11 13:23:10 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 30 bases 
+Total Bases Read=30 
+Starting Mirror Repeat search; Sun Oct 11 13:23:10 2026
+MRs found = 0; Sun Oct 11 13:23:10 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:10 2026
+MRs found = 0; Sun Oct 11 13:23:10 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 32 bases 
+Total Bases Read=32 
+Starting Mirror Repeat search; Sun Oct 11 13:23:10 2026
+MRs found = 0; Sun Oct 11 13:23:10 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+Total Bases Read=24 
+Starting Mirror Repeat search; Sun Oct 11 13:23:10 2026
+MRs found = 0; Sun Oct 11 13:23:10 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done

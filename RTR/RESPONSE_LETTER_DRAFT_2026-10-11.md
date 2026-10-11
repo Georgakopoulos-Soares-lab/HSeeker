@@ -1,7 +1,7 @@
 # Response to reviewers — draft of 2026-10-11
 
 Manuscript: HSeeker (Briefings in Bioinformatics). One answer per comment, in the order of the
-decision letter. Text marked **[PENDING: …]** depends on runs not yet done; text in the final section,
+decision letter. All analyses are complete (no placeholders remain); text in the final section,
 "Notes for the authors", is not for the reviewers.
 
 All numbers refer to the revised benchmark (`hdna_benchmark_balanced_v3.csv`, 130 records: 65 forming /
@@ -59,9 +59,16 @@ repeats and the three balanced perfect mirrors); the purity requirement removes 
 forming records HSeeker misses are a tandem direct repeat, (ACCCTCCCC)4, which lies outside the
 mirror-repeat model, and the γ-globin −228/−189 element.
 
-**[PENDING: comparison with triplex and Triplexator on the same 130 records, with paired differences
-and confidence intervals. Until it is run, the letter should not claim that HSeeker performs better
-than the other tools.]**
+**Comparison with other tools on the same records.** We ran triplex, Triplexator, and the two
+mirror-repeat tools Reviewer 3 names (NeSSie and nBMST) on the same 130 records, each at its documented
+defaults, with geometry matched to HSeeker, and tuned within training folds, with settings fixed before
+any tool was run (details under Reviewer 3, comment 6). At default settings HSeeker had the highest MCC
+(0.970, 95 % CI 0.909–1.000, family-cluster bootstrap), followed by triplex (0.819), NeSSie (0.583),
+nBMST (0.449) and Triplexator (0.024). triplex detected almost the same forming records (62 of 65) but
+called 9 designed negatives forming, 7 of them mirror-disrupted mutants, so its lower specificity comes
+from exactly the perturbed controls the reviewer proposed. On the 70 experimental records alone, HSeeker
+and triplex differ by a single record and perform comparably (MCC 0.832 vs 0.772). In the homopolymer
+panel, triplex and NeSSie call four of the five A/T homopolymers forming; HSeeker calls none.
 
 ### Comment 2 — sequences as CSV and a script to reproduce the analysis
 
@@ -152,10 +159,17 @@ We thank the reviewer for this point and address it in three ways.
 
 We agree. All metrics are now reported with 95 % confidence intervals: Wilson intervals for sensitivity,
 specificity, PPV and NPV, and bootstrap intervals for MCC, at the record level and with families or
-studies as the resampling unit (see Reviewer 3, comments 1 and 2). **[PENDING: paired comparison with
-triplex and Triplexator — differences in sensitivity, specificity and MCC with bootstrap CIs and McNemar
-tests on discordant calls. We will claim superiority only where the CI of the difference excludes zero,
-and otherwise describe the tools as comparable.]**
+studies as the resampling unit (see Reviewer 3, comments 1 and 2). For the tool comparison we report
+paired differences (HSeeker minus each tool) in sensitivity, specificity and MCC, with bootstrap
+confidence intervals that resample records or whole sequence families, and exact McNemar tests on the
+records where the tools disagree. We fixed in advance that we would call HSeeker better only where the
+family-level interval of the MCC difference excludes zero and the difference has the same sign with
+matched and with tuned settings. By that rule HSeeker outperforms all four tools on the balanced
+benchmark: ΔMCC +0.15 (95 % CI 0.03–0.22; McNemar 10 vs 0 discordant records, p = 0.002) against triplex,
++0.39 (0.18–0.56) against NeSSie, +0.52 (0.40–0.63) against nBMST and +0.95 (0.71–1.11) against
+Triplexator. Against triplex the difference comes from the designed negatives; on experimental records
+alone the interval reaches zero (+0.06, 0.00–0.22) and we describe the two tools as comparable there. The
+manuscript's wording now follows these results.
 
 ### Comment 8 — `-march=native`
 
@@ -283,16 +297,42 @@ class-level records form the secondary set.
 
 ### Comment 6 — comparator set; claim strength
 
-**[PENDING: depends on the tool comparison.]** Draft: We agree that Triplexator and 3plex were designed
-mainly for intermolecular triplex prediction, and we now say so. We added the two mirror-repeat tools the
-reviewer names. non-B_gfa (nBMST) has a mirror-repeat module whose parameters match HSeeker's (minimum
-half-repeat length, maximum spacer) but reports geometry without a score, so we state the rule used to
-turn its output into a call [results]. NeSSie reports k-mers that are themselves mirror-symmetric or
-purine-rich, not arm–spacer–arm motifs; for example, it reports no mirror motif in the canonical H-DNA
-construct pGG32 while reporting one in poly-A20. We therefore present it as a different target class
-[and report its results with the stated rule / document why it cannot be scored]. All comparators were run
-with pinned settings on the 130-record benchmark (Reviewer 2, comment 7). The Key Points now match the
-Results: [“at least comparable to” / “outperformed”, decided by the confidence intervals].
+We agree. We added the two mirror-repeat tools the reviewer names, NeSSie and nBMST (non-B_gfa), alongside
+triplex and Triplexator, and ran all of them on the revised 130-record benchmark. The settings, the rule
+for turning each tool's output into a call, the statistics and the wording rule were fixed and deposited
+before any tool was run (`RTR/TOOL_COMPARISON_PLAN_2026-10-11.md`; code `analysis/scripts/
+run_tool_comparison.py`; builds `benchmarks/tools/`). Each tool was run at its documented defaults, with
+its geometry matched to HSeeker's (minimum arm 8 nt, spacer up to 10 nt) where it has such parameters, and
+with a small parameter grid selected inside training folds only, the same opportunity HSeeker's defaults
+had. A record was called forming when the tool reported at least one hit in it.
+
+| Tool, default settings (hit type) | Sensitivity | Specificity | MCC (95 % CI) | Tuned out of fold, MCC |
+|---|---|---|---|---|
+| HSeeker | 63/65 | 65/65 | 0.970 (0.909–1.000) | 0.939 |
+| triplex (any hit) | 62/65 | 56/65 | 0.819 (0.743–0.935) | 0.819 |
+| NeSSie (triplex-potential motif) | 33/65 | 65/65 | 0.583 (0.421–0.779) | 0.547 |
+| nBMST (mirror repeats classified as triplex) | 24/65 | 64/65 | 0.449 (0.351–0.561) | 0.597 |
+| Triplexator (triplex target site) | 8/65 | 58/65 | 0.024 (−0.132–0.250) | 0.520 |
+
+The differences reflect what each tool searches for, which we now describe in the manuscript.
+Triplexator searches for target sites for a third strand supplied by a separate oligonucleotide and does
+not require a mirror repeat: at its defaults it finds few forming records, and at the settings used in our
+original manuscript it finds 64 of 65 but also calls all 22 mirror-disrupted mutants. NeSSie reports
+k-mers that are themselves mirror-symmetric and purine- or pyrimidine-rich, not arm–spacer–arm motifs; it
+made no false call but found none of the 16 pXY32 constructs. nBMST's mirror-repeat module matches
+HSeeker's geometry, but its triplex classification counts purines and pyrimidines with integer division,
+so it accepts only mirror repeats with more purines than pyrimidines on the reported strand: it found none
+of the 19 forming records written on the pyrimidine-rich strand, whereas its unclassified mirror-repeat
+output found 15 of them. triplex, the only other tool designed for intramolecular triplexes, detected
+nearly the same forming records as HSeeker but called 9 designed negatives forming, mostly
+mirror-disrupted mutants; on the experimental records alone the two are comparable.
+
+Using paired differences with confidence intervals (Reviewer 2, comment 7), HSeeker outperforms all four
+tools on the balanced benchmark, and Triplexator, NeSSie and nBMST also on the experimental records alone;
+against triplex the advantage is confined to the designed negatives. We have revised the Key Points
+accordingly: "On a balanced benchmark of experimentally characterised and designed sequences, HSeeker
+achieved higher accuracy than four existing tools, matching triplex on experimentally characterised
+sequences while rejecting mirror-disrupted controls that triplex accepted."
 
 ### Comment 7 — E. coli insertion experiment; overlap threshold
 
@@ -433,8 +473,11 @@ took 23.9 s on chromosome 1. All commands, raw timing output, hardware descripti
 are deposited in the repository (`benchmarks/results_2026-10-11/`, `benchmarks/parallel_sweep.py`), and
 the code, data and benchmark outputs will be archived on Zenodo at publication; the Data Availability
 statement now says so instead of "upon reasonable request". We also moderated the wording of the
-performance claims (see comment 12). **[PENDING: if the comparison with triplex and Triplexator stays in
-the speed section, re-time both on the same node with the final settings.]**
+performance claims (see comment 12). To compare fairly, we re-timed the other tools on the same node on
+the same day. With 16 cores, chromosome 1 took 16.3 s with HSeeker, 45.0 s with Triplexator and 64.7 s
+with triplex (run as 16 parallel processes); nBMST and NeSSie have no parallel mode and took 96.5 s and
+295.7 s on one core. Each tool's output was identical across the three runs, and triplex and Triplexator
+reproduced the hit counts of our original measurement exactly.
 
 ### Comment 12 — claims, terminology and figures
 
@@ -449,8 +492,7 @@ algorithm panels were simplified, and the manuscript was language-edited.
 
 ## Notes for the authors (not for the reviewers)
 
-1. **Pending run:** the tool comparison (R2.1, R2.7, R3.6, Key Points, and the comparative speed claims
-   in R3.11). Until it is run, no answer may claim HSeeker is better than another tool.
+1. **No runs pending.** Every number in this letter comes from a deposited script and output.
 2. **HDNA0065 (XDP (CCCTCT)10)** is kept in the benchmark (author decision 2026-10-11) but its cited
    review states that no experimental data exist for this repeat; its label is inferred. It is currently
    marked `primary`, which conflicts with the R3.5 sentence about the primary set being construct-level
