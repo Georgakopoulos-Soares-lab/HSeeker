@@ -629,7 +629,7 @@ async def submit(
     request: Request,
     file: Optional[UploadFile] = File(None),
     seq_text: str = Form(""),
-    minrep: int = Form(10),
+    minrep: int = Form(8),
     maxrep: int = Form(1000),
     maxspacer: int = Form(10),
     purity: float = Form(0.90),

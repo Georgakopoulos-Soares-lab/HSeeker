@@ -92,5 +92,49 @@
    "score_mannwhitney_p_greater": 5.978283364941807e-258
   }
  },
- "P3_enrichment_authors_signal": "pending: controls not yet sampled"
+ "P3_enrichment_authors_signal": {
+  "raji": {
+   "asymmetry_matched": {
+    "loci_used": 550935,
+    "locus_mean": 0.0030156319002166538,
+    "control_mean": 0.003087494467276951,
+    "ratio_of_means": 0.9767246329274631,
+    "ratio_ci95": [
+     0.9689530898734213,
+     0.9841119358611238
+    ],
+    "mannwhitney_p_greater": 1.0
+   },
+   "gc_matched": {
+    "loci_used": 555753,
+    "locus_mean": 0.0030056301851786194,
+    "control_mean": 0.005135091625344285,
+    "ratio_of_means": 0.5853118901217474,
+    "ratio_ci95": [
+     0.5806072308032975,
+     0.590298418391548
+    ],
+    "mannwhitney_p_greater": 1.0
+   }
+  }
+ },
+ "controls_meta": {
+  "method": "genome-wide pool; exact length + GC/purine counts for loci <= 60 bp, length classes + 0.02 bins above",
+  "exact_max": 60,
+  "long_classes": {
+   "(60, 100)": 71,
+   "(100, 200)": 115,
+   "(200, 1000000000)": 228
+  },
+  "loci": 555753,
+  "loci_with_N_excluded": 0,
+  "asymmetry_matched": 550935,
+  "asymmetry_unmatched": 4818,
+  "widened_by_1": 5777,
+  "widened_by_2": 4830,
+  "gc_matched": 555753,
+  "gc_unmatched": 0,
+  "pool_cells": 38224,
+  "pool_windows": 111609958
+ }
 }

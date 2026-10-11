@@ -7,8 +7,8 @@ Fast C core wrapped in a clean Python API.
 Quick start
 -----------
 >>> import hseeker
->>> hits = hseeker.scan_sequence("GAGAGAGAGAGAGAGAGAGAGAGAGAGA", minrep=10)
->>> hits = hseeker.scan_fasta("genome.fa", minrep=10, purity=0.90)
+>>> hits = hseeker.scan_sequence("GAGAGAGAGAGAGAGAGAGAGAGAGAGA", minrep=8)
+>>> hits = hseeker.scan_fasta("genome.fa", minrep=8, purity=0.90)
 """
 
 from __future__ import annotations
@@ -311,7 +311,7 @@ def _apply_scoring(hits: list[dict]) -> list[dict]:
 def scan_sequence(
     seq: str,
     *,
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -334,7 +334,7 @@ def scan_sequence(
     seq : str
         DNA sequence (ACGTN; case-insensitive).  'N' bases break arm extension.
     minrep : int
-        Minimum arm length in bases (default 10).
+        Minimum arm length in bases (default 8).
     maxrep : int
         Maximum arm length in bases (default 1000).
     maxspacer : int
@@ -497,7 +497,7 @@ def scan_fasta(
     path: str | Path,
     *,
     parser: str = "biopython",
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -570,7 +570,7 @@ def scan_fasta_iter(
     path: str | Path,
     *,
     parser: str = "biopython",
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -619,7 +619,7 @@ def scan_fasta_parallel(
     path: str | Path,
     *,
     parser: str = "biopython",
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,

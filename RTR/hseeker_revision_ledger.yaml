@@ -1,12 +1,19 @@
 schema_version: 1
-last_updated: '2026-10-09'
+last_updated: '2026-10-11'
 artifacts:
   provenance_audit:
     path: hdna_benchmark_experimental_v3.csv
     status: verified
     produced_by: AUDIT + curation (this session)
-    sha256: dfa31654559e366fd666e98c0476349d9e6cb51c4e0fe36813f8caddbae0e273
-    previous_sha256: 7197c6df93781dfeacc8246db49b0af7c66e61984ae108a32d1ddfff02d322c1
+    sha256: 19418318b28b0e4c07ed635b5abe6b65ddf22689ab3751abd541bed35d1dfee0
+    previous_sha256: dfa31654559e366fd666e98c0476349d9e6cb51c4e0fe36813f8caddbae0e273
+    update_2026-10-11: >-
+      DEC-3 applied - HDNA0081 Hanvey1988_(TTC)8 added (forming, primary); 81 rows, 70 kept (65
+      forming / 5 non-forming). DEC-17 - corrected PMIDs/DOIs copied into cited_pmid/cited_doi
+      (25 PMID rows, 9 DOI rows incl. removed/excluded), cited_paper and study_id updated where
+      they named the old paper; originals in new original_cited_paper/original_cited_doi/
+      original_cited_pmid/original_study_id columns. Evidence:
+      RTR/evidence/benchmark_and_configuration_freeze_2026-10-11.md.
     sha256_history: 01c7fbeb3f6f63005904dd513425d459b0afa1304f0480eb4ced0110b0b4fbcd (71 kept, pre-DEC-7) ->
       7197c6df93781dfeacc8246db49b0af7c66e61984ae108a32d1ddfff02d322c1 (69 kept, DEC-7) ->
       dfa31654559e366fd666e98c0476349d9e6cb51c4e0fe36813f8caddbae0e273 (DEC-2 FXN citations, 2026-10-09)
@@ -51,8 +58,14 @@ artifacts:
     path: hdna_benchmark_balanced_v3.csv
     status: done
     produced_by: SYN-1/2/3 (this session)
-    sha256: c5177b2479a5da4414aefa3c6ac6251f5645868260d2b5cefe9189de182f1ae4
-    previous_sha256: 7bb495444e91709fb0e322f08e5c9737e3a9419f94d9c881059073f725907cf9
+    sha256: 02cdd769c382a84f687d41dfa80d1f70c1d37f778c8f38c685facd19985ea20b
+    previous_sha256: c5177b2479a5da4414aefa3c6ac6251f5645868260d2b5cefe9189de182f1ae4
+    update_2026-10-11: >-
+      130 rows, 65 forming / 65 non-forming (70 experimental + 60 synthetic) - DEC-3 (HDNA0081)
+      plus one matched negative SYN0064 (random GC/length-matched to HDNA0081, ADDED_SEED
+      20261011; the 59 earlier synthetic records unchanged) and DEC-17 citation columns. The 128
+      earlier records differ only in citation fields (21 records). Validation - 0 duplicates, 0
+      H-DNA-competent synthetic rows.
     sha256_history: f4602d6453d0926c1eae10dd54311e9fad08afe2beb9e59a3a9a0153e3b2ad8c (130 rows,
       65:65, pre-DEC-7) -> 7f78555dd7c788a75c012d1eef8a08306a65b7f9be1f3468e85ab37a5c5bde89 (124
       rows, 64:60, DEC-7) -> 7bb495444e91709fb0e322f08e5c9737e3a9419f94d9c881059073f725907cf9
@@ -160,7 +173,12 @@ decisions:
     negative is derived from HDNA0060-0063)'
 - id: DEC-3
   question: Add pRW1406=(TTC)8 as a new verified primary forming record?
-  status: blocked_on_author
+  status: resolved
+  resolved_date: '2026-10-11'
+  resolution: >-
+    Option A (author 2026-10-11, "do it"). Added as HDNA0081 Hanvey1988_(TTC)8, plus one matched
+    synthetic negative SYN0064 to keep 1:1 (balanced 130 at 65:65). Evidence
+    RTR/evidence/benchmark_and_configuration_freeze_2026-10-11.md.
   decider: authors
   evidence: RTR/evidence/DEC-3_pRW1406.md
   evidence_date: '2026-09-23'
@@ -192,7 +210,15 @@ decisions:
 - id: DEC-5
   question: 'Canonical benchmark parameters: adopt manuscript-stated values (mismatch=0.15, minrep=8, explicit Triplex args)
     as canonical and re-run?'
-  status: pending
+  status: resolved
+  resolved_date: '2026-10-11'
+  resolution: >-
+    Author 2026-10-11 ("prefer the better one", mismatch "based on data"). On 130 records -
+    mismatch 0.10 (ties 0.15, 0.9697 vs 0.9692; 0.15 only adds HDNA0058, a direct repeat, and a
+    false positive on HDNA0028 B-33; grouped validation selects 0.10 in 48/52 family and 24/27
+    study folds); minrep 8 (DEC-15); purity 0.90; maxspacer 10; filters on in CLI/webapp.
+    Comparator arguments deferred to the tool-comparison run. Evidence
+    RTR/evidence/benchmark_and_configuration_freeze_2026-10-11.md.
   decider: authors
   note: "Recommended: yes \u2014 the reviewed manuscript's values are canonical; record any number changes."
   evidence_update_2026-10-02: >-
@@ -477,6 +503,46 @@ decisions:
     S1-END-seq KM12 plan is optional and not pursued.
   evidence: RTR/evidence/X8_kouzine_analysis_design_2026-10-09.md
   resolved_date: '2026-10-09'
+- id: DEC-15
+  question: Change the shipped minimum arm length (minrep) from 10 to 8?
+  status: resolved
+  decider: authors (Kimon)
+  resolution: >-
+    Yes (author 2026-10-11, "prefer the better one"). minrep default 8 in scan_sequence,
+    scan_fasta, scan_fasta_iter, scan_fasta_parallel, hseeker.ablation, the CLI, the web form and
+    presets, About page, README, copilot-instructions. On 130 records MCC 0.970 vs 0.884 under
+    nested CV, LOFO and LOSO; selected in 99 % of nested folds, 52/52 family and 27/27 study folds;
+    Kouzine recall mouse 74.1 -> 79.0 %, human 68.0 -> 82.3 % with unchanged per-call ssDNA+ rate.
+    minrep 7 (0.985 in-sample) rejected - its only gain is HDNA0058, a direct repeat, and minrep 6
+    adds 10 false positives. Tests 349 passed, 3 skipped. Consequences - hg38 chr1 greedy loci
+    106,481 (library defaults) / 45,927 (CLI defaults), was 96,731 / 41,939; published runtime
+    figures were measured at minrep 10 and must be re-measured (X6).
+  evidence: RTR/evidence/benchmark_and_configuration_freeze_2026-10-11.md
+  resolved_date: '2026-10-11'
+- id: DEC-16
+  question: Report the six pure homopolymers inside the benchmark or as a separate panel?
+  status: resolved
+  decider: authors (Kimon, "whatever is most correct")
+  resolution: >-
+    Separate panel (analysis/scripts/run_homopolymer_panel.py ->
+    analysis/results/homopolymer_panel/). The filters decide their calls by construction, a
+    single-base run is mirror-symmetric everywhere, and labels depend on conditions. At the
+    shipped configuration - no filters 2/6 correct, AT only 6/6, homopolymer filter (incl. CLI)
+    5/6; the homopolymer filter rejects poly-(dC)30, which forms an Mg2+-dependent triplex
+    (Kohwi 1988) - to disclose.
+  evidence: RTR/evidence/benchmark_and_configuration_freeze_2026-10-11.md
+  resolved_date: '2026-10-11'
+- id: DEC-17
+  question: Copy the audit's corrected PMIDs/DOIs into the citation columns?
+  status: resolved
+  decider: authors (Kimon)
+  resolution: >-
+    Done 2026-10-11 in both CSVs - cited_pmid/cited_doi (and cited_paper, study_id where they
+    named the old paper) now hold the corrected source; originals kept in original_* columns.
+    25 PMID and 9 DOI rows (the audit's "22 + 2" predates DEC-2 and the removals). Study grouping
+    changes - HDNA0055/0056 -> Rooney 1995; FXN -> Potaman 2004 / Sakamoto 1999.
+  evidence: RTR/evidence/benchmark_and_configuration_freeze_2026-10-11.md
+  resolved_date: '2026-10-11'
 actions:
 - id: WS0-A1
   workstream: WS0_benchmark_freeze
@@ -484,7 +550,12 @@ actions:
   - R2.2
   - R3.1
   - R3.5
-  status: pending
+  status: done
+  note_2026-10-11: >-
+    Benchmark frozen 2026-10-11 - DEC-3 applied (HDNA0081 + SYN0064; 130 at 65:65), DEC-17
+    citations applied, DEC-16 homopolymers as a separate panel. Still open - the assay-condition
+    column promised in the R3.4 answer (pH, Mg2+, supercoiling per record); metadata only, no call
+    changes.
   depends_on: []
   inputs:
   - hdna_benchmark_experimental_v3.csv
@@ -724,7 +795,11 @@ actions:
   - R2.2
   - R2.6
   - R3.11
-  status: pending
+  status: in_progress
+  note_2026-10-11: >-
+    DEC-5 and DEC-15 resolved 2026-10-11 (minrep 8, mismatch 0.10, purity 0.90, maxspacer 10,
+    filters on in CLI/webapp). Still open - analysis/benchmark_config.json with the comparator
+    arguments (deferred to the tool comparison).
   depends_on:
   - WS0-A1
   - WS1-A3
@@ -816,7 +891,11 @@ actions:
   reviewer_items:
   - R3.2
   - R3.3
-  status: in_progress
+  status: done
+  note_2026-10-11: >-
+    Regenerated 2026-10-11 on 130 records and the corrected study_ids (27 study groups) -
+    LOFO/LOSO fixed default 0.970, tuned 0.924; collapsed per family 0.862, per (family, class)
+    0.945. The stability-score threshold part belongs to R3.3 (open).
   depends_on:
   - WS2-A1
   inputs:
@@ -1011,7 +1090,13 @@ actions:
   workstream: WS4_robustness
   reviewer_items:
   - R3.9
-  status: pending
+  status: done
+  note_2026-10-11: >-
+    Done 2026-10-11 on 130 records - analysis/scripts/run_ablation_comment9.py,
+    analysis/results/ablation_comment9/, analysis/hseeker_ablation_comment9.ipynb (the files the
+    R3.9 letter cited but which were never committed). Detection alone TP63 FN2 TN58 FP7 (MCC
+    0.864); + purity removes all 7 FPs (MCC 0.970); AT filter, pairing, stacking, complete model and
+    overlap mode change no call. Response RTR/evidence/R3.9_ablation_response_2026-10-11.md.
   depends_on:
   - WS2-A1
   inputs:
@@ -1033,7 +1118,11 @@ actions:
   workstream: WS4_robustness
   reviewer_items:
   - R3.9
-  status: in_progress
+  status: done
+  note_2026-10-11: >-
+    Regenerated 2026-10-11 on 130 records (robustness_v3/) - nested CV fixed default 0.970 vs
+    tuned 0.939; tuning beats the default in 0/200 splits (tied 118). One-at-a-time variation in
+    ablation_comment9/parameter_one_at_a_time.csv.
   depends_on:
   - WS2-A1
   inputs:
@@ -1127,7 +1216,15 @@ actions:
   workstream: WS4_robustness
   reviewer_items:
   - R3.10
-  status: in_progress
+  status: done
+  note_2026-10-11: >-
+    Deposited 2026-10-11 - analysis/scripts/run_overlap_comparison.py ->
+    analysis/results/overlap_selection/ (overlap_selection_comparison.csv, examples.json,
+    chr1_comparison.json). At minrep 8 - benchmark 43/70 records with overlapping candidates, 38
+    identical, 5 differ, 0 calls differ (0 of 74,880 across the grid); chr1 CLI defaults greedy
+    45,927 / score 47,217, 91.2 % identical, 100 % covered, 991 score-only. Response
+    RTR/evidence/R3.10_overlap_response_2026-10-11.md (greedy default and recommended for
+    genome-wide annotation). Runtimes at minrep 8 still to measure (X6).
   depends_on:
   - WS2-A1
   inputs:
@@ -1178,6 +1275,17 @@ actions:
   - R2.3
   - R3.8
   status: in_progress
+  note_2026-10-11: >-
+    Analysis complete for minimum arm 8 only (author decision 2026-10-11; DEC-15). Recall mouse 79.0 %,
+    human 82.3 %; selectivity OR 1.65 / 3.39. Signal at HSeeker loci vs composition-matched controls -
+    first (pre-planned) analysis mouse activated 1.14 (1.13-1.15), resting 0.82, human 0.98
+    (0.97-0.98); isolated analysis (mappable, no other predicted non-B within 100 bp, no TSS within 2 kb,
+    local controls) mouse activated 1.25 (1.18-1.33) rising with arm length (1.12 at 8-9 nt to
+    1.6-1.8 at >= 12 nt), resting 0.86, human 1.02 (0.99-1.06, not significant); placebo calibrated;
+    positive control 7.4x mouse, 2.1x human. Enrichment defended in mouse, not seen in human; both
+    reported. Response RTR/evidence/R2.3_R3.8_kouzine_response_2026-10-11.md; results
+    RTR/evidence/X8_kouzine_results_2026-10-11_isolated.md. Still to do - the figure replacing
+    Figure 3 and the manuscript text.
   depends_on:
   - WS2-A1
   inputs:

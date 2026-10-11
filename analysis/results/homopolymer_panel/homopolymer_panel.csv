@@ -1,0 +1,7 @@
+record_id,sequence_name,length,base,label,record_type,evidence,call[none],correct[none],call[AT_only],correct[AT_only],call[homopolymer_only],correct[homopolymer_only],call[both (shipped CLI)],correct[both (shipped CLI)]
+HDNA0053,pRW1405,20,A,non_forming,experimental,Hanvey 1988 (PMID 2835375): A20.T20 remains B-form under all conditions tested,hit,False,no hit,True,no hit,True,no hit,True
+HDNA0054,poly-(dC)30,30,C,forming,experimental,Kohwi & Kohwi-Shigematsu 1988 (PMID 3375241): Mg2+-dependent triple helix in homopurine-homopyrimidine (dG)n.(dC)n,hit,True,hit,True,no hit,False,no hit,False
+SYN0053,poly-A15,15,A,non_forming,synthetic,synthetic design; poly-A extends the Hanvey A20 result (not experimentally tested),no hit,True,no hit,True,no hit,True,no hit,True
+SYN0054,poly-A30,30,A,non_forming,synthetic,synthetic design; poly-A extends the Hanvey A20 result (not experimentally tested),hit,False,no hit,True,no hit,True,no hit,True
+SYN0055,poly-T25,25,T,non_forming,synthetic,synthetic design; poly-T extends the Hanvey A20 result (not experimentally tested),hit,False,no hit,True,no hit,True,no hit,True
+SYN0056,poly-T35,35,T,non_forming,synthetic,synthetic design; poly-T extends the Hanvey A20 result (not experimentally tested),hit,False,no hit,True,no hit,True,no hit,True

@@ -42,8 +42,8 @@ def main() -> None:
                         default="biopython",
                         help="FASTA parser implementation (default: biopython)")
     parser.add_argument("-out",         required=True,       help="Output prefix → <prefix>_HDNA.tsv")
-    parser.add_argument("-minrep",      type=int,   default=10,    metavar="INT",
-                        help="Minimum arm length (default: 10)")
+    parser.add_argument("-minrep",      type=int,   default=8,     metavar="INT",
+                        help="Minimum arm length (default: 8)")
     parser.add_argument("-maxrep",      type=int,   default=1000,  metavar="INT",
                         help="Maximum arm length (default: 1000)")
     parser.add_argument("-maxspacer",   type=int,   default=10,   metavar="INT",

@@ -1,0 +1,1968 @@
+{
+ "genome": "hg19",
+ "hseeker_config": "cli_minrep8",
+ "hseeker_params": {
+  "minrep": 8,
+  "maxrep": 1000,
+  "maxspacer": 10,
+  "purity": 0.9,
+  "mismatch": 0.1,
+  "at_threshold": 0.8,
+  "filter_homopolymers": true,
+  "overlap_strategy": "greedy"
+ },
+ "design": "RTR/evidence/X8_kouzine_analysis_design_2026-10-09.md, deviation 5",
+ "parameters": {
+  "other_classes": [
+   "Quadruplex",
+   "Z-DNA",
+   "Cruciform",
+   "SIDD"
+  ],
+  "pad": 100,
+  "tss_pad": 2000,
+  "local": 50000,
+  "n_sample": 20000,
+  "n_controls": 10,
+  "candidates": 30,
+  "mappability_min": 0.5,
+  "seed": 20261009
+ },
+ "funnel": {
+  "loci": 555753,
+  "tier_A_mappable": 443656,
+  "tier_B_isolated": 281375,
+  "ssDNA_plus_hdna": 8356,
+  "ssDNA_plus_hdna_tier_B": 2072
+ },
+ "signal": {
+  "raji": {
+   "tier_A | local | C": {
+    "n": 17103,
+    "controls_per_locus": 8.89,
+    "locus_mean": 0.003004574621279696,
+    "control_mean": 0.0032239260018924517,
+    "ratio_of_means": 0.932,
+    "ratio_ci95": [
+     0.8967,
+     0.968
+    ],
+    "prob_superiority": 0.4994,
+    "prob_superiority_ci95": [
+     0.4954,
+     0.504
+    ],
+    "prob_superiority_p_greater": 0.5990452552127501,
+    "share_locus_signal_nonzero": 0.4059,
+    "share_control_signal_nonzero": 0.3995,
+    "targets_without_controls": 2897,
+    "placebo": {
+     "n": 16061,
+     "controls_per_locus": 8.37,
+     "locus_mean": 0.0032146081293071256,
+     "control_mean": 0.003140869457524731,
+     "ratio_of_means": 1.0235,
+     "ratio_ci95": [
+      0.9892,
+      1.0559
+     ],
+     "prob_superiority": 0.5022,
+     "prob_superiority_ci95": [
+      0.4982,
+      0.5058
+     ],
+     "prob_superiority_p_greater": 0.1391701359148795,
+     "share_locus_signal_nonzero": 0.3968,
+     "share_control_signal_nonzero": 0.3946
+    },
+    "by_arm_length": {
+     "8-9": {
+      "n": 1829,
+      "controls_per_locus": 9.62,
+      "locus_mean": 0.0028728638376979685,
+      "control_mean": 0.002931234645357745,
+      "ratio_of_means": 0.9801,
+      "ratio_ci95": [
+       0.8722,
+       1.0966
+      ],
+      "prob_superiority": 0.5078,
+      "prob_superiority_ci95": [
+       0.4952,
+       0.5215
+      ],
+      "prob_superiority_p_greater": 0.11450894732347747,
+      "share_locus_signal_nonzero": 0.4183,
+      "share_control_signal_nonzero": 0.397
+     },
+     "10-11": {
+      "n": 12907,
+      "controls_per_locus": 9.17,
+      "locus_mean": 0.003068690564244809,
+      "control_mean": 0.003310827786476745,
+      "ratio_of_means": 0.9269,
+      "ratio_ci95": [
+       0.8869,
+       0.9739
+      ],
+      "prob_superiority": 0.4992,
+      "prob_superiority_ci95": [
+       0.4944,
+       0.504
+      ],
+      "prob_superiority_p_greater": 0.6312796214845555,
+      "share_locus_signal_nonzero": 0.4009,
+      "share_control_signal_nonzero": 0.3962
+     },
+     "12-14": {
+      "n": 2134,
+      "controls_per_locus": 6.97,
+      "locus_mean": 0.0027507258774811904,
+      "control_mean": 0.0029887114352226463,
+      "ratio_of_means": 0.9204,
+      "ratio_ci95": [
+       0.8129,
+       1.0369
+      ],
+      "prob_superiority": 0.4958,
+      "prob_superiority_ci95": [
+       0.4818,
+       0.5107
+      ],
+      "prob_superiority_p_greater": 0.721352471077026,
+      "share_locus_signal_nonzero": 0.4217,
+      "share_control_signal_nonzero": 0.4156
+     },
+     "15-19": {
+      "n": 187,
+      "controls_per_locus": 5.42,
+      "locus_mean": 0.002828179765770166,
+      "control_mean": 0.0029271170387097883,
+      "ratio_of_means": 0.9662,
+      "ratio_ci95": [
+       0.676,
+       1.2931
+      ],
+      "prob_superiority": 0.473,
+      "prob_superiority_ci95": [
+       0.422,
+       0.5271
+      ],
+      "prob_superiority_p_greater": 0.8508865307384423,
+      "share_locus_signal_nonzero": 0.4278,
+      "share_control_signal_nonzero": 0.4581
+     },
+     ">=20": {
+      "n": 46,
+      "controls_per_locus": 4.98,
+      "locus_mean": 0.0027448703727266086,
+      "control_mean": 0.0025965851075668645,
+      "ratio_of_means": 1.0571,
+      "ratio_ci95": [
+       0.539,
+       1.941
+      ],
+      "prob_superiority": 0.52,
+      "prob_superiority_ci95": [
+       0.4106,
+       0.6271
+      ],
+      "prob_superiority_p_greater": 0.3623380297114469,
+      "share_locus_signal_nonzero": 0.5,
+      "share_control_signal_nonzero": 0.4612
+     }
+    },
+    "arm_length_vs_prob_superiority_spearman": {
+     "rho": 0.0093652185159216,
+     "p": 0.22068601563041904
+    },
+    "by_score_quartile": {
+     "Q1": {
+      "n": 4267,
+      "controls_per_locus": 9.91,
+      "locus_mean": 0.0024422026592192795,
+      "control_mean": 0.002450905848539372,
+      "ratio_of_means": 0.9964,
+      "ratio_ci95": [
+       0.9184,
+       1.077
+      ],
+      "prob_superiority": 0.5045,
+      "prob_superiority_ci95": [
+       0.4971,
+       0.5118
+      ],
+      "prob_superiority_p_greater": 0.12743971479537228,
+      "share_locus_signal_nonzero": 0.3522,
+      "share_control_signal_nonzero": 0.3462
+     },
+     "Q2": {
+      "n": 4183,
+      "controls_per_locus": 9.29,
+      "locus_mean": 0.002924913934423488,
+      "control_mean": 0.0030820044074351366,
+      "ratio_of_means": 0.949,
+      "ratio_ci95": [
+       0.8632,
+       1.0503
+      ],
+      "prob_superiority": 0.5002,
+      "prob_superiority_ci95": [
+       0.4916,
+       0.5082
+      ],
+      "prob_superiority_p_greater": 0.4855159080986077,
+      "share_locus_signal_nonzero": 0.3897,
+      "share_control_signal_nonzero": 0.3839
+     },
+     "Q3": {
+      "n": 4259,
+      "controls_per_locus": 8.91,
+      "locus_mean": 0.0030565058470057678,
+      "control_mean": 0.0032214988640796747,
+      "ratio_of_means": 0.9488,
+      "ratio_ci95": [
+       0.8808,
+       1.0236
+      ],
+      "prob_superiority": 0.5011,
+      "prob_superiority_ci95": [
+       0.4919,
+       0.5099
+      ],
+      "prob_superiority_p_greater": 0.40200373938974887,
+      "share_locus_signal_nonzero": 0.4163,
+      "share_control_signal_nonzero": 0.404
+     },
+     "Q4": {
+      "n": 4394,
+      "controls_per_locus": 7.5,
+      "locus_mean": 0.003576191991526389,
+      "control_mean": 0.004112062598141232,
+      "ratio_of_means": 0.8697,
+      "ratio_ci95": [
+       0.8107,
+       0.9342
+      ],
+      "prob_superiority": 0.4922,
+      "prob_superiority_ci95": [
+       0.4826,
+       0.5019
+      ],
+      "prob_superiority_p_greater": 0.9443702627175681,
+      "share_locus_signal_nonzero": 0.4634,
+      "share_control_signal_nonzero": 0.4618
+     }
+    }
+   },
+   "tier_A | local | G": {
+    "n": 19910,
+    "controls_per_locus": 9.95,
+    "locus_mean": 0.0031631353765625364,
+    "control_mean": 0.004448900287919333,
+    "ratio_of_means": 0.711,
+    "ratio_ci95": [
+     0.6782,
+     0.7439
+    ],
+    "prob_superiority": 0.4847,
+    "prob_superiority_ci95": [
+     0.481,
+     0.4883
+    ],
+    "prob_superiority_p_greater": 0.9999999999999991,
+    "share_locus_signal_nonzero": 0.4146,
+    "share_control_signal_nonzero": 0.416,
+    "targets_without_controls": 90,
+    "placebo": {
+     "n": 19874,
+     "controls_per_locus": 8.96,
+     "locus_mean": 0.004495710420695901,
+     "control_mean": 0.004432687004278002,
+     "ratio_of_means": 1.0142,
+     "ratio_ci95": [
+      0.9895,
+      1.0407
+     ],
+     "prob_superiority": 0.5031,
+     "prob_superiority_ci95": [
+      0.4994,
+      0.5068
+     ],
+     "prob_superiority_p_greater": 0.048973907328941586,
+     "share_locus_signal_nonzero": 0.4184,
+     "share_control_signal_nonzero": 0.4156
+    },
+    "by_arm_length": {
+     "8-9": {
+      "n": 1856,
+      "controls_per_locus": 9.96,
+      "locus_mean": 0.0029833351530934413,
+      "control_mean": 0.003641310495338566,
+      "ratio_of_means": 0.8193,
+      "ratio_ci95": [
+       0.7255,
+       0.9105
+      ],
+      "prob_superiority": 0.5016,
+      "prob_superiority_ci95": [
+       0.4896,
+       0.5139
+      ],
+      "prob_superiority_p_greater": 0.39862583771434157,
+      "share_locus_signal_nonzero": 0.4203,
+      "share_control_signal_nonzero": 0.4001
+     },
+     "10-11": {
+      "n": 13558,
+      "controls_per_locus": 9.95,
+      "locus_mean": 0.003276187725227933,
+      "control_mean": 0.004483739561916243,
+      "ratio_of_means": 0.7307,
+      "ratio_ci95": [
+       0.6909,
+       0.7772
+      ],
+      "prob_superiority": 0.4855,
+      "prob_superiority_ci95": [
+       0.4808,
+       0.4902
+      ],
+      "prob_superiority_p_greater": 0.9999999998327426,
+      "share_locus_signal_nonzero": 0.405,
+      "share_control_signal_nonzero": 0.4074
+     },
+     "12-14": {
+      "n": 3133,
+      "controls_per_locus": 9.93,
+      "locus_mean": 0.0028330259589646875,
+      "control_mean": 0.004455369660954722,
+      "ratio_of_means": 0.6359,
+      "ratio_ci95": [
+       0.5823,
+       0.6959
+      ],
+      "prob_superiority": 0.4848,
+      "prob_superiority_ci95": [
+       0.4748,
+       0.4945
+      ],
+      "prob_superiority_p_greater": 0.9989591613117532,
+      "share_locus_signal_nonzero": 0.4366,
+      "share_control_signal_nonzero": 0.4269
+     },
+     "15-19": {
+      "n": 691,
+      "controls_per_locus": 9.88,
+      "locus_mean": 0.002605334949233124,
+      "control_mean": 0.004766777936147233,
+      "ratio_of_means": 0.5466,
+      "ratio_ci95": [
+       0.4417,
+       0.6881
+      ],
+      "prob_superiority": 0.4697,
+      "prob_superiority_ci95": [
+       0.448,
+       0.4918
+      ],
+      "prob_superiority_p_greater": 0.9973906467081225,
+      "share_locus_signal_nonzero": 0.4284,
+      "share_control_signal_nonzero": 0.4627
+     },
+     ">=20": {
+      "n": 672,
+      "controls_per_locus": 9.85,
+      "locus_mean": 0.0034914365256278287,
+      "control_mean": 0.005619456504488454,
+      "ratio_of_means": 0.6213,
+      "ratio_ci95": [
+       0.4113,
+       0.9166
+      ],
+      "prob_superiority": 0.4365,
+      "prob_superiority_ci95": [
+       0.415,
+       0.4589
+      ],
+      "prob_superiority_p_greater": 0.9999999848088401,
+      "share_locus_signal_nonzero": 0.4747,
+      "share_control_signal_nonzero": 0.5364
+     }
+    },
+    "arm_length_vs_prob_superiority_spearman": {
+     "rho": -0.031314432526506696,
+     "p": 9.899344753181965e-06
+    },
+    "by_score_quartile": {
+     "Q1": {
+      "n": 4891,
+      "controls_per_locus": 9.97,
+      "locus_mean": 0.0029202357805731775,
+      "control_mean": 0.003236709508574865,
+      "ratio_of_means": 0.9022,
+      "ratio_ci95": [
+       0.7959,
+       1.0506
+      ],
+      "prob_superiority": 0.4968,
+      "prob_superiority_ci95": [
+       0.4893,
+       0.504
+      ],
+      "prob_superiority_p_greater": 0.8044428433652968,
+      "share_locus_signal_nonzero": 0.365,
+      "share_control_signal_nonzero": 0.3596
+     },
+     "Q2": {
+      "n": 4642,
+      "controls_per_locus": 9.97,
+      "locus_mean": 0.0028663096392185726,
+      "control_mean": 0.0036833202858702193,
+      "ratio_of_means": 0.7782,
+      "ratio_ci95": [
+       0.7203,
+       0.831
+      ],
+      "prob_superiority": 0.4958,
+      "prob_superiority_ci95": [
+       0.4881,
+       0.5039
+      ],
+      "prob_superiority_p_greater": 0.8570784400472049,
+      "share_locus_signal_nonzero": 0.3934,
+      "share_control_signal_nonzero": 0.3857
+     },
+     "Q3": {
+      "n": 5286,
+      "controls_per_locus": 9.96,
+      "locus_mean": 0.0030853875028743595,
+      "control_mean": 0.004281400747334546,
+      "ratio_of_means": 0.7206,
+      "ratio_ci95": [
+       0.675,
+       0.7704
+      ],
+      "prob_superiority": 0.4888,
+      "prob_superiority_ci95": [
+       0.4815,
+       0.4966
+      ],
+      "prob_superiority_p_greater": 0.998761772450176,
+      "share_locus_signal_nonzero": 0.4213,
+      "share_control_signal_nonzero": 0.4157
+     },
+     "Q4": {
+      "n": 5091,
+      "controls_per_locus": 9.9,
+      "locus_mean": 0.0037478657354410166,
+      "control_mean": 0.006485445179456747,
+      "ratio_of_means": 0.5779,
+      "ratio_ci95": [
+       0.5343,
+       0.6259
+      ],
+      "prob_superiority": 0.4586,
+      "prob_superiority_ci95": [
+       0.4511,
+       0.4665
+      ],
+      "prob_superiority_p_greater": 1.0,
+      "share_locus_signal_nonzero": 0.4746,
+      "share_control_signal_nonzero": 0.4983
+     }
+    }
+   },
+   "tier_A | chromosome | C": {
+    "n": 17854,
+    "controls_per_locus": 8.51,
+    "locus_mean": 0.0030053017453065345,
+    "control_mean": 0.003196650102702049,
+    "ratio_of_means": 0.9401,
+    "ratio_ci95": [
+     0.8952,
+     0.9945
+    ],
+    "prob_superiority": 0.5021,
+    "prob_superiority_ci95": [
+     0.4979,
+     0.5067
+    ],
+    "prob_superiority_p_greater": 0.16050046525768463,
+    "share_locus_signal_nonzero": 0.4048,
+    "share_control_signal_nonzero": 0.3931,
+    "targets_without_controls": 2146,
+    "placebo": {
+     "n": 16224,
+     "controls_per_locus": 8.22,
+     "locus_mean": 0.0029765536228421635,
+     "control_mean": 0.0029713258545100724,
+     "ratio_of_means": 1.0018,
+     "ratio_ci95": [
+      0.9613,
+      1.0416
+     ],
+     "prob_superiority": 0.4991,
+     "prob_superiority_ci95": [
+      0.4946,
+      0.5032
+     ],
+     "prob_superiority_p_greater": 0.6712036665678984,
+     "share_locus_signal_nonzero": 0.3831,
+     "share_control_signal_nonzero": 0.3855
+    },
+    "by_arm_length": {
+     "8-9": {
+      "n": 1834,
+      "controls_per_locus": 9.62,
+      "locus_mean": 0.0029197449169758144,
+      "control_mean": 0.002903574118265841,
+      "ratio_of_means": 1.0056,
+      "ratio_ci95": [
+       0.881,
+       1.1391
+      ],
+      "prob_superiority": 0.5161,
+      "prob_superiority_ci95": [
+       0.5041,
+       0.5287
+      ],
+      "prob_superiority_p_greater": 0.005584832296948068,
+      "share_locus_signal_nonzero": 0.4188,
+      "share_control_signal_nonzero": 0.3841
+     },
+     "10-11": {
+      "n": 13180,
+      "controls_per_locus": 8.98,
+      "locus_mean": 0.003100634889284111,
+      "control_mean": 0.0033541008491087933,
+      "ratio_of_means": 0.9244,
+      "ratio_ci95": [
+       0.8702,
+       0.9923
+      ],
+      "prob_superiority": 0.5006,
+      "prob_superiority_ci95": [
+       0.4954,
+       0.5055
+      ],
+      "prob_superiority_p_greater": 0.4078329044818468,
+      "share_locus_signal_nonzero": 0.3998,
+      "share_control_signal_nonzero": 0.3913
+     },
+     "12-14": {
+      "n": 2441,
+      "controls_per_locus": 6.02,
+      "locus_mean": 0.0025977992735668177,
+      "control_mean": 0.0026766403634646226,
+      "ratio_of_means": 0.9705,
+      "ratio_ci95": [
+       0.8584,
+       1.094
+      ],
+      "prob_superiority": 0.5008,
+      "prob_superiority_ci95": [
+       0.4883,
+       0.5132
+      ],
+      "prob_superiority_p_greater": 0.45195340799527073,
+      "share_locus_signal_nonzero": 0.4187,
+      "share_control_signal_nonzero": 0.4037
+     },
+     "15-19": {
+      "n": 304,
+      "controls_per_locus": 3.2,
+      "locus_mean": 0.00212944689737234,
+      "control_mean": 0.0026642598172388833,
+      "ratio_of_means": 0.7993,
+      "ratio_ci95": [
+       0.5346,
+       1.1098
+      ],
+      "prob_superiority": 0.4746,
+      "prob_superiority_ci95": [
+       0.4379,
+       0.5122
+      ],
+      "prob_superiority_p_greater": 0.9020093747486384,
+      "share_locus_signal_nonzero": 0.4013,
+      "share_control_signal_nonzero": 0.4383
+     },
+     ">=20": {
+      "n": 95,
+      "controls_per_locus": 1.99,
+      "locus_mean": 0.004704183775019504,
+      "control_mean": 0.0020755020824333626,
+      "ratio_of_means": 2.2665,
+      "ratio_ci95": [
+       0.9873,
+       4.7043
+      ],
+      "prob_superiority": 0.5672,
+      "prob_superiority_ci95": [
+       0.4952,
+       0.6363
+      ],
+      "prob_superiority_p_greater": 0.03722278379433013,
+      "share_locus_signal_nonzero": 0.4737,
+      "share_control_signal_nonzero": 0.3982
+     }
+    },
+    "arm_length_vs_prob_superiority_spearman": {
+     "rho": 0.004041461218714025,
+     "p": 0.589210935161981
+    },
+    "by_score_quartile": {
+     "Q1": {
+      "n": 4459,
+      "controls_per_locus": 9.87,
+      "locus_mean": 0.0027808860704324405,
+      "control_mean": 0.002665075417182067,
+      "ratio_of_means": 1.0435,
+      "ratio_ci95": [
+       0.9034,
+       1.2573
+      ],
+      "prob_superiority": 0.5034,
+      "prob_superiority_ci95": [
+       0.4957,
+       0.5113
+      ],
+      "prob_superiority_p_greater": 0.19672518277585443,
+      "share_locus_signal_nonzero": 0.3602,
+      "share_control_signal_nonzero": 0.3542
+     },
+     "Q2": {
+      "n": 4432,
+      "controls_per_locus": 9.09,
+      "locus_mean": 0.002835782155875251,
+      "control_mean": 0.002998248727291211,
+      "ratio_of_means": 0.9458,
+      "ratio_ci95": [
+       0.8632,
+       1.0326
+      ],
+      "prob_superiority": 0.5048,
+      "prob_superiority_ci95": [
+       0.497,
+       0.5129
+      ],
+      "prob_superiority_p_greater": 0.12095279212540887,
+      "share_locus_signal_nonzero": 0.3838,
+      "share_control_signal_nonzero": 0.3688
+     },
+     "Q3": {
+      "n": 4259,
+      "controls_per_locus": 8.73,
+      "locus_mean": 0.0029515894467056023,
+      "control_mean": 0.003202217612642704,
+      "ratio_of_means": 0.9217,
+      "ratio_ci95": [
+       0.8482,
+       1.0039
+      ],
+      "prob_superiority": 0.5035,
+      "prob_superiority_ci95": [
+       0.4945,
+       0.5117
+      ],
+      "prob_superiority_p_greater": 0.2070028319232292,
+      "share_locus_signal_nonzero": 0.4198,
+      "share_control_signal_nonzero": 0.4006
+     },
+     "Q4": {
+      "n": 4704,
+      "controls_per_locus": 6.46,
+      "locus_mean": 0.0034263776369656365,
+      "control_mean": 0.003882426972114715,
+      "ratio_of_means": 0.8825,
+      "ratio_ci95": [
+       0.8108,
+       0.9531
+      ],
+      "prob_superiority": 0.4971,
+      "prob_superiority_ci95": [
+       0.4887,
+       0.5061
+      ],
+      "prob_superiority_p_greater": 0.7390283974594883,
+      "share_locus_signal_nonzero": 0.4532,
+      "share_control_signal_nonzero": 0.4461
+     }
+    }
+   },
+   "tier_A | chromosome | G": {
+    "n": 19995,
+    "controls_per_locus": 9.97,
+    "locus_mean": 0.003169039775635424,
+    "control_mean": 0.00510399332326372,
+    "ratio_of_means": 0.6209,
+    "ratio_ci95": [
+     0.5915,
+     0.6523
+    ],
+    "prob_superiority": 0.4818,
+    "prob_superiority_ci95": [
+     0.4782,
+     0.4858
+    ],
+    "prob_superiority_p_greater": 1.0,
+    "share_locus_signal_nonzero": 0.4146,
+    "share_control_signal_nonzero": 0.4184,
+    "targets_without_controls": 5,
+    "placebo": {
+     "n": 19963,
+     "controls_per_locus": 8.99,
+     "locus_mean": 0.005045211820876011,
+     "control_mean": 0.005001148045539539,
+     "ratio_of_means": 1.0088,
+     "ratio_ci95": [
+      0.9695,
+      1.0505
+     ],
+     "prob_superiority": 0.5021,
+     "prob_superiority_ci95": [
+      0.4983,
+      0.506
+     ],
+     "prob_superiority_p_greater": 0.1387675490899895,
+     "share_locus_signal_nonzero": 0.4217,
+     "share_control_signal_nonzero": 0.417
+    },
+    "by_arm_length": {
+     "8-9": {
+      "n": 1857,
+      "controls_per_locus": 10.0,
+      "locus_mean": 0.0029823587717341614,
+      "control_mean": 0.00418024973524484,
+      "ratio_of_means": 0.7134,
+      "ratio_ci95": [
+       0.6282,
+       0.798
+      ],
+      "prob_superiority": 0.5,
+      "prob_superiority_ci95": [
+       0.487,
+       0.5122
+      ],
+      "prob_superiority_p_greater": 0.4975054989712935,
+      "share_locus_signal_nonzero": 0.4206,
+      "share_control_signal_nonzero": 0.3996
+     },
+     "10-11": {
+      "n": 13613,
+      "controls_per_locus": 9.97,
+      "locus_mean": 0.003283732300916359,
+      "control_mean": 0.0050799272177287896,
+      "ratio_of_means": 0.6464,
+      "ratio_ci95": [
+       0.6068,
+       0.6924
+      ],
+      "prob_superiority": 0.4838,
+      "prob_superiority_ci95": [
+       0.4792,
+       0.4882
+      ],
+      "prob_superiority_p_greater": 0.999999999997954,
+      "share_locus_signal_nonzero": 0.4051,
+      "share_control_signal_nonzero": 0.4082
+     },
+     "12-14": {
+      "n": 3147,
+      "controls_per_locus": 9.98,
+      "locus_mean": 0.002830834378317716,
+      "control_mean": 0.005241001767651863,
+      "ratio_of_means": 0.5401,
+      "ratio_ci95": [
+       0.4908,
+       0.5942
+      ],
+      "prob_superiority": 0.4804,
+      "prob_superiority_ci95": [
+       0.4705,
+       0.4904
+      ],
+      "prob_superiority_p_greater": 0.9999449268261346,
+      "share_locus_signal_nonzero": 0.436,
+      "share_control_signal_nonzero": 0.4325
+     },
+     "15-19": {
+      "n": 695,
+      "controls_per_locus": 9.98,
+      "locus_mean": 0.0026039784592349095,
+      "control_mean": 0.005564005575098467,
+      "ratio_of_means": 0.468,
+      "ratio_ci95": [
+       0.3723,
+       0.5745
+      ],
+      "prob_superiority": 0.4578,
+      "prob_superiority_ci95": [
+       0.4363,
+       0.4808
+      ],
+      "prob_superiority_p_greater": 0.9999279670619104,
+      "share_locus_signal_nonzero": 0.4302,
+      "share_control_signal_nonzero": 0.4686
+     },
+     ">=20": {
+      "n": 683,
+      "controls_per_locus": 9.98,
+      "locus_mean": 0.0035239552629743125,
+      "control_mean": 0.006995837610355094,
+      "ratio_of_means": 0.5037,
+      "ratio_ci95": [
+       0.3271,
+       0.7832
+      ],
+      "prob_superiority": 0.4241,
+      "prob_superiority_ci95": [
+       0.4024,
+       0.4459
+      ],
+      "prob_superiority_p_greater": 0.9999999999656279,
+      "share_locus_signal_nonzero": 0.4744,
+      "share_control_signal_nonzero": 0.5552
+     }
+    },
+    "arm_length_vs_prob_superiority_spearman": {
+     "rho": -0.041978203861143606,
+     "p": 2.8831135879917643e-09
+    },
+    "by_score_quartile": {
+     "Q1": {
+      "n": 4906,
+      "controls_per_locus": 9.98,
+      "locus_mean": 0.0029424344978039555,
+      "control_mean": 0.0035974688486270215,
+      "ratio_of_means": 0.8179,
+      "ratio_ci95": [
+       0.7146,
+       0.9556
+      ],
+      "prob_superiority": 0.4987,
+      "prob_superiority_ci95": [
+       0.491,
+       0.5064
+      ],
+      "prob_superiority_p_greater": 0.6351288624833579,
+      "share_locus_signal_nonzero": 0.3655,
+      "share_control_signal_nonzero": 0.357
+     },
+     "Q2": {
+      "n": 4653,
+      "controls_per_locus": 9.98,
+      "locus_mean": 0.0028865060725700082,
+      "control_mean": 0.003918684114823981,
+      "ratio_of_means": 0.7366,
+      "ratio_ci95": [
+       0.6803,
+       0.797
+      ],
+      "prob_superiority": 0.4973,
+      "prob_superiority_ci95": [
+       0.4891,
+       0.5052
+      ],
+      "prob_superiority_p_greater": 0.7559892303290205,
+      "share_locus_signal_nonzero": 0.3935,
+      "share_control_signal_nonzero": 0.381
+     },
+     "Q3": {
+      "n": 5422,
+      "controls_per_locus": 9.98,
+      "locus_mean": 0.0030248849311160274,
+      "control_mean": 0.004758825379840899,
+      "ratio_of_means": 0.6356,
+      "ratio_ci95": [
+       0.5884,
+       0.6853
+      ],
+      "prob_superiority": 0.4856,
+      "prob_superiority_ci95": [
+       0.4785,
+       0.4921
+      ],
+      "prob_superiority_p_greater": 0.9999466699154965,
+      "share_locus_signal_nonzero": 0.4177,
+      "share_control_signal_nonzero": 0.4142
+     },
+     "Q4": {
+      "n": 5014,
+      "controls_per_locus": 9.96,
+      "locus_mean": 0.003808840808820253,
+      "control_mean": 0.00805129156990837,
+      "ratio_of_means": 0.4731,
+      "ratio_ci95": [
+       0.4356,
+       0.5172
+      ],
+      "prob_superiority": 0.4468,
+      "prob_superiority_ci95": [
+       0.4391,
+       0.4546
+      ],
+      "prob_superiority_p_greater": 1.0,
+      "share_locus_signal_nonzero": 0.4789,
+      "share_control_signal_nonzero": 0.5176
+     }
+    }
+   },
+   "tier_B | local | C": {
+    "n": 17456,
+    "controls_per_locus": 8.83,
+    "locus_mean": 0.0020523762373922646,
+    "control_mean": 0.0020070065117281147,
+    "ratio_of_means": 1.0226,
+    "ratio_ci95": [
+     0.9875,
+     1.0611
+    ],
+    "prob_superiority": 0.503,
+    "prob_superiority_ci95": [
+     0.4989,
+     0.5073
+    ],
+    "prob_superiority_p_greater": 0.08055740778162952,
+    "share_locus_signal_nonzero": 0.3759,
+    "share_control_signal_nonzero": 0.3694,
+    "targets_without_controls": 2544,
+    "placebo": {
+     "n": 16368,
+     "controls_per_locus": 8.32,
+     "locus_mean": 0.0020170706729501667,
+     "control_mean": 0.0019932683555506456,
+     "ratio_of_means": 1.0119,
+     "ratio_ci95": [
+      0.979,
+      1.0461
+     ],
+     "prob_superiority": 0.4999,
+     "prob_superiority_ci95": [
+      0.4962,
+      0.5038
+     ],
+     "prob_superiority_p_greater": 0.5146514007442063,
+     "share_locus_signal_nonzero": 0.3694,
+     "share_control_signal_nonzero": 0.3676
+    },
+    "by_arm_length": {
+     "8-9": {
+      "n": 2041,
+      "controls_per_locus": 9.56,
+      "locus_mean": 0.002203217401656124,
+      "control_mean": 0.002021533013417439,
+      "ratio_of_means": 1.0899,
+      "ratio_ci95": [
+       0.9822,
+       1.2039
+      ],
+      "prob_superiority": 0.4953,
+      "prob_superiority_ci95": [
+       0.484,
+       0.507
+      ],
+      "prob_superiority_p_greater": 0.7813129800775861,
+      "share_locus_signal_nonzero": 0.3567,
+      "share_control_signal_nonzero": 0.3722
+     },
+     "10-11": {
+      "n": 13257,
+      "controls_per_locus": 9.06,
+      "locus_mean": 0.0020096776748260476,
+      "control_mean": 0.002011276962019996,
+      "ratio_of_means": 0.9992,
+      "ratio_ci95": [
+       0.9559,
+       1.0464
+      ],
+      "prob_superiority": 0.5023,
+      "prob_superiority_ci95": [
+       0.4974,
+       0.507
+      ],
+      "prob_superiority_p_greater": 0.17089656060356584,
+      "share_locus_signal_nonzero": 0.3732,
+      "share_control_signal_nonzero": 0.367
+     },
+     "12-14": {
+      "n": 1978,
+      "controls_per_locus": 6.96,
+      "locus_mean": 0.002112888180846703,
+      "control_mean": 0.0019720626456781435,
+      "ratio_of_means": 1.0714,
+      "ratio_ci95": [
+       0.9575,
+       1.2011
+      ],
+      "prob_superiority": 0.5119,
+      "prob_superiority_ci95": [
+       0.4976,
+       0.5254
+      ],
+      "prob_superiority_p_greater": 0.04740619098621004,
+      "share_locus_signal_nonzero": 0.4029,
+      "share_control_signal_nonzero": 0.3797
+     },
+     "15-19": {
+      "n": 141,
+      "controls_per_locus": 4.32,
+      "locus_mean": 0.0031109757737307455,
+      "control_mean": 0.0020451964667014115,
+      "ratio_of_means": 1.5211,
+      "ratio_ci95": [
+       0.693,
+       3.0821
+      ],
+      "prob_superiority": 0.5408,
+      "prob_superiority_ci95": [
+       0.4826,
+       0.5982
+      ],
+      "prob_superiority_p_greater": 0.08631574123137586,
+      "share_locus_signal_nonzero": 0.4965,
+      "share_control_signal_nonzero": 0.3972
+     },
+     ">=20": {
+      "n": 39,
+      "controls_per_locus": 3.82,
+      "locus_mean": 0.0017762959528074668,
+      "control_mean": 0.0014293714842467593,
+      "ratio_of_means": 1.2427,
+      "ratio_ci95": [
+       0.6687,
+       2.5138
+      ],
+      "prob_superiority": 0.561,
+      "prob_superiority_ci95": [
+       0.4404,
+       0.6808
+      ],
+      "prob_superiority_p_greater": 0.1687291639982647,
+      "share_locus_signal_nonzero": 0.5128,
+      "share_control_signal_nonzero": 0.4077
+     }
+    },
+    "arm_length_vs_prob_superiority_spearman": {
+     "rho": 0.03273409702328114,
+     "p": 1.5203707203472292e-05
+    },
+    "by_score_quartile": {
+     "Q1": {
+      "n": 4171,
+      "controls_per_locus": 9.89,
+      "locus_mean": 0.0017679735400580655,
+      "control_mean": 0.0017385282112858185,
+      "ratio_of_means": 1.0169,
+      "ratio_ci95": [
+       0.9512,
+       1.0839
+      ],
+      "prob_superiority": 0.5078,
+      "prob_superiority_ci95": [
+       0.4996,
+       0.5159
+      ],
+      "prob_superiority_p_greater": 0.027124205981974556,
+      "share_locus_signal_nonzero": 0.3575,
+      "share_control_signal_nonzero": 0.3429
+     },
+     "Q2": {
+      "n": 3879,
+      "controls_per_locus": 9.22,
+      "locus_mean": 0.001891830283457988,
+      "control_mean": 0.001871012266343066,
+      "ratio_of_means": 1.0111,
+      "ratio_ci95": [
+       0.9482,
+       1.0851
+      ],
+      "prob_superiority": 0.502,
+      "prob_superiority_ci95": [
+       0.4936,
+       0.5106
+      ],
+      "prob_superiority_p_greater": 0.32184057116128617,
+      "share_locus_signal_nonzero": 0.3532,
+      "share_control_signal_nonzero": 0.348
+     },
+     "Q3": {
+      "n": 4715,
+      "controls_per_locus": 8.72,
+      "locus_mean": 0.0019378577596497778,
+      "control_mean": 0.0019702006828440453,
+      "ratio_of_means": 0.9836,
+      "ratio_ci95": [
+       0.8982,
+       1.0941
+      ],
+      "prob_superiority": 0.4961,
+      "prob_superiority_ci95": [
+       0.4882,
+       0.5048
+      ],
+      "prob_superiority_p_greater": 0.8254116844951531,
+      "share_locus_signal_nonzero": 0.3614,
+      "share_control_signal_nonzero": 0.3671
+     },
+     "Q4": {
+      "n": 4691,
+      "controls_per_locus": 7.68,
+      "locus_mean": 0.0025531129733649418,
+      "control_mean": 0.0023951719673200584,
+      "ratio_of_means": 1.0659,
+      "ratio_ci95": [
+       0.9924,
+       1.1423
+      ],
+      "prob_superiority": 0.5065,
+      "prob_superiority_ci95": [
+       0.4979,
+       0.516
+      ],
+      "prob_superiority_p_greater": 0.07531688264565134,
+      "share_locus_signal_nonzero": 0.4257,
+      "share_control_signal_nonzero": 0.4129
+     }
+    }
+   },
+   "tier_B | local | G": {
+    "n": 19989,
+    "controls_per_locus": 9.97,
+    "locus_mean": 0.0020618751193716804,
+    "control_mean": 0.0022774669332491057,
+    "ratio_of_means": 0.9053,
+    "ratio_ci95": [
+     0.874,
+     0.9372
+    ],
+    "prob_superiority": 0.4977,
+    "prob_superiority_ci95": [
+     0.4939,
+     0.5014
+    ],
+    "prob_superiority_p_greater": 0.889341680606601,
+    "share_locus_signal_nonzero": 0.3812,
+    "share_control_signal_nonzero": 0.378,
+    "targets_without_controls": 11,
+    "placebo": {
+     "n": 19979,
+     "controls_per_locus": 8.97,
+     "locus_mean": 0.0022425353019974222,
+     "control_mean": 0.002279887558779171,
+     "ratio_of_means": 0.9836,
+     "ratio_ci95": [
+      0.9502,
+      1.0185
+     ],
+     "prob_superiority": 0.4989,
+     "prob_superiority_ci95": [
+      0.4953,
+      0.5027
+     ],
+     "prob_superiority_p_greater": 0.7196056050995479,
+     "share_locus_signal_nonzero": 0.3771,
+     "share_control_signal_nonzero": 0.3781
+    },
+    "by_arm_length": {
+     "8-9": {
+      "n": 2076,
+      "controls_per_locus": 9.97,
+      "locus_mean": 0.0021960884387642694,
+      "control_mean": 0.002326735739521265,
+      "ratio_of_means": 0.9438,
+      "ratio_ci95": [
+       0.8594,
+       1.0323
+      ],
+      "prob_superiority": 0.4917,
+      "prob_superiority_ci95": [
+       0.4807,
+       0.5029
+      ],
+      "prob_superiority_p_greater": 0.923614882698857,
+      "share_locus_signal_nonzero": 0.3579,
+      "share_control_signal_nonzero": 0.3788
+     },
+     "10-11": {
+      "n": 13927,
+      "controls_per_locus": 9.97,
+      "locus_mean": 0.0020078460203793594,
+      "control_mean": 0.002260923995586914,
+      "ratio_of_means": 0.8881,
+      "ratio_ci95": [
+       0.8528,
+       0.9265
+      ],
+      "prob_superiority": 0.4969,
+      "prob_superiority_ci95": [
+       0.493,
+       0.5013
+      ],
+      "prob_superiority_p_greater": 0.9177996719503103,
+      "share_locus_signal_nonzero": 0.3742,
+      "share_control_signal_nonzero": 0.3708
+     },
+     "12-14": {
+      "n": 2891,
+      "controls_per_locus": 9.97,
+      "locus_mean": 0.0020659749675083854,
+      "control_mean": 0.0022292524081148272,
+      "ratio_of_means": 0.9268,
+      "ratio_ci95": [
+       0.8417,
+       1.0158
+      ],
+      "prob_superiority": 0.5029,
+      "prob_superiority_ci95": [
+       0.4925,
+       0.5132
+      ],
+      "prob_superiority_p_greater": 0.28221235655844007,
+      "share_locus_signal_nonzero": 0.4002,
+      "share_control_signal_nonzero": 0.3871
+     },
+     "15-19": {
+      "n": 551,
+      "controls_per_locus": 9.96,
+      "locus_mean": 0.0022185919678260804,
+      "control_mean": 0.0023526325628923928,
+      "ratio_of_means": 0.943,
+      "ratio_ci95": [
+       0.775,
+       1.1423
+      ],
+      "prob_superiority": 0.496,
+      "prob_superiority_ci95": [
+       0.4724,
+       0.5171
+      ],
+      "prob_superiority_p_greater": 0.6380590176817627,
+      "share_locus_signal_nonzero": 0.4229,
+      "share_control_signal_nonzero": 0.418
+     },
+     ">=20": {
+      "n": 544,
+      "controls_per_locus": 9.95,
+      "locus_mean": 0.002752376527727284,
+      "control_mean": 0.002693061384039705,
+      "ratio_of_means": 1.022,
+      "ratio_ci95": [
+       0.7684,
+       1.412
+      ],
+      "prob_superiority": 0.5151,
+      "prob_superiority_ci95": [
+       0.4905,
+       0.5381
+      ],
+      "prob_superiority_p_greater": 0.112438960541534,
+      "share_locus_signal_nonzero": 0.5055,
+      "share_control_signal_nonzero": 0.4712
+     }
+    },
+    "arm_length_vs_prob_superiority_spearman": {
+     "rho": 0.012046846507137955,
+     "p": 0.08853661857227893
+    },
+    "by_score_quartile": {
+     "Q1": {
+      "n": 4890,
+      "controls_per_locus": 9.98,
+      "locus_mean": 0.0018102126466916458,
+      "control_mean": 0.0019019865650238025,
+      "ratio_of_means": 0.9517,
+      "ratio_ci95": [
+       0.8931,
+       1.013
+      ],
+      "prob_superiority": 0.5056,
+      "prob_superiority_ci95": [
+       0.4982,
+       0.5127
+      ],
+      "prob_superiority_p_greater": 0.06286368026585604,
+      "share_locus_signal_nonzero": 0.3566,
+      "share_control_signal_nonzero": 0.3414
+     },
+     "Q2": {
+      "n": 4720,
+      "controls_per_locus": 9.97,
+      "locus_mean": 0.0018939927871275378,
+      "control_mean": 0.001931601395800469,
+      "ratio_of_means": 0.9805,
+      "ratio_ci95": [
+       0.8997,
+       1.0797
+      ],
+      "prob_superiority": 0.5023,
+      "prob_superiority_ci95": [
+       0.4948,
+       0.5094
+      ],
+      "prob_superiority_p_greater": 0.2697403983754352,
+      "share_locus_signal_nonzero": 0.3557,
+      "share_control_signal_nonzero": 0.3446
+     },
+     "Q3": {
+      "n": 5200,
+      "controls_per_locus": 9.97,
+      "locus_mean": 0.0019157891941014177,
+      "control_mean": 0.0021692484994396974,
+      "ratio_of_means": 0.8832,
+      "ratio_ci95": [
+       0.83,
+       0.9391
+      ],
+      "prob_superiority": 0.4951,
+      "prob_superiority_ci95": [
+       0.4881,
+       0.5019
+      ],
+      "prob_superiority_p_greater": 0.9091107047634968,
+      "share_locus_signal_nonzero": 0.3723,
+      "share_control_signal_nonzero": 0.3772
+     },
+     "Q4": {
+      "n": 5179,
+      "controls_per_locus": 9.96,
+      "locus_mean": 0.0025991759324636063,
+      "control_mean": 0.0030558643445617556,
+      "ratio_of_means": 0.8506,
+      "ratio_ci95": [
+       0.7964,
+       0.9147
+      ],
+      "prob_superiority": 0.4887,
+      "prob_superiority_ci95": [
+       0.4816,
+       0.4956
+      ],
+      "prob_superiority_p_greater": 0.9984089347432192,
+      "share_locus_signal_nonzero": 0.4366,
+      "share_control_signal_nonzero": 0.4437
+     }
+    }
+   },
+   "tier_B | chromosome | C": {
+    "n": 18201,
+    "controls_per_locus": 8.53,
+    "locus_mean": 0.0020435367863205797,
+    "control_mean": 0.0019854207106655662,
+    "ratio_of_means": 1.0293,
+    "ratio_ci95": [
+     0.9925,
+     1.0692
+    ],
+    "prob_superiority": 0.5043,
+    "prob_superiority_ci95": [
+     0.5003,
+     0.5082
+    ],
+    "prob_superiority_p_greater": 0.01725582912168053,
+    "share_locus_signal_nonzero": 0.3761,
+    "share_control_signal_nonzero": 0.3682,
+    "targets_without_controls": 1799,
+    "placebo": {
+     "n": 16578,
+     "controls_per_locus": 8.23,
+     "locus_mean": 0.001991099657062572,
+     "control_mean": 0.0019525248955996493,
+     "ratio_of_means": 1.0198,
+     "ratio_ci95": [
+      0.9831,
+      1.0601
+     ],
+     "prob_superiority": 0.4981,
+     "prob_superiority_ci95": [
+      0.494,
+      0.5021
+     ],
+     "prob_superiority_p_greater": 0.8188885521153466,
+     "share_locus_signal_nonzero": 0.3609,
+     "share_control_signal_nonzero": 0.3661
+    },
+    "by_arm_length": {
+     "8-9": {
+      "n": 2057,
+      "controls_per_locus": 9.52,
+      "locus_mean": 0.0022017243939840463,
+      "control_mean": 0.002038773078545028,
+      "ratio_of_means": 1.0799,
+      "ratio_ci95": [
+       0.9659,
+       1.1974
+      ],
+      "prob_superiority": 0.4986,
+      "prob_superiority_ci95": [
+       0.4878,
+       0.5102
+      ],
+      "prob_superiority_p_greater": 0.59593302205258,
+      "share_locus_signal_nonzero": 0.3583,
+      "share_control_signal_nonzero": 0.3693
+     },
+     "10-11": {
+      "n": 13591,
+      "controls_per_locus": 8.92,
+      "locus_mean": 0.001998819747167706,
+      "control_mean": 0.0019983987949092463,
+      "ratio_of_means": 1.0002,
+      "ratio_ci95": [
+       0.9565,
+       1.0474
+      ],
+      "prob_superiority": 0.5028,
+      "prob_superiority_ci95": [
+       0.4983,
+       0.5071
+      ],
+      "prob_superiority_p_greater": 0.11001756237642209,
+      "share_locus_signal_nonzero": 0.3727,
+      "share_control_signal_nonzero": 0.3666
+     },
+     "12-14": {
+      "n": 2276,
+      "controls_per_locus": 6.05,
+      "locus_mean": 0.0020854252255699327,
+      "control_mean": 0.001876014062492091,
+      "ratio_of_means": 1.1116,
+      "ratio_ci95": [
+       0.9949,
+       1.244
+      ],
+      "prob_superiority": 0.5136,
+      "prob_superiority_ci95": [
+       0.5016,
+       0.5266
+      ],
+      "prob_superiority_p_greater": 0.01615666447927932,
+      "share_locus_signal_nonzero": 0.3994,
+      "share_control_signal_nonzero": 0.375
+     },
+     "15-19": {
+      "n": 210,
+      "controls_per_locus": 2.88,
+      "locus_mean": 0.002662193554270988,
+      "control_mean": 0.002069206872725255,
+      "ratio_of_means": 1.2866,
+      "ratio_ci95": [
+       0.6784,
+       2.3651
+      ],
+      "prob_superiority": 0.5275,
+      "prob_superiority_ci95": [
+       0.4814,
+       0.5744
+      ],
+      "prob_superiority_p_greater": 0.12197950056746415,
+      "share_locus_signal_nonzero": 0.4667,
+      "share_control_signal_nonzero": 0.3901
+     },
+     ">=20": {
+      "n": 67,
+      "controls_per_locus": 1.88,
+      "locus_mean": 0.0028957959081392804,
+      "control_mean": 0.0011687561364325597,
+      "ratio_of_means": 2.4777,
+      "ratio_ci95": [
+       1.0536,
+       5.2292
+      ],
+      "prob_superiority": 0.5922,
+      "prob_superiority_ci95": [
+       0.5127,
+       0.6754
+      ],
+      "prob_superiority_p_greater": 0.016548829409126407,
+      "share_locus_signal_nonzero": 0.5224,
+      "share_control_signal_nonzero": 0.3456
+     }
+    },
+    "arm_length_vs_prob_superiority_spearman": {
+     "rho": 0.03357158861600725,
+     "p": 5.8943182869396874e-06
+    },
+    "by_score_quartile": {
+     "Q1": {
+      "n": 4527,
+      "controls_per_locus": 9.93,
+      "locus_mean": 0.001751466766257054,
+      "control_mean": 0.0017024850210064274,
+      "ratio_of_means": 1.0288,
+      "ratio_ci95": [
+       0.9604,
+       1.102
+      ],
+      "prob_superiority": 0.5079,
+      "prob_superiority_ci95": [
+       0.5007,
+       0.5155
+      ],
+      "prob_superiority_p_greater": 0.020132234373170313,
+      "share_locus_signal_nonzero": 0.3512,
+      "share_control_signal_nonzero": 0.3366
+     },
+     "Q2": {
+      "n": 4556,
+      "controls_per_locus": 9.08,
+      "locus_mean": 0.0019448070182931608,
+      "control_mean": 0.001909020244364988,
+      "ratio_of_means": 1.0187,
+      "ratio_ci95": [
+       0.9282,
+       1.1304
+      ],
+      "prob_superiority": 0.5005,
+      "prob_superiority_ci95": [
+       0.4927,
+       0.5084
+      ],
+      "prob_superiority_p_greater": 0.4455151198396974,
+      "share_locus_signal_nonzero": 0.3602,
+      "share_control_signal_nonzero": 0.3575
+     },
+     "Q3": {
+      "n": 3908,
+      "controls_per_locus": 8.4,
+      "locus_mean": 0.0019131400167895084,
+      "control_mean": 0.001987914325802248,
+      "ratio_of_means": 0.9624,
+      "ratio_ci95": [
+       0.8947,
+       1.0387
+      ],
+      "prob_superiority": 0.4991,
+      "prob_superiority_ci95": [
+       0.4903,
+       0.5074
+      ],
+      "prob_superiority_p_greater": 0.5830125902653187,
+      "share_locus_signal_nonzero": 0.3646,
+      "share_control_signal_nonzero": 0.367
+     },
+     "Q4": {
+      "n": 5210,
+      "controls_per_locus": 6.94,
+      "locus_mean": 0.0024814646902146173,
+      "control_mean": 0.0022962048457132057,
+      "ratio_of_means": 1.0807,
+      "ratio_ci95": [
+       1.0061,
+       1.1588
+      ],
+      "prob_superiority": 0.5084,
+      "prob_superiority_ci95": [
+       0.5003,
+       0.5161
+      ],
+      "prob_superiority_p_greater": 0.020193812790484388,
+      "share_locus_signal_nonzero": 0.4202,
+      "share_control_signal_nonzero": 0.4058
+     }
+    }
+   },
+   "tier_B | chromosome | G": {
+    "n": 19997,
+    "controls_per_locus": 10.0,
+    "locus_mean": 0.002061854875328451,
+    "control_mean": 0.002377147080267183,
+    "ratio_of_means": 0.8674,
+    "ratio_ci95": [
+     0.8359,
+     0.902
+    ],
+    "prob_superiority": 0.4982,
+    "prob_superiority_ci95": [
+     0.4943,
+     0.5022
+    ],
+    "prob_superiority_p_greater": 0.8298573375378675,
+    "share_locus_signal_nonzero": 0.3812,
+    "share_control_signal_nonzero": 0.3764,
+    "targets_without_controls": 3,
+    "placebo": {
+     "n": 19993,
+     "controls_per_locus": 9.0,
+     "locus_mean": 0.0023196006954826075,
+     "control_mean": 0.0023752476674608223,
+     "ratio_of_means": 0.9766,
+     "ratio_ci95": [
+      0.9445,
+      1.009
+     ],
+     "prob_superiority": 0.5012,
+     "prob_superiority_ci95": [
+      0.4977,
+      0.5051
+     ],
+     "prob_superiority_p_greater": 0.25028870682217097,
+     "share_locus_signal_nonzero": 0.3789,
+     "share_control_signal_nonzero": 0.3761
+    },
+    "by_arm_length": {
+     "8-9": {
+      "n": 2076,
+      "controls_per_locus": 10.0,
+      "locus_mean": 0.0021960884387642694,
+      "control_mean": 0.0025045360245402287,
+      "ratio_of_means": 0.8768,
+      "ratio_ci95": [
+       0.7928,
+       0.9647
+      ],
+      "prob_superiority": 0.4919,
+      "prob_superiority_ci95": [
+       0.4811,
+       0.503
+      ],
+      "prob_superiority_p_greater": 0.9190939782722886,
+      "share_locus_signal_nonzero": 0.3579,
+      "share_control_signal_nonzero": 0.3723
+     },
+     "10-11": {
+      "n": 13930,
+      "controls_per_locus": 9.99,
+      "locus_mean": 0.002007497610968575,
+      "control_mean": 0.002360102944073954,
+      "ratio_of_means": 0.8506,
+      "ratio_ci95": [
+       0.8135,
+       0.8921
+      ],
+      "prob_superiority": 0.4975,
+      "prob_superiority_ci95": [
+       0.493,
+       0.5017
+      ],
+      "prob_superiority_p_greater": 0.8693581316855044,
+      "share_locus_signal_nonzero": 0.3742,
+      "share_control_signal_nonzero": 0.3699
+     },
+     "12-14": {
+      "n": 2894,
+      "controls_per_locus": 10.0,
+      "locus_mean": 0.0020656529054688447,
+      "control_mean": 0.0023071758789217573,
+      "ratio_of_means": 0.8953,
+      "ratio_ci95": [
+       0.8148,
+       0.9861
+      ],
+      "prob_superiority": 0.5048,
+      "prob_superiority_ci95": [
+       0.4949,
+       0.5145
+      ],
+      "prob_superiority_p_greater": 0.17326152942393797,
+      "share_locus_signal_nonzero": 0.4001,
+      "share_control_signal_nonzero": 0.3849
+     },
+     "15-19": {
+      "n": 552,
+      "controls_per_locus": 10.0,
+      "locus_mean": 0.0022257023511937494,
+      "control_mean": 0.0024617870662529853,
+      "ratio_of_means": 0.9041,
+      "ratio_ci95": [
+       0.6805,
+       1.2452
+      ],
+      "prob_superiority": 0.4957,
+      "prob_superiority_ci95": [
+       0.4735,
+       0.5168
+      ],
+      "prob_superiority_p_greater": 0.6397189827881338,
+      "share_locus_signal_nonzero": 0.4239,
+      "share_control_signal_nonzero": 0.4194
+     },
+     ">=20": {
+      "n": 545,
+      "controls_per_locus": 10.0,
+      "locus_mean": 0.0027537677357621533,
+      "control_mean": 0.0026133686459375205,
+      "ratio_of_means": 1.0537,
+      "ratio_ci95": [
+       0.7838,
+       1.4574
+      ],
+      "prob_superiority": 0.508,
+      "prob_superiority_ci95": [
+       0.4823,
+       0.5322
+      ],
+      "prob_superiority_p_greater": 0.262262447378051,
+      "share_locus_signal_nonzero": 0.5064,
+      "share_control_signal_nonzero": 0.4719
+     }
+    },
+    "arm_length_vs_prob_superiority_spearman": {
+     "rho": 0.007654258314577893,
+     "p": 0.2791003258218511
+    },
+    "by_score_quartile": {
+     "Q1": {
+      "n": 4891,
+      "controls_per_locus": 10.0,
+      "locus_mean": 0.0018084070072600055,
+      "control_mean": 0.0018721122295079625,
+      "ratio_of_means": 0.966,
+      "ratio_ci95": [
+       0.9047,
+       1.0333
+      ],
+      "prob_superiority": 0.5083,
+      "prob_superiority_ci95": [
+       0.5011,
+       0.5155
+      ],
+      "prob_superiority_p_greater": 0.012575999195843107,
+      "share_locus_signal_nonzero": 0.3564,
+      "share_control_signal_nonzero": 0.3373
+     },
+     "Q2": {
+      "n": 4721,
+      "controls_per_locus": 9.99,
+      "locus_mean": 0.0018935916024659981,
+      "control_mean": 0.0019462753007874047,
+      "ratio_of_means": 0.9729,
+      "ratio_ci95": [
+       0.8826,
+       1.079
+      ],
+      "prob_superiority": 0.5047,
+      "prob_superiority_ci95": [
+       0.4975,
+       0.5119
+      ],
+      "prob_superiority_p_greater": 0.10664271539848087,
+      "share_locus_signal_nonzero": 0.3556,
+      "share_control_signal_nonzero": 0.3411
+     },
+     "Q3": {
+      "n": 5201,
+      "controls_per_locus": 9.99,
+      "locus_mean": 0.0019169958035204276,
+      "control_mean": 0.0023082575570871223,
+      "ratio_of_means": 0.8305,
+      "ratio_ci95": [
+       0.7769,
+       0.8854
+      ],
+      "prob_superiority": 0.4963,
+      "prob_superiority_ci95": [
+       0.489,
+       0.5038
+      ],
+      "prob_superiority_p_greater": 0.8398864623801248,
+      "share_locus_signal_nonzero": 0.3724,
+      "share_control_signal_nonzero": 0.3738
+     },
+     "Q4": {
+      "n": 5184,
+      "controls_per_locus": 10.0,
+      "locus_mean": 0.0025995470949233455,
+      "control_mean": 0.0033151419753379547,
+      "ratio_of_means": 0.7841,
+      "ratio_ci95": [
+       0.7307,
+       0.8457
+      ],
+      "prob_superiority": 0.4846,
+      "prob_superiority_ci95": [
+       0.477,
+       0.4924
+      ],
+      "prob_superiority_p_greater": 0.9999675275460786,
+      "share_locus_signal_nonzero": 0.4367,
+      "share_control_signal_nonzero": 0.4482
+     }
+    }
+   },
+   "positive_control_tier_B | local | C": {
+    "n": 1645,
+    "controls_per_locus": 8.32,
+    "locus_mean": 0.014466185972263255,
+    "control_mean": 0.006883898073430801,
+    "ratio_of_means": 2.1015,
+    "ratio_ci95": [
+     1.9246,
+     2.2832
+    ],
+    "prob_superiority": 0.7236,
+    "prob_superiority_ci95": [
+     0.7084,
+     0.7399
+    ],
+    "prob_superiority_p_greater": 6.76089375127677e-141,
+    "share_locus_signal_nonzero": 0.8869,
+    "share_control_signal_nonzero": 0.6111,
+    "targets_without_controls": 427,
+    "placebo": {
+     "n": 1495,
+     "controls_per_locus": 8.0,
+     "locus_mean": 0.006890491519107714,
+     "control_mean": 0.006882144243255467,
+     "ratio_of_means": 1.0012,
+     "ratio_ci95": [
+      0.9194,
+      1.0836
+     ],
+     "prob_superiority": 0.5022,
+     "prob_superiority_ci95": [
+      0.4879,
+      0.5166
+     ],
+     "prob_superiority_p_greater": 0.3854765087461508,
+     "share_locus_signal_nonzero": 0.6087,
+     "share_control_signal_nonzero": 0.6141
+    }
+   },
+   "positive_control_tier_B | local | G": {
+    "n": 2057,
+    "controls_per_locus": 9.9,
+    "locus_mean": 0.014035403302137692,
+    "control_mean": 0.00838501557691499,
+    "ratio_of_means": 1.6739,
+    "ratio_ci95": [
+     1.5472,
+     1.8125
+    ],
+    "prob_superiority": 0.6965,
+    "prob_superiority_ci95": [
+     0.6839,
+     0.7092
+    ],
+    "prob_superiority_p_greater": 1.1720920257158278e-164,
+    "share_locus_signal_nonzero": 0.8789,
+    "share_control_signal_nonzero": 0.6103,
+    "targets_without_controls": 15,
+    "placebo": {
+     "n": 2050,
+     "controls_per_locus": 8.93,
+     "locus_mean": 0.007982868249854105,
+     "control_mean": 0.008448221294442816,
+     "ratio_of_means": 0.9449,
+     "ratio_ci95": [
+      0.8594,
+      1.0316
+     ],
+     "prob_superiority": 0.5007,
+     "prob_superiority_ci95": [
+      0.4888,
+      0.5136
+     ],
+     "prob_superiority_p_greater": 0.45595360973890947,
+     "share_locus_signal_nonzero": 0.6176,
+     "share_control_signal_nonzero": 0.6096
+    }
+   },
+   "positive_control_tier_B | chromosome | C": {
+    "n": 1742,
+    "controls_per_locus": 7.7,
+    "locus_mean": 0.014608383297119817,
+    "control_mean": 0.003071164718962945,
+    "ratio_of_means": 4.7566,
+    "ratio_ci95": [
+     4.3237,
+     5.2602
+    ],
+    "prob_superiority": 0.8134,
+    "prob_superiority_ci95": [
+     0.8003,
+     0.8256
+    ],
+    "prob_superiority_p_greater": 0.0,
+    "share_locus_signal_nonzero": 0.8829,
+    "share_control_signal_nonzero": 0.4585,
+    "targets_without_controls": 330,
+    "placebo": {
+     "n": 1496,
+     "controls_per_locus": 7.74,
+     "locus_mean": 0.003234971138485283,
+     "control_mean": 0.0029497163266138356,
+     "ratio_of_means": 1.0967,
+     "ratio_ci95": [
+      0.9836,
+      1.221
+     ],
+     "prob_superiority": 0.5164,
+     "prob_superiority_ci95": [
+      0.5006,
+      0.5324
+     ],
+     "prob_superiority_p_greater": 0.015579928570581427,
+     "share_locus_signal_nonzero": 0.4693,
+     "share_control_signal_nonzero": 0.4476
+    }
+   },
+   "positive_control_tier_B | chromosome | G": {
+    "n": 2071,
+    "controls_per_locus": 9.94,
+    "locus_mean": 0.013989823323773375,
+    "control_mean": 0.00451355571135034,
+    "ratio_of_means": 3.0995,
+    "ratio_ci95": [
+     2.8467,
+     3.3508
+    ],
+    "prob_superiority": 0.7813,
+    "prob_superiority_ci95": [
+     0.769,
+     0.7926
+    ],
+    "prob_superiority_p_greater": 0.0,
+    "share_locus_signal_nonzero": 0.8788,
+    "share_control_signal_nonzero": 0.4854,
+    "targets_without_controls": 1,
+    "placebo": {
+     "n": 2066,
+     "controls_per_locus": 8.96,
+     "locus_mean": 0.004401365011625833,
+     "control_mean": 0.004529222269368274,
+     "ratio_of_means": 0.9718,
+     "ratio_ci95": [
+      0.8891,
+      1.0635
+     ],
+     "prob_superiority": 0.5013,
+     "prob_superiority_ci95": [
+      0.4884,
+      0.5132
+     ],
+     "prob_superiority_p_greater": 0.41504430804121073,
+     "share_locus_signal_nonzero": 0.4787,
+     "share_control_signal_nonzero": 0.4862
+    }
+   }
+  }
+ },
+ "chromosomes": [
+  "chr1",
+  "chr10",
+  "chr11",
+  "chr12",
+  "chr13",
+  "chr14",
+  "chr15",
+  "chr16",
+  "chr17",
+  "chr18",
+  "chr19",
+  "chr2",
+  "chr20",
+  "chr21",
+  "chr22",
+  "chr3",
+  "chr4",
+  "chr5",
+  "chr6",
+  "chr7",
+  "chr8",
+  "chr9",
+  "chrX",
+  "chrY"
+ ]
+}

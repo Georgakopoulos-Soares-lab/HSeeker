@@ -1,6 +1,6 @@
 # DEC-3 — add the Hanvey 1988 (TTC)8 insert as a new primary record?
 
-**Status:** evidence complete, awaiting author decision
+**Status:** decided and applied 2026-10-11: option A (author: "do it"). Added as HDNA0081 `Hanvey1988_(TTC)8`, with one random GC/length-matched negative (SYN0064) to keep 1:1. Balanced benchmark 130 records (65:65). Details: `benchmark_and_configuration_freeze_2026-10-11.md`
 **Source:** Hanvey J.C., Klysik J., Wells R.D. 1988, *J Biol Chem* 263(15):7386-96,
 "Influence of DNA sequence on the formation of non-B right-handed helices in
 oligopurine.oligopyrimidine inserts in plasmids." PMID **2835375** (verified)

@@ -68,6 +68,12 @@ REPLACEMENT_SEED = 20261002
 REPLACEMENT_COUNTS = {'mirror_disrupted_mutant': 2, 'dinucleotide_shuffle': 1,
                       'random_gc_length_matched': 1}
 
+# Experimental records added after the v3 pool was fixed (2026-10-11: Hanvey 1988 (TTC)8).
+# They are left out of the v3 pool computation so every earlier synthetic record is unchanged,
+# and each gets one random GC/length-matched negative from its own RNG stream, keeping 1:1.
+ADDED_AFTER_V3 = ('HDNA0081',)
+ADDED_SEED = 20261011
+
 MIN_ARM = 6         # reporting floor for the best-mirror search
 MAX_SPACER = 12
 STRONG_ARM = 8      # mirror arm length at/above which...
@@ -243,6 +249,8 @@ def main():
     rows = list(csv.DictReader(open(IN_CSV)))
     kept = [r for r in rows if r['curation_decision'] == 'kept'
             or r['curation_justification'].startswith(HOMOPOLYMER_REMOVAL)]
+    added = [r for r in kept if r['record_id'] in ADDED_AFTER_V3]
+    kept = [r for r in kept if r['record_id'] not in ADDED_AFTER_V3]
     forming = [r for r in kept if r['label'] == 'forming']
     n_nonforming = len(kept) - len(forming)
     n_needed = len(forming) - n_nonforming
@@ -439,6 +447,24 @@ def main():
         rec['expected_label_rationale'] += (
             ' Added 2026-10-07 to restore the 1:1 balance after the pure-homopolymer '
             'exclusion.')
+
+    # ---- one matched negative per experimental record added after v3 (2026-10-11)
+    added_rng = random.Random(ADDED_SEED)
+    for r in added:
+        taken.add(r['sequence_5to3'])
+        taken.add(revcomp(r['sequence_5to3']))
+    n_before = len(synth)
+    for r in added:
+        while not add_random(added_rng, [r]):
+            pass
+    for rec in synth[n_before:]:
+        rec['seed'] = str(ADDED_SEED)
+        rec['resolved_origin'] = rec['resolved_origin'].replace(
+            f'seed={SEED}', f'seed={ADDED_SEED}')
+        rec['expected_label_rationale'] += (
+            f" Added 2026-10-11 to keep the 1:1 balance after adding {rec['source_record']} "
+            f"(Hanvey 1988 (TTC)8).")
+    kept = kept + added
 
     # ---------------------------------------------------------------- write
     extra_cols = ['record_type', 'generation_method', 'source_record', 'seed',

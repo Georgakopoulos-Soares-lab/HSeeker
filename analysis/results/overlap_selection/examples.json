@@ -1,0 +1,965 @@
+{
+ "example_params": {
+  "minrep": 7,
+  "maxrep": 25,
+  "maxspacer": 5,
+  "purity": 0.9,
+  "mismatch": 0.2,
+  "at_threshold": 0.8,
+  "filter_homopolymers": true,
+  "score": true
+ },
+ "chain_params": {
+  "minrep": 10,
+  "maxrep": 15,
+  "maxspacer": 10,
+  "purity": 0.9,
+  "mismatch": 0.1,
+  "at_threshold": 0.8,
+  "filter_homopolymers": true,
+  "score": true
+ },
+ "inputs": {
+  "agreement": "GAGAAAAGAGGGAGAAAAAGGAA",
+  "difference": "GGAAGAAGAAGGAGGAGAGAGGGAAGGAA",
+  "chain_GAAx20": "GAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAAGAA"
+ },
+ "results": {
+  "agreement": {
+   "all": [
+    {
+     "start": 1,
+     "end": 21,
+     "arm": 10,
+     "spacer": 1,
+     "full_sequence": "gagaaaagagggagaaaaagg",
+     "total_score": 53.635
+    },
+    {
+     "start": 3,
+     "end": 19,
+     "arm": 8,
+     "spacer": 1,
+     "full_sequence": "gaaaagagggagaaaaa",
+     "total_score": 53.635
+    }
+   ],
+   "greedy": [
+    {
+     "start": 1,
+     "end": 21,
+     "arm": 10,
+     "spacer": 1,
+     "full_sequence": "gagaaaagagggagaaaaagg",
+     "total_score": 53.635
+    }
+   ],
+   "score": [
+    {
+     "start": 1,
+     "end": 21,
+     "arm": 10,
+     "spacer": 1,
+     "full_sequence": "gagaaaagagggagaaaaagg",
+     "total_score": 53.635
+    }
+   ]
+  },
+  "difference": {
+   "all": [
+    {
+     "start": 1,
+     "end": 15,
+     "arm": 7,
+     "spacer": 1,
+     "full_sequence": "ggaagaagaaggagg",
+     "total_score": 38.575
+    },
+    {
+     "start": 9,
+     "end": 29,
+     "arm": 10,
+     "spacer": 1,
+     "full_sequence": "aaggaggagagagggaaggaa",
+     "total_score": 20.36
+    }
+   ],
+   "greedy": [
+    {
+     "start": 9,
+     "end": 29,
+     "arm": 10,
+     "spacer": 1,
+     "full_sequence": "aaggaggagagagggaaggaa",
+     "total_score": 20.36
+    }
+   ],
+   "score": [
+    {
+     "start": 1,
+     "end": 15,
+     "arm": 7,
+     "spacer": 1,
+     "full_sequence": "ggaagaagaaggagg",
+     "total_score": 38.575
+    }
+   ]
+  },
+  "chain_GAAx20": {
+   "all": [
+    {
+     "start": 1,
+     "end": 22,
+     "arm": 11,
+     "spacer": 0,
+     "full_sequence": "gaagaagaagaagaagaagaag",
+     "total_score": 107.21
+    },
+    {
+     "start": 1,
+     "end": 25,
+     "arm": 12,
+     "spacer": 1,
+     "full_sequence": "gaagaagaagaagaagaagaagaag",
+     "total_score": 116.04
+    },
+    {
+     "start": 1,
+     "end": 28,
+     "arm": 14,
+     "spacer": 0,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaag",
+     "total_score": 137.47
+    },
+    {
+     "start": 1,
+     "end": 31,
+     "arm": 15,
+     "spacer": 1,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 1,
+     "end": 34,
+     "arm": 15,
+     "spacer": 4,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 1,
+     "end": 37,
+     "arm": 15,
+     "spacer": 7,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 1,
+     "end": 40,
+     "arm": 15,
+     "spacer": 10,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 2,
+     "end": 33,
+     "arm": 15,
+     "spacer": 2,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 2,
+     "end": 36,
+     "arm": 15,
+     "spacer": 5,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 2,
+     "end": 39,
+     "arm": 15,
+     "spacer": 8,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 3,
+     "end": 32,
+     "arm": 15,
+     "spacer": 0,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 3,
+     "end": 35,
+     "arm": 15,
+     "spacer": 3,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 3,
+     "end": 38,
+     "arm": 15,
+     "spacer": 6,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 3,
+     "end": 41,
+     "arm": 15,
+     "spacer": 9,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 4,
+     "end": 34,
+     "arm": 15,
+     "spacer": 1,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 4,
+     "end": 37,
+     "arm": 15,
+     "spacer": 4,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 4,
+     "end": 40,
+     "arm": 15,
+     "spacer": 7,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 4,
+     "end": 43,
+     "arm": 15,
+     "spacer": 10,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 5,
+     "end": 36,
+     "arm": 15,
+     "spacer": 2,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 5,
+     "end": 39,
+     "arm": 15,
+     "spacer": 5,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 5,
+     "end": 42,
+     "arm": 15,
+     "spacer": 8,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 6,
+     "end": 35,
+     "arm": 15,
+     "spacer": 0,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 6,
+     "end": 38,
+     "arm": 15,
+     "spacer": 3,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 6,
+     "end": 41,
+     "arm": 15,
+     "spacer": 6,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 6,
+     "end": 44,
+     "arm": 15,
+     "spacer": 9,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 7,
+     "end": 37,
+     "arm": 15,
+     "spacer": 1,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 7,
+     "end": 40,
+     "arm": 15,
+     "spacer": 4,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 7,
+     "end": 43,
+     "arm": 15,
+     "spacer": 7,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 7,
+     "end": 46,
+     "arm": 15,
+     "spacer": 10,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 8,
+     "end": 39,
+     "arm": 15,
+     "spacer": 2,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 8,
+     "end": 42,
+     "arm": 15,
+     "spacer": 5,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 8,
+     "end": 45,
+     "arm": 15,
+     "spacer": 8,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 9,
+     "end": 38,
+     "arm": 15,
+     "spacer": 0,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 9,
+     "end": 41,
+     "arm": 15,
+     "spacer": 3,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 9,
+     "end": 44,
+     "arm": 15,
+     "spacer": 6,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 9,
+     "end": 47,
+     "arm": 15,
+     "spacer": 9,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 10,
+     "end": 40,
+     "arm": 15,
+     "spacer": 1,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 10,
+     "end": 43,
+     "arm": 15,
+     "spacer": 4,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 10,
+     "end": 46,
+     "arm": 15,
+     "spacer": 7,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 10,
+     "end": 49,
+     "arm": 15,
+     "spacer": 10,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 11,
+     "end": 42,
+     "arm": 15,
+     "spacer": 2,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 11,
+     "end": 45,
+     "arm": 15,
+     "spacer": 5,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 11,
+     "end": 48,
+     "arm": 15,
+     "spacer": 8,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 12,
+     "end": 41,
+     "arm": 15,
+     "spacer": 0,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 12,
+     "end": 44,
+     "arm": 15,
+     "spacer": 3,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 12,
+     "end": 47,
+     "arm": 15,
+     "spacer": 6,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 12,
+     "end": 50,
+     "arm": 15,
+     "spacer": 9,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 13,
+     "end": 43,
+     "arm": 15,
+     "spacer": 1,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 13,
+     "end": 46,
+     "arm": 15,
+     "spacer": 4,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 13,
+     "end": 49,
+     "arm": 15,
+     "spacer": 7,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 13,
+     "end": 52,
+     "arm": 15,
+     "spacer": 10,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 14,
+     "end": 45,
+     "arm": 15,
+     "spacer": 2,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 14,
+     "end": 48,
+     "arm": 15,
+     "spacer": 5,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 14,
+     "end": 51,
+     "arm": 15,
+     "spacer": 8,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 15,
+     "end": 44,
+     "arm": 15,
+     "spacer": 0,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 15,
+     "end": 47,
+     "arm": 15,
+     "spacer": 3,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 15,
+     "end": 50,
+     "arm": 15,
+     "spacer": 6,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 15,
+     "end": 53,
+     "arm": 15,
+     "spacer": 9,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 16,
+     "end": 46,
+     "arm": 15,
+     "spacer": 1,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 16,
+     "end": 49,
+     "arm": 15,
+     "spacer": 4,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 16,
+     "end": 52,
+     "arm": 15,
+     "spacer": 7,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 16,
+     "end": 55,
+     "arm": 15,
+     "spacer": 10,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 17,
+     "end": 48,
+     "arm": 15,
+     "spacer": 2,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 17,
+     "end": 51,
+     "arm": 15,
+     "spacer": 5,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 17,
+     "end": 54,
+     "arm": 15,
+     "spacer": 8,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 18,
+     "end": 47,
+     "arm": 15,
+     "spacer": 0,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 18,
+     "end": 50,
+     "arm": 15,
+     "spacer": 3,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 18,
+     "end": 53,
+     "arm": 15,
+     "spacer": 6,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 18,
+     "end": 56,
+     "arm": 15,
+     "spacer": 9,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 19,
+     "end": 49,
+     "arm": 15,
+     "spacer": 1,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 19,
+     "end": 52,
+     "arm": 15,
+     "spacer": 4,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 19,
+     "end": 55,
+     "arm": 15,
+     "spacer": 7,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 19,
+     "end": 58,
+     "arm": 15,
+     "spacer": 10,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 20,
+     "end": 51,
+     "arm": 15,
+     "spacer": 2,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 20,
+     "end": 54,
+     "arm": 15,
+     "spacer": 5,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 20,
+     "end": 57,
+     "arm": 15,
+     "spacer": 8,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 21,
+     "end": 50,
+     "arm": 15,
+     "spacer": 0,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 21,
+     "end": 53,
+     "arm": 15,
+     "spacer": 3,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 21,
+     "end": 56,
+     "arm": 15,
+     "spacer": 6,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 21,
+     "end": 59,
+     "arm": 15,
+     "spacer": 9,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 22,
+     "end": 52,
+     "arm": 15,
+     "spacer": 1,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 22,
+     "end": 55,
+     "arm": 15,
+     "spacer": 4,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 22,
+     "end": 58,
+     "arm": 15,
+     "spacer": 7,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 23,
+     "end": 54,
+     "arm": 15,
+     "spacer": 2,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 23,
+     "end": 57,
+     "arm": 15,
+     "spacer": 5,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 23,
+     "end": 60,
+     "arm": 15,
+     "spacer": 8,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 24,
+     "end": 53,
+     "arm": 15,
+     "spacer": 0,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 24,
+     "end": 56,
+     "arm": 15,
+     "spacer": 3,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 24,
+     "end": 59,
+     "arm": 15,
+     "spacer": 6,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 25,
+     "end": 55,
+     "arm": 15,
+     "spacer": 1,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 25,
+     "end": 58,
+     "arm": 15,
+     "spacer": 4,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 26,
+     "end": 57,
+     "arm": 15,
+     "spacer": 2,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 26,
+     "end": 60,
+     "arm": 15,
+     "spacer": 5,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 27,
+     "end": 56,
+     "arm": 15,
+     "spacer": 0,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 27,
+     "end": 59,
+     "arm": 15,
+     "spacer": 3,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 28,
+     "end": 58,
+     "arm": 15,
+     "spacer": 1,
+     "full_sequence": "gaagaagaagaagaagaagaagaagaagaag",
+     "total_score": 146.3
+    },
+    {
+     "start": 29,
+     "end": 60,
+     "arm": 15,
+     "spacer": 2,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaagaa",
+     "total_score": 146.3
+    },
+    {
+     "start": 30,
+     "end": 59,
+     "arm": 15,
+     "spacer": 0,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 32,
+     "end": 60,
+     "arm": 14,
+     "spacer": 1,
+     "full_sequence": "aagaagaagaagaagaagaagaagaagaa",
+     "total_score": 133.7
+    },
+    {
+     "start": 35,
+     "end": 60,
+     "arm": 13,
+     "spacer": 0,
+     "full_sequence": "aagaagaagaagaagaagaagaagaa",
+     "total_score": 124.87
+    },
+    {
+     "start": 38,
+     "end": 60,
+     "arm": 11,
+     "spacer": 1,
+     "full_sequence": "aagaagaagaagaagaagaagaa",
+     "total_score": 103.44
+    },
+    {
+     "start": 41,
+     "end": 60,
+     "arm": 10,
+     "spacer": 0,
+     "full_sequence": "aagaagaagaagaagaagaa",
+     "total_score": 94.61
+    }
+   ],
+   "greedy": [
+    {
+     "start": 3,
+     "end": 32,
+     "arm": 15,
+     "spacer": 0,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 35,
+     "end": 60,
+     "arm": 13,
+     "spacer": 0,
+     "full_sequence": "aagaagaagaagaagaagaagaagaa",
+     "total_score": 124.87
+    }
+   ],
+   "score": [
+    {
+     "start": 3,
+     "end": 32,
+     "arm": 15,
+     "spacer": 0,
+     "full_sequence": "agaagaagaagaagaagaagaagaagaaga",
+     "total_score": 146.3
+    },
+    {
+     "start": 35,
+     "end": 60,
+     "arm": 13,
+     "spacer": 0,
+     "full_sequence": "aagaagaagaagaagaagaagaagaa",
+     "total_score": 124.87
+    }
+   ]
+  }
+ }
+}

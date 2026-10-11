@@ -1,0 +1,96 @@
+{
+ "date": "2026-10-11 08:04:24",
+ "defaults": {
+  "minrep": 8,
+  "maxrep": 1000,
+  "maxspacer": 10,
+  "purity": 0.9,
+  "mismatch": 0.1,
+  "at_threshold": 0.8,
+  "filter_homopolymers": true,
+  "score": true
+ },
+ "benchmark": "hdna_benchmark_balanced_v3.csv",
+ "benchmark_sha256": "02cdd769c382a84f687d41dfa80d1f70c1d37f778c8f38c685facd19985ea20b",
+ "git_commit": "0789549d1f89a1e1950cd700733bf5ee6858b668",
+ "git_dirty": true,
+ "benchmark_summary": {
+  "balanced": {
+   "records": 130,
+   "with_overlapping_candidates": 43,
+   "identical_intervals_among_those": 38,
+   "differing_intervals": [
+    "HDNA0040",
+    "HDNA0044",
+    "HDNA0049",
+    "HDNA0050",
+    "HDNA0051"
+   ],
+   "calls_differ": []
+  },
+  "experimental": {
+   "records": 70,
+   "with_overlapping_candidates": 43,
+   "identical_intervals_among_those": 38,
+   "differing_intervals": [
+    "HDNA0040",
+    "HDNA0044",
+    "HDNA0049",
+    "HDNA0050",
+    "HDNA0051"
+   ],
+   "calls_differ": []
+  }
+ },
+ "chr1": {
+  "cli_defaults": {
+   "params": {
+    "minrep": 8,
+    "maxrep": 1000,
+    "maxspacer": 10,
+    "purity": 0.9,
+    "mismatch": 0.1,
+    "at_threshold": 0.8,
+    "filter_homopolymers": true,
+    "score": true
+   },
+   "greedy_loci": 45927,
+   "score_loci": 47217,
+   "identical_coordinates": 41867,
+   "identical_fraction_of_greedy": 0.9116,
+   "greedy_loci_overlapped_by_score": 45927,
+   "greedy_covered_fraction": 1.0,
+   "score_only_loci": 991,
+   "wall_seconds": {
+    "greedy": 113.4,
+    "score": 119.1
+   },
+   "wall_note": "single run on a shared node; not a runtime benchmark"
+  },
+  "no_filters": {
+   "params": {
+    "minrep": 8,
+    "maxrep": 1000,
+    "maxspacer": 10,
+    "purity": 0.9,
+    "mismatch": 0.1,
+    "at_threshold": null,
+    "filter_homopolymers": false,
+    "score": true
+   },
+   "greedy_loci": 106481,
+   "score_loci": 108224,
+   "identical_coordinates": 87980,
+   "identical_fraction_of_greedy": 0.8263,
+   "greedy_loci_overlapped_by_score": 106481,
+   "greedy_covered_fraction": 1.0,
+   "score_only_loci": 1213,
+   "wall_seconds": {
+    "greedy": 119.5,
+    "score": 138.8
+   },
+   "wall_note": "single run on a shared node; not a runtime benchmark"
+  }
+ },
+ "chr1_fasta_sha256": "04ee6db2e94ccc4daddc168453189d8c17a01454ba67ac0443a73a0401408ee0"
+}
