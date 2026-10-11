@@ -259,3 +259,42 @@ Fill the PENDING places in `RTR/RESPONSE_LETTER_DRAFT_2026-10-11.md`:
 7. Optional Phase 5 (≈ half a day of compute, mostly unattended).
 
 About one working day without Phase 5. Everything runs on the interactive node; no `sbatch` is needed.
+
+---
+
+## 11. Changes recorded during Phase 1 (2026-10-11, before any benchmark run)
+
+**Builds (all in `$WORK/tools`, script `benchmarks/tools/build_comparators.sh`):**
+- Triplexator 1.3.2 (`4505bba`): builds with `gcc/9.4.0`, `cmake/4.1.1`
+  (`-DCMAKE_POLICY_VERSION_MINIMUM=3.5`), `-std=gnu++98`, and a two-line patch
+  (`benchmarks/tools/triplexator_seqan_guessFileFormat.patch`) that declares the never-instantiated
+  `seqan::guessFileFormat` as returning a const reference. Its own smoke test: 14 passed, 0 failed.
+- NeSSie (`dbe6cb2`) and non-B_gfa (`a891b59`): plain `make`; non-B_gfa reproduces its 14 reference
+  output files exactly.
+
+**NeSSie.** Searches over a length range (`-K`, with or without `-MAX`) stop silently after the first
+input sequence, so ranges are not used. Instead each setting is the **union of fixed lengths k … k+4**
+(both parities, so alternating repeats such as (GA)n, which are mirror-symmetric only at odd lengths, can
+be found). `-T` reports motifs that are mirror-symmetric *and* purine- or pyrimidine-rich (e.g. (GA)n and
+(CT)n at k = 17, poly-A; not pGG32 at k = 16). Settings:
+- A: `-T`, k = 16–20; secondary `-M`, k = 16–20;
+- B: `-T -p 10 -m 10`, k = 16–20; secondary `-M -m 10 -g 10`, k = 16–20;
+- C: `-T` with k = {12, 16, 20} + 0…4 × `-p {0, 10, 20}`; `-M` with k = {12, 16, 20} + 0…4 × `-m {0, 10}` ×
+  `-g {0, 10}`.
+
+**nBMST.** The triplex subset (`Subset` = 1 in `*_MR.tsv`) is decided by `(nY / nR) * 100 <= limit`
+with **integer division**, so it reduces to "more purines than pyrimidines on the + strand (or no
+pyrimidines)" plus spacer `< maxTriplexSpacer`. Consequence, verified: (GA)12 is flagged as triplex but
+the same duplex written as (CT)12 is not. This is the tool's behaviour and is scored as is; R3.6 reports
+it. Settings:
+- A: mirror-repeat module only (`-skipWGET -skipAPR -skipSTR -skipDR -skipIR -skipGQ -skipZ`), defaults,
+  hit = triplex subset; secondary hit = any mirror repeat;
+- B: as A with `-minMRrep 8 -maxMRspacer 10 -maxTriplexSpacer 11` (the test is "less than", so 11 allows
+  spacers up to 10 as in HSeeker);
+- C: `-minMRrep {8, 10, 12}` × `-maxMRspacer {5, 10}` × hit type {triplex subset, any mirror repeat}
+  (`-minTriplexYRpercent` values between 0 and 99 are equivalent because of the integer division, so it is
+  not varied).
+
+**Triplexator.** At its defaults it reports no target site in (GA)12, (CT)12 or pGG32 (its
+low-complexity filter and 16-nt minimum); with the manuscript settings it reports all three. Settings as
+in §4.1. Output coordinates are 0-based.
