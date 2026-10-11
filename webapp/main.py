@@ -364,13 +364,6 @@ def generate_charts(
                 marker=dict(color=_TEAL, line_width=0),
                 hovertemplate="score <b>%{{x:.1f}}</b>: %{{y:,}} sites<extra></extra>",
             ))
-            fig.add_vline(
-                x=50.0,
-                line_dash="dash", line_color=_ORANGE, line_width=1.5,
-                annotation_text="stable ≥ 50",
-                annotation_font=dict(color=_ORANGE, size=10),
-                annotation_position="top right",
-            )
             fig.update_layout(
                 **_base_layout(height=310),
                 title=_title("Total Score Distribution"),
@@ -515,7 +508,6 @@ def compute_stats(hits: list[dict]) -> dict:
     scored_count = len(scores)
     mean_score = round(float(np.mean(scores)), 1) if scores else 0.0
     max_score = round(float(np.max(scores)), 1) if scores else 0.0
-    n_stable = sum(1 for s in scores if s >= 50)
     return dict(
         total_hits=len(hits),
         n_perfect=n_perfect,
@@ -530,7 +522,6 @@ def compute_stats(hits: list[dict]) -> dict:
         mean_total_score=mean_score,
         max_total_score=max_score,
         n_scored=scored_count,
-        n_stable=n_stable,
     )
 
 

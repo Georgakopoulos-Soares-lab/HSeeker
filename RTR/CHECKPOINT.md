@@ -11,7 +11,7 @@ not report). Build the extension with `python setup.py build_ext --inplace`; run
 `PYTHONPATH=src`. Job submission needs a login node (password + token), so long runs go on the
 interactive node.
 **Benchmark (frozen 2026-10-11):** `hdna_benchmark_balanced_v3.csv`, **130 records, 65 forming / 65
-non-forming** (70 experimental + 60 synthetic), sha256 `02cdd769…985ea20b`; experimental CSV sha256 `19418318…5d1dfee0`. Hanvey
+non-forming** (70 experimental + 60 synthetic), sha256 `c3f3b842…a9ed3e`; experimental CSV sha256 `bcaee4ef…e801a0` (since the assay-condition columns were added; earlier the same day `02cdd769…` / `19418318…`, identical calls). Hanvey
 (TTC)8 added (HDNA0081) with matched negative SYN0064; citations corrected in place (originals in
 `original_*` columns); homopolymers reported as a separate panel.
 **Configuration (frozen 2026-10-11):** minrep **8** (shipped default changed from 10), mismatch 0.10,

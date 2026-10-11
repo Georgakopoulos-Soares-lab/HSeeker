@@ -152,7 +152,7 @@ def test_all_n_bases():
 
 def test_all_same_base_can_form_mirror():
     """A run of identical bases forms a trivial mirror; must be detected."""
-    hits = hseeker.scan_sequence("A" * 30, minrep=6)
+    hits = hseeker.scan_sequence("A" * 30, minrep=6, at_threshold=None, filter_homopolymers=False)
     assert len(hits) > 0
 
 
@@ -231,13 +231,13 @@ def test_relaxed_finds_at_least_as_many_as_strict():
 
 def test_relaxed_can_find_imperfect_hit():
     """IMPMIR_SEQ has 1 mismatch — found under relaxed settings."""
-    hits = hseeker.scan_sequence(IMPMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20)
+    hits = hseeker.scan_sequence(IMPMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20, at_threshold=None, filter_homopolymers=False)
     assert len(hits) > 0, "Relaxed mode should find the 1-mismatch mirror"
 
 
 def test_relaxed_mirror_identity_below_100():
     """IMPMIR_SEQ hit must have mirror_identity < 100% (1 mismatch out of 6)."""
-    hits = hseeker.scan_sequence(IMPMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20)
+    hits = hseeker.scan_sequence(IMPMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20, at_threshold=None, filter_homopolymers=False)
     imperfect = [h for h in hits if h["mirror_identity"] < 100.0]
     assert len(imperfect) > 0, "Expected at least one hit with mirror_identity < 100%"
 
@@ -497,7 +497,7 @@ def test_matching_spacer_pairs_extend_arms_inward(spacer, expected_spacer):
     seq = "A" * 6 + spacer + "A" * 6
     hits = hseeker.scan_sequence(
         seq, minrep=6, maxrep=7, maxspacer=3, purity=1.0,
-        mismatch=0.0, remove_overlaps=False, score=False,
+        mismatch=0.0, remove_overlaps=False, score=False, at_threshold=None, filter_homopolymers=False,
     )
     same_span = [h for h in hits if (h["start"], h["end"]) == (1, len(seq))]
     assert [(h["arm_length"], h["spacer_length"])
@@ -509,7 +509,7 @@ def test_inward_mismatch_preserves_both_representations():
     seq = "A" * 6 + "AG" + "A" * 6
     hits = hseeker.scan_sequence(
         seq, minrep=6, maxrep=7, maxspacer=2, purity=1.0,
-        mismatch=0.2, remove_overlaps=False, score=False,
+        mismatch=0.2, remove_overlaps=False, score=False, at_threshold=None, filter_homopolymers=False,
     )
     same_span = [h for h in hits if (h["start"], h["end"]) == (1, len(seq))]
     assert {(h["arm_length"], h["spacer_length"], round(h["mirror_identity"]))
@@ -521,14 +521,14 @@ def test_inward_extension_respects_purity_and_maxrep():
     seq = "G" * 6 + "CC" + "G" * 6
     hits = hseeker.scan_sequence(
         seq, minrep=6, maxrep=7, maxspacer=2, purity=1.0,
-        mismatch=0.0, remove_overlaps=False, score=False,
+        mismatch=0.0, remove_overlaps=False, score=False, at_threshold=None, filter_homopolymers=False,
     )
     same_span = [h for h in hits if (h["start"], h["end"]) == (1, len(seq))]
     assert [(h["arm_length"], h["spacer_length"]) for h in same_span] == [(6, 2)]
 
     capped = hseeker.scan_sequence(
         "A" * 14, minrep=6, maxrep=6, maxspacer=2, purity=1.0,
-        mismatch=0.0, remove_overlaps=False, score=False,
+        mismatch=0.0, remove_overlaps=False, score=False, at_threshold=None, filter_homopolymers=False,
     )
     same_span = [h for h in capped if (h["start"], h["end"]) == (1, 14)]
     assert [(h["arm_length"], h["spacer_length"]) for h in same_span] == [(6, 2)]
@@ -714,14 +714,14 @@ def test_low_purity_excluded_with_default_threshold():
 
 
 def test_low_purity_included_with_relaxed_threshold():
-    hits = hseeker.scan_sequence(LOWPUR_SEQ, minrep=6, purity=0.50, mismatch=0.0)
+    hits = hseeker.scan_sequence(LOWPUR_SEQ, minrep=6, purity=0.50, mismatch=0.0, at_threshold=None, filter_homopolymers=False)
     assert len(hits) > 0, "50% GA/CT arm should be included at purity=0.50"
 
 
 def test_purity_boundary_exact_50pct():
     """purity=0.50 must find it (>= comparison in C); purity=0.51 must not."""
-    found     = hseeker.scan_sequence(LOWPUR_SEQ, minrep=6, purity=0.50, mismatch=0.0)
-    not_found = hseeker.scan_sequence(LOWPUR_SEQ, minrep=6, purity=0.51, mismatch=0.0)
+    found     = hseeker.scan_sequence(LOWPUR_SEQ, minrep=6, purity=0.50, mismatch=0.0, at_threshold=None, filter_homopolymers=False)
+    not_found = hseeker.scan_sequence(LOWPUR_SEQ, minrep=6, purity=0.51, mismatch=0.0, at_threshold=None, filter_homopolymers=False)
     assert len(found) > 0
     assert len(not_found) == 0
 
@@ -753,13 +753,13 @@ def test_spacer8_not_found_with_maxspacer7_strict():
 
 
 def test_spacer8_found_with_maxspacer8_strict():
-    hits = hseeker.scan_sequence(SPACER8_SEQ, minrep=6, maxspacer=8, mismatch=0.0)
+    hits = hseeker.scan_sequence(SPACER8_SEQ, minrep=6, maxspacer=8, mismatch=0.0, at_threshold=None, filter_homopolymers=False)
     sp8  = [h for h in hits if h["spacer_length"] == 8 and h["arm_length"] == 6]
     assert len(sp8) > 0, f"arm=6, sp=8 hit must be found when maxspacer=8, got: {hits}"
 
 
 def test_spacer8_hit_is_perfect():
-    hits = hseeker.scan_sequence(SPACER8_SEQ, minrep=6, maxspacer=8, mismatch=0.0)
+    hits = hseeker.scan_sequence(SPACER8_SEQ, minrep=6, maxspacer=8, mismatch=0.0, at_threshold=None, filter_homopolymers=False)
     sp8  = [h for h in hits if h["spacer_length"] == 8]
     assert sp8[0]["mirror_identity"] == pytest.approx(100.0, abs=0.01)
     assert sp8[0]["is_perfect"] is True
@@ -767,7 +767,7 @@ def test_spacer8_hit_is_perfect():
 
 def test_spacer_zero_uses_dot_sentinel():
     """A spacer_length=0 hit must have spacer='.' in the output dict."""
-    hits = hseeker.scan_sequence("A" * 20, minrep=6, maxspacer=0)
+    hits = hseeker.scan_sequence("A" * 20, minrep=6, maxspacer=0, at_threshold=None, filter_homopolymers=False)
     sp0 = [h for h in hits if h["spacer_length"] == 0]
     assert len(sp0) > 0
     for h in sp0:
@@ -937,13 +937,13 @@ def test_two_motifs_no_overlap_after_removal():
 
 def test_is_perfect_true_for_pure_sequence():
     """PERFECT_SEQ = 'A'*14: all-A arms → ga_pct=100%, mirror_id=100% → is_perfect=True."""
-    hits = hseeker.scan_sequence(PERFECT_SEQ, minrep=6)
+    hits = hseeker.scan_sequence(PERFECT_SEQ, minrep=6, at_threshold=None, filter_homopolymers=False)
     assert any(h["is_perfect"] for h in hits), "All-A sequence must yield is_perfect=True"
 
 
 def test_is_perfect_false_when_mirror_is_imperfect():
     """IMPMIR_SEQ: 1-mismatch arm → is_perfect=False."""
-    hits = hseeker.scan_sequence(IMPMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20)
+    hits = hseeker.scan_sequence(IMPMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20, at_threshold=None, filter_homopolymers=False)
     assert len(hits) > 0
     assert all(not h["is_perfect"] for h in hits)
 
@@ -979,7 +979,7 @@ def test_is_perfect_only_true_when_purity_and_mirror_are_100():
 # ===========================================================================
 
 def test_impmir_mirror_identity_value():
-    hits = hseeker.scan_sequence(IMPMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20)
+    hits = hseeker.scan_sequence(IMPMIR_SEQ, minrep=6, purity=0.80, mismatch=0.20, at_threshold=None, filter_homopolymers=False)
     arm6 = [h for h in hits if h["arm_length"] == 6]
     assert arm6, "Expected arm=6 hit on IMPMIR_SEQ"
     assert arm6[0]["mirror_identity"] == pytest.approx(100.0 * 5 / 6, abs=0.2)
@@ -1579,7 +1579,7 @@ def test_at_filter_default_off_does_not_change_hit_count():
 
 def test_at_filter_drops_pure_at_arm():
     """A pure-A arm has AT_content=1.0 and must be dropped at threshold=0.8."""
-    assert len(hseeker.scan_sequence(POLY_A_SEQ, minrep=6)) > 0
+    assert len(hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=None, filter_homopolymers=False)) > 0
     filtered = hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=0.8)
     assert filtered == []
 
@@ -1593,23 +1593,26 @@ def test_at_filter_keeps_low_at_arm():
 
 def test_at_filter_boundary_is_exclusive_below_threshold():
     """AT_content >= threshold is dropped; AT_content < threshold is kept."""
-    hits = hseeker.scan_sequence(POLY_A_SEQ, minrep=6)
+    hits = hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=None, filter_homopolymers=False)
     assert hits, "expected at least one hit on a pure-A run"
     at_content = sum(1 for b in hits[0]["left_arm"] if b in "at") / hits[0]["arm_length"]
     assert at_content == pytest.approx(1.0)
-    assert hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=at_content) == []
-    assert len(hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=at_content + 0.01)) > 0
+    assert hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=at_content,
+                                  filter_homopolymers=False) == []
+    assert len(hseeker.scan_sequence(POLY_A_SEQ, minrep=6, at_threshold=at_content + 0.01,
+                                      filter_homopolymers=False)) > 0
 
 
-def test_homopolymer_filter_default_off_does_not_change_hit_count():
+def test_homopolymer_filter_default_on_matches_cli():
+    """Since 2026-10-11 the library applies the CLI filters by default."""
     default  = hseeker.scan_sequence(POLY_G_SEQ, minrep=6)
-    explicit = hseeker.scan_sequence(POLY_G_SEQ, minrep=6, filter_homopolymers=False)
-    assert default == explicit
+    explicit = hseeker.scan_sequence(POLY_G_SEQ, minrep=6, filter_homopolymers=True)
+    assert default == explicit == []
 
 
 def test_homopolymer_filter_drops_poly_g_triplex():
     """POLY_G_SEQ scores to a putative_triplex of a single repeated 'g' — must be dropped."""
-    hits = hseeker.scan_sequence(POLY_G_SEQ, minrep=6)
+    hits = hseeker.scan_sequence(POLY_G_SEQ, minrep=6, filter_homopolymers=False)
     assert hits and hits[0]["putative_triplex"], "expected a scored hit on a pure-G run"
     filtered = hseeker.scan_sequence(POLY_G_SEQ, minrep=6, filter_homopolymers=True)
     assert filtered == []
@@ -1685,7 +1688,7 @@ def test_post_filter_catches_pure_optimized_triplex_from_mixed_hit():
     seq = "GCCTGCACCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCTGCAGGT"
     hits = hseeker.scan_sequence(
         seq, minrep=10, maxspacer=10, purity=0.9, mismatch=0.1,
-        at_threshold=0.8, remove_overlaps=False,
+        at_threshold=0.8, remove_overlaps=False, filter_homopolymers=False,
     )
     hit = next(h for h in hits if (h["start"], h["end"]) == (6, 25))
     assert len(set(hit["full_sequence"])) > 1
@@ -1773,3 +1776,30 @@ def test_cli_at_threshold_flag_is_configurable():
     finally:
         path.unlink(missing_ok=True)
         tsv_path.unlink(missing_ok=True)
+
+
+# ===========================================================================
+# Library defaults match the CLI filters (2026-10-11)
+# ===========================================================================
+
+def test_library_defaults_apply_cli_filters(tmp_path):
+    """Defaults drop A/T-rich and homopolymer motifs in every scan path."""
+    path = tmp_path / "f.fa"
+    path.write_text(">ga\n" + PURE_GA * 3 + "\n>polyg\n" + "G" * 30 + "\n>polya\n" + "A" * 30 + "\n")
+    for hits in (hseeker.scan_fasta(str(path)),
+                 list(hseeker.scan_fasta_iter(str(path))),
+                 hseeker.scan_fasta_parallel(str(path), workers=2)):
+        assert {h["seq_id"] for h in hits} == {"ga"}
+
+
+def test_disabling_filters_keeps_homopolymers_in_every_path(tmp_path):
+    """filter_homopolymers=False must not be overridden inside scan_fasta/parallel."""
+    path = tmp_path / "f.fa"
+    path.write_text(">polyg\n" + "G" * 30 + "\n")
+    off = dict(at_threshold=None, filter_homopolymers=False)
+    for score in (False, True):
+        a = hseeker.scan_fasta(str(path), score=score, **off)
+        b = list(hseeker.scan_fasta_iter(str(path), score=score, **off))
+        c = hseeker.scan_fasta_parallel(str(path), workers=2, score=score, **off)
+        assert a and b and c
+        assert len(a) == len(b) == len(c)

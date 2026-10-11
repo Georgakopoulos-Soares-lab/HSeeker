@@ -127,3 +127,21 @@ already defaulted to 8. Tests: 349 passed, 3 skipped (chr1 tests skip without
   they must be re-measured at 8 on the manuscript CPU.
 - Benchmark results quoted anywhere at 128 records (MCC 0.969, 64:64, 73,728 grid calls) are now at
   130 records (MCC 0.970, 65:65, 74,880 grid calls).
+
+## 3. Later the same day: library filters and the score threshold
+
+**Library filter defaults now match the CLI and web app** (author: "make them the same").
+`scan_sequence`, `scan_fasta`, `scan_fasta_iter` and `scan_fasta_parallel` default to
+`at_threshold=0.80, filter_homopolymers=True`. While doing this, a latent bug surfaced: `scan_fasta`
+and `scan_fasta_parallel` called `scan_sequence` per record without passing `filter_homopolymers`, so
+with the new default the inner call filtered homopolymers even when the user passed
+`filter_homopolymers=False`. Both inner calls now pass `filter_homopolymers=False` (the outer step
+applies the filter once, as before). Tests that check detection geometry, parsing or the pre-batching
+golden outputs now pin the filters off explicitly; two regression tests were added (defaults drop A/T
+and homopolymer motifs in all scan paths; turning the filter off is honoured in all paths). Tests: 351
+passed, 3 skipped. Consequence: the default hg38 chr1 count is now the CLI count, **45,927** loci
+(greedy), in every interface.
+
+**Score threshold (R3.3): no cut-off; score is a ranking.** Out-of-fold Youden thresholds never improve
+on the any-hit call (MCC 0.949–0.955 vs 0.970). The web app's "Stable Sites (score ≥ 50)" tile and the
+dashed line on the score histogram were removed. Response: `R3.3_score_threshold_response_2026-10-11.md`.

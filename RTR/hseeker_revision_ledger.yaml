@@ -543,6 +543,27 @@ decisions:
     changes - HDNA0055/0056 -> Rooney 1995; FXN -> Potaman 2004 / Sakamoto 1999.
   evidence: RTR/evidence/benchmark_and_configuration_freeze_2026-10-11.md
   resolved_date: '2026-10-11'
+- id: DEC-18
+  question: Should the Python library apply the CLI's AT and homopolymer filters by default?
+  status: resolved
+  decider: authors (Kimon, "make them the same")
+  resolution: >-
+    Yes (2026-10-11). Library defaults at_threshold=0.80, filter_homopolymers=True, matching the CLI
+    and web app; default chr1 count 45,927 in every interface. Fixed a latent bug the change exposed
+    (scan_fasta / scan_fasta_parallel inner calls ignored filter_homopolymers=False). Tests 351 passed.
+  evidence: RTR/evidence/benchmark_and_configuration_freeze_2026-10-11.md
+  resolved_date: '2026-10-11'
+- id: DEC-19
+  question: Score threshold for R3.3 - drop it or evaluate out of fold?
+  status: resolved
+  decider: authors (Kimon, "the decision that strikes the most balance between RTR and changes")
+  resolution: >-
+    Both - the out-of-fold analysis was run (5-fold x 20, LOFO, LOSO) and showed a learned threshold
+    never helps (MCC 0.949-0.955 vs 0.970 without one); calls use no threshold, the score is a
+    heuristic ranking, the in-sample AUC/Youden figure is removed and the web app's "score >= 50
+    stable" tile removed.
+  evidence: RTR/evidence/R3.3_score_threshold_response_2026-10-11.md
+  resolved_date: '2026-10-11'
 actions:
 - id: WS0-A1
   workstream: WS0_benchmark_freeze

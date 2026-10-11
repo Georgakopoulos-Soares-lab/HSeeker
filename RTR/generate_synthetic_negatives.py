@@ -304,6 +304,9 @@ def main():
             'validation_strong_mirror_arm': str(L_s),
             'validation_purine_fraction': f'{purine_fraction(seq):.3f}',
         })
+        for k in rec:
+            if k.startswith('assay_'):
+                rec[k] = 'not applicable (designed negative)'
         synth.append(rec)
         taken.add(seq)
         taken.add(revcomp(seq))

@@ -477,9 +477,9 @@ Scoring can be disabled at the API level (`score=False`) or via the CLI flag `-n
 Two post-detection filters remove hits that are unlikely to form real H-DNA:
 
 - **AT-content filter** (before scoring, `at_threshold` / `-at-threshold`, default `0.80`): drops hits whose full detected motif — both arms and the spacer — is ≥ 80% A/T.
-- **Homopolymer filter** (`filter_homopolymers`, always on in the CLI): drops hits whose detected `full_sequence` is a single repeated base (poly-A, poly-G, ...). With scoring on, it also drops hits whose `putative_triplex` — arms plus spacer, brackets stripped — collapses to a single base. These carry no real mirror-repeat structure.
+- **Homopolymer filter** (`filter_homopolymers`, default on; always on in the CLI): drops hits whose detected `full_sequence` is a single repeated base (poly-A, poly-G, ...). With scoring on, it also drops hits whose `putative_triplex` — arms plus spacer, brackets stripped — collapses to a single base. These carry no real mirror-repeat structure.
 
-Both are opt-in at the Python API level (`hseeker.scan_fasta(...)`, off by default) so existing integrations are unaffected; the CLI enables the AT filter by default at `0.80` and always applies the homopolymer filter, with or without scoring.
+Both filters are **on by default** in the Python API, the CLI and the web app, so all three give the same results for the same settings (changed in October 2026; version 0.1.0 left them off in the Python API). To turn them off in Python, pass `at_threshold=None, filter_homopolymers=False`; in the CLI, `-at-threshold 1.5` disables the AT filter (the homopolymer filter is always on in the CLI). Note that the homopolymer filter also removes poly-(dC)·(dG) tracts, which can form an Mg²⁺-dependent triplex (Kohwi & Kohwi-Shigematsu 1988).
 
 ### Overlap removal behaviour
 
