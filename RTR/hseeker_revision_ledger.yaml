@@ -550,7 +550,7 @@ decisions:
   resolution: >-
     Yes (2026-10-11). Library defaults at_threshold=0.80, filter_homopolymers=True, matching the CLI
     and web app; default chr1 count 45,927 in every interface. Fixed a latent bug the change exposed
-    (scan_fasta / scan_fasta_parallel inner calls ignored filter_homopolymers=False). Tests 351 passed.
+    (scan_fasta / scan_fasta_parallel inner calls ignored filter_homopolymers=False). Tests 355 passed (chr1 regression tests included).
   evidence: RTR/evidence/benchmark_and_configuration_freeze_2026-10-11.md
   resolved_date: '2026-10-11'
 - id: DEC-19
@@ -1422,7 +1422,13 @@ actions:
   workstream: WS6_manuscript_sync
   reviewer_items:
   - R3.11
-  status: pending
+  status: done
+  note_2026-10-11: >-
+    Re-measured on the final code and defaults on an AMD EPYC 7763 16-vCPU node (same as the manuscript's),
+    3 runs per point - chr1 173.8 s (1 worker) / 16.3 s (16 workers), peak 1.33 GB; score mode 23.9 s;
+    whole hg38 primary assembly 204.5 s, 2.35 GB, 559,601 loci. Evidence
+    RTR/evidence/R3.11_runtime_memory_2026-10-11.md; raw output benchmarks/results_2026-10-11/. Comparator
+    re-timing pending (tool comparison).
   depends_on: []
   inputs:
   - manuscript; benchmarks/ and analysis/results/chr1/ artifacts

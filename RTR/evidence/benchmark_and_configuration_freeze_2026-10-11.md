@@ -138,8 +138,8 @@ with the new default the inner call filtered homopolymers even when the user pas
 `filter_homopolymers=False`. Both inner calls now pass `filter_homopolymers=False` (the outer step
 applies the filter once, as before). Tests that check detection geometry, parsing or the pre-batching
 golden outputs now pin the filters off explicitly; two regression tests were added (defaults drop A/T
-and homopolymer motifs in all scan paths; turning the filter off is honoured in all paths). Tests: 351
-passed, 3 skipped. Consequence: the default hg38 chr1 count is now the CLI count, **45,927** loci
+and homopolymer motifs in all scan paths; turning the filter off is honoured in all paths). Tests: 355
+passed (with the hg38 chr1 file present, so the chr1 regression tests run; updated for the new defaults). Consequence: the default hg38 chr1 count is now the CLI count, **45,927** loci
 (greedy), in every interface.
 
 **Score threshold (R3.3): no cut-off; score is a ranking.** Out-of-fold Youden thresholds never improve

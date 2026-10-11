@@ -18,7 +18,7 @@ non-forming** (70 experimental + 60 synthetic), sha256 `c3f3b842…a9ed3e`; expe
 purity 0.90, maxspacer 10, AT 0.80 + homopolymer filters on in the CLI and web app (the library keeps
 them opt-in), greedy overlap removal. Pinned in `analysis/benchmark_config.json`. Benchmark: MCC 0.970
 (TP63 FN2 TN65 FP0) under nested CV, leave-one-family-out and leave-one-study-out.
-**Tests:** 349 passed, 3 skipped (2026-10-11, minrep 8 default).
+**Tests:** 355 passed (2026-10-11, final defaults, hg38 chr1 present so the chr1 regression tests run: 45,951 loci at the defaults with scoring off, 96,731 at the previous defaults).
 
 This file records where the revision stands so a fresh session can resume without
 re-deriving anything. The machine-readable state is
@@ -71,6 +71,27 @@ Author instructions 2026-10-11, all applied (details:
    `RTR/evidence/R2.3_R3.8_kouzine_response_2026-10-11.md`.
 9. **Ledger:** DEC-3, DEC-5 resolved; DEC-15–17 added; WS0-A1, WS2-A3, WS4-A2, WS4-A3, WS4-A4 done;
    WS2-A1 in progress (comparator arguments). Graph not yet resynchronised.
+
+### 2026-10-11 (afternoon) — filters, score threshold, Figure 3, runtime, assay conditions, letter
+
+1. **Library filters = CLI/web** (DEC-18); fixed `scan_fasta`/`scan_fasta_parallel` ignoring
+   `filter_homopolymers=False`. Default chr1 count 45,927 in every interface. Web app = CLI on all 130
+   benchmark sequences (FastAPI TestClient).
+2. **R3.3** (DEC-19): out-of-fold thresholds never help (MCC 0.949–0.955 vs 0.970); no cut-off; web tile
+   "Stable Sites (score ≥ 50)" removed. `RTR/evidence/R3.3_score_threshold_response_2026-10-11.md`.
+3. **New Figure 3** (Kouzine): `analysis/scripts/plot_figure3_kouzine.py` →
+   `analysis/results/plots/figure3_kouzine.{pdf,png,svg}` + data CSV; legend in the R2.3/R3.8 evidence.
+4. **Runtime/memory (R3.11)** on an AMD EPYC 7763 16-vCPU node (same as the manuscript's): chr1 173.8 s
+   (1 worker) / 16.3 s (16), 1.33 GB; score mode 23.9 s; **whole hg38 204.5 s, 2.35 GB, 559,601 loci**
+   (measured, three identical runs). `RTR/evidence/R3.11_runtime_memory_2026-10-11.md`,
+   `benchmarks/results_2026-10-11/`.
+5. **Assay conditions** added to both benchmark CSVs for all 70 kept records (28 curated from the papers
+   today, 42 from the original curation); 15 curation caveats listed (labels unchanged; HDNA0065 kept by
+   author decision). `RTR/evidence/assay_conditions_2026-10-11.md`. New sha256: balanced `c3f3b842…`,
+   experimental `bcaee4ef…` (metadata only).
+6. **Full response letter draft**: `RTR/RESPONSE_LETTER_DRAFT_2026-10-11.md` (every comment; only the
+   tool comparison is pending).
+7. chr1 regression tests updated to the new defaults; **355 tests pass**.
 
 ### 2026-10-09 — Nikol's detector branch merged (DEC-11); webapp filters (DEC-12); FXN citations (DEC-2); pCON kept (DEC-13); Kouzine replaces E. coli (DEC-14)
 

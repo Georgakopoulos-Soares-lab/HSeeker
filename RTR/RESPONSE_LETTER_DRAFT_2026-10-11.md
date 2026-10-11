@@ -417,21 +417,24 @@ rules return identical intervals for 38 and different intervals for 5, and the d
 for all 130 records and for all 74,880 record-by-configuration calls across our parameter grid. On hg38
 chromosome 1 with the default settings, greedy selection reports 45,927 loci and score-based selection
 47,217; every greedy locus is overlapped by a score-selected locus, 91.2 % have identical coordinates, and
-score-based selection adds 991 loci. **[PENDING: runtime of the two modes on chromosome 1, from the
-re-measurement in comment 11.]** The comparison and its scripts are deposited
+score-based selection adds 991 loci, at a modest cost in time (23.9 s vs 16.3 s on chromosome 1 with
+16 workers). The comparison and its scripts are deposited
 (`analysis/results/overlap_selection/`).
 
 ### Comment 11 — computational benchmarking; extrapolation; data deposition
 
-**[PENDING: numbers from the runtime re-measurement in progress on 2026-10-11.]** Draft: We re-measured
-runtime and memory on the final code and default settings on the same hardware as before (AMD EPYC 7763,
-16 vCPUs, 32 GB, Rocky Linux 8.10), with three runs per point and peak memory from `/usr/bin/time -v`. On
-hg38 chromosome 1 HSeeker took [x] s with 1 worker and [y] s with 16 workers (peak memory [z] MB). Rather
-than extrapolating, we ran the complete hg38 primary assembly: [w] s with 16 workers (peak memory [v] MB).
-Score-based overlap selection took [u] s on chromosome 1. All commands, raw timing output and result files
-are deposited in the repository (`benchmarks/`, `analysis/results/`) and will be archived on Zenodo at
-publication; the Data Availability statement now says so instead of "upon reasonable request".
-**[PENDING: re-timing triplex and Triplexator on the same node if the comparative speed claims stay.]**
+We agree and re-measured runtime and memory on the final code and default settings, on the same hardware
+as in the original benchmark (AMD EPYC 7763, 16 vCPUs, 32 GB, Rocky Linux 8.10), with three runs per point
+and peak memory from `/usr/bin/time -v`. On hg38 chromosome 1, HSeeker took 173.8 s with one worker and
+16.3 s with 16 workers (a 10.7-fold speedup), with a peak memory of 1.3 GB. Instead of extrapolating, we
+ran the complete hg38 primary assembly: 204.5 s (3.4 min) with 16 workers and a peak memory of 2.4 GB,
+reporting 559,601 loci; the three runs gave identical output. The optional score-based overlap selection
+took 23.9 s on chromosome 1. All commands, raw timing output, hardware descriptions and input checksums
+are deposited in the repository (`benchmarks/results_2026-10-11/`, `benchmarks/parallel_sweep.py`), and
+the code, data and benchmark outputs will be archived on Zenodo at publication; the Data Availability
+statement now says so instead of "upon reasonable request". We also moderated the wording of the
+performance claims (see comment 12). **[PENDING: if the comparison with triplex and Triplexator stays in
+the speed section, re-time both on the same node with the final settings.]**
 
 ### Comment 12 — claims, terminology and figures
 
@@ -446,8 +449,8 @@ algorithm panels were simplified, and the manuscript was language-edited.
 
 ## Notes for the authors (not for the reviewers)
 
-1. **Pending runs:** the tool comparison (R2.1, R2.7, R3.6, Key Points) and the runtime numbers (R3.10,
-   R3.11). Until the tool comparison is run, no answer may claim HSeeker is better than another tool.
+1. **Pending run:** the tool comparison (R2.1, R2.7, R3.6, Key Points, and the comparative speed claims
+   in R3.11). Until it is run, no answer may claim HSeeker is better than another tool.
 2. **HDNA0065 (XDP (CCCTCT)10)** is kept in the benchmark (author decision 2026-10-11) but its cited
    review states that no experimental data exist for this repeat; its label is inferred. It is currently
    marked `primary`, which conflicts with the R3.5 sentence about the primary set being construct-level

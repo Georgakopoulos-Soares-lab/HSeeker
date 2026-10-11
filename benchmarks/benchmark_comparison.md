@@ -1,5 +1,23 @@
 # Computational Benchmark: HSeeker, triplex, and Triplexator on Human Chromosome 1
 
+## Update 2026-10-11: HSeeker re-measured on the final code
+
+The HSeeker numbers below this section were measured in June 2026 with minimum arm length 10 and the
+code of that time. They were re-measured on 2026-10-11 on the same node type (AMD EPYC 7763, 16 vCPUs,
+32 GB, Rocky Linux 8.10) with the final code and the current defaults (minimum arm 8, AT and homopolymer
+filters, greedy overlap removal, scoring on, `-purity-rmq`), three runs per point:
+
+| Input | Workers | Wall (s) | Peak RSS (MB) | Loci |
+|---|---|---|---|---|
+| hg38 chr1 | 1 | 173.8 | 1,330 | 45,927 |
+| hg38 chr1 | 16 | 16.3 | 1,334 | 45,927 |
+| hg38 chr1, score-based overlap selection | 16 | 23.9 | 1,367 | 47,217 |
+| hg38 primary assembly (measured, not extrapolated) | 16 | 204.5 | 2,351 | 559,601 |
+
+Full sweep (1, 2, 4, 8, 16 workers), raw `/usr/bin/time -v` output, hardware description and input
+checksums: `benchmarks/results_2026-10-11/`. The triplex and Triplexator numbers below were **not**
+re-measured and should not be compared directly with the new HSeeker numbers.
+
 ## Benchmark Configuration
 
 All three tools were evaluated on the same input: the GRCh38 primary assembly of human chromosome 1

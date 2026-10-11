@@ -1485,12 +1485,14 @@ def test_parallel_determinism():
 #
 #   python benchmarks/benchmark.py --chromosomes chr1
 #
-# Reference values were established on 2026-06-16 using hseeker v0.1.0 with
-# default parameters (minrep=10, maxrep=1000, maxspacer=10, purity=0.90,
-# mismatch=0.10, remove_overlaps=True, score=True).
-#
-#   Total hits : 96,729
-#   Chromosome : chr1 (hg38/GRCh38, 249,698,492 bp)
+# Reference values (2026-10-11, hg38 chr1 from UCSC, sha256 04ee6db2...):
+#   * current defaults (minrep=8, maxrep=1000, maxspacer=10, purity=0.90,
+#     mismatch=0.10, AT filter 0.80, homopolymer filter, greedy overlap
+#     removal), score=False: 45,951 hits (45,927 with score=True, because the
+#     scored homopolymer check also inspects putative_triplex);
+#   * previous defaults (minrep=10, no filters): 96,731 hits on the current
+#     detector (96,729 were published from the code before the inward
+#     extension / deduplication change of 2026-10-09).
 #
 # If the hit count changes after a code modification you MUST verify that
 # the change is intentional (algorithm fix) and update this constant.
@@ -1498,14 +1500,22 @@ def test_parallel_determinism():
 
 _CHR1_FA = Path(__file__).parent.parent / "benchmarks" / "data" / "chr1.fa"
 
-# Confirmed hit count — update only if the algorithm is intentionally changed.
-_CHR1_EXPECTED_HITS = 96_729
+# Confirmed hit counts — update only if the algorithm is intentionally changed.
+_CHR1_EXPECTED_HITS = 45_951
+_CHR1_EXPECTED_HITS_PREVIOUS_DEFAULTS = 96_731
 
 _CHR1_DEFAULT_PARAMS = dict(
+    minrep=8, maxrep=1000, maxspacer=10,
+    purity=0.90, mismatch=0.10,
+    at_threshold=0.80, filter_homopolymers=True,
+    remove_overlaps=True,
+    score=False,   # skip scoring for speed (the count is pinned for score=False)
+)
+_CHR1_PREVIOUS_PARAMS = dict(
     minrep=10, maxrep=1000, maxspacer=10,
     purity=0.90, mismatch=0.10,
-    remove_overlaps=True,
-    score=False,   # scoring does not affect hit count; skip for speed
+    at_threshold=None, filter_homopolymers=False,
+    remove_overlaps=True, score=False,
 )
 
 
@@ -1524,6 +1534,13 @@ def test_chr1_hit_count_regression():
         f"chr1 hit count changed: expected {_CHR1_EXPECTED_HITS}, "
         f"got {len(hits)}.  If this is intentional, update _CHR1_EXPECTED_HITS."
     )
+
+
+@pytest.mark.skipif(not _CHR1_FA.exists(), reason="benchmarks/data/chr1.fa not present")
+def test_chr1_hit_count_previous_defaults():
+    """The detector itself is unchanged by the 2026-10-11 default change."""
+    hits = hseeker.scan_fasta_parallel(str(_CHR1_FA), **_CHR1_PREVIOUS_PARAMS)
+    assert len(hits) == _CHR1_EXPECTED_HITS_PREVIOUS_DEFAULTS
 
 
 @pytest.mark.skipif(not _CHR1_FA.exists(), reason="benchmarks/data/chr1.fa not present")
