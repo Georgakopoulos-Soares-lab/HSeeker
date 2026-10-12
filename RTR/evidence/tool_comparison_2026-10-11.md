@@ -96,10 +96,10 @@ higher specificity on mirror-disrupted negatives, with comparable performance on
 | Tool (version) | Cores | Wall time, s (mean of 3; range) | Peak RSS (MB) | Output on chr1 |
 |---|---|---|---|---|
 | HSeeker (final code, defaults) | 16 threads | **16.3** (16.3–16.4) | 1,334 | 45,927 loci |
-| Triplexator 1.3.2, defaults (`-ds -rm 1 -p 16`) | 16 threads (OpenMP) | 45.0 (43.5–47.8) | 1,754 | 275,476 target sites |
-| triplex 1.50.0, defaults (`benchmarks/triplex_benchmark.R`, 1-Mb windows) | 16 forked processes | 64.7 (63.2–65.7) | 677 per process | 81,906 hits |
-| nBMST / non-B_gfa `a891b59`, mirror-repeat module only | 1 (no parallel mode) | 96.5 (96.2–96.9) | 887 | 147,222 mirror repeats (33,519 classified triplex) |
-| NeSSie `dbe6cb2`, `-T`, k = 16–20 | 1 (no parallel mode) | 295.7 (one run) | 1,081 | 720,811 motif occurrences |
+| Triplexator 1.3.2, defaults (`-ds -rm 1 -p 16`) | 16 threads (OpenMP) | 45.0 (43.5–47.8) | 1,714 | 275,476 target sites |
+| triplex 1.50.0, defaults (`benchmarks/triplex_benchmark.R`, 1-Mb windows) | 16 forked processes | 64.7 (63.2–65.7) | 660 per process | 81,906 hits |
+| nBMST / non-B_gfa `a891b59`, mirror-repeat module only | 1 (no parallel mode) | 96.5 (96.2–96.9) | 866 | 147,222 mirror repeats (33,519 classified triplex) |
+| NeSSie `dbe6cb2`, `-T`, k = 16–20 | 1 (no parallel mode) | 295.7 (one run) | 1,056 | 720,811 motif occurrences |
 
 Same node (AMD EPYC 7763, 16 vCPUs, Rocky Linux 8.10), same day, nothing else running; `/usr/bin/time -v`.
 Every tool gave identical output in each repeat; triplex and Triplexator reproduce the hit counts of the

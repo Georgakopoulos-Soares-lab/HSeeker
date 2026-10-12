@@ -466,8 +466,8 @@ score-based selection adds 991 loci, at a modest cost in time (23.9 s vs 16.3 s 
 We agree and re-measured runtime and memory on the final code and default settings, on the same hardware
 as in the original benchmark (AMD EPYC 7763, 16 vCPUs, 32 GB, Rocky Linux 8.10), with three runs per point
 and peak memory from `/usr/bin/time -v`. On hg38 chromosome 1, HSeeker took 173.8 s with one worker and
-16.3 s with 16 workers (a 10.7-fold speedup), with a peak memory of 1.3 GB. Instead of extrapolating, we
-ran the complete hg38 primary assembly: 204.5 s (3.4 min) with 16 workers and a peak memory of 2.4 GB,
+16.3 s with 16 workers (a 10.7-fold speedup), with a peak memory of 1,334 MB. Instead of extrapolating, we
+ran the complete hg38 primary assembly: 204.5 s (3.4 min) with 16 workers and a peak memory of 2,296 MB,
 reporting 559,601 loci; the three runs gave identical output. The optional score-based overlap selection
 took 23.9 s on chromosome 1. All commands, raw timing output, hardware descriptions and input checksums
 are deposited in the repository (`benchmarks/results_2026-10-11/`, `benchmarks/parallel_sweep.py`), and
