@@ -27,6 +27,10 @@ w = lambda t: f"{{{W}}}{t}"  # noqa: E731
 
 AUTHOR = "HSeeker revision"
 DATE = "2026-10-15T00:00:00Z"
+# Inserted text carries this colour explicitly, so it stays blue after Accept All
+# and not only while the revision marks are displayed. To return the accepted
+# manuscript to ordinary black, select all and set the font colour to Automatic.
+INS_COLOUR = "4A90D9"
 
 PKG = "http://schemas.openxmlformats.org/package/2006/relationships"
 for prefix, uri in (("w", W), ("r", R), ("a", A), ("pic", PIC), ("wp", WP), ("", PKG)):
@@ -119,9 +123,23 @@ class Doc:
             t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
         return d
 
+    @staticmethod
+    def _colourise(run: ET.Element, hexval: str) -> None:
+        """Force a character colour on a run, keeping rPr first as the schema requires."""
+        rpr = run.find(w("rPr"))
+        if rpr is None:
+            rpr = ET.Element(w("rPr"))
+            run.insert(0, rpr)
+        for old in rpr.findall(w("color")):
+            rpr.remove(old)
+        col = ET.Element(w("color"))
+        col.set(w("val"), hexval)
+        rpr.insert(0, col)
+
     def _wrap_ins(self, runs: list[ET.Element]) -> ET.Element:
         ins = ET.Element(w("ins"), self._rev_attrs())
         for r in runs:
+            self._colourise(r, INS_COLOUR)
             ins.append(r)
         return ins
 

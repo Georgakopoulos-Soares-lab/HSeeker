@@ -40,20 +40,28 @@ On the light blue: Word assigns tracked-change colours per author, and that assi
 reader's Word installation, not in the file. To guarantee the changes read as light blue regardless
 of who opens the file, inserted runs also carry an explicit character colour of **`#4A90D9`**.
 
-**Decision: Option B, tracked changes only.** It is the simplest and the only one of the three that
-leaves no residue: accepting a change produces clean manuscript text with nothing to clean up
-afterwards. Option A would have embedded an explicit colour in the text itself, which survives
-acceptance and then has to be stripped; Option C gives no Accept button at all.
+**Decision: tracked changes, with the blue carried by the text itself.**
 
-Light blue is then a one-time setting on the reader's side, not a property of the file, and it takes
-one dialog:
+Every edit is a real `w:ins` / `w:del` revision, so Word offers Accept and Reject. In addition,
+each inserted run carries an explicit character colour of **`#4A90D9`**. That matters because of
+where Word keeps the two kinds of colour:
 
-> **Review → Tracking** (dialog launcher) **→ Advanced Options → Insertions: Colour → Light Blue**,
-> and the same for **Deletions**.
+| | Where it lives | After Accept All |
+|---|---|---|
+| Revision colour (by author) | the reader's Word settings | gone, text returns to black |
+| Character colour on the run | the file | **stays blue** |
 
-That applies to the whole document at once and to every later revision round. All changes are
-attributed to a single author, `HSeeker revision`, so this colours the entire set uniformly.
-Deleted text appears struck through in the same colour, as Word renders tracked deletions.
+Relying on the revision colour alone would have meant the changes went black the moment they were
+accepted. Carrying the colour on the runs keeps the revised text visibly marked in the accepted
+manuscript, which is what a journal's marked copy needs, and it looks the same in every viewer
+rather than depending on who opens the file.
+
+The cost is one action at the very end: to produce a clean black manuscript, select all and set the
+font colour to Automatic. Nothing else has to be undone, and rejecting a change still removes its
+colour with it, because the colour sits inside the insertion.
+
+All changes are attributed to one author, `HSeeker revision`, so they can also be accepted or
+rejected as a single set.
 
 Comment balloons are **not** used: a reviewer comment is not a change, and the reasoning for each
 edit lives in this plan and in the response letter.
