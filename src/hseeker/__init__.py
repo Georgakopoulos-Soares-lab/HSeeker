@@ -353,8 +353,9 @@ def parse_fasta(
     """Yield ``(seq_id, sequence, offset)`` tuples from a FASTA file.
 
     Handles multi-record FASTA files.  The genomic offset is parsed from
-    headers of the form ``>seqid:start-end`` (UCSC / Ensembl region
-    extracts). All other headers default to offset 1.
+    seqIDs of the form ``>seqid:start-end`` (UCSC / Ensembl region
+    extracts); the header description is never used. All other headers
+    default to offset 1.
 
     Parameters
     ----------
@@ -374,12 +375,15 @@ def parse_fasta(
         raise ValueError(f"Invalid FASTA parser {parser!r}; choose 'biopython' or 'inhouse'")
 
     _header_re = re.compile(r"^(\S+)")
-    _offset_re = re.compile(r":(\d+)[-–]")
+    _offset_re = re.compile(r":(\d+)[-–]\d+$")
 
     def record_info(header: str) -> tuple[str, int]:
         match = _header_re.match(header)
         seq_id = match.group(1) if match else "unknown"
-        region = _offset_re.search(header)
+        # Only the seqID can carry a region (">chr1:1000-2000"); NCBI descriptions
+        # often contain scaffold names like "scf..._ld:7665500-7674800" that must
+        # not shift coordinates.
+        region = _offset_re.search(seq_id)
         return seq_id, int(region.group(1)) if region else 1
 
     if parser == "biopython":
