@@ -21,12 +21,12 @@ and not repeated in each section:
 | Quantity | Value |
 |---|---|
 | Benchmark | 130 records (65 forming / 65 non-forming); 70 experimental (65/5), 60 designed negatives |
-| Experimental records, construct-level | 58 (53 forming / 5 non-forming); 12 further records are class-level |
+| Experimental records, construct-level | 57 (52 forming / 5 non-forming); 13 further records are class-level |
 | HSeeker on the benchmark | TP 63, FN 2, TN 65, FP 0 |
 | Sensitivity | 0.969 (95% CI 0.895–0.992) |
 | Specificity | 1.000 (0.944–1.000) |
 | PPV / NPV | 1.000 (0.943–1.000) / 0.970 (0.898–0.992) |
-| MCC | 0.970 (0.926–1.000) |
+| MCC | 0.970 (0.925–1.000) |
 | Leave-one-family-out / leave-one-study-out MCC | 0.970 / 0.970 |
 | Chromosome 1, default settings, 16 threads | 45,927 loci in 16.3 s, peak 1,334 MB |
 | Complete hg38 primary assembly, 16 threads | 559,601 loci in 204.5 s, peak 2,296 MB |
@@ -102,7 +102,7 @@ the homopolymer filter also rejects poly-(dC)₃₀, which forms an Mg²⁺-depe
 
 On the balanced benchmark HSeeker detected 63 of 65 forming sequences and rejected all 65
 non-forming sequences (sensitivity 0.969, 95% CI 0.895–0.992; specificity 1.000, 0.944–1.000;
-MCC 0.970, 0.926–1.000). The two sequences it misses are tandem direct repeats rather than mirror
+MCC 0.970, 0.925–1.000). The two sequences it misses are tandem direct repeats rather than mirror
 repeats and lie outside the structural model. Mirror-repeat detection on its own, before the
 purity requirement is applied, calls seven of the 65 negatives, including the three balanced
 perfect mirrors; the purity requirement removes all seven without losing a forming sequence.
@@ -111,7 +111,7 @@ perfect mirrors; the purity requirement removes all seven without losing a formi
 >
 > "HSeeker detected 63 of the 65 H-DNA-forming sequences and rejected all 65 non-forming
 > sequences, corresponding to a sensitivity of 0.969 (95% CI 0.895–0.992), a specificity of 1.000
-> (0.944–1.000) and a Matthews correlation coefficient of 0.970 (0.926–1.000) (Table 1). The two
+> (0.944–1.000) and a Matthews correlation coefficient of 0.970 (0.925–1.000) (Table 1). The two
 > sequences that were not detected, the *c-MYC* nuclease-sensitive element construct (ACCCTCCCC)₄
 > and the γ-globin −228/−189 element, are tandem direct repeats rather than mirror repeats and
 > therefore fall outside the structural model that HSeeker implements. Restricting the evaluation
@@ -296,9 +296,9 @@ than another tool only where the family-level interval of the MCC difference exc
 difference keeps its sign when the other tool's geometry is matched to HSeeker's and when its
 parameters are tuned out of fold. By that rule HSeeker outperforms all four comparators on the
 balanced benchmark, with MCC differences of +0.15 (95% CI 0.03–0.22) against triplex, +0.39
-(0.18–0.56) against NeSSie, +0.52 (0.40–0.63) against nBMST and +0.95 (0.71–1.11) against
+(0.18–0.55) against NeSSie, +0.52 (0.41–0.62) against nBMST and +0.95 (0.71–1.11) against
 Triplexator. Against triplex the advantage comes entirely from the designed negatives; on the
-experimental records alone the interval reaches zero (+0.06, 0.00–0.22) and we describe the two
+experimental records alone the interval reaches zero (+0.06, 0.00–0.23) and we describe the two
 tools as comparable there. The Key Points and the Results now agree on this wording.
 
 ### Comment 8 — `-march=native`
@@ -341,9 +341,9 @@ plainly rather than letting the balanced figure stand for it.
 
 | Evaluation set | n | TP | FN | TN | FP | Sensitivity | Specificity | PPV | NPV | MCC |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Balanced benchmark | 130 | 63 | 2 | 65 | 0 | 0.969 (0.895–0.992) | 1.000 (0.944–1.000) | 1.000 (0.943–1.000) | 0.970 (0.898–0.992) | 0.970 (0.926–1.000) |
-| Experimental records | 70 | 63 | 2 | 5 | 0 | 0.969 (0.895–0.992) | 1.000 (0.566–1.000) | 1.000 (0.943–1.000) | 0.714 (0.359–0.918) | 0.832 (0.569–1.000) |
-| Construct-level records | 58 | 51 | 2 | 5 | 0 | 0.962 (0.872–0.990) | 1.000 (0.566–1.000) | 1.000 (0.930–1.000) | 0.714 (0.359–0.918) | 0.829 (0.556–1.000) |
+| Balanced benchmark | 130 | 63 | 2 | 65 | 0 | 0.969 (0.895–0.992) | 1.000 (0.944–1.000) | 1.000 (0.943–1.000) | 0.970 (0.898–0.992) | 0.970 (0.925–1.000) |
+| Experimental records | 70 | 63 | 2 | 5 | 0 | 0.969 (0.895–0.992) | 1.000 (0.566–1.000) | 1.000 (0.943–1.000) | 0.714 (0.359–0.918) | 0.832 (0.560–1.000) |
+| Construct-level records | 57 | 50 | 2 | 5 | 0 | 0.962 (0.870–0.989) | 1.000 (0.566–1.000) | 1.000 (0.929–1.000) | 0.714 (0.359–0.918) | 0.829 (0.556–1.000) |
 
 Only five experimental non-forming constructs survived source-level curation. The specificity
 estimate therefore rests mainly on the designed negatives, and the manuscript says so wherever
@@ -483,10 +483,10 @@ least one qualifying hit in it.
 | Tool, default settings | Sensitivity | Specificity | MCC (95% CI) | Tuned out of fold |
 |---|---|---|---|---|
 | HSeeker | 63/65 | 65/65 | 0.970 (0.909–1.000) | 0.939 |
-| triplex | 62/65 | 56/65 | 0.819 (0.743–0.935) | 0.819 |
-| NeSSie | 33/65 | 65/65 | 0.583 (0.421–0.779) | 0.547 |
-| nBMST | 24/65 | 64/65 | 0.449 (0.351–0.561) | 0.597 |
-| Triplexator | 8/65 | 58/65 | 0.024 (−0.132–0.250) | 0.520 |
+| triplex | 62/65 | 56/65 | 0.819 (0.744–0.936) | 0.819 |
+| NeSSie | 33/65 | 65/65 | 0.583 (0.421–0.780) | 0.547 |
+| nBMST | 24/65 | 64/65 | 0.449 (0.346–0.560) | 0.597 |
+| Triplexator | 8/65 | 58/65 | 0.024 (−0.137–0.249) | 0.520 |
 
 These differences follow from what each tool searches for, and the manuscript now describes this
 rather than presenting the comparison as a like-for-like ranking. Triplexator searches for duplex
@@ -804,9 +804,9 @@ a different object from an arm–spacer–arm motif. Replace with:
 > reported or designed not to form it. Seventy are experimental records, 65 forming and five
 > non-forming. Each was traced to its primary publication; records whose annotation derived only
 > from a secondary compilation, and records with no traceable primary source, were removed.
-> Fifty-eight of the retained records are construct-level, meaning the published experiment tested
+> Fifty-seven of the retained records are construct-level, meaning the published experiment tested
 > the sequence in the benchmark, and are used for the primary performance figures. The remaining
-> twelve are class-level, meaning the published experiment tested a closely related construct of
+> thirteen are class-level, meaning the published experiment tested a closely related construct of
 > the same repeat family, and are reported separately. Two records were excluded on validity
 > grounds: an inosine-substituted oligonucleotide that cannot be represented in A/C/G/T, and a
 > record describing an intermolecular triplex-forming oligonucleotide rather than an intramolecular
@@ -1050,9 +1050,9 @@ Use the table and the target-class paragraph from Reviewer 3, Comment 6, then:
 > "Using paired differences with confidence intervals, HSeeker outperformed all four tools on the
 > balanced benchmark: the difference in MCC was +0.15 (95% CI 0.03–0.22) against triplex, with 10
 > records called correctly by HSeeker and none by triplex alone (exact McNemar p = 0.002), +0.39
-> (0.18–0.56) against NeSSie, +0.52 (0.40–0.63) against nBMST and +0.95 (0.71–1.11) against
+> (0.18–0.55) against NeSSie, +0.52 (0.41–0.62) against nBMST and +0.95 (0.71–1.11) against
 > Triplexator. The advantage over triplex comes from the designed negatives: on the 70 experimental
-> records alone the difference was +0.06 with an interval reaching zero (0.00–0.22), and on that
+> records alone the difference was +0.06 with an interval reaching zero (0.00–0.23), and on that
 > set the two tools are comparable. Against the other three tools the advantage holds on the
 > experimental records as well.
 >
@@ -1323,12 +1323,12 @@ corresponding sentence in the Methods so the text and the panels agree:
 
 These need a decision before submission; none blocks drafting.
 
-1. **One benchmark record rests on inference rather than experiment.** The *XDP* (CCCTCT)₁₀ record
-   is labelled forming on the basis of a review that states explicitly that no in vitro or in vivo
-   structural data exist for that repeat. It is currently in the construct-level set. Recommend
-   moving it to the class-level set, which keeps it in the benchmark but out of the primary figures
-   and removes the inconsistency with the statement that construct-level records have experimental
-   support.
+1. ~~**One benchmark record rests on inference rather than experiment.**~~ **Resolved
+   2026-10-15.** The *XDP* (CCCTCT)₁₀ record, labelled forming on the basis of a review that states
+   explicitly that no in vitro or in vivo structural data exist for that repeat, has been moved from
+   the construct-level to the class-level set. It remains in the balanced benchmark and is excluded
+   from the construct-level figures. The construct-level set is now 57 records (52 forming, 5
+   non-forming) and the class-level set 13; the construct-level MCC is unchanged at 0.829.
 2. **Six further records carry caveats** recorded with the benchmark and worth a glance before the
    supplementary table is finalised: two whose cited paper reports a recombination assay rather than
    a structural one, one whose triplex was shown on oligonucleotides at pH 8 rather than on

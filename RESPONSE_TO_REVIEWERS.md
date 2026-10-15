@@ -103,7 +103,7 @@ sacrificing sensitivity.
 
 > HSeeker detected 63 of the 65 H-DNA-forming sequences and rejected all 65 non-forming sequences,
 > corresponding to a sensitivity of 0.969 (95% CI 0.895–0.992), a specificity of 1.000 (0.944–1.000)
-> and a Matthews correlation coefficient of 0.970 (0.926–1.000) (Table 1). The two sequences that
+> and a Matthews correlation coefficient of 0.970 (0.925–1.000) (Table 1). The two sequences that
 > were not detected, the *c-MYC* nuclease-sensitive element construct (ACCCTCCCC)₄ and the γ-globin
 > −228/−189 element, are tandem direct repeats rather than mirror repeats and therefore fall outside
 > the structural model that HSeeker implements. Restricting the evaluation to the 70 experimental
@@ -270,8 +270,15 @@ single-stranded DNA maps):**
 > demonstrated to be structured, and single-stranded signal is not by itself evidence of triplex
 > formation at an individual locus.
 
-The enrichment analyses of the measured signal are described in our response to Reviewer 3, comment
-8, and form Figure 4.
+Beyond recovery and selectivity, we also asked whether the measured single-stranded signal is
+elevated at HSeeker loci. Because that signal depends strongly on base composition, control windows
+were matched to each locus on length, A/T count and purine/pyrimidine asymmetry. Across all loci,
+those in activated mouse B cells carried 14% more signal than their matched controls (ratio of means
+1.137, 95% CI 1.127–1.147). Restricting loci and controls to mappable sequence away from other
+predicted non-B motifs and from transcription start sites raised this to 25% (1.254, 1.179–1.332),
+and the excess increased with mirror-repeat arm length, as H-DNA stability should but the other
+structures should not. We did not observe the enrichment in human Raji cells. The full analysis,
+with its controls and checks, is presented in the Results and in Figure 4.
 
 ---
 
@@ -424,7 +431,7 @@ ranging from +0.15 against triplex to +0.95 against Triplexator.
 
 Importantly, HSeeker's advantage over triplex is driven by the designed negative controls. On
 experimental records alone, their performance is statistically comparable (MCC difference +0.06, 95%
-CI 0.00–0.22). We have made this distinction explicit and revised the Results and Key Points
+CI 0.00–0.23). We have made this distinction explicit and revised the Results and Key Points
 accordingly.
 
 **We provide the updated section below (Results, Comparison with existing tools):**
@@ -435,17 +442,17 @@ accordingly.
 > | Tool | Sensitivity | Specificity | MCC (95% CI, family) | Tuned out of fold |
 > |---|---|---|---|---|
 > | HSeeker | 63/65 | 65/65 | 0.970 (0.909–1.000) | 0.939 |
-> | triplex | 62/65 | 56/65 | 0.819 (0.743–0.935) | 0.819 |
-> | NeSSie | 33/65 | 65/65 | 0.583 (0.421–0.779) | 0.547 |
-> | nBMST | 24/65 | 64/65 | 0.449 (0.351–0.561) | 0.597 |
-> | Triplexator | 8/65 | 58/65 | 0.024 (−0.132–0.250) | 0.520 |
+> | triplex | 62/65 | 56/65 | 0.819 (0.744–0.936) | 0.819 |
+> | NeSSie | 33/65 | 65/65 | 0.583 (0.421–0.780) | 0.547 |
+> | nBMST | 24/65 | 64/65 | 0.449 (0.346–0.560) | 0.597 |
+> | Triplexator | 8/65 | 58/65 | 0.024 (−0.137–0.249) | 0.520 |
 >
 > Using paired differences with confidence intervals, HSeeker outperformed all four tools on the
 > balanced benchmark: the difference in MCC was +0.15 (95% CI 0.03–0.22) against triplex, with 10
 > records called correctly by HSeeker and none by triplex alone (exact McNemar p = 0.002), +0.39
-> (0.18–0.56) against NeSSie, +0.52 (0.40–0.63) against nBMST and +0.95 (0.71–1.11) against
+> (0.18–0.55) against NeSSie, +0.52 (0.41–0.62) against nBMST and +0.95 (0.71–1.11) against
 > Triplexator. The advantage over triplex comes from the designed negatives: on the 70 experimental
-> records alone the difference was +0.06 with an interval reaching zero (0.00–0.22), and on that set
+> records alone the difference was +0.06 with an interval reaching zero (0.00–0.23), and on that set
 > the two tools are comparable. Against the other three tools the advantage holds on the experimental
 > records as well.
 >
@@ -585,8 +592,8 @@ rather than a larger pool of confirmed experimental ones.
 
 | Evaluation set | n | TP | FN | TN | FP | Sensitivity | Specificity | PPV | NPV | MCC |
 |---|---|---|---|---|---|---|---|---|---|---|
-| Balanced benchmark | 130 | 63 | 2 | 65 | 0 | 0.969 (0.895–0.992) | 1.000 (0.944–1.000) | 1.000 (0.943–1.000) | 0.970 (0.898–0.992) | 0.970 (0.926–1.000) |
-| Experimental records | 70 | 63 | 2 | 5 | 0 | 0.969 (0.895–0.992) | 1.000 (0.566–1.000) | 1.000 (0.943–1.000) | 0.714 (0.359–0.918) | 0.832 (0.569–1.000) |
+| Balanced benchmark | 130 | 63 | 2 | 65 | 0 | 0.969 (0.895–0.992) | 1.000 (0.944–1.000) | 1.000 (0.943–1.000) | 0.970 (0.898–0.992) | 0.970 (0.925–1.000) |
+| Experimental records | 70 | 63 | 2 | 5 | 0 | 0.969 (0.895–0.992) | 1.000 (0.566–1.000) | 1.000 (0.943–1.000) | 0.714 (0.359–0.918) | 0.832 (0.560–1.000) |
 | Construct-level records | 57 | 50 | 2 | 5 | 0 | 0.962 (0.870–0.989) | 1.000 (0.566–1.000) | 1.000 (0.929–1.000) | 0.714 (0.359–0.918) | 0.829 (0.556–1.000) |
 
 Intervals are Wilson intervals for proportions and percentile bootstrap intervals for the MCC. The
@@ -765,10 +772,11 @@ removed together with all other low-confidence-tier records. A further record wh
 be traced (HDNA0039, a poly-dC representative) was also removed. No low-confidence-tier record remains
 in the benchmark.
 
-**Other records from the secondary document.** For the remaining 25 records originally transcribed from
-that document, we checked each sequence and label against the primary paper. Thirteen were confirmed
-and remain in the primary set. Twelve could not be confirmed at the level of the exact construct and
-were moved to the secondary set.
+**Other records from the secondary document.** For the remaining 25 records originally transcribed
+from that document, we checked each sequence and label against the primary paper. Twelve were
+confirmed and remain in the primary set. Thirteen were moved to the secondary set: twelve because
+the published experiment tested a closely related construct of the same repeat family rather than
+the exact sequence recorded, and one for the reason given below.
 
 **pRW1406/pRW1411.** The primary paper (Hanvey, Klysik & Wells 1988, *J Biol Chem* 263:7386) resolves
 the inconsistency. The abstract enumerates seven inserts by G+C content: the (TCC)₈ insert at 66% G+C
@@ -795,7 +803,7 @@ sequences, the records sit in the secondary set. The original citations are reta
 that every correction is auditable.
 
 The primary benchmark now contains 57 construct-level records (52 forming, 5 non-forming). We report
-performance on this set separately from the full balanced benchmark (Reviewer 2, comment 1): MCC 0.829
+performance on this set separately from the full balanced benchmark: MCC 0.829
 (95% CI 0.556–1.000), sensitivity 0.962 (0.870–0.989), specificity 1.000 (0.566–1.000). Only five
 experimental non-forming constructs met the primary criteria, so specificity rests mainly on the
 designed negatives. We state this explicitly in the text.
@@ -852,8 +860,9 @@ We agree that the experiment tested computational recovery in a genomic backgrou
 formation, and that the original presentation gave it more weight than it could carry. We have
 rewritten it accordingly rather than leaving the framing to be inferred. It is now presented as a test
 of whether embedding a sequence in a genome changes the call made on it; the biological claims attached
-to it are gone; and the biological validation the reviewer asks for is supplied by the comparison with
-single-stranded DNA maps described under comment 8 below.
+to it are gone; and the biological validation the reviewer asks for is supplied by the comparison
+with the permanganate/S1 single-stranded DNA maps of Kouzine and colleagues, which we describe in
+full under the reviewer's comment 8 below.
 
 Measured that way the experiment earns its place: HSeeker's calls are identical for all 130 records
 whether the sequences are scanned on their own or embedded, whereas triplex loses 44 detections once
@@ -899,11 +908,22 @@ choice. The sweep is reported in Figure 3C.
 We thank the reviewer for this suggestion; it produced the most informative analysis in the revised
 manuscript. We compared HSeeker's predictions with the structure-sensitive nuclease mapping of Kouzine
 and colleagues: permanganate/S1 footprinting of single-stranded DNA in activated and resting mouse B
-cells and in human Raji cells. Recall and selectivity against their published calls are described in
-our response to Reviewer 2, comment 3. Here we describe two enrichment analyses of the measured signal,
-which form the new Figure 4. The first was specified, with its controls and statistics, before any
-result was computed; the second was added after the first and was likewise specified before it was
-computed. We report both.
+cells and in human Raji cells. We used their published calls and signal tracks, on the genome
+assemblies they used, and scanned both genomes with HSeeker at its default settings.
+
+**Recall and selectivity.** HSeeker loci overlap 79.0% of the H-DNA structures the authors found
+formed in mouse (13,517 of 17,109) and 82.3% in human Raji cells (6,879 of 8,356). Among their own
+predicted H-DNA motifs, those HSeeker calls are formed more often than those it does not: 4.5%
+against 2.8% in mouse (odds ratio 1.65, 95% CI 1.59-1.71) and 5.7% against 1.7% in human (3.39,
+3.20-3.59); restricting to motifs that the 36-nt reads can map to raises these to 1.68-2.07 and
+4.16-5.70. We note that a strict subset of experimentally formed structures is not attainable by any
+sequence-based predictor on these data, because formation depends on cell state: only about 3-5% of
+the authors' own predicted H-DNA motifs carried single-stranded signal in a given cell type.
+
+**Enrichment of the measured signal.** We then asked whether the signal itself is elevated at HSeeker
+loci, which forms the new Figure 4. We report two analyses. The first was specified, with its
+controls and statistics, before any result was computed; the second was added after the first and was
+likewise specified before it was computed. We report both.
 
 **Composition matching.** Single-stranded signal depends strongly on base composition, so control
 windows were matched to each HSeeker locus on length, A/T count and purine/pyrimidine asymmetry, and
@@ -1014,9 +1034,9 @@ activity, and we now implement the alternative proposed and compare the two dire
 **Why the default is retained.** We keep the longest-arm rule as the default for three reasons, which
 the manuscript now states. Among overlapping candidates covering the same mirror-repeat region, the
 longest arm describes the full extent of the repeat, which is the region available for strand exchange.
-The criterion is purely geometric and does not depend on the stability score, which as we acknowledge in
-response to comment 4 is a heuristic rather than a calibrated free energy; fine score differences between
-overlapping candidates should not decide what a user sees by default. And it is faster at genome scale,
+The criterion is purely geometric and does not depend on the stability score, which is a heuristic
+ranking rather than a calibrated free energy; fine score differences between overlapping candidates
+should not decide what a user sees by default. And it is faster at genome scale,
 because overlaps are resolved before candidates are scored.
 
 **The three modes.** HSeeker now offers three overlap modes in the Python API, CLI and web interface:
@@ -1118,9 +1138,10 @@ We appreciate the reviewer's detailed and thoughtful comments. We have revised t
 accordingly. In detail:
 
 **12.1 — "works highly effectively and aligns seamlessly."** We agree that we were over-enthusiastic
-about the validation result. Knowing the limits of our model (see our reply to Reviewer 2, comment 4)
-and the limited availability of experimental data under comparable controlled conditions, we have
-moderated the statement to:
+about the validation result. The score is an experimentally informed heuristic that has not been
+calibrated against measured free energies, melting temperatures or transition superhelical
+densities, and experimental data under comparable controlled conditions are limited. We have
+therefore moderated the statement to:
 
 > The stability score ranks candidates in a manner consistent with the biochemical and genetic evidence
 > available for the sequences in our benchmark; it is an experimentally informed heuristic and has not

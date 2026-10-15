@@ -1,5 +1,5 @@
 {
- "date": "2026-10-11 13:24:25",
+ "date": "2026-10-15 11:23:27",
  "plan": "RTR/TOOL_COMPARISON_PLAN_2026-10-11.md",
  "input_csv": "hdna_benchmark_balanced_v3.csv",
  "input_csv_sha256": "c3f3b842464c7d881fb37c843cecdfc5c03d4c9a4052663191beb1c95ca9ed3e",
@@ -1343,6 +1343,6 @@
   "rscript": "/home1/10899/kimopro/WORK/miniconda3/envs/r_triplex/bin/Rscript",
   "hseeker": "0.1.0"
  },
- "git_commit": "ca63f0b443fd3b6eb320ed32a52f11694b67a107",
+ "git_commit": "0dfa281de6f0193f15d7d59104ff3e46f98f4739",
  "failures": []
 }
