@@ -12,6 +12,11 @@ of duplicate arm/spacer representations in _hdna.c) the golden hits were
 regenerated with that same pre-batching Python code (4784c4b) built against the
 merged C detector: the 10 configurations with overlap removal were unchanged,
 the 10 without it changed as the detector change intends.
+When the composition filters were moved before greedy overlap removal (a hit
+failing the AT filter no longer hides an overlapping hit that passes), the
+one affected configuration (greedy-overlaps1-filters1-chunk1000000) was
+regenerated: it gains one hit (seq05:11710-11739) and loses none. With
+chunk_size=1000 the overlap pass was already deferred until after filtering.
 
 Floats are compared up to 6 decimals: since Python 3.12 the built-in sum()
 uses compensated summation, so unrounded scores (pairing_score, stacking_score)
