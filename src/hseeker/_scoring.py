@@ -2,7 +2,8 @@
 _scoring.py — H-DNA triplex thermodynamic stability scoring.
 
 Uses an O(n²) constrained maximum-subarray search over all (L, R) arm
-windows to find the globally optimal arm boundaries. The constraint
+windows to find the globally optimal arm boundaries; for each L the window
+sums are extended one base at a time as R grows. The constraint
 2*(al-R)+ll <= (R-L)*v enforces that the new spacer (right tail x 2 +
 original spacer) does not exceed v times the selected arm length.
 If no window satisfies that constraint, score the original detected arms.
@@ -13,6 +14,17 @@ No external dependencies (no Biopython, no attrs).
 from __future__ import annotations
 
 _REVCOMP = str.maketrans("ACGTacgt", "TGCAtgca")
+_G_BITS = str.maketrans("GACT", "1000")
+_A_BITS = str.maketrans("GACT", "0100")
+
+
+def _bits(seq: str, table: dict) -> int:
+    """Bitmask of the positions of one base in an ACGT string."""
+    return int(seq.translate(table), 2) if seq else 0
+
+
+def _popcount(x: int) -> int:
+    return bin(x).count("1")
 
 
 def _reverse_complement(seq: str) -> str:
@@ -30,6 +42,12 @@ class _Scorer:
         self.dv = 2
         self.min_al = 8
         self.v = 1.0  # max spacer-to-arm ratio
+
+    def _stacking_step(self, prev: str, cur: str, tail: int) -> tuple[float, int]:
+        """One term of :meth:`_calc_stacking` and the updated mismatch tail."""
+        if prev == cur == "1":
+            return float(self.stacking_score), -1
+        return -self._discount(max(tail, 0)), tail + 1
 
     def _discount(self, n: int) -> float:
         n = min(n, 12)
@@ -78,9 +96,8 @@ class _Scorer:
         except (ValueError, IndexError):
             return None
 
-    def _score_impl(self, s: str, al: int, *,
-                    include_stacking: bool = True,
-                    optimize_boundaries: bool = True) -> dict:
+    def _arms(self, s: str, al: int) -> tuple[str, str, str, str]:
+        """Orient the motif on its purine strand and split it into arms."""
         s = s.upper()
         s1 = s[:al]
         s2_rev = s[-al:]
@@ -97,8 +114,39 @@ class _Scorer:
         s2 = s2_rev[::-1]
         ll = len(s3)
 
-        if any(n not in self.nuc for n in s1 + s2):
+        if not self.nuc.issuperset(s1 + s2):
             raise ValueError("non-ACGT base in arms")
+        return s1, s2, s3, ll
+
+    def upper_bound(self, s: str, al: int) -> float | None:
+        """An upper bound on ``total_score`` for this motif, in O(al).
+
+        No window's pairing sum exceeds the sum of the positive per-position
+        pairing scores, and its stacking sum gains +stacking_score only for
+        adjacent matched positions (every other term is a penalty). Returns
+        None when the motif cannot be scored.
+        """
+        try:
+            s1, s2, _, _ = self._arms(s, al)
+        except (ValueError, IndexError):
+            return None
+        # Bit j marks a G:G or A:A pair at arm position j; only those pairs
+        # score positively, and only adjacent ones add a stacking bonus.
+        g_pairs = _bits(s1, _G_BITS) & _bits(s2, _G_BITS)
+        a_pairs = _bits(s1, _A_BITS) & _bits(s2, _A_BITS)
+        matched = g_pairs | a_pairs
+        pairs = (_popcount(g_pairs) * self.scoring["G"]
+                 + _popcount(a_pairs) * self.scoring["A"])
+        stacks = _popcount(matched & (matched >> 1))
+        # Scores are round(x, 3), and round is monotone, so rounding the bound
+        # the same way keeps it valid while letting a window that attains it
+        # tie exactly. The 1e-6 nudge absorbs float summation-order error.
+        return max(round(pairs + stacks * self.stacking_score + 1e-6, 3), 0)
+
+    def _score_impl(self, s: str, al: int, *,
+                    include_stacking: bool = True,
+                    optimize_boundaries: bool = True) -> dict:
+        s1, s2, s3, ll = self._arms(s, al)
 
         # Per-position pairing scores and match array for full arm
         scoring_array = ""
@@ -116,13 +164,27 @@ class _Scorer:
         best_score = -float("inf")
         best_pair: tuple[int, int] | None = None
         if optimize_boundaries:
+            # For each L, extend [L, R) one base at a time. The running sums
+            # add the same terms in the same order as sum(pairing_scores[L:R])
+            # and sum(self._calc_stacking(scoring_array[L:R])). Python >= 3.12
+            # sum() compensates rounding, so the raw sums can differ in the
+            # last bits, but windows are compared after round(..., 3) and the
+            # reported scores below are still computed with sum().
             min_window = min(self.min_al, al)
             for L in range(al):
-                for R in range(L + min_window, al + 1):
+                pair_sum = 0
+                stack_sum = 0.0 if include_stacking else 0
+                tail = -1
+                for R in range(L + 1, al + 1):
+                    pair_sum += pairing_scores[R - 1]
+                    if include_stacking and R - 1 > L:
+                        term, tail = self._stacking_step(
+                            scoring_array[R - 2], scoring_array[R - 1], tail)
+                        stack_sum += term
+                    if R < L + min_window:
+                        continue
                     if 2 * (al - R) + ll <= (R - L) * self.v:
-                        sub = scoring_array[L:R]
-                        stacked = self._calc_stacking(sub) if include_stacking else []
-                        cur = round(sum(pairing_scores[L:R]) + sum(stacked), 3)
+                        cur = round(pair_sum + stack_sum, 3)
                         if cur > best_score:
                             best_score = cur
                             best_pair = (L, R)

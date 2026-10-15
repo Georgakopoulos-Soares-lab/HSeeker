@@ -3,7 +3,7 @@
 
 This pipeline:
 1. Downloads NC_000913.3 if needed.
-2. Inserts the 54 experimental H-DNA sequences exactly as provided, with
+2. Inserts the benchmark v3 sequences exactly as provided, with
    seed=42 and >=500 bp between insertion sites.
 3. Runs HSeeker on the injected genome with the paper/default parameters.
 4. Runs Triplex on the same injected genome with package defaults.
@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import csv
 import gzip
+import hashlib
 import json
 import math
 import os
@@ -42,7 +43,7 @@ NCBI_FASTA_URL = (
     "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
     f"?db=nuccore&id={ACCESSION}&rettype=fasta&retmode=text"
 )
-DEFAULT_CSV = ROOT / "hdna_experimental_sequences_final.csv"
+DEFAULT_CSV = ROOT / "hdna_benchmark_balanced_v3.csv"
 DEFAULT_OUT = ROOT / "analysis" / "results" / "sensitivity_injected"
 TRIPLEX_R = ROOT / "analysis" / "scripts" / "triplex_fasta_search_defaults.R"
 
@@ -112,14 +113,47 @@ def download_reference(path: Path) -> None:
     tmp.replace(path)
 
 
-def load_experimental_rows(path: Path) -> list[dict[str, str]]:
+def sha256_of(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def select_benchmark_rows(
+    rows: list[dict[str, str]], fieldnames: list[str], subset: str
+) -> list[dict[str, str]]:
+    """Restrict a benchmark CSV to the records that belong in the analysis.
+
+    Mirrors ``run_direct_sensitivity_analysis.select_benchmark_rows``: records
+    the provenance audit removed or excluded (``curation_decision != 'kept'``)
+    are never benchmarked, and ``record_type`` selects the experimental-only or
+    synthetic composition from the frozen balanced file.
+    """
+    selected = rows
+    if "curation_decision" in fieldnames:
+        kept = [r for r in selected if (r.get("curation_decision") or "").strip() == "kept"]
+        dropped = len(selected) - len(kept)
+        if dropped:
+            print(f"Excluding {dropped} record(s) with curation_decision != 'kept'.")
+        selected = kept
+    if subset != "all":
+        if "record_type" not in fieldnames:
+            raise RuntimeError(f"--subset {subset} requires a 'record_type' column in the CSV")
+        selected = [r for r in selected if (r.get("record_type") or "").strip() == subset]
+        if not selected:
+            raise RuntimeError(f"No records with record_type == {subset!r}")
+        print(f"Subset '{subset}': {len(selected)} record(s).")
+    return selected
+
+
+def load_experimental_rows(path: Path, subset: str = "all") -> list[dict[str, str]]:
     with path.open(newline="", encoding="utf-8-sig") as handle:
         reader = csv.DictReader(handle)
         rows = list(reader)
     required = {"record_id", "sequence_name", "sequence_5to3", "label"}
-    missing = required.difference(reader.fieldnames or [])
+    fieldnames = list(reader.fieldnames or [])
+    missing = required.difference(fieldnames)
     if missing:
         raise RuntimeError(f"Missing required CSV columns: {sorted(missing)}")
+    rows = select_benchmark_rows(rows, fieldnames, subset)
     bad: list[dict[str, str]] = []
     for row in rows:
         seq = (row["sequence_5to3"] or "").strip().upper()
@@ -136,7 +170,8 @@ def load_experimental_rows(path: Path) -> list[dict[str, str]]:
             "See invalid_sequences.csv in the output directory after rerun with --write-invalid-report."
         )
     labels = {normalize_label(row["label"]) for row in rows}
-    if labels != {"forming", "non-forming"}:
+    unexpected = labels - {"forming", "non-forming"}
+    if unexpected:
         raise RuntimeError(f"Expected labels forming/non-forming only; observed {sorted(labels)}")
     return rows
 
@@ -466,6 +501,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--csv", type=Path, default=DEFAULT_CSV)
     parser.add_argument("--outdir", type=Path, default=DEFAULT_OUT)
+    parser.add_argument(
+        "--subset",
+        choices=["all", "experimental", "synthetic"],
+        default="all",
+        help="Benchmark composition to evaluate (default: all = class-balanced v3)",
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--min-distance", type=int, default=500)
     parser.add_argument("--overlap-fraction", type=float, default=0.80)
@@ -481,7 +522,7 @@ def main() -> None:
     data_dir.mkdir(parents=True, exist_ok=True)
     plots_dir.mkdir(parents=True, exist_ok=True)
 
-    rows = load_experimental_rows(args.csv)
+    rows = load_experimental_rows(args.csv, subset=args.subset)
     ref_fasta = data_dir / f"{ACCESSION}.fna"
     if not ref_fasta.exists():
         download_reference(ref_fasta)
@@ -576,6 +617,8 @@ def main() -> None:
         "reference_length": len(ref_seq),
         "injected_length": len(injected_seq),
         "input_csv": str(args.csv),
+        "input_csv_sha256": sha256_of(args.csv),
+        "subset": args.subset,
         "dataset_size": len(manifest),
         "forming_count": sum(1 for r in manifest if r.label == "forming"),
         "nonforming_count": sum(1 for r in manifest if r.label == "non-forming"),

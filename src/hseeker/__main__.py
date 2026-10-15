@@ -53,7 +53,7 @@ def main() -> None:
     parser.add_argument("-mismatch",    type=float, default=0.10, metavar="FLOAT",
                         help="Max mismatch fraction in mirror (default: 0.10)")
     parser.add_argument("-skipoverlap", action="store_true",
-                        help="Skip overlap removal (keep all raw hits)")
+                        help="Skip overlap removal (keep inward-normalized hits)")
     parser.add_argument("-overlap-strategy", choices=("greedy", "score"),
                         default="greedy",
                         help="Select nonoverlapping hits by longest arm "
@@ -99,6 +99,7 @@ def main() -> None:
         f"  minrep={args.minrep}  maxrep={args.maxrep}  maxspacer={args.maxspacer}\n"
         f"  purity={args.purity:.2f}  mismatch={args.mismatch:.2f}\n"
         f"  at_threshold={args.at_threshold:.2f}\n"
+        f"  overlap={'off' if args.skipoverlap else args.overlap_strategy}\n"
         f"  workers={n_workers}",
         file=sys.stderr,
     )

@@ -1,0 +1,94 @@
+{
+ "genome": "mm9",
+ "hseeker_config": "benchmark",
+ "hseeker_params": {
+  "minrep": 8,
+  "maxrep": 1000,
+  "maxspacer": 10,
+  "purity": 0.9,
+  "mismatch": 0.1,
+  "overlap_strategy": "greedy"
+ },
+ "hseeker_loci": 1285045,
+ "P1_recall": {
+  "called_ssDNA_plus": 17109,
+  "called_in_paper": 17109,
+  "overlapped_by_hseeker": 16375,
+  "fraction": 0.9570986030744053
+ },
+ "P2_selectivity": {
+  "analysed_in_paper": 341431,
+  "analysed_motifs": 428237,
+  "called_in_analysed": 17109,
+  "hseeker_called": {
+   "ssDNA_plus": 16375,
+   "ssDNA_minus": 401431,
+   "rate": 0.039192831122578424
+  },
+  "not_hseeker_called": {
+   "ssDNA_plus": 734,
+   "ssDNA_minus": 9697,
+   "rate": 0.0703671747675199
+  },
+  "odds_ratio": 0.5385811003683366,
+  "or_ci95": [
+   0.49885660605102605,
+   0.5814688993900948
+  ],
+  "fisher_p_greater": 1.0,
+  "score_ssDNA_plus_median": 122.29,
+  "score_ssDNA_minus_median": 109.79,
+  "score_mannwhitney_p_greater": 1.2031252246660025e-87
+ },
+ "P2_selectivity_mappable_sensitivity": {
+  "mean_ge_0.5": {
+   "threshold": 0.5,
+   "analysed_motifs": 238998,
+   "called_in_analysed": 8147,
+   "hseeker_called": {
+    "ssDNA_plus": 7877,
+    "ssDNA_minus": 226634,
+    "rate": 0.033589042731471015
+   },
+   "not_hseeker_called": {
+    "ssDNA_plus": 270,
+    "ssDNA_minus": 4217,
+    "rate": 0.06017383552484957
+   },
+   "odds_ratio": 0.5419387578171142,
+   "or_ci95": [
+    0.478273935170953,
+    0.614078241833058
+   ],
+   "fisher_p_greater": 1.0,
+   "score_ssDNA_plus_median": 95.325,
+   "score_ssDNA_minus_median": 87.785,
+   "score_mannwhitney_p_greater": 4.289221548649724e-99
+  },
+  "unique": {
+   "threshold": 0.999,
+   "analysed_motifs": 88267,
+   "called_in_analysed": 2110,
+   "hseeker_called": {
+    "ssDNA_plus": 2082,
+    "ssDNA_minus": 85445,
+    "rate": 0.023786945742456614
+   },
+   "not_hseeker_called": {
+    "ssDNA_plus": 28,
+    "ssDNA_minus": 712,
+    "rate": 0.03783783783783784
+   },
+   "odds_ratio": 0.6093065170196207,
+   "or_ci95": [
+    0.4179634202158672,
+    0.8882462285595187
+   ],
+   "fisher_p_greater": 0.9926476620626287,
+   "score_ssDNA_plus_median": 88.26,
+   "score_ssDNA_minus_median": 78.24,
+   "score_mannwhitney_p_greater": 2.7026812665356025e-106
+  }
+ },
+ "P3_enrichment_authors_signal": "pending: controls not yet sampled"
+}

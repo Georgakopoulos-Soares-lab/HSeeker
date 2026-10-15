@@ -35,6 +35,8 @@
       <span class="pill">maxspacer = {{ p.maxspacer }}</span>
       <span class="pill">purity = {{ "%.2f"|format(p.purity) }}</span>
       <span class="pill">mismatch = {{ "%.2f"|format(p.mismatch) }}</span>
+      {% if p.at_threshold is defined %}<span class="pill">AT filter &lt; {{ "%.2f"|format(p.at_threshold) }}</span>{% endif %}
+      {% if p.filter_homopolymers %}<span class="pill">homopolymer filter</span>{% endif %}
       <span class="pill pill--{{ 'teal' if p.remove_overlaps else 'orange' }}">
         {{ "overlaps removed" if p.remove_overlaps else "all hits" }}
       </span>
