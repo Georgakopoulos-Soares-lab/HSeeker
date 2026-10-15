@@ -388,6 +388,62 @@ class Doc:
         self.log.append(f"after p{i} insert table {len(rows)}x{len(header)}"
                         f"{' · ' + label if label else ''}")
 
+    def _all_runs(self, p: ET.Element) -> list[tuple[ET.Element, ET.Element]]:
+        """Every run in the paragraph with its holder, including inside hyperlinks."""
+        out = []
+        for child in list(p):
+            if child.tag == w("r"):
+                out.append((p, child))
+            elif child.tag == w("hyperlink"):
+                out.extend((child, r) for r in list(child) if r.tag == w("r"))
+        return out
+
+    def _mark_runs(self, p: ET.Element, inserted: bool) -> None:
+        """Wrap every run of a paragraph in a single revision per holder."""
+        groups: dict[int, list] = {}
+        for holder, run in self._all_runs(p):
+            groups.setdefault(id(holder), []).append((holder, run))
+        for items in groups.values():
+            holder = items[0][0]
+            runs = [r for _, r in items]
+            at = list(holder).index(runs[0])
+            for r in runs:
+                holder.remove(r)
+            holder.insert(at, self._wrap_ins(runs) if inserted
+                          else self._wrap_del(runs))
+        ppr = p.find(w("pPr"))
+        if ppr is None:
+            ppr = ET.Element(w("pPr"))
+            p.insert(0, ppr)
+        rpr = ppr.find(w("rPr"))
+        if rpr is None:
+            rpr = ET.SubElement(ppr, w("rPr"))
+        rpr.insert(0, ET.Element(w("ins" if inserted else "del"), self._rev_attrs()))
+
+    def move_paragraphs(self, srcs: list[int], dest: int, label: str = "") -> None:
+        """Move whole paragraphs, preserving inline images and hyperlinks.
+
+        Emitted as a tracked deletion at the old position and a tracked
+        insertion at the new one, so both halves can be accepted or rejected.
+        Copies reference the same image relationships, which is legal, but get
+        fresh drawing ids so Word does not see duplicates.
+        """
+        anchor = self.para(dest)
+        parent = self._parent_map(self.tree)[anchor]
+        at = list(parent).index(anchor) + 1
+        for offset, idx in enumerate(srcs):
+            src = self.para(idx)
+            copy_p = copy.deepcopy(src)
+            self._uid = getattr(self, "_uid", 7700) + 1
+            for k, dp in enumerate(copy_p.iter(f"{{{WP}}}docPr")):
+                dp.set("id", str(self._uid * 10 + k))
+                dp.set("name", f"Moved object {self._uid}-{k}")
+            self._mark_runs(copy_p, inserted=True)
+            parent.insert(at + offset, copy_p)
+            self._mark_runs(src, inserted=False)
+        self.log.append(f"move p{srcs} -> after p{dest}"
+                        f"{' · ' + label if label else ''}")
+
     # ---- save ------------------------------------------------------------
     def save(self, out: Path) -> None:
         out = Path(out)

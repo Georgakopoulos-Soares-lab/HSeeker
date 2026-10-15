@@ -1166,12 +1166,21 @@ sequence feature rather than as a synonym for the structure.
 **12.5 — language editing.** The manuscript has been language-edited throughout for grammar, consistency
 of tense and terminology, and clarity of presentation.
 
-**12.6 — figure density.** Figure 1 has been simplified: the sensitivity-analysis and AUC inset has been
-removed, since that analysis is withdrawn (see comment 3); the candidate-identification flowchart has
-been reduced and now shows the inward-extension and deduplication steps explicitly; and the stability
-panel is relabelled as a heuristic ranking rather than an energy. The algorithm panels have been
-restructured into a short pipeline overview that fixes the order of stages, followed by one compact panel
-per stage, which removes the repetition that made the submitted panels dense.
+**12.6 — figure density.** We have restructured the algorithm panels, which is where the density the
+reviewer describes accumulates. The submitted three panels repeated the same preamble and left the order of
+stages implicit; they are replaced by four, beginning with a short pipeline panel that states the order
+explicitly, followed by one compact panel per stage. The panels also now match the implementation, which the
+submitted ones had drifted from: the purity prefilter is shown as optional, the inward extension and the
+deduplication step appear, both overlap rules are given, and the scorer's fallback window and its clamp at
+zero are shown.
+
+Figure 1 we have left as submitted. It is a conceptual overview of the workflow rather than a presentation of
+results, and the small bar chart in its central panel illustrates the idea of benchmarking rather than data
+from this study: its bars are labelled generically and carry none of the values we report. We judged that
+redrawing it would alter the figure's character without answering the reviewer's point, which the algorithm
+panels address directly. We would be glad to redraw it if the reviewer or the editors prefer; in that case we
+would remove the illustrative bar chart, since the score-threshold analysis it alludes to is withdrawn
+(comment 3), and relabel the stability panel to match the heuristic reading set out in comment 4.
 
 ---
 

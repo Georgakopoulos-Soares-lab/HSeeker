@@ -305,6 +305,10 @@ def main() -> None:
     d.replace_paragraph(87, COMPARATOR_TIMINGS, "R3.6/R3.11")
     d.replace_paragraph(89, WHOLE_GENOME, "R3.11")
 
+    # Reviewer 2, comment 5: the complexity analysis belongs in the Results.
+    # Moved whole, so its 34 inline equations and citation links travel with it.
+    d.move_paragraphs([76, 77], dest=89, label="R2.5 complexity -> Results")
+
     d.replace_text(
         94,
         "Comparison of HSeeker with other H-DNA detection tools using experimental data",
