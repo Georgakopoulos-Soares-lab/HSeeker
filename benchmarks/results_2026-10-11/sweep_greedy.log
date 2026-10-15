@@ -1,0 +1,38 @@
+================================================================================
+                       HSeeker Parallel Worker Sweep — chr1                     
+                               2026-10-11 11:41:09                              
+================================================================================
+  hseeker  : 0.1.0
+  FASTA    : chr1.fa  (253.9 MB)
+  minrep   : 8  |  Scoring: on  |  Runs per point: 3
+  Workers  : [1, 2, 4, 8, 16]
+
+  workers= 1  run 1/3 …  177.6s  RSS= 1334 MB  1.43 MB/s
+  workers= 1  run 2/3 …  171.9s  RSS= 1320 MB  1.48 MB/s
+  workers= 1  run 3/3 …  171.7s  RSS= 1334 MB  1.48 MB/s
+  workers= 2  run 1/3 …   88.6s  RSS= 1334 MB  2.87 MB/s
+  workers= 2  run 2/3 …   91.4s  RSS= 1335 MB  2.78 MB/s
+  workers= 2  run 3/3 …   88.9s  RSS= 1336 MB  2.86 MB/s
+  workers= 4  run 1/3 …   47.6s  RSS= 1336 MB  5.34 MB/s
+  workers= 4  run 2/3 …   47.5s  RSS= 1334 MB  5.34 MB/s
+  workers= 4  run 3/3 …   47.1s  RSS= 1334 MB  5.39 MB/s
+  workers= 8  run 1/3 …   26.5s  RSS= 1334 MB  9.60 MB/s
+  workers= 8  run 2/3 …   26.8s  RSS= 1334 MB  9.48 MB/s
+  workers= 8  run 3/3 …   26.9s  RSS= 1335 MB  9.46 MB/s
+  workers=16  run 1/3 …   16.3s  RSS= 1334 MB  15.56 MB/s
+  workers=16  run 2/3 …   16.3s  RSS= 1334 MB  15.59 MB/s
+  workers=16  run 3/3 …   16.4s  RSS= 1334 MB  15.53 MB/s
+
+────────────────────────────────────────────────────────────────────────────────
+  Workers   Wall (s)   RSS (MB)      MB/s   Speedup  Efficiency
+················································································
+        1      173.8       1330      1.46     1.00×      100.0%
+        2       89.6       1335      2.83     1.94×       96.9%
+        4       47.4       1335      5.36     3.67×       91.6%
+        8       26.7       1334      9.51     6.51×       81.3%
+       16       16.3       1334     15.56    10.65×       66.5%
+================================================================================
+  Done.
+================================================================================
+
+  JSON → /scratch/10899/kimopro/kouzine/runtime/sweep_greedy_minrep8.json

@@ -1,0 +1,106 @@
+##gff-version 3
+HDNA0001	ABCC	Mirror_Repeat	1	32	.	+	.	ID=HDNA0001_1_32_MR;spacer=4;repeat=14;perms=1;minloop=32;composition=6A/0C/8G/0T;sequence=aagggagaaaggggtataggggaaagagggaa;subset=1
+##gff-version 3
+HDNA0002	ABCC	Mirror_Repeat	1	32	.	+	.	ID=HDNA0002_1_32_MR;spacer=4;repeat=14;perms=1;minloop=32;composition=5A/0C/9G/0T;sequence=aagggagaagggggtatagggggaagagggaa;subset=1
+##gff-version 3
+HDNA0012	ABCC	Mirror_Repeat	1	32	.	+	.	ID=HDNA0012_1_32_MR;spacer=4;repeat=14;perms=1;minloop=32;composition=5A/0C/8G/1T;sequence=aagggagaatggggtataggggtaagagggaa;subset=1
+##gff-version 3
+HDNA0013	ABCC	Mirror_Repeat	1	32	.	+	.	ID=HDNA0013_1_32_MR;spacer=4;repeat=14;perms=1;minloop=32;composition=5A/1C/8G/0T;sequence=aagggagaacggggtataggggcaagagggaa;subset=1
+##gff-version 3
+HDNA0017	ABCC	Mirror_Repeat	7	37	.	+	.	ID=HDNA0017_7_37_MR;spacer=1;repeat=15;perms=1;minloop=37;composition=1A/7C/1G/6T;sequence=gacctctctctcttctcttctctctctccag;subset=0
+##gff-version 3
+HDNA0018	ABCC	Mirror_Repeat	7	37	.	+	.	ID=HDNA0018_7_37_MR;spacer=1;repeat=15;perms=1;minloop=37;composition=1A/6C/1G/7T;sequence=gacctttcctttcctttcctttcctttccag;subset=0
+##gff-version 3
+HDNA0019	ABCC	Mirror_Repeat	7	37	.	+	.	ID=HDNA0019_7_37_MR;spacer=1;repeat=15;perms=1;minloop=37;composition=1A/6C/1G/7T;sequence=gacctttcctttcctttcctttcctttccag;subset=0
+##gff-version 3
+HDNA0038	ABCC	Mirror_Repeat	4	40	.	+	.	ID=HDNA0038_4_40_MR;spacer=1;repeat=18;perms=1;minloop=40;composition=8A/0C/10G/0T;sequence=gggagagagagagagagagagagagagagagagaggg;subset=1
+##gff-version 3
+HDNA0040	ABCC	Mirror_Repeat	8	44	.	+	.	ID=HDNA0040_8_44_MR;spacer=1;repeat=18;perms=1;minloop=44;composition=0A/9C/0G/9T;sequence=tctctctctctctctctctctctctctctctctctct;subset=0
+##gff-version 3
+HDNA0041	ABCC	Mirror_Repeat	1	25	.	+	.	ID=HDNA0041_1_25_MR;spacer=1;repeat=12;perms=1;minloop=25;composition=8A/0C/4G/0T;sequence=gaagaagaagaagaagaagaagaag;subset=1
+HDNA0041	ABCC	Mirror_Repeat	2	27	.	+	.	ID=HDNA0041_2_27_MR;spacer=0;repeat=13;perms=1;minloop=27;composition=9A/0C/4G/0T;sequence=aagaagaagaagaagaagaagaagaa;subset=1
+##gff-version 3
+HDNA0042	ABCC	Mirror_Repeat	2	27	.	+	.	ID=HDNA0042_2_27_MR;spacer=2;repeat=12;perms=1;minloop=27;composition=7A/0C/4G/1T;sequence=aagaagtagaagtagaagatgaagaa;subset=1
+##gff-version 3
+HDNA0045	ABCC	Mirror_Repeat	2	27	.	+	.	ID=HDNA0045_2_27_MR;spacer=4;repeat=11;perms=1;minloop=27;composition=8A/0C/3G/0T;sequence=aagaagaagaattcgaagaagaagaa;subset=1
+##gff-version 3
+HDNA0049	ABCC	Mirror_Repeat	1	23	.	+	.	ID=HDNA0049_1_23_MR;spacer=1;repeat=11;perms=1;minloop=23;composition=6A/0C/5G/0T;sequence=agagagagagagagagagagaga;subset=1
+HDNA0049	ABCC	Mirror_Repeat	2	24	.	+	.	ID=HDNA0049_2_24_MR;spacer=1;repeat=11;perms=1;minloop=24;composition=5A/0C/6G/0T;sequence=gagagagagagagagagagagag;subset=1
+##gff-version 3
+HDNA0050	ABCC	Mirror_Repeat	1	22	.	+	.	ID=HDNA0050_1_22_MR;spacer=0;repeat=11;perms=1;minloop=22;composition=0A/7C/0G/4T;sequence=tcctcctcctcctcctcctcct;subset=0
+HDNA0050	ABCC	Mirror_Repeat	2	24	.	+	.	ID=HDNA0050_2_24_MR;spacer=1;repeat=11;perms=1;minloop=24;composition=0A/8C/0G/3T;sequence=cctcctcctcctcctcctcctcc;subset=0
+##gff-version 3
+HDNA0051	ABCC	Mirror_Repeat	1	22	.	+	.	ID=HDNA0051_1_22_MR;spacer=0;repeat=11;perms=1;minloop=22;composition=0A/5C/0G/6T;sequence=ttccttccttccttccttcctt;subset=0
+HDNA0051	ABCC	Mirror_Repeat	3	24	.	+	.	ID=HDNA0051_3_24_MR;spacer=0;repeat=11;perms=1;minloop=24;composition=0A/6C/0G/5T;sequence=ccttccttccttccttccttcc;subset=0
+##gff-version 3
+HDNA0052	ABCC	Mirror_Repeat	2	24	.	+	.	ID=HDNA0052_2_24_MR;spacer=1;repeat=11;perms=1;minloop=24;composition=9A/0C/2G/0T;sequence=aaagaaagaaagaaagaaagaaa;subset=1
+##gff-version 3
+HDNA0056	ABCC	Mirror_Repeat	1	30	.	+	.	ID=HDNA0056_1_30_MR;spacer=4;repeat=13;perms=1;minloop=30;composition=6A/0C/7G/0T;sequence=aagggagaaagggtatagggaaagagggaa;subset=1
+##gff-version 3
+HDNA0059	ABCC	Mirror_Repeat	1	24	.	+	.	ID=HDNA0059_1_24_MR;spacer=0;repeat=12;perms=1;minloop=24;composition=3A/0C/9G/0T;sequence=gggaggagggaggagggaggaggg;subset=1
+##gff-version 3
+HDNA0060	ABCC	Mirror_Repeat	1	28	.	+	.	ID=HDNA0060_1_28_MR;spacer=0;repeat=14;perms=1;minloop=28;composition=9A/0C/5G/0T;sequence=gaagaagaagaagaagaagaagaagaag;subset=1
+HDNA0060	ABCC	Mirror_Repeat	2	30	.	+	.	ID=HDNA0060_2_30_MR;spacer=1;repeat=14;perms=1;minloop=30;composition=10A/0C/4G/0T;sequence=aagaagaagaagaagaagaagaagaagaa;subset=1
+##gff-version 3
+HDNA0061	ABCC	Mirror_Repeat	1	58	.	+	.	ID=HDNA0061_1_58_MR;spacer=0;repeat=29;perms=1;minloop=58;composition=19A/0C/10G/0T;sequence=gaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaag;subset=1
+HDNA0061	ABCC	Mirror_Repeat	2	60	.	+	.	ID=HDNA0061_2_60_MR;spacer=1;repeat=29;perms=1;minloop=60;composition=20A/0C/9G/0T;sequence=aagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaa;subset=1
+##gff-version 3
+HDNA0062	ABCC	Mirror_Repeat	1	97	.	+	.	ID=HDNA0062_1_97_MR;spacer=1;repeat=48;perms=1;minloop=97;composition=32A/0C/16G/0T;sequence=gaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaag;subset=1
+HDNA0062	ABCC	Mirror_Repeat	2	99	.	+	.	ID=HDNA0062_2_99_MR;spacer=0;repeat=49;perms=1;minloop=99;composition=33A/0C/16G/0T;sequence=aagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaa;subset=1
+##gff-version 3
+HDNA0063	ABCC	Mirror_Repeat	1	196	.	+	.	ID=HDNA0063_1_196_MR;spacer=0;repeat=98;perms=1;minloop=196;composition=65A/0C/33G/0T;sequence=gaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaag;subset=1
+HDNA0063	ABCC	Mirror_Repeat	2	198	.	+	.	ID=HDNA0063_2_198_MR;spacer=1;repeat=98;perms=1;minloop=198;composition=66A/0C/32G/0T;sequence=aagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaagaa;subset=1
+##gff-version 3
+HDNA0064	ABCC	Mirror_Repeat	1	47	.	+	.	ID=HDNA0064_1_47_MR;spacer=1;repeat=23;perms=1;minloop=47;composition=10A/0C/13G/0T;sequence=aagggaagggaagggaagggaagggaagggaagggaagggaagggaa;subset=1
+HDNA0064	ABCC	Mirror_Repeat	3	50	.	+	.	ID=HDNA0064_3_50_MR;spacer=0;repeat=24;perms=1;minloop=50;composition=9A/0C/15G/0T;sequence=gggaagggaagggaagggaagggaagggaagggaagggaagggaaggg;subset=1
+##gff-version 3
+HDNA0065	ABCC	Mirror_Repeat	1	57	.	+	.	ID=HDNA0065_1_57_MR;spacer=1;repeat=28;perms=1;minloop=57;composition=0A/19C/0G/9T;sequence=ccctctccctctccctctccctctccctctccctctccctctccctctccctctccc;subset=0
+HDNA0065	ABCC	Mirror_Repeat	4	60	.	+	.	ID=HDNA0065_4_60_MR;spacer=1;repeat=28;perms=1;minloop=60;composition=0A/18C/0G/10T;sequence=tctccctctccctctccctctccctctccctctccctctccctctccctctccctct;subset=0
+##gff-version 3
+HDNA0066	ABCC	Mirror_Repeat	1	41	.	+	.	ID=HDNA0066_1_41_MR;spacer=1;repeat=20;perms=1;minloop=41;composition=0A/10C/0G/10T;sequence=ctctctctctctctctctctctctctctctctctctctctc;subset=0
+##gff-version 3
+HDNA0067	ABCC	Mirror_Repeat	1	33	.	+	.	ID=HDNA0067_1_33_MR;spacer=1;repeat=16;perms=1;minloop=33;composition=0A/8C/0G/8T;sequence=ctctctctctctctctctctctctctctctctc;subset=0
+##gff-version 3
+HDNA0068	ABCC	Mirror_Repeat	1	49	.	+	.	ID=HDNA0068_1_49_MR;spacer=1;repeat=24;perms=1;minloop=49;composition=0A/14C/0G/10T;sequence=tcctctcctctcctctcctctcctctcctctcctctcctctcctctcct;subset=0
+HDNA0068	ABCC	Mirror_Repeat	5	50	.	+	.	ID=HDNA0068_5_50_MR;spacer=0;repeat=23;perms=1;minloop=50;composition=0A/14C/0G/9T;sequence=ctcctctcctctcctctcctctcctctcctctcctctcctctcctc;subset=0
+##gff-version 3
+HDNA0069	ABCC	Mirror_Repeat	2	22	.	+	.	ID=HDNA0069_2_22_MR;spacer=1;repeat=10;perms=1;minloop=22;composition=5A/0C/5G/0T;sequence=gagagagagagagagagagag;subset=1
+##gff-version 3
+HDNA0070	ABCC	Mirror_Repeat	1	39	.	+	.	ID=HDNA0070_1_39_MR;spacer=1;repeat=19;perms=1;minloop=39;composition=9A/0C/10G/0T;sequence=gagagagagagagagagagagagagagagagagagagag;subset=1
+HDNA0070	ABCC	Mirror_Repeat	2	40	.	+	.	ID=HDNA0070_2_40_MR;spacer=1;repeat=19;perms=1;minloop=40;composition=10A/0C/9G/0T;sequence=agagagagagagagagagagagagagagagagagagaga;subset=1
+##gff-version 3
+HDNA0071	ABCC	Mirror_Repeat	1	87	.	+	.	ID=HDNA0071_1_87_MR;spacer=1;repeat=43;perms=1;minloop=87;composition=0A/22C/0G/21T;sequence=ctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctc;subset=0
+HDNA0071	ABCC	Mirror_Repeat	2	88	.	+	.	ID=HDNA0071_2_88_MR;spacer=1;repeat=43;perms=1;minloop=88;composition=0A/21C/0G/22T;sequence=tctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctctct;subset=0
+##gff-version 3
+HDNA0072	ABCC	Mirror_Repeat	1	31	.	+	.	ID=HDNA0072_1_31_MR;spacer=1;repeat=15;perms=1;minloop=31;composition=7A/0C/8G/0T;sequence=gagagagagagagagagagagagagagagag;subset=1
+HDNA0072	ABCC	Mirror_Repeat	2	32	.	+	.	ID=HDNA0072_2_32_MR;spacer=1;repeat=15;perms=1;minloop=32;composition=8A/0C/7G/0T;sequence=agagagagagagagagagagagagagagaga;subset=1
+##gff-version 3
+HDNA0073	ABCC	Mirror_Repeat	1	37	.	+	.	ID=HDNA0073_1_37_MR;spacer=1;repeat=18;perms=1;minloop=37;composition=13A/0C/5G/0T;sequence=gaaagaaagaaagaaagaaagaaagaaagaaagaaag;subset=1
+HDNA0073	ABCC	Mirror_Repeat	2	40	.	+	.	ID=HDNA0073_2_40_MR;spacer=1;repeat=19;perms=1;minloop=40;composition=15A/0C/4G/0T;sequence=aaagaaagaaagaaagaaagaaagaaagaaagaaagaaa;subset=1
+##gff-version 3
+HDNA0074	ABCC	Mirror_Repeat	1	38	.	+	.	ID=HDNA0074_1_38_MR;spacer=0;repeat=19;perms=1;minloop=38;composition=9A/0C/10G/0T;sequence=ggaaggaaggaaggaaggaaggaaggaaggaaggaagg;subset=1
+HDNA0074	ABCC	Mirror_Repeat	3	40	.	+	.	ID=HDNA0074_3_40_MR;spacer=0;repeat=19;perms=1;minloop=40;composition=10A/0C/9G/0T;sequence=aaggaaggaaggaaggaaggaaggaaggaaggaaggaa;subset=1
+##gff-version 3
+HDNA0075	ABCC	Mirror_Repeat	1	43	.	+	.	ID=HDNA0075_1_43_MR;spacer=1;repeat=21;perms=1;minloop=43;composition=10A/0C/11G/0T;sequence=gagagagagagagagagagagagagagagagagagagagagag;subset=1
+HDNA0075	ABCC	Mirror_Repeat	2	44	.	+	.	ID=HDNA0075_2_44_MR;spacer=1;repeat=21;perms=1;minloop=44;composition=11A/0C/10G/0T;sequence=agagagagagagagagagagagagagagagagagagagagaga;subset=1
+##gff-version 3
+HDNA0076	ABCC	Mirror_Repeat	1	33	.	+	.	ID=HDNA0076_1_33_MR;spacer=1;repeat=16;perms=1;minloop=33;composition=0A/8C/0G/8T;sequence=tctctctctctctctctctctctctctctctct;subset=0
+HDNA0076	ABCC	Mirror_Repeat	2	34	.	+	.	ID=HDNA0076_2_34_MR;spacer=1;repeat=16;perms=1;minloop=34;composition=0A/8C/0G/8T;sequence=ctctctctctctctctctctctctctctctctc;subset=0
+##gff-version 3
+HDNA0077	ABCC	Mirror_Repeat	1	97	.	+	.	ID=HDNA0077_1_97_MR;spacer=1;repeat=48;perms=1;minloop=97;composition=0A/28C/0G/20T;sequence=ttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttccctt;subset=0
+HDNA0077	ABCC	Mirror_Repeat	3	100	.	+	.	ID=HDNA0077_3_100_MR;spacer=0;repeat=49;perms=1;minloop=100;composition=0A/30C/0G/19T;sequence=cccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttcccttccc;subset=0
+##gff-version 3
+HDNA0079	ABCC	Mirror_Repeat	1	45	.	+	.	ID=HDNA0079_1_45_MR;spacer=1;repeat=22;perms=1;minloop=45;composition=0A/11C/0G/11T;sequence=ctctctctctctctctctctctctctctctctctctctctctctc;subset=0
+HDNA0079	ABCC	Mirror_Repeat	2	46	.	+	.	ID=HDNA0079_2_46_MR;spacer=1;repeat=22;perms=1;minloop=46;composition=0A/11C/0G/11T;sequence=tctctctctctctctctctctctctctctctctctctctctctct;subset=0
+##gff-version 3
+HDNA0081	ABCC	Mirror_Repeat	1	23	.	+	.	ID=HDNA0081_1_23_MR;spacer=1;repeat=11;perms=1;minloop=23;composition=0A/3C/0G/8T;sequence=ttcttcttcttcttcttcttctt;subset=0
+HDNA0081	ABCC	Mirror_Repeat	3	24	.	+	.	ID=HDNA0081_3_24_MR;spacer=0;repeat=11;perms=1;minloop=24;composition=0A/4C/0G/7T;sequence=cttcttcttcttcttcttcttc;subset=0
+##gff-version 3
+SYN0047	ABCC	Mirror_Repeat	1	23	.	+	.	ID=SYN0047_1_23_MR;spacer=1;repeat=11;perms=1;minloop=23;composition=0A/6C/5G/0T;sequence=cgcgcgcgcgcgcgcgcgcgcgc;subset=0
+SYN0047	ABCC	Mirror_Repeat	2	24	.	+	.	ID=SYN0047_2_24_MR;spacer=1;repeat=11;perms=1;minloop=24;composition=0A/5C/6G/0T;sequence=gcgcgcgcgcgcgcgcgcgcgcg;subset=0
+##gff-version 3
+SYN0057	ABCC	Mirror_Repeat	1	26	.	+	.	ID=SYN0057_1_26_MR;spacer=4;repeat=11;perms=1;minloop=26;composition=3A/3C/3G/2T;sequence=cgatgctgacatataacagtcgtagc;subset=1
+##gff-version 3
+SYN0058	ABCC	Mirror_Repeat	1	28	.	+	.	ID=SYN0058_1_28_MR;spacer=4;repeat=12;perms=1;minloop=28;composition=1A/3C/4G/4T;sequence=tctactgggcgttatatgcgggtcatct;subset=0
+##gff-version 3
+SYN0059	ABCC	Mirror_Repeat	1	26	.	+	.	ID=SYN0059_1_26_MR;spacer=4;repeat=11;perms=1;minloop=26;composition=3A/5C/3G/0T;sequence=acgccgaaccgtatagccaagccgca;subset=0

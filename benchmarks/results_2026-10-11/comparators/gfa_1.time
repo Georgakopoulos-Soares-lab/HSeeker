@@ -1,0 +1,44 @@
+-skipWGET = wget PHP call will be skipped
+-skipAPR = A-Phased Repeat motifs will not be found
+-skipSTR = Short Tandem Repeat motifs will not be found
+-skipDR = Direct Repeat motifs will not be found
+-skipIR = Inverted Repeat motifs will not be found
+-skipGQ = G-Quadruplex motifs will not be found
+-skipZ = Z-DNA motifs will not be found
+-seq value = s.fa
+-chrom not given. Sequence will be named using first word of fasta title line.
+Fasta Sections = 1
+Total Bases Read=248956422 
+Starting Mirror Repeat search; Sun Oct 11 13:30:53 2026
+MRs found = 147222; Sun Oct 11 13:32:22 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 147222
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 147222
+	Command being timed: "/work/10899/kimopro/ls6/tools/non-B_gfa/gfa -skipWGET -skipAPR -skipSTR -skipDR -skipIR -skipGQ -skipZ -seq s.fa -out o"
+	User time (seconds): 92.84
+	System time (seconds): 0.76
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:36.49
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 886548
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 1532
+	Voluntary context switches: 32911
+	Involuntary context switches: 93
+	Swaps: 0
+	File system inputs: 991935
+	File system outputs: 97339
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

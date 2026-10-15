@@ -104,7 +104,7 @@
             <label class="param-label" for="minrep">Min arm length
               <span class="param-code">minrep</span>
             </label>
-            <input id="minrep" type="number" name="minrep" value="10"
+            <input id="minrep" type="number" name="minrep" value="8"
                    min="4" max="100" class="param-input">
             <span class="param-hint">Minimum arm length in bp (≥ 4)</span>
           </div>
@@ -180,11 +180,11 @@
         <div class="presets">
           <span class="presets-label">Presets:</span>
           <button type="button" class="preset-btn"
-                  @click="applyPreset({minrep:10,maxrep:1000,maxspacer:10,purity:0.90,mismatch:0.10})">
+                  @click="applyPreset({minrep:8,maxrep:1000,maxspacer:10,purity:0.90,mismatch:0.10})">
             Default
           </button>
           <button type="button" class="preset-btn"
-                  @click="applyPreset({minrep:10,maxrep:1000,maxspacer:10,purity:1.0,mismatch:0.0})">
+                  @click="applyPreset({minrep:8,maxrep:1000,maxspacer:10,purity:1.0,mismatch:0.0})">
             Strict (100% pure)
           </button>
           <button type="button" class="preset-btn"

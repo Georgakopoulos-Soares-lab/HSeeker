@@ -1,0 +1,1 @@
+/work/10899/kimopro/ls6/tools/triplexator/bin/triplexator -ds /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/benchmark130.fa -l 16 -e 10 -of 0 -od /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/Triplexator/benchmark130__matched__f3d79754 -o out

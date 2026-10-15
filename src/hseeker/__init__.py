@@ -7,8 +7,8 @@ Fast C core wrapped in a clean Python API.
 Quick start
 -----------
 >>> import hseeker
->>> hits = hseeker.scan_sequence("GAGAGAGAGAGAGAGAGAGAGAGAGAGA", minrep=10)
->>> hits = hseeker.scan_fasta("genome.fa", minrep=10, purity=0.90)
+>>> hits = hseeker.scan_sequence("GAGAGAGAGAGAGAGAGAGAGAGAGAGA", minrep=8)
+>>> hits = hseeker.scan_fasta("genome.fa", minrep=8, purity=0.90)
 """
 
 from __future__ import annotations
@@ -311,7 +311,7 @@ def _apply_scoring(hits: list[dict]) -> list[dict]:
 def scan_sequence(
     seq: str,
     *,
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -321,8 +321,8 @@ def scan_sequence(
     seq_offset: int = 1,
     score: bool = True,
     purity_rmq: bool = False,
-    at_threshold: float | None = None,
-    filter_homopolymers: bool = False,
+    at_threshold: float | None = 0.80,
+    filter_homopolymers: bool = True,
 ) -> list[dict]:
     """Scan a raw DNA string for H-DNA / triplex mirror repeat motifs.
 
@@ -334,7 +334,7 @@ def scan_sequence(
     seq : str
         DNA sequence (ACGTN; case-insensitive).  'N' bases break arm extension.
     minrep : int
-        Minimum arm length in bases (default 10).
+        Minimum arm length in bases (default 8).
     maxrep : int
         Maximum arm length in bases (default 1000).
     maxspacer : int
@@ -366,10 +366,11 @@ def scan_sequence(
         center/spacer pairs that cannot satisfy the purity rule.
     at_threshold : float | None
         Drop hits whose AT fraction over the full motif (both arms and the
-        spacer) is >= this value (default None, i.e. no filtering). Applied
-        before scoring. AT-rich motifs are unlikely to form stable H-DNA.
+        spacer) is >= this value (default 0.80, as in the CLI and web app; pass
+        None to disable). Applied before scoring. AT-rich motifs are unlikely
+        to form stable H-DNA.
     filter_homopolymers : bool
-        Drop homopolymer hits (default False). Always inspect the detected
+        Drop homopolymer hits (default True, as in the CLI and web app). Always inspect the detected
         ``full_sequence``; with scoring, also inspect ``putative_triplex``.
 
     Returns
@@ -501,7 +502,7 @@ def scan_fasta(
     path: str | Path,
     *,
     parser: str = "biopython",
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -510,8 +511,8 @@ def scan_fasta(
     overlap_strategy: str = "greedy",
     score: bool = True,
     purity_rmq: bool = False,
-    at_threshold: float | None = None,
-    filter_homopolymers: bool = False,
+    at_threshold: float | None = 0.80,
+    filter_homopolymers: bool = True,
 ) -> list[dict]:
     """Scan every record in a FASTA file for H-DNA motifs.
 
@@ -555,6 +556,7 @@ def scan_fasta(
             score=False,  # defer scoring to collect phase
             purity_rmq=purity_rmq,
             at_threshold=at_threshold,
+            filter_homopolymers=False,  # applied once in the collect phase
         )
         for h in hits:
             h["seq_id"] = seq_id
@@ -574,7 +576,7 @@ def scan_fasta_iter(
     path: str | Path,
     *,
     parser: str = "biopython",
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -583,8 +585,8 @@ def scan_fasta_iter(
     overlap_strategy: str = "greedy",
     score: bool = True,
     purity_rmq: bool = False,
-    at_threshold: float | None = None,
-    filter_homopolymers: bool = False,
+    at_threshold: float | None = 0.80,
+    filter_homopolymers: bool = True,
 ) -> Generator[dict, None, None]:
     """Scan a FASTA file and yield hits one at a time (streaming).
 
@@ -623,7 +625,7 @@ def scan_fasta_parallel(
     path: str | Path,
     *,
     parser: str = "biopython",
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -634,8 +636,8 @@ def scan_fasta_parallel(
     chunk_size: int = 1_000_000,
     score: bool = True,
     purity_rmq: bool = False,
-    at_threshold: float | None = None,
-    filter_homopolymers: bool = False,
+    at_threshold: float | None = 0.80,
+    filter_homopolymers: bool = True,
 ) -> list[dict]:
     """Scan a FASTA file using a thread pool with intra-record chunk parallelism.
 
@@ -723,6 +725,7 @@ def scan_fasta_parallel(
             score=False,
             purity_rmq=purity_rmq,
             at_threshold=at_threshold,
+            filter_homopolymers=False,  # applied once in _post_process
         )
         for h in hits:
             h["seq_id"] = seq_id

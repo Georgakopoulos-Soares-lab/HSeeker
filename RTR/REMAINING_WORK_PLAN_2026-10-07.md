@@ -29,6 +29,98 @@ All decisions by Kimon, 2026-10-09 (ledger `decisions:`; details in the plan's 2
 - **F4 / R3.10, resolved:** final draft `RTR/evidence/R3.10_overlap_response_2026-10-09.md` (longest-arm default kept, justified by geometry, heuristic-score calibration and runtime; score mode offered; mode recommendations; edge hits reported).
 - **Upstream:** PR #19 (memory fix) and PR #20 (score-mode speed-up) are open; Nikol's maximal-representation branch is merged only in `RTR-merge-main`.
 
+## Update 2026-10-11: benchmark and configuration frozen; R3.9, R3.10, R2.11 answered; Kouzine on TACC
+
+Done today (evidence: `RTR/evidence/benchmark_and_configuration_freeze_2026-10-11.md`,
+`R3.9_ablation_response_2026-10-11.md`, `R3.10_overlap_response_2026-10-11.md`,
+`WS1-A4_streamlit_removal.md`; CHECKPOINT §0):
+- **Phase 1.2 benchmark freeze — done.** Hanvey (TTC)8 added + matched negative (130 at 65:65);
+  citation corrections copied into the citation columns; homopolymers as a separate panel (the
+  shipped homopolymer filter wrongly rejects poly-(dC)30 — disclose).
+- **Phase 1.3 configuration freeze — done except comparator arguments.** minrep 8 is the new shipped
+  default (library, CLI, web app); mismatch 0.10; purity 0.90; maxspacer 10; filters on in CLI/web.
+  Pinned in `analysis/benchmark_config.json`.
+- **X4 (ablation) — done**, **X7 (overlap comparison deposit) — done**, robustness and grouped
+  validation regenerated on 130 records.
+- **Kouzine** — data and scans on TACC; signal comparisons running (see §6 of this block's list).
+
+### Next items in detail (2026-10-11)
+
+Items marked ⛔ are blocked on something outside this environment.
+
+**A. Kouzine answer (R2.3, R3.8) — analysis and letter text done 2026-10-11** (mouse enrichment
+defended, human not; `R2.3_R3.8_kouzine_response_2026-10-11.md`). Remaining: the figure that replaces
+Figure 3 (recall/selectivity bars, isolated ratios with arm-length panel, placebo and positive control,
+both species) and the manuscript Results/Discussion text. Original item: Signal comparison (pre-planned) and isolated comparison
+on mm9 and hg19 for `cli_minrep8` only (author decision 2026-10-11: no minimum-arm-10 runs); write the results section and
+the two answers; make the figure that replaces Figure 3. Status at the end of 2026-10-11 is recorded in
+`RTR/evidence/X8_kouzine_results_2026-10-09.md`.
+
+**B. Tool comparison on the frozen benchmark (R2.1, R2.7, R3.1, R3.6) — DONE 2026-10-11** (`RTR/evidence/tool_comparison_2026-10-11.md`). Original item:
+1. Conda env with R + `bioconductor-triplex` 1.50.0 (published version) on TACC; the `Rstats/4.0.3`
+   module is too old.
+2. Build Triplexator 1.3.2 from source (`/scratch/10899/kimopro/triplexator/bin` is empty).
+3. Pin comparator arguments in `analysis/benchmark_config.json` (author: decide when running; the
+   two sets seen so far are listed there).
+4. Run `run_direct_sensitivity_analysis.py` on 130 records (+ experimental subset) with Wilson CIs and
+   family-cluster bootstrap CIs on HSeeker-minus-tool differences → `summary_metrics_v2.csv`.
+5. Change "outperformed existing tools" to "at least comparable" unless the difference CIs exclude 0.
+
+**C. NeSSie and nBMST (R3.6) — DONE 2026-10-11** (part of B). Original item: Build both on TACC (builds existed on another machine; WS3 evidence) and
+run with a stated hit→call rule, or document the technical limitation in the letter (R3.6 allows it)
+and delete the "nBMST lower than ours" sentence.
+
+**D. Score threshold (R3.3) — DONE 2026-10-11** (no cut-off; out-of-fold analysis). Original item: Recommended: drop the Youden threshold and the
+AUC 0.981 claim (on 130 records the score AUROC is 0.985 = (1 + sensitivity)/2 because no negative has
+a hit after purity; the threshold adds nothing), state that calls use no score threshold, and remove
+the web app's "Stable Sites (score ≥ 50)" tile (`webapp/templates/job.html:151`, `main.py`). The
+alternative is an out-of-fold threshold analysis.
+
+**E. Runtime and memory (R3.11) — DONE 2026-10-11** on the interactive node, which has the manuscript's hardware (`RTR/evidence/R3.11_runtime_memory_2026-10-11.md`). Original item: (`sbatch` from a login node: password +
+token). chr1 at minrep 8, 1–16 workers, greedy and score, on `normal` (EPYC 7763, the manuscript CPU);
+full hg38 run or label the genome figure as an extrapolation; peak RSS; deposit raw commands, outputs
+and timings; update `benchmarks/benchmark_comparison.md` and the sweep plot (its comparator numbers are
+hard-coded). Fill the runtime TODO in the R3.10 answer.
+
+**F. Assay conditions per benchmark record — DONE 2026-10-11** (`RTR/evidence/assay_conditions_2026-10-11.md`). Original item: Add columns (pH, Mg²⁺,
+supercoiling/plasmid vs oligo, method) from each cited paper for the 70 experimental records; show them
+in Supplementary Table 1.
+
+**G. Supplementary Table 1 and the chr1 dot plot (R2.2, R3.5).** Regenerate from the frozen CSVs; commit
+the generator for the dot plot (the SVG has none); chr1 counts change with minrep 8.
+
+**H. Stale claims in code and docs (no manuscript needed).**
+- README: "~78 seconds on 16 cores" (line ~500), output order of `scan_fasta_parallel`, the 1,000,000
+  hit cap that does not exist, N handling, missing parameters, test counts; state the per-interface
+  defaults (library: filters off; CLI/web: on).
+- Web app About page: the Validation / "Why minrep=8" section (39 sequences, 97.2 %, …), "should not be
+  raised above 0.80", spacer notation; job page score ≥ 50 tile (see D).
+- Docstrings ("left-arm AT"), CLI help (homopolymer filter always on), `.github/copilot-instructions.md`.
+- `algorithms.tex`: Phase 2/3 order, score-based selection, filters, lowercase output, RMQ prefilter.
+- Archive the June 2026 results and notebook outputs (old 80-row CSV) to
+  `analysis/results/archive_2026-06/` with a README.
+
+**I. Library filter defaults — DONE 2026-10-11** (library = CLI = web). Original item: The library leaves the AT and homopolymer filters
+off; the CLI and web app apply them. chr1 at minrep 8 is 106,481 loci (library) vs 45,927 (CLI). Either
+align the defaults or state both in the paper.
+
+**J. Response-letter text still to write** (evidence exists unless noted): R2.1 (expanded negatives,
+other-structure controls, homopolymer panel; PDB/BoltzGen suggestion; eG4 note), R2.2 (CSVs + scripts),
+R2.3/R3.8 (A), R2.6 (nested CV / grouped results on 130; homopolymer removal disclosed; filters
+supported by Kouzine), R2.7/R3.1 (B), R3.2 (grouped validation on 130), R3.3 (D), R3.5 (curation:
+removals, exclusions, corrected citations, Hanvey added, pCON kept), R3.6 (B, C), R3.7 (E. coli
+experiment removed), R3.11 (E). Answers ready: R2.8–R2.11, R3.4, R3.9, R3.10.
+
+**K. Manuscript edits ⛔ the manuscript is not in this repository.** Methods (minrep 8, filters, overlap
+modes, algorithm panels), Results (benchmark with CIs, comparators, runtime by mode, Kouzine figure
+replacing Figure 3, homopolymer panel), Limitations (R2.4/R3.4, poly-dC), Data availability (R3.11),
+wording (R3.12), Key Points, chr1 counts.
+
+**L. Release and bookkeeping.** Commit today's work on a branch and open a PR (minrep 8 changes the
+package default → version bump, changelog, PyPI wheels, tell Nikol); PRs #19/#20 still open; resync
+the revision graph and regenerate its PNG; refresh `metadata.json` sha256 in older result folders;
+Zenodo archive at the end.
+
 ## 0. Ground truth today
 
 | Item | Verified state | Evidence |

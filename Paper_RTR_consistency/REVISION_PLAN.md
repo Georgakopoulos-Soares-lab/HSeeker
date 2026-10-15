@@ -1,0 +1,447 @@
+# Plan: bringing the submitted manuscript to the revised state
+
+**Source files in this folder**
+
+| File | Role |
+|---|---|
+| `Revised HSeeker_ an algorithm for systematic H-DNA sequence identification .docx` | The submitted manuscript. 177 paragraphs, 5 figures, 1 supplementary figure, 95 embedded images (inline equations and the three algorithm panels). |
+| `HSEEKER_RTR (1).docx` | The response letter. |
+
+**Output:** one edited copy of the manuscript with every change marked as a suggestion, plus
+replacement figure files and supplementary tables. The letter is handled separately and is not
+changed by this plan.
+
+---
+
+## 1. Guiding principle: minimal edit
+
+The manuscript's structure, argument and voice stay as they are. Most paragraphs are untouched. Of
+the 177 paragraphs, this plan edits **41**, deletes **6**, and adds **19**. Everything else —
+the whole Introduction except two sentences, the entire candidate-discovery and scoring Methods, the
+command-line section, both web-interface sections, the funding and conflicts statements, and all 95
+inline equation images — is left exactly as submitted.
+
+Where a reviewer's point can be met by changing a clause rather than a paragraph, the plan changes
+the clause. Where a number has changed, only the number is replaced. New text is added only where a
+reviewer explicitly asked for something that does not yet exist: a limitations section, a
+family-aware validation section, an ablation section, a tool-comparison section, and a genome-wide
+comparison section.
+
+---
+
+## 2. How the changes will be marked
+
+Every edit goes in as a **Word tracked change** (`w:ins` / `w:del`), so the authors can walk the
+document with Accept / Reject and nothing is applied silently. All changes are attributed to a
+single author, `HSeeker revision`, dated, so Word renders them in one consistent colour and the
+whole set can be accepted or rejected in one action if desired.
+
+On the light blue: Word assigns tracked-change colours per author, and that assignment lives in the
+reader's Word installation, not in the file. To guarantee the changes read as light blue regardless
+of who opens the file, inserted runs also carry an explicit character colour of **`#4A90D9`**.
+
+**Decision: tracked changes, with the blue carried by the text itself.**
+
+Every edit is a real `w:ins` / `w:del` revision, so Word offers Accept and Reject. In addition,
+each inserted run carries an explicit character colour of **`#4A90D9`**. That matters because of
+where Word keeps the two kinds of colour:
+
+| | Where it lives | After Accept All |
+|---|---|---|
+| Revision colour (by author) | the reader's Word settings | gone, text returns to black |
+| Character colour on the run | the file | **stays blue** |
+
+Relying on the revision colour alone would have meant the changes went black the moment they were
+accepted. Carrying the colour on the runs keeps the revised text visibly marked in the accepted
+manuscript, which is what a journal's marked copy needs, and it looks the same in every viewer
+rather than depending on who opens the file.
+
+The cost is one action at the very end: to produce a clean black manuscript, select all and set the
+font colour to Automatic. Nothing else has to be undone, and rejecting a change still removes its
+colour with it, because the colour sits inside the insertion.
+
+All changes are attributed to one author, `HSeeker revision`, so they can also be accepted or
+rejected as a single set.
+
+Comment balloons are **not** used: a reviewer comment is not a change, and the reasoning for each
+edit lives in this plan and in the response letter.
+
+---
+
+## 3. Figures: the renumbering
+
+This is the largest structural change and must be settled before any text is edited, because six
+in-text citations depend on it.
+
+| Submitted | Content | Becomes | Action |
+|---|---|---|---|
+| Figure 1 | Workflow, panels A and B | **Figure 1** | Edit in place (§6.1) |
+| Figure 2 | Parallel scaling, 3 tools, 4 panels | **Figure 2** | Replace image and caption; **comparator tools no longer plotted** (§6.3) |
+| Figure 3 | Sensitivity/specificity: A E. coli confusion matrices, B ROC, C raw detection, D Youden threshold | **Figure 3** | Replace image and caption; panels B and D are withdrawn |
+| — | *(new)* | **Figure 4** | Insert: comparison with single-stranded DNA maps |
+| Figure 4 | Web interface | **Figure 5** | Renumber only |
+| Figure 5 | Interactive visualisation | **Figure 6** | Renumber only |
+| Supplementary Figure 1 | Direct-sequence confusion matrices, 3 tools | **Supplementary Figure 1** | Replace image and caption, now 5 tools |
+
+Replacement files, already generated:
+
+| Target | File |
+|---|---|
+| Figure 2 | `analysis/results/plots/figure2_performance.pdf` |
+| Figure 3 | `analysis/results/plots/figure3_ecoli_recovery.pdf` |
+| Figure 4 | `analysis/results/plots/figure3_kouzine.pdf` |
+| Supplementary Figure 1 | `analysis/results/plots/suppfig1_confusion_matrices.pdf` |
+
+Figure 1 has no source file in the repository and is the one figure that needs hand editing in
+whatever tool drew it (§6.1).
+
+**In-text citations to update:** `Figure 4` → `Figure 5` in paragraphs 106 and 108; `Figure 4` →
+`Figure 5` in the Figure 4 caption itself; `Figure 5` → `Figure 6` in its caption. New citations to
+Figure 3 and Figure 4 are introduced by the new Results text.
+
+---
+
+## 4. Section-by-section edit list
+
+Paragraph numbers are positions in the submitted `.docx`, counting all paragraphs including empty
+ones, so they can be found deterministically. Each row names the reviewer comment that requires it.
+
+### 4.1 Abstract — paragraph 10
+
+Four clause-level edits inside one paragraph. The paragraph is otherwise untouched.
+
+| Edit | Comment |
+|---|---|
+| "a state-of-the-art computational tool" → "a computational tool" | R3.12 |
+| "The greedy overlap removal phase resolves overlapping candidates by retaining the longest and most compact motif within each overlapping region." → describes all three modes | R3.10 |
+| "the thermodynamic stability scoring algorithm" → "an experimentally informed stability scoring model"; add that the score is a relative ranking, not a calibrated free energy | R2.4, R3.4 |
+| Add one validation sentence before "HSeeker is also user-friendly": the balanced benchmark result and the single-stranded DNA comparison | R2.1, R3.8 |
+
+### 4.2 Key Points — paragraphs 14, 15, 16, 17
+
+| Para | Edit | Comment |
+|---|---|---|
+| 14 | "thermodynamic scoring" → "stability scoring" | R3.4 |
+| 15 | "greedy overlap removal" → "three selectable overlap-resolution rules" | R3.10 |
+| 16 | Replace in full. "On 79 experimentally validated sequences, HSeeker achieved 98.6% sensitivity and outperformed existing tools in benchmarking" is wrong on all three counts: the benchmark is 130, the sensitivity is 96.9%, and the superiority claim must carry the triplex qualification | R2.1, R2.7, R3.1, R3.6 |
+| 17 | "~25 seconds" → "16 s", and add the measured whole-genome figure | R3.11 |
+
+### 4.3 Introduction — paragraph 28 only
+
+Two sentences inside one paragraph. The rest of the Introduction, including all of paragraphs
+19–27 and 30, is untouched.
+
+| Edit | Comment |
+|---|---|
+| nBMST: "only includes mirror repeats of at least 90% purines or pyrimidines, without tolerating any mismatch in mirror symmetry" — the 90% figure is not what the tool applies. Replace with a description of what it does: no mismatch tolerance, and a purine/pyrimidine count on the reported strand rather than a purity threshold | R3.6 |
+| NeSSie: "optimized for detecting the mirror repeats characteristic of H-DNA" — it returns symmetric or purine-rich k-mers, which is a different object from an arm–spacer–arm motif. Qualify the sentence | R3.6 |
+
+### 4.4 Methods
+
+| Para | Action | Comment |
+|---|---|---|
+| 42 | Add two sentences on inward extension and deduplication, to match the corrected Algorithm 1 panel | consistency with §6.2 |
+| 45 | Replace the composition-filters paragraph. Keep both filter descriptions as written; add the disclosure that the rules were chosen with knowledge of this benchmark, that neither filter changes any benchmark call, and that evidence for them comes from outside the benchmark | R2.6 |
+| 47 | Keep the Park et al. attribution. Add that the combined score is a ranking without validated physical units and is not reported in kcal/mol | R2.4, R3.4 |
+| 49 | Correct the spacer constraint. The text says the spacer is capped at 20 bp; the implementation requires the trimmed spacer not to exceed the selected window | correctness |
+| 53–62 | Untouched except one added sentence after 62: negative totals are clamped to zero | correctness |
+| **new, after 63** | **Insert: *Benchmark dataset*.** The 130-record benchmark, the inclusion criteria, the designed negatives, the separate homopolymer panel, and the assay conditions | R2.1, R3.1, R3.4, R3.5 |
+| **new** | **Insert: *Detection settings*.** The default parameters in one place, and the statement that the package, CLI and web application share them | R2.11, R3.9 |
+| 64 | Retitle *Sensitivity analysis* → *Validation design* and cut it back to design only: the call rule, the interval methods, and the grouping scheme. The results move to Results | R2.5, R2.7, R3.1, R3.2 |
+| 65 | Correct the command line. It currently shows `-mismatch 0.15` and an injected `.fna` filename in the direct-sequence section | correctness, R3.9 |
+| 66–67 | Keep. Add the two new comparators and the hit rule for each | R3.6 |
+| 68 | **Delete.** The Youden threshold and the ROC are withdrawn | R3.3 |
+| 69 | Retitle *Genomic context validation* → *Genomic context recovery* and replace. Keep the design; remove the biological framing; state that the overlap criterion is varied as a sensitivity analysis | R2.3, R3.7 |
+| 70 | Replace. AUC-ROC is withdrawn; MCC is kept and the interval methods are named | R3.3, R3.1 |
+| **new** | **Insert: *Comparison with existing tools*.** Versions, command lines, hit rules, and that the design was fixed before running | R3.6 |
+| **new** | **Insert: *Genome-wide comparison with single-stranded DNA maps*.** Data, matching procedure, the two analyses and their controls | R2.3, R3.8 |
+| **new** | **Insert: *Computational benchmarking*.** Hardware, three runs, external peak-memory measurement | R3.11 |
+
+### 4.5 Results
+
+| Para | Action | Comment |
+|---|---|---|
+| 85 | Replace the numbers only. Sentence structure is kept | R3.11 |
+| 87 | Replace the comparator paragraph. Four tools at 16 cores, same node and day | R3.6, R3.11 |
+| 89 | Replace. The linear extrapolation to "approximately 5 min" is withdrawn in favour of the measured whole-genome run | R3.11 |
+| **new, after 89** | **Insert: *Algorithmic complexity*.** The complexity analysis moved verbatim out of Methods | R2.5 |
+| 94 | Retitle *Comparison of HSeeker with other H-DNA detection tools using experimental data* → *Detection performance on the revised benchmark* | — |
+| 95 | Replace in full. This paragraph carries 98.6% / 66.7%, the 79-sequence set, the E. coli recovery claim and MCC 0.73, all of which change | R2.1, R3.1, R3.3, R3.7 |
+| 96 | Replace. "at least comparable to Triplex and Triplexator" is superseded by the four-tool comparison | R3.6 |
+| **new** | **Insert: *Family- and study-aware validation*** | R3.2 |
+| **new** | **Insert: *Component ablation and parameter robustness*** | R3.9 |
+| **new** | **Insert: *Comparison with existing tools*** + **Table 1** | R2.7, R3.1, R3.6 |
+| **new** | **Insert: *Genomic context recovery*** (Figure 3) | R2.3, R3.7 |
+| **new** | **Insert: *Comparison with single-stranded DNA maps*** (Figure 4) | R2.3, R3.8 |
+| 104 | Add one sentence: a single web interface sharing the command-line defaults | R2.11 |
+| 106 | Update the preset values, which changed with the defaults; renumber Figure 4 → 5 | R3.9 |
+| 108 | Renumber Figure 4 → 5. Remove the "Stable Sites (score ≥ 50)" tile from the results-page description if present in the final text | R3.3 |
+
+### 4.6 Discussion
+
+| Para | Action | Comment |
+|---|---|---|
+| 125 | Untouched | — |
+| 127 | Two edits. "two existing H-DNA and mirror-repeat detection tools" → four; and the closing sentence "works highly effectively and aligns seamlessly with previously published thermodynamic parameters" → the moderated wording agreed in the letter | R3.6, R3.12 |
+| 129 | Two edits. "HSeeker is the only H-DNA identification algorithm with a proven scoring system built-in" → moderated; "~25 seconds" → 16 s; and the trailing "previously computationally prohibitive" clause → the agreed rephrasing | R3.11, R3.12 |
+| **new, after 129** | **Insert: *Limitations*.** The section Reviewer 2 asked for | R2.4, R3.4 |
+| 130 | Untouched | — |
+
+### 4.7 Availability statements
+
+| Para | Action | Comment |
+|---|---|---|
+| 131 | Add the release tag | R2.8, R2.9 |
+| 132 | Replace. "79 experimentally validated" → 130; add the Kouzine data source; remove "available from the corresponding authors upon reasonable request" | R2.2, R3.11 |
+
+### 4.8 Global terminology pass
+
+Reviewer 3's comment 12 asks for four terms to be kept distinct. This is a find-and-check pass, not
+a rewrite: predictions become *putative H-DNA-forming sequences* or *predicted H-DNA motifs*;
+*H-DNA-forming sequence* unqualified is reserved for sequences with experimental support; *mirror
+repeat* is used for the sequence feature, never as a synonym for the structure. Each substitution
+is tracked individually so the authors can reject any that read awkwardly.
+
+---
+
+## 5. Supplementary material
+
+The submitted manuscript cites "Supplementary Table 1" for two different things: the benchmark
+sequences (paragraphs 64, 95, 127, 132) and the stability-score pairing values (paragraph 51). This
+has to be resolved before anything else is numbered.
+
+| Number | Content | Status |
+|---|---|---|
+| Supplementary Table 1 | Benchmark records: sequence, label, provenance, curation decision and justification, family and study identifiers, assay conditions with supporting quotation | Replace — now 130 records with the new provenance and conditions columns |
+| **Supplementary Table 2** | Stability-score pairing and stacking values | **New number** for existing content; update the citation in paragraph 51 |
+| **Supplementary Table 3** | Comparator versions, command lines and hit rules | New |
+| **Supplementary Table 4** | Per-record calls for all five tools | New |
+| **Supplementary Table 5** | Homopolymer panel across tools and filter settings | New |
+| Supplementary Figure 1 | Confusion matrices, now five tools on 130 records | Replace image and caption |
+
+---
+
+## 6. Figures and algorithm panels in detail
+
+### 6.1 Figure 1
+
+The submitted figure is in two parts with very different origins, and they have to be handled
+differently.
+
+**Panel A — the candidate-identification flowchart. Redrawn, done.**
+`analysis/results/plots/figure1_panelA_workflow.pdf`, from
+`analysis/scripts/plot_figure1_panelA.py`. Two changes of substance and one of presentation:
+
+- **Inward extension** and **deduplication by (start, end, arm)** are now shown. Both are in the
+  current algorithm and absent from the submitted panel.
+- The decision chain is reduced from four diamonds to two, and the four crossing return paths are
+  merged into one, which is what made the submitted panel dense (R3.12).
+- Drawn on white rather than the submitted black background, so it sits with the rest of the
+  figures.
+
+**Panel B — the biological schematic. Needs the original artwork.**
+Panel B is a BioRender-style illustration: duplex and triplex DNA, Hoogsteen base-pair diagrams, a
+sugar-phosphate backbone rendering, a stability balance. None of that can be regenerated from the
+repository, because no source exists there. It needs the original BioRender file. Three edits are
+required, all in the middle row:
+
+1. **Remove the "Sensitivity Analysis / AUC" inset** (the bar chart with HSeeker, B, C, D). That
+   analysis is withdrawn, so the figure must not show it (R3.3). This also removes the densest
+   corner of the panel.
+2. **Relabel "H-DNA Stability"** → "Stability score (heuristic ranking)", so the figure does not
+   reintroduce the free-energy reading (R2.4, R3.4).
+3. **The "Detection → H-DNA-forming ✓ / H-DNA-forming ✓ / non-forming ✗" tree** sits directly under
+   the withdrawn AUC inset and reads as a score-based decision. Relabel it as detection only, or
+   let it fill the space the inset vacates (R3.3).
+
+Edits 1 and 3 free the left third of the middle row, so the panel gets less crowded rather than
+leaving a hole. If the BioRender source cannot be found, the fallback is to crop Panel B to its top
+and bottom rows and rebuild the middle row, which is the only row that has to change.
+
+### 6.3 Figure 2 — comparators removed from the plot
+
+**Decision: the comparator tools are not plotted.** The submitted figure sweeps 1–16 workers for
+three tools across four panels. That cannot be reproduced honestly: of the four comparators now in
+the paper, nBMST and NeSSie have no parallel mode at all, so a worker sweep is undefined for them,
+and plotting a flat line for a tool that simply has no such axis invites a comparison the data
+cannot support.
+
+The replacement, `analysis/results/plots/figure2_performance.pdf`, is HSeeker alone in three panels:
+wall-clock time with speedup, peak memory with the whole-genome run marked, and parallel efficiency.
+
+The comparator timings are not lost — they move into the caption and the Results text, where they
+can be stated with the qualification they need:
+
+> At 16 cores on the same node and the same day, chromosome 1 took 45.0 s with Triplexator and
+> 64.7 s with triplex run as 16 parallel processes, against 16.3 s for HSeeker; nBMST and NeSSie
+> provide no parallel mode and took 96.5 s and 295.7 s on one core. Peak memory was 1,714 MB,
+> 660 MB per worker process, 866 MB and 1,056 MB respectively, against 1,334 MB for HSeeker.
+
+### 6.4 Algorithm panels — paragraphs 71–79
+
+The three panels are embedded images rendered from LaTeX. The submitted panels no longer match the
+code: the purity prefilter is shown as mandatory, inward extension and deduplication are missing,
+overlap removal shows only the greedy rule, and the scorer is shown returning nothing when no window
+fits.
+
+Corrected LaTeX exists in `main.tex` in the repository root and supersedes `algorithms.tex`, which
+is the submitted version. `scoring.tex` is a byte-identical duplicate of the Phase 3 panel already
+inside `main.tex` and should be deleted rather than maintained.
+
+The revised set is four panels, which also answers the density point in R3.12:
+
+| Panel | Content | Change |
+|---|---|---|
+| **Algorithm 1** | Pipeline: order of stages | **New** — fixes the stage order, which the submitted Methods described incorrectly |
+| **Algorithm 2** | Candidate enumeration | Replaces submitted Algorithm 1; adds the `rmq` flag, inward extension, deduplication |
+| **Algorithm 3** | Overlap removal | Replaces submitted Algorithm 2; adds the score-based branch |
+| **Algorithm 4** | Stability scoring | Replaces submitted Algorithm 3; symbolic constants, fallback window, clamp, lower-case output |
+
+Caption wording: "Thermodynamic Stability Scoring" → "Heuristic stability scoring" (R2.4, R3.4).
+
+Each panel is re-rendered from `main.tex` to PNG at the same width as the current images and
+swapped in place, so the surrounding layout does not move.
+
+---
+
+## 7. Coverage: every comment to a location in the paper
+
+| Comment | Where it lands | Paper change? |
+|---|---|---|
+| Reviewer 1 | — | None requested |
+| R2.1 benchmark size | Methods *Benchmark dataset*; Results 95; Abstract; Key Point 16 | Yes |
+| R2.2 reproducibility | Data Availability 132 | Yes |
+| R2.3 E. coli / Kouzine | Methods *Genomic context recovery* 69 + *Genome-wide comparison*; Results new sections; Figures 3, 4 | Yes |
+| R2.4 limitations | Discussion *Limitations*; Abstract; Methods 47 | Yes |
+| R2.5 move analyses | Section moves; Methods 64 cut to design | Yes |
+| R2.6 filter circularity | Methods 45 | Yes |
+| R2.7 confidence intervals | Results *Comparison with existing tools*; Table 1 | Yes |
+| R2.8 `-march=native` | Code; release tag in Code Availability 131 | Tag only |
+| R2.9 profiling counters | Code; release tag in Code Availability 131 | Tag only |
+| R2.10 output casing | Code | No |
+| R2.11 two `app.py` | Results 104 | Yes |
+| R3.1 size and intervals | Table 1; Results 95 | Yes |
+| R3.2 family-aware validation | Methods *Validation design*; Results new section | Yes |
+| R3.3 threshold circularity | Methods 68 deleted, 70 replaced; Results 95; Figure 3 panels B, D removed; Figure 1 inset removed | Yes |
+| R3.4 thermodynamic claim | Methods 47; Discussion *Limitations*; assay conditions in *Benchmark dataset* | Yes |
+| R3.5 curation | Methods *Benchmark dataset*; Supplementary Table 1 | Yes |
+| R3.6 comparators | Introduction 28; Methods *Comparison with existing tools*; Results; Key Point 16; Discussion 127 | Yes |
+| R3.7 E. coli, overlap threshold | Methods 69; Results *Genomic context recovery*; Figure 3 | Yes |
+| R3.8 genome-scale validation | Methods *Genome-wide comparison*; Results; Figure 4 | Yes |
+| R3.9 ablation | Methods *Detection settings*; Results *Component ablation* | Yes |
+| R3.10 overlap strategy | Abstract; Key Point 15; Methods 69 and overlap description; Results; Algorithm 3 | Yes |
+| R3.11 benchmarking | Results 85, 87, 89; Figure 2; Data Availability 132 | Yes |
+| R3.12 claims, terms, figures | Discussion 127, 129; global terminology pass; Figures 1 and algorithm panels | Yes |
+
+Three comments (R2.8, R2.9, R2.10) are answered by code changes and need nothing in the paper beyond
+the release tag. Every other comment has at least one tracked change attached to it.
+
+---
+
+## 8. Order of work
+
+1. **Settle the figure numbering** (§3). Six in-text citations depend on it, and doing it first
+   means they are edited once.
+2. **Resolve the Supplementary Table 1 collision** (§5). Two Methods citations depend on it.
+3. **Re-render the algorithm panels** from `main.tex` (§6.2) and swap the images.
+4. **Apply the text edits** section by section in document order (§4), each as a tracked change.
+5. **Swap Figures 2, 3, Supplementary Figure 1; insert Figure 4** with captions.
+6. **Terminology pass** (§4.8) last, so it also covers the newly inserted text.
+7. **Figure 1** is handed off separately, since it needs a drawing tool.
+
+---
+
+## 9. Decisions
+
+| Question | Decision |
+|---|---|
+| Marking mechanism | **Option B** — tracked changes only, light blue set once in Word (§2) |
+| Figures | **All redrawn.** Figure 1A, Figure 2, Figure 3, Figure 4 and Supplementary Figure 1 are generated and in the repository |
+| Figure 2 comparators | **Not plotted.** Timings move to the caption and Results (§6.3) |
+| Biographical Note, paragraph 18 | **Leave as submitted.** Not touched |
+
+### Still outstanding
+
+1. **Figure 1 Panel B** needs the original BioRender file for the three edits in §6.1. It is the
+   only figure element that cannot be produced from the repository.
+2. **Figures 5 and 6** are screenshots of the web interface. They are renumbered, not redrawn. If
+   they should show the current interface — which no longer has the "Stable Sites (score ≥ 50)"
+   tile, and whose presets changed with the defaults — they need to be retaken. Figure 5's parameter
+   panel is also now out of date, since the defaults moved to arm 8 and mismatch 0.10.
+
+---
+
+## 10. Implementation status (third cycle, 2026-10-15)
+
+`HSeeker_revised_tracked.docx`, produced by `apply_revision.py` from the submitted file.
+**82 tracked edits**, 182 insertions and 57 deletions, one author.
+
+| Check | Result |
+|---|---|
+| Reject All | Reproduces the submitted manuscript **exactly** |
+| Accept All | 238 paragraphs |
+| Images | 97, all resolve; 5 replaced, 2 inserted |
+| Tables | 1, every row a tracked insertion |
+| Letter claims found in the manuscript | 40 of 40 |
+| Withdrawn statements still present | 0 of 17 |
+
+Set the colour once on opening: **Review → Tracking** dialog launcher **→ Advanced Options →
+Insertions: Light Blue**, and the same for Deletions.
+
+### Figures left as submitted, by instruction
+
+**Figures 1, 5 and 6 are untouched.** Only their numbering and surrounding text changed; the
+images are the submitted ones. The redrawn Figure 1 remains available at
+`analysis/results/plots/figure1_workflow.png` if it is wanted later.
+
+One consequence needs an author decision, because it is the sort of thing a reviewer checks:
+
+> **Figure 1 panel B still contains the "Sensitivity Analysis / AUC" inset.** That analysis is
+> withdrawn in response to Reviewer 3's third comment, and the revised Results now state that no
+> score threshold is used and that the area under the curve restates the detection result. The
+> figure therefore shows a result the text disclaims. The same panel also labels the score
+> "H-DNA Stability", which is the free-energy reading that Reviewer 2's fourth comment asked to be
+> dropped.
+
+Figures 5 and 6 show presets that changed with the defaults, and Figure 6 shows the withdrawn
+stable-sites tile. These are smaller discrepancies, but they are discrepancies.
+
+### References
+
+One citation was added, numbered 28: Kohwi & Kohwi-Shigematsu, PNAS 85:3781-3785 (1988), for the
+Mg2+-dependent poly-(dC) triplex named in the new Limitations section. **Verify the page range
+before submission.** No other new citation was needed: the triplex algorithm (21), nBMST (23),
+NeSSie (24), Triplexator (25) and Kouzine et al. (4) were all already in the list.
+
+### Fixed in the fourth cycle (prose read-through)
+
+Reading the accepted prose at every edit boundary, rather than only checking numbers, turned up
+four faults that the automated checks could not see:
+
+1. **The candidate-discovery sentence was broken.** The new material on inward extension and
+   deduplication had been spliced into the middle of a clause, orphaning "augmented with an exact
+   purity-RMQ prefilter...". It is now appended after that sentence ends.
+2. **The stability-score paragraph contradicted itself.** The sentence saying the score is not
+   reported in kcal/mol sat immediately before the sentence describing a 5.0 kcal/mol stacking
+   term. It now follows it, and distinguishes the inputs from the combined total.
+3. **The spacer-constraint equation was stale.** The displayed formula in that paragraph is an
+   inline image reading m <= min(20, L), the constraint the manuscript described but the code does
+   not apply. It has been re-rendered as 2(a - R*) + l_s <= (R* - L*).v, matching the
+   implementation and the corrected algorithm panel.
+4. **A justifying clause lost its referent.** In the genomic-context Methods, "a threshold chosen
+   to accommodate cases where..." had been displaced from the threshold it explains. Restored, with
+   the sweep and the disclaimer following it.
+
+### Fixed in this cycle
+
+Three ordering faults, all from the same cause: each `insert_after` places its element immediately
+after the anchor paragraph, so repeated calls on one anchor come out back to front.
+
+1. The five new Results subsections appeared in reverse. Now family-aware validation, ablation,
+   tool comparison, genomic context recovery, single-stranded DNA comparison.
+2. The new Figure 4 and Algorithm 1 captions preceded their images, against the convention
+   everywhere else in the document.
+3. The Table 1 caption sat below its table.
+
+Also corrected: the three in-text references to the algorithm panels, which still pointed at the
+old numbering after three panels became four.

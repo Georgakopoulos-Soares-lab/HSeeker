@@ -1,0 +1,1 @@
+/work/10899/kimopro/ls6/tools/nessie/nessie -I /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/homopolymers.fa -O /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/NeSSie/homopolymers__M_matched__a8189f8b/out_k20 -M -k 20 -m 10 -g 10

@@ -157,7 +157,7 @@ import hseeker
 # Scan a raw sequence string
 hits = hseeker.scan_sequence(
     "GGGAAAGGGTTTTCCCAAACCC",
-    minrep=10,
+    minrep=8,
     maxspacer=10,
     purity=0.90,
     mismatch=0.10,
@@ -166,15 +166,15 @@ for h in hits:
     print(h["start"], h["end"], h["arm_length"], h["is_perfect"], h["total_score"])
 
 # Scan an entire FASTA file (all hits collected into a list)
-hits = hseeker.scan_fasta("genome.fa", minrep=10, purity=0.90)
+hits = hseeker.scan_fasta("genome.fa", minrep=8, purity=0.90)
 
 # Memory-efficient streaming alternative — yields one hit at a time
-for hit in hseeker.scan_fasta_iter("genome.fa", minrep=10, purity=0.90):
+for hit in hseeker.scan_fasta_iter("genome.fa", minrep=8, purity=0.90):
     print(hit["seq_id"], hit["start"], hit["end"])
 
 # Multi-core parallel scan — all chromosomes scanned concurrently
-hits = hseeker.scan_fasta_parallel("genome.fa", minrep=10, purity=0.90)
-hits = hseeker.scan_fasta_parallel("genome.fa", minrep=10, workers=4)
+hits = hseeker.scan_fasta_parallel("genome.fa", minrep=8, purity=0.90)
+hits = hseeker.scan_fasta_parallel("genome.fa", minrep=8, workers=4)
 ```
 
 ### From the command line
@@ -214,7 +214,7 @@ It is not required to use the library or the CLI.
 hseeker.scan_sequence(
     seq: str,
     *,
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -240,7 +240,7 @@ Scan a single DNA string for H-DNA mirror repeat motifs. The C core runs with th
 hseeker.scan_fasta(
     path: str | Path,
     *,
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -261,7 +261,7 @@ Scan every record in a FASTA file. Adds a `seq_id` key to each hit dict. Genomic
 hseeker.scan_fasta_iter(
     path: str | Path,
     *,
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -282,7 +282,7 @@ Streaming alternative to `scan_fasta`. Yields one hit dict at a time, keeping on
 hseeker.scan_fasta_parallel(
     path: str | Path,
     *,
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -333,7 +333,7 @@ python -m hseeker -seq <FASTA> -out <PREFIX> [options]
 
 | Argument | Type | Default | Description |
 |---|---|---|---|
-| `-minrep INT` | int | `10` | **Minimum arm length** in base pairs. Arms shorter than this are not reported, even if they satisfy all other criteria. Increasing this value reduces noise and focuses on longer, likely more stable motifs. |
+| `-minrep INT` | int | `8` | **Minimum arm length** in base pairs. Arms shorter than this are not reported, even if they satisfy all other criteria. Increasing this value reduces noise and focuses on longer, likely more stable motifs. |
 | `-maxrep INT` | int | `1000` | **Maximum arm length** cap. The algorithm stops extending an arm beyond this length. Set higher for repetitive regions; setting it very high increases runtime without improving signal in most genomes. |
 | `-maxspacer INT` | int | `10` | **Maximum spacer / hinge loop length** in base pairs. The spacer is the single-stranded loop between the two mirror arms. H-DNA with spacers > 10 bp is thermodynamically unfavoured. |
 | `-purity FLOAT` | float | `0.90` | **Minimum compositional purity** of each arm (0.0–1.0). The arm must be ≥ `purity` fraction GA (purine) **or** ≥ `purity` fraction CT (pyrimidine). Set to 1.0 for perfect purine or pyrimidine tracts. |
@@ -413,7 +413,7 @@ chr1    findHDNA  1001   1020  7           6              20            85.71   
 
 | Parameter | API name | CLI flag | Type | Default | Valid range | Notes |
 |---|---|---|---|---|---|---|
-| Minimum arm length | `minrep` | `-minrep` | int | 10 | ≥ 1 | Arms shorter than this are discarded entirely |
+| Minimum arm length | `minrep` | `-minrep` | int | 8 | ≥ 1 | Arms shorter than this are discarded entirely |
 | Maximum arm length | `maxrep` | `-maxrep` | int | 1000 | ≥ `minrep` | Hard cap on extension; rarely needs changing |
 | Maximum spacer | `maxspacer` | `-maxspacer` | int | 10 | ≥ 0 | Set to 0 for zero-loop (adjacent arms) only |
 | Purity threshold | `purity` | `-purity` | float | 0.90 | 0.0–1.0 | Fraction GA or CT required in arm |
@@ -426,9 +426,9 @@ chr1    findHDNA  1001   1020  7           6              20            85.71   
 
 ### Choosing parameters for your use case
 
-**Genome-wide survey (high confidence)**
+**Genome-wide survey (defaults)**
 ```
-minrep=10, maxrep=1000, maxspacer=10, purity=0.90, mismatch=0.10
+minrep=8, maxrep=1000, maxspacer=10, purity=0.90, mismatch=0.10
 ```
 
 **Exploratory / maximum sensitivity**
@@ -477,9 +477,9 @@ Scoring can be disabled at the API level (`score=False`) or via the CLI flag `-n
 Two post-detection filters remove hits that are unlikely to form real H-DNA:
 
 - **AT-content filter** (before scoring, `at_threshold` / `-at-threshold`, default `0.80`): drops hits whose full detected motif — both arms and the spacer — is ≥ 80% A/T.
-- **Homopolymer filter** (`filter_homopolymers`, always on in the CLI): drops hits whose detected `full_sequence` is a single repeated base (poly-A, poly-G, ...). With scoring on, it also drops hits whose `putative_triplex` — arms plus spacer, brackets stripped — collapses to a single base. These carry no real mirror-repeat structure.
+- **Homopolymer filter** (`filter_homopolymers`, default on; always on in the CLI): drops hits whose detected `full_sequence` is a single repeated base (poly-A, poly-G, ...). With scoring on, it also drops hits whose `putative_triplex` — arms plus spacer, brackets stripped — collapses to a single base. These carry no real mirror-repeat structure.
 
-Both are opt-in at the Python API level (`hseeker.scan_fasta(...)`, off by default) so existing integrations are unaffected; the CLI enables the AT filter by default at `0.80` and always applies the homopolymer filter, with or without scoring.
+Both filters are **on by default** in the Python API, the CLI and the web app, so all three give the same results for the same settings (changed in October 2026; version 0.1.0 left them off in the Python API). To turn them off in Python, pass `at_threshold=None, filter_homopolymers=False`; in the CLI, `-at-threshold 1.5` disables the AT filter (the homopolymer filter is always on in the CLI). Note that the homopolymer filter also removes poly-(dC)·(dG) tracts, which can form an Mg²⁺-dependent triplex (Kohwi & Kohwi-Shigematsu 1988).
 
 ### Overlap removal behaviour
 

@@ -1,0 +1,1 @@
+/work/10899/kimopro/ls6/tools/non-B_gfa/gfa -skipWGET -skipAPR -skipSTR -skipDR -skipIR -skipGQ -skipZ -seq s.fa -out o -minMRrep 12 -maxMRspacer 5 -maxTriplexSpacer 6

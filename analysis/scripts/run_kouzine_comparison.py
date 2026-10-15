@@ -27,6 +27,7 @@ import csv
 import gzip
 import json
 import math
+import os
 import subprocess
 import sys
 import time
@@ -39,8 +40,8 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 import hseeker  # noqa: E402
 
-KOUZINE = Path("/workspaces/.hseeker-pr/kouzine")
-SAMTOOLS = "/workspaces/.hseeker-pr/env/bin/samtools"
+KOUZINE = Path(os.environ.get("KOUZINE_DIR", "/workspaces/.hseeker-pr/kouzine"))
+SAMTOOLS = os.environ.get("SAMTOOLS", "/workspaces/.hseeker-pr/env/bin/samtools")
 SEED = 20261009
 N_CONTROLS = 10
 MAX_DRAWS = 1000

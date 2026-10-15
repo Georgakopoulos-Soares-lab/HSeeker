@@ -1,0 +1,91 @@
+-skipWGET = wget PHP call will be skipped
+-skipAPR = A-Phased Repeat motifs will not be found
+-skipSTR = Short Tandem Repeat motifs will not be found
+-skipDR = Direct Repeat motifs will not be found
+-skipIR = Inverted Repeat motifs will not be found
+-skipGQ = G-Quadruplex motifs will not be found
+-skipZ = Z-DNA motifs will not be found
+-seq value = s.fa
+-minMRrep value = 8
+-maxMRspacer value = 10
+-chrom not given. Sequence will be named using first word of fasta title line.
+Fasta Sections = 6
+ INFO: Program read 20 bases 
+Total Bases Read=20 
+Starting Mirror Repeat search; Sun Oct 11 13:24:24 2026
+MRs found = 1; Sun Oct 11 13:24:24 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 1
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 1
+TSV write done
+ INFO: Program read 30 bases 
+Total Bases Read=30 
+Starting Mirror Repeat search; Sun Oct 11 13:24:25 2026
+MRs found = 1; Sun Oct 11 13:24:25 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 1
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 1
+TSV write done
+ INFO: Program read 15 bases 
+Total Bases Read=15 
+Starting Mirror Repeat search; Sun Oct 11 13:24:25 2026
+MRs found = 0; Sun Oct 11 13:24:25 2026
+
+Starting Triplex search
+Done Triplex search
+
+GFF write done
+TSV write done
+ INFO: Program read 30 bases 
+Total Bases Read=30 
+Starting Mirror Repeat search; Sun Oct 11 13:24:25 2026
+MRs found = 1; Sun Oct 11 13:24:25 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 1
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 1
+TSV write done
+ INFO: Program read 25 bases 
+Total Bases Read=25 
+Starting Mirror Repeat search; Sun Oct 11 13:24:25 2026
+MRs found = 1; Sun Oct 11 13:24:25 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 1
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 1
+TSV write done
+Total Bases Read=35 
+Starting Mirror Repeat search; Sun Oct 11 13:24:25 2026
+MRs found = 1; Sun Oct 11 13:24:25 2026
+
+Starting Triplex search
+Done Triplex search
+
+ Starting print_GFF_file
+ Total unique repeats written into GFF file= 1
+GFF write done
+ Starting print_TSV_file
+ Total unique repeats written into TSV file= 1
+TSV write done

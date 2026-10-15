@@ -1,0 +1,50 @@
+{
+ "cli_defaults": {
+  "params": {
+   "minrep": 8,
+   "maxrep": 1000,
+   "maxspacer": 10,
+   "purity": 0.9,
+   "mismatch": 0.1,
+   "at_threshold": 0.8,
+   "filter_homopolymers": true,
+   "score": true
+  },
+  "greedy_loci": 45927,
+  "score_loci": 47217,
+  "identical_coordinates": 41867,
+  "identical_fraction_of_greedy": 0.9116,
+  "greedy_loci_overlapped_by_score": 45927,
+  "greedy_covered_fraction": 1.0,
+  "score_only_loci": 991,
+  "wall_seconds": {
+   "greedy": 113.4,
+   "score": 119.1
+  },
+  "wall_note": "single run on a shared node; not a runtime benchmark"
+ },
+ "no_filters": {
+  "params": {
+   "minrep": 8,
+   "maxrep": 1000,
+   "maxspacer": 10,
+   "purity": 0.9,
+   "mismatch": 0.1,
+   "at_threshold": null,
+   "filter_homopolymers": false,
+   "score": true
+  },
+  "greedy_loci": 106481,
+  "score_loci": 108224,
+  "identical_coordinates": 87980,
+  "identical_fraction_of_greedy": 0.8263,
+  "greedy_loci_overlapped_by_score": 106481,
+  "greedy_covered_fraction": 1.0,
+  "score_only_loci": 1213,
+  "wall_seconds": {
+   "greedy": 119.5,
+   "score": 138.8
+  },
+  "wall_note": "single run on a shared node; not a runtime benchmark"
+ }
+}

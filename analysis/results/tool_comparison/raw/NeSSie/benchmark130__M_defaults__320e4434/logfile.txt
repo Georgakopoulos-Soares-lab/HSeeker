@@ -1,0 +1,6 @@
+>SYN0042
+selected kmin [-k] is longer than sequence length
+>SYN0044
+selected kmin [-k] is longer than sequence length
+>SYN0045
+selected kmin [-k] is longer than sequence length

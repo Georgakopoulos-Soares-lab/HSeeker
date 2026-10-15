@@ -90,3 +90,18 @@ syntax and the absence of stale references — not a live HTTP check.
 - `.github/copilot-instructions.md` (`[app]` extra description)
 - `RTR/HSeeker_Reviewer_Answer_Plan_v2.md` (WS1-A4 row + R2.11 draft response
   corrected from "renamed" to "removed")
+
+## Response-letter text (2026-10-11)
+
+The PDF of the response letter shared on 2026-10-11 still described `src/hseeker/app.py` as "an
+optional Streamlit demo". The author confirmed the current RTR now states that Streamlit was
+removed, which matches the code. Re-checked on 2026-10-11 on `main` (`0789549`) plus the working
+tree: no `streamlit` reference outside `RTR/`, no `src/hseeker/app.py` or `streamlit_app.py`, and
+the `[app]` extra is `pandas`, `plotly`. Suggested final text:
+
+> We agree that two front-ends were confusing. We removed the Streamlit demo
+> (`src/hseeker/app.py`) and its dependency from the package. HSeeker now has a single web
+> interface, the FastAPI application in `webapp/main.py`, which is the hosted service and uses
+> the same Python scanning API as the command-line tool. The README documents only this
+> interface, with its installation and launch commands. We thank the reviewer for the kind
+> words about the software engineering.
