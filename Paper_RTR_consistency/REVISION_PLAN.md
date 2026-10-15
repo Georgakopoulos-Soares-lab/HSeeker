@@ -40,16 +40,20 @@ On the light blue: Word assigns tracked-change colours per author, and that assi
 reader's Word installation, not in the file. To guarantee the changes read as light blue regardless
 of who opens the file, inserted runs also carry an explicit character colour of **`#4A90D9`**.
 
-There is one consequence worth stating before we start, because it is a decision for the authors:
+**Decision: Option B, tracked changes only.** It is the simplest and the only one of the three that
+leaves no residue: accepting a change produces clean manuscript text with nothing to clean up
+afterwards. Option A would have embedded an explicit colour in the text itself, which survives
+acceptance and then has to be stripped; Option C gives no Accept button at all.
 
-| Option | Behaviour | Trade-off |
-|---|---|---|
-| **A — tracked changes + explicit light blue** *(recommended)* | Light blue in every viewer; Accept/Reject works | After accepting, the text stays light blue until the author selects all and sets font colour to Automatic — one action for the whole document |
-| **B — tracked changes only** | Accept/Reject works; colour is whatever Word assigns the author | Not guaranteed to be light blue |
-| **C — light blue text only, no tracking** | Always light blue | No Accept/Reject; changes must be applied by hand |
+Light blue is then a one-time setting on the reader's side, not a property of the file, and it takes
+one dialog:
 
-The plan assumes **Option A**. Deleted text appears struck through in the same colour, as Word
-renders tracked deletions.
+> **Review → Tracking** (dialog launcher) **→ Advanced Options → Insertions: Colour → Light Blue**,
+> and the same for **Deletions**.
+
+That applies to the whole document at once and to every later revision round. All changes are
+attributed to a single author, `HSeeker revision`, so this colours the entire set uniformly.
+Deleted text appears struck through in the same colour, as Word renders tracked deletions.
 
 Comment balloons are **not** used: a reviewer comment is not a change, and the reasoning for each
 edit lives in this plan and in the response letter.
@@ -64,7 +68,7 @@ in-text citations depend on it.
 | Submitted | Content | Becomes | Action |
 |---|---|---|---|
 | Figure 1 | Workflow, panels A and B | **Figure 1** | Edit in place (§6.1) |
-| Figure 2 | Parallel scaling, 3 tools, 4 panels | **Figure 2** | Replace image and caption |
+| Figure 2 | Parallel scaling, 3 tools, 4 panels | **Figure 2** | Replace image and caption; **comparator tools no longer plotted** (§6.3) |
 | Figure 3 | Sensitivity/specificity: A E. coli confusion matrices, B ROC, C raw detection, D Youden threshold | **Figure 3** | Replace image and caption; panels B and D are withdrawn |
 | — | *(new)* | **Figure 4** | Insert: comparison with single-stranded DNA maps |
 | Figure 4 | Web interface | **Figure 5** | Renumber only |
@@ -211,20 +215,61 @@ has to be resolved before anything else is numbered.
 
 ## 6. Figures and algorithm panels in detail
 
-### 6.1 Figure 1 — the only figure needing hand editing
+### 6.1 Figure 1
 
-No source file exists in the repository, so these are instructions for whoever redraws it.
+The submitted figure is in two parts with very different origins, and they have to be handled
+differently.
 
-- **Panel B** contains a "Sensitivity Analysis / AUC" inset. That analysis is withdrawn
-  (R3.3) — **remove the inset.** This also relieves the density Reviewer 3 noted in comment 12.
-- **Panel B** labels the stability balance "H-DNA Stability" → "Stability score (heuristic
-  ranking)", so the figure does not reintroduce the free-energy reading (R2.4, R3.4).
-- **Panel B**'s "H-DNA-forming ✓ / non-forming ✗" decision tree implies a score-based decision →
-  relabel as detection only (R3.3).
-- **Panel A** omits two steps now in the algorithm: inward extension and deduplication. Add both
-  before "Return candidate list", and thin the decision-diamond chain (R3.12).
+**Panel A — the candidate-identification flowchart. Redrawn, done.**
+`analysis/results/plots/figure1_panelA_workflow.pdf`, from
+`analysis/scripts/plot_figure1_panelA.py`. Two changes of substance and one of presentation:
 
-### 6.2 Algorithm panels — paragraphs 71–79
+- **Inward extension** and **deduplication by (start, end, arm)** are now shown. Both are in the
+  current algorithm and absent from the submitted panel.
+- The decision chain is reduced from four diamonds to two, and the four crossing return paths are
+  merged into one, which is what made the submitted panel dense (R3.12).
+- Drawn on white rather than the submitted black background, so it sits with the rest of the
+  figures.
+
+**Panel B — the biological schematic. Needs the original artwork.**
+Panel B is a BioRender-style illustration: duplex and triplex DNA, Hoogsteen base-pair diagrams, a
+sugar-phosphate backbone rendering, a stability balance. None of that can be regenerated from the
+repository, because no source exists there. It needs the original BioRender file. Three edits are
+required, all in the middle row:
+
+1. **Remove the "Sensitivity Analysis / AUC" inset** (the bar chart with HSeeker, B, C, D). That
+   analysis is withdrawn, so the figure must not show it (R3.3). This also removes the densest
+   corner of the panel.
+2. **Relabel "H-DNA Stability"** → "Stability score (heuristic ranking)", so the figure does not
+   reintroduce the free-energy reading (R2.4, R3.4).
+3. **The "Detection → H-DNA-forming ✓ / H-DNA-forming ✓ / non-forming ✗" tree** sits directly under
+   the withdrawn AUC inset and reads as a score-based decision. Relabel it as detection only, or
+   let it fill the space the inset vacates (R3.3).
+
+Edits 1 and 3 free the left third of the middle row, so the panel gets less crowded rather than
+leaving a hole. If the BioRender source cannot be found, the fallback is to crop Panel B to its top
+and bottom rows and rebuild the middle row, which is the only row that has to change.
+
+### 6.3 Figure 2 — comparators removed from the plot
+
+**Decision: the comparator tools are not plotted.** The submitted figure sweeps 1–16 workers for
+three tools across four panels. That cannot be reproduced honestly: of the four comparators now in
+the paper, nBMST and NeSSie have no parallel mode at all, so a worker sweep is undefined for them,
+and plotting a flat line for a tool that simply has no such axis invites a comparison the data
+cannot support.
+
+The replacement, `analysis/results/plots/figure2_performance.pdf`, is HSeeker alone in three panels:
+wall-clock time with speedup, peak memory with the whole-genome run marked, and parallel efficiency.
+
+The comparator timings are not lost — they move into the caption and the Results text, where they
+can be stated with the qualification they need:
+
+> At 16 cores on the same node and the same day, chromosome 1 took 45.0 s with Triplexator and
+> 64.7 s with triplex run as 16 parallel processes, against 16.3 s for HSeeker; nBMST and NeSSie
+> provide no parallel mode and took 96.5 s and 295.7 s on one core. Peak memory was 1,714 MB,
+> 660 MB per worker process, 866 MB and 1,056 MB respectively, against 1,334 MB for HSeeker.
+
+### 6.4 Algorithm panels — paragraphs 71–79
 
 The three panels are embedded images rendered from LaTeX. The submitted panels no longer match the
 code: the purity prefilter is shown as mandatory, inward extension and deduplication are missing,
@@ -298,13 +343,20 @@ the release tag. Every other comment has at least one tracked change attached to
 
 ---
 
-## 9. Decisions needed before step 1
+## 9. Decisions
 
-1. **Marking mechanism** — Option A, B or C from §2. The plan assumes A.
-2. **Figure 1** — who redraws it, and whether the four changes in §6.1 are accepted as described.
-3. **Figure 2 panel count** — the submitted figure has four panels sweeping 1–16 workers for three
-   tools. That cannot be reproduced: two of the four comparators have no parallel mode, so a sweep
-   is meaningless for them. The replacement has three panels. If the four-panel design is preferred,
-   sweeps for triplex and Triplexator can be run, and the other two shown as single points.
-4. **Biographical Note, paragraph 18** — names only two authors. Not a reviewer point; flagged
-   because it will be noticed at proof stage.
+| Question | Decision |
+|---|---|
+| Marking mechanism | **Option B** — tracked changes only, light blue set once in Word (§2) |
+| Figures | **All redrawn.** Figure 1A, Figure 2, Figure 3, Figure 4 and Supplementary Figure 1 are generated and in the repository |
+| Figure 2 comparators | **Not plotted.** Timings move to the caption and Results (§6.3) |
+| Biographical Note, paragraph 18 | **Leave as submitted.** Not touched |
+
+### Still outstanding
+
+1. **Figure 1 Panel B** needs the original BioRender file for the three edits in §6.1. It is the
+   only figure element that cannot be produced from the repository.
+2. **Figures 5 and 6** are screenshots of the web interface. They are renumbered, not redrawn. If
+   they should show the current interface — which no longer has the "Stable Sites (score ≥ 50)"
+   tile, and whose presets changed with the defaults — they need to be retaken. Figure 5's parameter
+   panel is also now out of date, since the defaults moved to arm 8 and mismatch 0.10.

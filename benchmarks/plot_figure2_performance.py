@@ -3,7 +3,11 @@
 
 A) Wall-clock time and speedup vs worker count on hg38 chr1.
 B) Peak resident set size vs worker count, with the whole-genome run marked.
-C) Wall-clock time and peak memory at 16 cores for HSeeker and four comparators.
+C) Parallel efficiency vs worker count.
+
+The comparator tools are deliberately not plotted: nBMST and NeSSie have no
+parallel mode, so a worker sweep is undefined for them. Their timings are
+printed by this script for use in the caption and Results text.
 
 Inputs: benchmarks/results_2026-10-11/ (sweep JSON, /usr/bin/time -v output).
 """
@@ -54,12 +58,15 @@ def main() -> None:
 
     genome_wall, genome_rss = mean_of("genome_greedy_*.time")
 
+    # Comparator timings are reported in the caption and Results, not plotted:
+    # two of the four tools have no parallel mode, so a worker sweep is undefined
+    # for them and a mixed plot would imply a comparison the data cannot support.
     comparators = [
-        ("HSeeker", wall[-1], rss[-1], "45,927", BLUE),
-        ("Triplexator", *mean_of("comparators/triplexator_*.time"), "275,476", GREY),
-        ("triplex", *mean_of("comparators/triplex_*.time"), "81,906", GREY),
-        ("nBMST", *mean_of("comparators/gfa_*.time"), "147,222", GREY),
-        ("NeSSie", *mean_of("comparators/nessie.time"), "720,811", GREY),
+        ("HSeeker", wall[-1], rss[-1], "45,927"),
+        ("Triplexator", *mean_of("comparators/triplexator_*.time"), "275,476"),
+        ("triplex", *mean_of("comparators/triplex_*.time"), "81,906"),
+        ("nBMST", *mean_of("comparators/gfa_*.time"), "147,222"),
+        ("NeSSie", *mean_of("comparators/nessie.time"), "720,811"),
     ]
 
     fig = plt.figure(figsize=(13.5, 4.3))
@@ -110,32 +117,24 @@ def main() -> None:
     ax.grid(alpha=0.25, ls=":")
     ax.legend(loc="lower right", fontsize=8.5, frameon=False)
 
-    # ---- C: comparator bars ------------------------------------------------
+    # ---- C: parallel efficiency ------------------------------------------
     ax = fig.add_subplot(gs[0, 2])
-    names = [c[0] for c in comparators]
-    times = [c[1] for c in comparators]
-    mems = [c[2] for c in comparators]
-    loci = [c[3] for c in comparators]
-    cols = [c[4] for c in comparators]
-    y = np.arange(len(names))[::-1]
-
-    ax.barh(y, times, color=cols, height=0.62, zorder=3)
-    for yi, t, n, m in zip(y, times, loci, mems):
-        ax.annotate(f"{t:.1f} s  ·  {m:,.0f} MB\n({n})", (t, yi),
-                    textcoords="offset points", xytext=(6, 0), va="center",
-                    fontsize=8.2)
-    ax.set_yticks(y)
-    ax.set_yticklabels(names)
-    ax.set_xlim(0, max(times) * 1.72)
-    ax.set_xlabel("Wall-clock time on chromosome 1 (s)")
-    ax.set_title("C   Against existing tools", loc="left", fontweight="bold")
-    ax.grid(alpha=0.25, axis="x", ls=":")
-
-    note = ("16 cores, except nBMST and NeSSie, which have no parallel mode.\n"
-            "Loci counts in brackets are not comparable: the tools enumerate\n"
-            "different target classes.")
-    ax.annotate(note, (0.0, -0.265), xycoords="axes fraction", fontsize=7.2,
-                color="#444444", va="top")
+    eff = 100.0 * speedup / workers
+    ax.plot(workers, eff, "o-", color=BLUE, lw=2, ms=7, zorder=3)
+    ax.axhline(100, ls="--", color=GREY, lw=1.3)
+    ax.annotate("Ideal", (workers[-1], 100), textcoords="offset points",
+                xytext=(-26, 5), fontsize=8.5, color=GREY)
+    for x, y in zip(workers, eff):
+        ax.annotate(f"{y:.0f}%", (x, y), textcoords="offset points", xytext=(4, -12),
+                    fontsize=8.5, color=BLUE)
+    ax.set_xscale("log", base=2)
+    ax.set_xticks(workers)
+    ax.set_xticklabels(workers)
+    ax.set_ylim(0, 118)
+    ax.set_xlabel("Worker threads")
+    ax.set_ylabel("Parallel efficiency (%)")
+    ax.set_title("C   Parallel efficiency", loc="left", fontweight="bold")
+    ax.grid(alpha=0.25, ls=":")
 
     OUT.mkdir(parents=True, exist_ok=True)
     for ext in ("pdf", "png", "svg"):
@@ -145,7 +144,8 @@ def main() -> None:
     print(f"\nchr1 sweep:   {dict(zip(workers.tolist(), wall.tolist()))}")
     print(f"speedup:      {speedup[-1]:.2f}x   RSS {rss.min():.0f}-{rss.max():.0f} MB")
     print(f"whole genome: {genome_wall:.1f} s, {genome_rss:.0f} MB")
-    for n, t, m, l, _ in comparators:
+    print("\ncomparators (caption text, not plotted):")
+    for n, t, m, l in comparators:
         print(f"  {n:12s} {t:6.1f} s  {m:6.0f} MB  {l}")
 
 
