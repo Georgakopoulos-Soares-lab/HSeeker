@@ -11,8 +11,10 @@ and not repeated in each section:
 2. **The default minimum arm length is 8 bp and the default mismatch tolerance is 0.10**, and the
    AT-content and homopolymer filters are applied by the Python package, the command-line tool and
    the web application alike. The three interfaces now return identical results for identical input.
-3. **The *E. coli* insertion experiment and the Youden-selected score threshold are removed.**
-   Figure 3 is replaced by a comparison against permanganate/S1 single-stranded DNA maps.
+3. **The Youden-selected score threshold is removed.** The genomic-insertion experiment is
+   retained but narrowed to what it actually measures — recovery of known sequences in a genomic
+   background — and becomes Figure 3; a new comparison against permanganate/S1 single-stranded DNA
+   maps becomes Figure 4.
 
 ### Reference values used throughout
 
@@ -29,6 +31,9 @@ and not repeated in each section:
 | Chromosome 1, default settings, 16 threads | 45,927 loci in 16.3 s, peak 1,334 MB |
 | Complete hg38 primary assembly, 16 threads | 559,601 loci in 204.5 s, peak 2,296 MB |
 | Chromosome 1, previous defaults (arm 10, no filters) | 96,731 loci |
+| Benchmark sequences embedded in *E. coli* | 63 TP, 2 FN, 65 TN, 0 FP; MCC 0.970 |
+| Calls unchanged when embedded | HSeeker 130/130; triplex 86/130 |
+| Unmodified *E. coli* genome | 83 loci in 4.64 Mb (17.9 per Mb) |
 
 The two sequences HSeeker misses are the *c-MYC* NSE construct (ACCCTCCCC)₄ and the γ-globin
 −228/−189 element. Both are **tandem direct repeats**, not mirror repeats, and therefore fall
@@ -144,12 +149,24 @@ and the genome-wide comparison — with all settings pinned in a single configur
 
 ### Comment 3 — the *E. coli* insertion experiment and validation on a genome tested for non-B DNA
 
-We agree, and we have removed the experiment. Inserting the benchmark sequences into the *E. coli*
-genome tested whether sequences are recovered in a genomic background; it did not test whether
-HSeeker's predictions correspond to structures that form. Figure 3 and the associated text are
-gone, and the question of further hits in the modified genome no longer arises.
+We agree with the reviewer's reading of the experiment, and we have acted on it in two ways.
 
-In its place we followed the reviewer's suggestion and compared HSeeker with the data of Kouzine
+First, we accept that inserting the benchmark sequences into the *E. coli* genome does not test
+whether HSeeker's predictions correspond to structures that form. We have therefore removed every
+claim of biological validation from it and narrowed it to the question it can answer: whether a
+sequence is called the same way once embedded in a genome as when scanned on its own. Presented
+that way it is informative. HSeeker returns the identical call for all 130 benchmark records in
+both settings, and its performance in the genomic background is unchanged (63 of 65 forming
+sequences detected, no false positive, MCC 0.970). The comparator does not: triplex returns a
+different call for 44 of the 130 records, in every case a detection that is present when the
+sequence is scanned alone and absent once it is embedded. The unmodified genome yields 83 loci in
+4.64 Mb, no inserted non-forming sequence is called in either setting, and the hits in the modified
+genome are accounted for by those background loci together with the recovered insertions, which
+answers the reviewer's question about further hits. This is now Figure 3, and the Methods and
+Results present it as a property of the software rather than as evidence about structure formation.
+
+Second, for the biological validation the reviewer asks for, we followed the suggestion and
+compared HSeeker with the data of Kouzine
 and colleagues, who mapped single-stranded DNA genome-wide by permanganate/S1 footprinting in
 activated mouse B cells and in human Raji cells, predicted non-B DNA motifs, and called a motif
 formed when it carried single-stranded signal. We used their published calls and signal tracks, on
@@ -174,7 +191,7 @@ rate of other predicted H-DNA in mouse and a quarter in human, which supports ex
 default; it is nonetheless 17–19% of the formed H-DNA, and we state this cost explicitly.
 
 The enrichment of the measured signal at HSeeker loci is described in our response to Comment 8 of
-Reviewer 3 and is the subject of the new Figure 3.
+Reviewer 3 and is the subject of the new Figure 4.
 
 ### Comment 4 — simplification of the thermodynamic approach, and a limitations section
 
@@ -220,8 +237,8 @@ We agree. The complexity analysis and the sensitivity and specificity analyses h
 of Methods and now appear in the Results, where the Methods sections retain only the design of each
 analysis. The Results sections, in order, are: computational performance and parallel scalability;
 algorithmic complexity; detection performance on the revised benchmark; family- and study-aware
-validation; component ablation and parameter robustness; comparison with existing tools; and the
-genome-wide comparison with single-stranded DNA maps.
+validation; component ablation and parameter robustness; comparison with existing tools; genomic
+context recovery; and the genome-wide comparison with single-stranded DNA maps.
 
 ### Comment 6 — the filters were defined on the same dataset
 
@@ -494,13 +511,23 @@ benchmarking" without qualification has been removed.
 
 ### Comment 7 — the *E. coli* insertion experiment and the overlap threshold
 
-We agree. The experiment tested computational recovery in a genomic background rather than H-DNA
-formation, and Figure 3 gave it more weight than it could carry. We have removed the experiment and
-its figure from the manuscript rather than merely toning them down. In their place the manuscript
-compares HSeeker's genome-wide predictions with experimental single-stranded DNA maps (Comment 3 of
-Reviewer 2 and Comment 8 below). Because the insertion experiment is no longer part of the paper,
-the 80% overlap criterion it used no longer enters any reported result, and a sensitivity analysis
-over that threshold is no longer required.
+We agree that the experiment tested computational recovery in a genomic background rather than
+H-DNA formation, and that the original presentation gave it more weight than it could carry. We
+have rewritten it accordingly rather than leaving the framing to be inferred. It is now presented
+as a test of whether embedding a sequence in a genome changes the call made on it; the biological
+claims attached to it are gone; and the biological validation the reviewer asks for is supplied by
+the comparison with single-stranded DNA maps described under Comment 8 below. Measured that way the
+experiment earns its place: HSeeker's calls are identical for all 130 records whether the sequences
+are scanned on their own or embedded, whereas triplex loses 44 detections once the same sequences
+sit in a genomic background. That is a practical result for anyone applying either tool to genomic
+sequence, and it is not visible from the benchmark alone.
+
+We also ran the sensitivity analysis the reviewer asks for, since the criterion does still enter a
+reported result. Varying the positional overlap required to match a hit to an inserted sequence
+from 0.50 to 0.95 leaves every conclusion unchanged: HSeeker's MCC is 0.970 at 0.80 and above and
+0.954 at 0.70 and below, the single difference being one locus that partially overlaps a
+neighbouring insertion at the loosest settings, while triplex is unchanged at 0.512 throughout. No
+ranking depends on the choice. The sweep is reported in Figure 3C.
 
 ### Comment 8 — genome-scale biological validation
 
@@ -509,7 +536,7 @@ manuscript. We compared HSeeker's predictions with the structure-sensitive nucle
 Kouzine and colleagues: permanganate/S1 footprinting of single-stranded DNA in activated and
 resting mouse B cells and in human Raji cells. Recall and selectivity against their published calls
 are described in our response to Comment 3 of Reviewer 2. Here we describe two enrichment analyses
-of the measured signal, which form the new Figure 3. The first was specified, with its controls and
+of the measured signal, which form the new Figure 4. The first was specified, with its controls and
 statistics, before any result was computed; the second was added after the first and was likewise
 specified before it was computed. We report both.
 
@@ -933,10 +960,21 @@ the implementation.
 > and the hg38 primary assembly, both obtained from the UCSC Genome Browser. Comparators were timed
 > on the same node under the same protocol."
 
-### Remove — *Genomic context validation*
+### Revise — *Genomic context recovery* (renamed from *Genomic context validation*)
 
-Delete the paragraph describing the *E. coli* insertion experiment and the 80% overlap criterion,
-and the sentence in the preceding paragraph that introduces it.
+Replace the existing paragraph in full. The experiment is retained, but the biological claims are
+removed and the matching criterion becomes something tested rather than assumed.
+
+> "**Genomic context recovery.** To establish whether embedding a sequence in a genome changes the
+> call made on it, the 130 benchmark sequences were inserted into the *Escherichia coli* K-12
+> MG1655 genome (NC_000913.3, 4,641,652 bp) at positions drawn under a fixed random seed with at
+> least 500 bp between successive insertion sites. The modified genome was scanned with HSeeker and
+> with triplex at the settings used throughout, and the unmodified genome was scanned under the
+> same settings to establish the background locus rate. A reported hit was matched to an inserted
+> sequence when the overlap covered at least a given fraction of either the hit or the insertion;
+> results are reported at 0.80, and the criterion is varied from 0.50 to 0.95 as a sensitivity
+> analysis. This experiment measures recovery and the stability of a call across sequence context.
+> It does not test whether H-DNA forms, and we draw no biological conclusion from it." 
 
 ## 2.4 Results
 
@@ -1024,7 +1062,7 @@ Use the table and the target-class paragraph from Reviewer 3, Comment 6, then:
 
 ### New subsection — *Genome-wide comparison with single-stranded DNA maps*
 
-Convert the response text under Reviewer 3, Comment 8 into Results prose and cite Figure 3. Close
+Convert the response text under Reviewer 3, Comment 8 into Results prose and cite Figure 4. Close
 with:
 
 > "Taken together, these results associate HSeeker loci in activated mouse B cells with
@@ -1037,11 +1075,33 @@ with:
 > than sites demonstrated to be structured, and single-stranded signal is not by itself evidence of
 > triplex formation at an individual locus."
 
+### Rewrite — *Genomic context recovery*
+
+Replace the existing *E. coli* paragraph in full, and place this section after the tool comparison
+and before the single-stranded DNA comparison.
+
+> "Sequences are rarely scanned in isolation, so we asked whether embedding a sequence in a genome
+> changes the call made on it. Inserting the 130 benchmark sequences into the *E. coli* K-12 genome
+> left HSeeker's calls unchanged for every record: the same 63 forming sequences were detected, no
+> non-forming sequence was called, and the resulting coefficient of 0.970 is identical to the value
+> obtained on the sequences alone (Figure 3A, B). The matching hit covered the whole inserted
+> sequence for the majority of records and at least half of it in every case (Figure 3D). triplex,
+> run on the same modified genome, returned a different call for 44 of the 130 records, in each
+> case a detection present when the sequence was scanned alone and absent once it was embedded, and
+> its coefficient fell from 0.819 to 0.512. Varying the overlap required to match a hit to an
+> insertion from 0.50 to 0.95 changed neither result (Figure 3C). The unmodified genome yielded 83
+> loci across its 4.64 Mb, or 17.9 per Mb, and the hits in the modified genome are accounted for by
+> those background loci together with the recovered insertions.
+>
+> This experiment measures the stability of a call across sequence context, not whether H-DNA
+> forms. We draw no biological conclusion from it; the comparison with measured single-stranded DNA
+> follows."
+
 ### Remove
 
-The paragraph reporting the *E. coli* insertion results, the sentence reporting MCC = 0.73 from it,
-the sentences describing the ROC curve and the Youden-selected operating point, and the sentence
-describing Figure 3C and 3D.
+The sentence reporting MCC = 0.73 from the earlier version of the insertion experiment, the
+sentences describing the ROC curve and the Youden-selected operating point, and the sentence
+describing the former Figure 3C and 3D.
 
 ### Revise — *HSeeker web interface*
 
@@ -1090,12 +1150,14 @@ Simplification is requested, and two panels are now factually out of date.
 
 ## Figure 2 — parallel scaling
 
+Regenerated as `analysis/results/plots/figure2_performance.{pdf,png,svg}` by
+`benchmarks/plot_figure2_performance.py`.
+
 All numbers change, and the comparator sweeps cannot be reproduced as drawn. The original four
 panels plot 1–16 worker sweeps for all three tools; we have a full sweep for HSeeker and
 single-point measurements at 16 cores for the four comparators, and two of the comparators have no
-parallel mode at all, which makes a sweep meaningless for them.
-
-**Recommended three-panel replacement:**
+parallel mode at all, which makes a sweep meaningless for them. The replacement therefore has three
+panels:
 
 - **A** — HSeeker wall-clock time and speedup against worker count (1, 2, 4, 8, 16), with the ideal
   speedup line. Data: 173.8, 89.6, 47.4, 26.7, 16.3 s; speedups 1.00, 1.94, 3.67, 6.51, 10.65.
@@ -1120,16 +1182,46 @@ cores; this is feasible for triplex and Triplexator, and not meaningful for nBMS
 > bar; these counts are not directly comparable, because the tools enumerate different target
 > classes."
 
-## Figure 3 — replaced in full
+## Figure 3 — genomic context recovery (regenerated)
 
-The *E. coli* figure is withdrawn. The replacement is generated and deposited. It has four panels:
-recall against the published calls; selectivity as odds ratios; signal at HSeeker loci relative to
-matched controls for both analyses, with the placebo and positive-control checks; and the
-arm-length stratification.
+Generated as `analysis/results/plots/figure3_ecoli_recovery.{pdf,png,svg}` by
+`analysis/scripts/plot_figure3_ecoli.py`, from a rerun of the insertion analysis on the 130-record
+benchmark at the current defaults.
+
+The original figure cannot be reused: it was built on the 79-sequence set, the previous defaults
+and the score threshold that is now withdrawn, and its panels carried the biological framing the
+reviewers objected to. The replacement reports only what the experiment measures.
+
+- **A** — percentage of records whose call is unchanged when the sequence is embedded in the genome
+  rather than scanned alone: HSeeker 130/130, triplex 86/130 with 44 detections lost.
+- **B** — sensitivity, specificity and MCC in the genomic background for both tools.
+- **C** — MCC against the overlap required to match a hit to an insertion, from 0.50 to 0.95, with
+  the 0.80 criterion marked.
+- **D** — distribution of the fraction of each inserted sequence covered by its matching hit, with
+  the background rate of the unmodified genome noted beneath.
 
 **Caption:**
 
-> "**Figure 3: HSeeker predictions compared with single-stranded DNA mapped in cells.** HSeeker was
+> "**Figure 3: Recovery of benchmark sequences embedded in a genomic background.** The 130
+> benchmark sequences were inserted into the *E. coli* K-12 MG1655 genome at positions drawn under
+> a fixed random seed, and the modified genome was scanned with HSeeker and with triplex at the
+> settings used throughout. **A)** Percentage of records for which a tool returns the same call
+> when the sequence is embedded as when it is scanned on its own. **B)** Detection performance in
+> the genomic background. **C)** Matthews correlation coefficient as a function of the positional
+> overlap required to match a reported hit to an inserted sequence; the dashed line marks the 0.80
+> criterion used elsewhere. **D)** Fraction of each inserted sequence covered by its matching hit,
+> for the sequences HSeeker recovered; the unmodified genome yields 83 loci across 4.64 Mb. This
+> analysis measures recovery and the stability of a call across sequence context; it does not test
+> whether H-DNA forms."
+
+## Figure 4 — comparison with single-stranded DNA maps
+
+Already generated as `analysis/results/plots/figure3_kouzine.{pdf,png,svg}`; it needs no change
+beyond renumbering from Figure 3 to Figure 4 in the caption and in every in-text citation.
+
+**Caption:**
+
+> "**Figure 4: HSeeker predictions compared with single-stranded DNA mapped in cells.** HSeeker was
 > run at its default settings on the genome assemblies used by Kouzine and colleagues. **A)** Recall:
 > the percentage of the H-DNA motifs they found single-stranded that are overlapped by an HSeeker
 > locus, in activated mouse B cells and in human Raji cells. **B)** Selectivity: the odds ratio that
@@ -1146,9 +1238,20 @@ arm-length stratification.
 
 ## Supplementary Figure 1 — regenerate
 
-Currently three confusion matrices on the 79-sequence set. Regenerate as five confusion matrices —
-HSeeker, triplex, NeSSie, nBMST, Triplexator — on the 130-record benchmark at each tool's default
-settings, with MCC printed on each panel. The underlying per-record calls are already deposited.
+Regenerated as `analysis/results/plots/suppfig1_confusion_matrices.{pdf,png,svg}` by
+`analysis/scripts/plot_suppfig1_confusion.py`.
+
+The submitted version showed three confusion matrices on the 79-sequence set. The replacement shows
+five — HSeeker, triplex, NeSSie, nBMST and Triplexator — on the 130-record benchmark, each at the
+tool's documented default setting, with counts, row percentages and the MCC on every panel.
+
+**Caption:**
+
+> "**Supplementary Figure 1: Classification of the balanced benchmark by each tool.** Confusion
+> matrices for HSeeker and the four comparators on the 130-record benchmark (65 forming, 65
+> non-forming), each tool at its documented default settings. Cells give the number of records and
+> the percentage of the corresponding reported class. NeSSie is shown for its triplex-potential
+> output and nBMST for the mirror repeats it classifies as triplex-forming." 
 
 ## Supplementary tables — renumber
 
