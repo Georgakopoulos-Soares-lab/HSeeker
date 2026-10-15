@@ -363,45 +363,58 @@ the release tag. Every other comment has at least one tracked change attached to
 
 ---
 
-## 10. Implementation status (second cycle, 2026-10-15)
+## 10. Implementation status (third cycle, 2026-10-15)
 
-`HSeeker_revised_tracked.docx`, produced by `apply_revision.py` from the submitted file and
-re-runnable from it. **78 tracked edits**, 178 insertions and 55 deletions, one author.
+`HSeeker_revised_tracked.docx`, produced by `apply_revision.py` from the submitted file.
+**82 tracked edits**, 182 insertions and 57 deletions, one author.
 
 | Check | Result |
 |---|---|
 | Reject All | Reproduces the submitted manuscript **exactly** |
-| Accept All | 237 paragraphs (the jump over 189 is the 44 table cells, each a paragraph) |
-| Images | 97, all references resolve; 5 replaced, 2 inserted |
-| Tables | 1 inserted, every row marked as a tracked insertion |
-| Zip and content types | Intact |
+| Accept All | 238 paragraphs |
+| Images | 97, all resolve; 5 replaced, 2 inserted |
+| Tables | 1, every row a tracked insertion |
+| Letter claims found in the manuscript | 40 of 40 |
+| Withdrawn statements still present | 0 of 17 |
 
 Set the colour once on opening: **Review → Tracking** dialog launcher **→ Advanced Options →
 Insertions: Light Blue**, and the same for Deletions.
 
-### Completed in this cycle
+### Figures left as submitted, by instruction
 
-1. **Figure 1** rebuilt and placed. Panel A is the redrawn flowchart; panel B keeps the original
-   artwork with the withdrawn AUC inset, its orphaned checklist icon and the arrow that pointed at
-   it removed, the detection tree moved up into the space, and the stability label rewritten as
-   "Stability score (heuristic ranking)". Done on the raster, since no vector source exists
-   (`analysis/scripts/build_figure1.py`).
-2. **Algorithm panels** rendered from `main.tex` and swapped in. The submitted three become four:
-   a new pipeline panel states the stage order, and the other three are the corrected versions with
-   the optional prefilter, inward extension, deduplication, both overlap rules, the fallback window
-   and the clamp. No LaTeX is installed here, so `render_algorithm_panels.py` parses the
-   algorithmic subset that `main.tex` uses and typesets it directly.
-3. **Table 1** inserted as a real Word table with the three evaluation sets and all five metrics.
-4. **Supplementary Tables 1 to 5** written to `supplementary/`. Table 2 resolves the collision:
-   the scoring values move there and the benchmark keeps Table 1.
-5. **Terminology pass** applied, each substitution tracked separately.
+**Figures 1, 5 and 6 are untouched.** Only their numbering and surrounding text changed; the
+images are the submitted ones. The redrawn Figure 1 remains available at
+`analysis/results/plots/figure1_workflow.png` if it is wanted later.
 
-### Still outstanding
+One consequence needs an author decision, because it is the sort of thing a reviewer checks:
 
-1. **Figures 5 and 6** are the submitted web-interface screenshots, renumbered but not retaken.
-   They show presets that changed with the defaults and, in Figure 6, the withdrawn stable-sites
-   tile. Retaking them needs the running interface.
-2. **Figure 1 panel B** would be cleaner redone in BioRender than patched on the raster. The
-   current version is sound but the edit is visible if you look for it.
-3. **Reference list** — the four new comparator and data citations (NeSSie, nBMST, Kouzine et al.,
-   and the triplex package) need adding and numbering.
+> **Figure 1 panel B still contains the "Sensitivity Analysis / AUC" inset.** That analysis is
+> withdrawn in response to Reviewer 3's third comment, and the revised Results now state that no
+> score threshold is used and that the area under the curve restates the detection result. The
+> figure therefore shows a result the text disclaims. The same panel also labels the score
+> "H-DNA Stability", which is the free-energy reading that Reviewer 2's fourth comment asked to be
+> dropped.
+
+Figures 5 and 6 show presets that changed with the defaults, and Figure 6 shows the withdrawn
+stable-sites tile. These are smaller discrepancies, but they are discrepancies.
+
+### References
+
+One citation was added, numbered 28: Kohwi & Kohwi-Shigematsu, PNAS 85:3781-3785 (1988), for the
+Mg2+-dependent poly-(dC) triplex named in the new Limitations section. **Verify the page range
+before submission.** No other new citation was needed: the triplex algorithm (21), nBMST (23),
+NeSSie (24), Triplexator (25) and Kouzine et al. (4) were all already in the list.
+
+### Fixed in this cycle
+
+Three ordering faults, all from the same cause: each `insert_after` places its element immediately
+after the anchor paragraph, so repeated calls on one anchor come out back to front.
+
+1. The five new Results subsections appeared in reverse. Now family-aware validation, ablation,
+   tool comparison, genomic context recovery, single-stranded DNA comparison.
+2. The new Figure 4 and Algorithm 1 captions preceded their images, against the convention
+   everywhere else in the document.
+3. The Table 1 caption sat below its table.
+
+Also corrected: the three in-text references to the algorithm panels, which still pointed at the
+old numbering after three panels became four.

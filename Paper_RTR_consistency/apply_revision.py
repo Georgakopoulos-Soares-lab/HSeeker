@@ -195,6 +195,14 @@ def main() -> None:
         "each split, under repeated stratified five-fold cross-validation, "
         "leave-one-family-out and leave-one-study-out schemes.", "R2.5/R2.7/R3.1/R3.2")
 
+    # The three panels become four, so every in-text reference moves up one.
+    d.replace_text(42, "as described in Algorithm 1",
+                   "as described in Algorithm 2", "panel renumber")
+    d.replace_text(42, "The candidate enumeration step is described in Algorithm 2",
+                   "The overlap-removal step is described in Algorithm 3", "panel renumber")
+    d.replace_text(62, "The scoring procedure is described in Algorithm 3.",
+                   "The scoring procedure is described in Algorithm 4.", "panel renumber")
+
     # the quoted command line was wrong in two ways
     d.replace_text(
         65,
@@ -293,9 +301,10 @@ def main() -> None:
     d.replace_paragraph(95, DETECTION_RESULTS, "R2.1/R3.1/R3.3/R3.7")
     d.replace_paragraph(96, DETECTION_ERRORS, "R3.6")
 
-    for text, label in ((FAMILY_AWARE, "R3.2"), (ABLATION, "R3.9"),
-                        (TOOL_RESULTS, "R2.7/R3.1/R3.6"), (ECOLI_RESULTS, "R2.3/R3.7"),
-                        (KOUZINE_RESULTS, "R2.3/R3.8")):
+    # Reversed, because each call inserts immediately after paragraph 96.
+    for text, label in ((KOUZINE_RESULTS, "R2.3/R3.8"), (ECOLI_RESULTS, "R2.3/R3.7"),
+                        (TOOL_RESULTS, "R2.7/R3.1/R3.6"), (ABLATION, "R3.9"),
+                        (FAMILY_AWARE, "R3.2")):
         d.insert_paragraph_after(96, text, style_from=95, label=label)
 
     # web interface: one interface, updated presets
@@ -350,24 +359,18 @@ def main() -> None:
     # =====================================================================
     # Figures: images, captions, renumbering
     # =====================================================================
-    # Figure 1: redrawn panel A over the edited panel B
-    d.swap_image(35, PLOTS / "figure1_workflow.png", "Figure 1")
-    d.replace_text(
-        36,
-        "A) HSeeker candidate-identification workflow.",
-        "A) HSeeker candidate-identification workflow, including the inward "
-        "extension that absorbs matching pairs at the spacer ends and the "
-        "deduplication of candidates that normalise to the same partition.",
-        "Figure 1 caption")
+    # Figure 1 is left exactly as submitted, on the authors' instruction. The
+    # redrawn version is in analysis/results/plots/figure1_workflow.png if it is
+    # wanted later; see the note in REVISION_PLAN.md about the AUC inset.
 
     # Algorithm panels: the submitted three are superseded by four
     d.swap_image(71, PLOTS / "algorithm2.png", "Algorithm 2 (was 1)")
     d.swap_image(73, PLOTS / "algorithm3.png", "Algorithm 3 (was 2)")
     d.swap_image(78, PLOTS / "algorithm4.png", "Algorithm 4 (was 3)")
-    d.insert_image_after(70, PLOTS / "algorithm1.png", template=71,
-                         label="new Algorithm 1 (pipeline)")
     d.insert_paragraph_after(70, ALG1_CAPTION, style_from=72,
                              label="new Algorithm 1 caption")
+    d.insert_image_after(70, PLOTS / "algorithm1.png", template=71,
+                         label="new Algorithm 1 (pipeline)")
     d.replace_paragraph(72, ALG2_CAPTION, "Algorithm 2 caption")
     d.replace_paragraph(74, ALG3_CAPTION, "Algorithm 3 caption")
     d.replace_paragraph(79, ALG4_CAPTION, "Algorithm 4 caption")
@@ -377,9 +380,9 @@ def main() -> None:
 
     d.swap_image(97, PLOTS / "figure3_ecoli_recovery.png", "Figure 3")
     d.replace_paragraph(98, FIG3_CAPTION, "Figure 3 caption")
+    d.insert_paragraph_after(98, FIG4_CAPTION, style_from=98, label="new Figure 4")
     d.insert_image_after(98, PLOTS / "figure3_kouzine.png", template=97,
                          label="new Figure 4")
-    d.insert_paragraph_after(98, FIG4_CAPTION, style_from=98, label="new Figure 4")
 
     # web-interface figures move to 5 and 6
     d.replace_text(106, "(Figure 4)", "(Figure 5)", "renumber")
@@ -389,12 +392,17 @@ def main() -> None:
     d.replace_text(121, "Figure 5: Interactive visualization",
                    "Figure 6: Interactive visualization", "renumber")
 
+    # New reference for the Mg2+-dependent poly-(dC) triplex cited in Limitations.
+    # Every other work cited by the new text is already in the list: the triplex
+    # algorithm (21), nBMST (23), NeSSie (24), Triplexator (25) and Kouzine (4).
+    d.insert_paragraph_after(175, REFERENCE_28, style_from=175, label="new reference")
+
     d.swap_image(144, PLOTS / "suppfig1_confusion_matrices.png", "Supp Figure 1")
     d.replace_paragraph(145, SUPPFIG1_CAPTION, "Supp Figure 1 caption")
 
     # Table 1
-    d.insert_paragraph_after(96, TABLE1_CAPTION, style_from=92, label="Table 1 caption")
     d.insert_table_after(96, TABLE1_HEADER, TABLE1_ROWS, "Table 1")
+    d.insert_paragraph_after(96, TABLE1_CAPTION, style_from=92, label="Table 1 caption")
 
     # Terminology: predictions are putative unless experimentally demonstrated
     for para, old, new in TERMINOLOGY:
@@ -725,7 +733,7 @@ LIMITATIONS = (
     "they were chosen with knowledge of the H-DNA literature and of the composition of this "
     "benchmark, so the benchmark is not an independent test of them. They are not free of "
     "cost: the homopolymer filter rejects poly-(dC)-(dG) tracts, which form an "
-    "Mg2+-dependent triplex, and the AT-content filter removes a class of motifs that "
+    "Mg2+-dependent triplex28, and the AT-content filter removes a class of motifs that "
     "constitutes 17-19% of the H-DNA found to be formed in published single-stranded DNA "
     "maps. Finally, HSeeker detects antiparallel, purine-motif H-DNA at mirror repeats. "
     "Tandem direct repeats, parallel triplexes requiring cytosine protonation, and "
@@ -748,6 +756,12 @@ DATA_AVAILABILITY = (
     "Kouzine and colleagues. Raw benchmark commands, timing output and result files are "
     "included in the repository and will be archived in a public repository with a permanent "
     "identifier on publication."
+)
+
+REFERENCE_28 = (
+    "28.Kohwi, Y. & Kohwi-Shigematsu, T. Magnesium ion-dependent triple-helix structure formed "
+    "by homopurine-homopyrimidine sequences in supercoiled plasmid DNA. Proc Natl Acad Sci U S A "
+    "85, 3781-3785 (1988)."
 )
 
 ALG1_CAPTION = (
