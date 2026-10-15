@@ -360,3 +360,42 @@ the release tag. Every other comment has at least one tracked change attached to
    they should show the current interface — which no longer has the "Stable Sites (score ≥ 50)"
    tile, and whose presets changed with the defaults — they need to be retaken. Figure 5's parameter
    panel is also now out of date, since the defaults moved to arm 8 and mismatch 0.10.
+
+---
+
+## 10. Implementation status (2026-10-15)
+
+`HSeeker_revised_tracked.docx` is in this folder, produced by `apply_revision.py` from the
+submitted file. It is re-runnable: it always starts from the submitted document, so the edit list
+can be corrected and the output regenerated rather than patched.
+
+**59 tracked edits** — 67 insertions and 45 deletions, all attributed to `HSeeker revision`.
+
+Verified with `docx_verify.py`, which simulates both Word operations:
+
+| Check | Result |
+|---|---|
+| Reject All | Reproduces the submitted manuscript **exactly**, paragraph for paragraph |
+| Accept All | 189 paragraphs: 177 submitted, 13 inserted, 1 deleted |
+| Revision nesting | No insertion inside a deletion or the reverse; deleted runs all use `w:delText` |
+| Images | 3 replaced in place, 1 inserted with a new relationship and media part; all 96 image references resolve |
+| Zip and content types | Intact |
+
+Remember to set the colour once on opening: **Review → Tracking** dialog launcher **→ Advanced
+Options → Insertions: Light Blue**, and the same for Deletions.
+
+### Not yet done
+
+1. **Figure 1** — panel A is redrawn and in the repository, but neither panel has been placed in
+   the document, because panel B still needs its three edits made in the original BioRender file
+   (§6.1). The figure in the document is still the submitted one.
+2. **Table 1** — the performance table is written into the Results text as prose; it has not been
+   inserted as a formatted Word table.
+3. **Algorithm panels** — the four corrected panels need re-rendering from `main.tex` and swapping
+   into paragraphs 71, 73 and 78, which currently hold the three superseded ones.
+4. **Supplementary Tables 2 to 5** — the in-text citations are updated, but the tables themselves
+   are separate files still to be assembled.
+5. **Figures 5 and 6** — renumbered in the captions and in-text citations; the screenshots
+   themselves are the submitted ones and should be retaken if they are to show the current
+   interface.
+6. **Terminology pass** (§4.8) — not yet applied.
