@@ -264,7 +264,8 @@ def main() -> None:
         "105.3 s, 59.5 s, 35.9 s, and 25.2 s, corresponding to speedups of 1.78-fold, "
         "3.15-fold, 5.22-fold, and 7.44-fold (Figure 2). Parallel efficiency remained "
         "above 79% through 4 workers and was 65% at 8 workers and 47% at 16 workers,",
-        "All runs produced an identical set of 45,927 non-overlapping H-DNA loci, "
+        "All runs produced an identical set of 45,927 non-overlapping putative H-DNA "
+        "loci, "
         "confirming deterministic output across all parallelisation levels. At a single "
         "worker, the full pipeline was completed in 173.8 s (approximately 2.9 min). "
         "Increasing the thread count to 2, 4, 8, and 16 yielded wall-clock times of "
@@ -349,6 +350,28 @@ def main() -> None:
     # =====================================================================
     # Figures: images, captions, renumbering
     # =====================================================================
+    # Figure 1: redrawn panel A over the edited panel B
+    d.swap_image(35, PLOTS / "figure1_workflow.png", "Figure 1")
+    d.replace_text(
+        36,
+        "A) HSeeker candidate-identification workflow.",
+        "A) HSeeker candidate-identification workflow, including the inward "
+        "extension that absorbs matching pairs at the spacer ends and the "
+        "deduplication of candidates that normalise to the same partition.",
+        "Figure 1 caption")
+
+    # Algorithm panels: the submitted three are superseded by four
+    d.swap_image(71, PLOTS / "algorithm2.png", "Algorithm 2 (was 1)")
+    d.swap_image(73, PLOTS / "algorithm3.png", "Algorithm 3 (was 2)")
+    d.swap_image(78, PLOTS / "algorithm4.png", "Algorithm 4 (was 3)")
+    d.insert_image_after(70, PLOTS / "algorithm1.png", template=71,
+                         label="new Algorithm 1 (pipeline)")
+    d.insert_paragraph_after(70, ALG1_CAPTION, style_from=72,
+                             label="new Algorithm 1 caption")
+    d.replace_paragraph(72, ALG2_CAPTION, "Algorithm 2 caption")
+    d.replace_paragraph(74, ALG3_CAPTION, "Algorithm 3 caption")
+    d.replace_paragraph(79, ALG4_CAPTION, "Algorithm 4 caption")
+
     d.swap_image(91, PLOTS / "figure2_performance.png", "Figure 2")
     d.replace_paragraph(92, FIG2_CAPTION, "Figure 2 caption")
 
@@ -368,6 +391,17 @@ def main() -> None:
 
     d.swap_image(144, PLOTS / "suppfig1_confusion_matrices.png", "Supp Figure 1")
     d.replace_paragraph(145, SUPPFIG1_CAPTION, "Supp Figure 1 caption")
+
+    # Table 1
+    d.insert_paragraph_after(96, TABLE1_CAPTION, style_from=92, label="Table 1 caption")
+    d.insert_table_after(96, TABLE1_HEADER, TABLE1_ROWS, "Table 1")
+
+    # Terminology: predictions are putative unless experimentally demonstrated
+    for para, old, new in TERMINOLOGY:
+        try:
+            d.replace_text(para, old, new, "R3.12 terminology")
+        except KeyError:
+            print(f"   terminology: p{para} {old[:44]!r} not found, skipped")
 
     d.save(OUT)
     print()
@@ -715,6 +749,76 @@ DATA_AVAILABILITY = (
     "included in the repository and will be archived in a public repository with a permanent "
     "identifier on publication."
 )
+
+ALG1_CAPTION = (
+    "Algorithm 1: HSeeker pipeline, order of stages. Candidate enumeration runs first. If the "
+    "longest-arm overlap rule is selected, overlaps are resolved before any filter or score is "
+    "applied; the AT-content filter is applied next, then scoring, then the homopolymer filter, "
+    "which inspects the scored putative triplex when scoring is enabled. Score-based overlap "
+    "resolution, if selected, runs last, after filtering and scoring."
+)
+
+ALG2_CAPTION = (
+    "Algorithm 2: Center-outward mirror repeat candidate enumeration with optional purity RMQ "
+    "prefilter. For each hinge centre and spacer length, HSeeker computes the maximum reachable "
+    "arm length and, when the prefilter is enabled, discards centre-spacer pairs whose right arm "
+    "cannot satisfy the composition constraint; the prefilter is exact and does not change the "
+    "output. Candidates are then extended outward, matching base pairs at the inner ends of the "
+    "spacer are absorbed into the arms where purity permits, and candidates that normalise to the "
+    "same start, end and arm length are reported once."
+)
+
+ALG3_CAPTION = (
+    "Algorithm 3: Overlap removal. Under the longest-arm rule, hits are sorted by genomic start "
+    "coordinate and a candidate with a longer arm replaces an overlapping incumbent, with a "
+    "shorter spacer breaking ties. Under the score-based rule, candidates are considered in "
+    "descending order of total score and retained when they do not overlap a candidate already "
+    "retained, with ties resolved by longer arm, then shorter spacer, then earlier coordinate."
+)
+
+ALG4_CAPTION = (
+    "Algorithm 4: Heuristic stability scoring. Each candidate is oriented onto the purine-rich "
+    "strand, the right arm is reversed for positional comparison, and a per-position pairing score "
+    "and match indicator are computed. The highest-scoring arm window satisfying the spacer "
+    "constraint is selected; if no window satisfies it, the detected arms are scored as they "
+    "stand. The total is the sum of pairing and stacking contributions, clamped at zero."
+)
+
+TABLE1_CAPTION = (
+    "Table 1: Detection performance on the revised benchmark. Values are point estimates with 95% "
+    "confidence intervals: Wilson intervals for proportions and percentile bootstrap intervals for "
+    "the Matthews correlation coefficient. The balanced benchmark combines 70 experimental records "
+    "with 60 designed negatives. Construct-level records are those for which the published "
+    "experiment tested the exact sequence in the benchmark."
+)
+
+TABLE1_HEADER = ["Evaluation set", "n", "TP", "FN", "TN", "FP",
+                 "Sensitivity", "Specificity", "PPV", "NPV", "MCC"]
+
+TABLE1_ROWS = [
+    ["Balanced benchmark", "130", "63", "2", "65", "0",
+     "0.969 (0.895-0.992)", "1.000 (0.944-1.000)", "1.000 (0.943-1.000)",
+     "0.970 (0.898-0.992)", "0.970 (0.925-1.000)"],
+    ["Experimental records", "70", "63", "2", "5", "0",
+     "0.969 (0.895-0.992)", "1.000 (0.566-1.000)", "1.000 (0.943-1.000)",
+     "0.714 (0.359-0.918)", "0.832 (0.560-1.000)"],
+    ["Construct-level records", "57", "50", "2", "5", "0",
+     "0.962 (0.870-0.989)", "1.000 (0.566-1.000)", "1.000 (0.929-1.000)",
+     "0.714 (0.359-0.918)", "0.829 (0.556-1.000)"],
+]
+
+# (paragraph, old, new) - predictions described as putative unless demonstrated
+TERMINOLOGY = [
+    (10, "identify and score potential H-DNA-forming sequences",
+         "identify and score putative H-DNA-forming sequences"),
+    (30, "scalable annotation of highly probable candidate H-DNA loci",
+         "scalable annotation of putative H-DNA-forming loci"),
+    (101, "export predicted H-DNA-forming loci",
+          "export putative H-DNA-forming loci"),
+    (104, "retrieve annotated candidate H-DNA motifs",
+          "retrieve annotated putative H-DNA motifs"),
+    (108, "the predicted H-DNA motifs", "the putative H-DNA motifs"),
+]
 
 FIG2_CAPTION = (
     "Figure 2: Computational performance of HSeeker. A) Wall-clock time and speedup for the "

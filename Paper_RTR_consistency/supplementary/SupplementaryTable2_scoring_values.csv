@@ -1,0 +1,12 @@
+term,symbol,value,units,source
+Matched G-G reverse Hoogsteen pairing,w_G,7.6,ranking weight,Park et al. 2021 interaction energy 7.63 kcal/mol
+Matched A-A reverse Hoogsteen pairing,w_A,3.83,ranking weight,Park et al. 2021 interaction energy 3.83 kcal/mol
+Any other arm-position pairing,-(w_G+w_A)/2,-5.715,ranking weight,negative mean of the two pairing weights
+Adjacent matched positions (stacking),delta,5.0,ranking weight,Park et al. 2021 third-strand stacking range 2.15-6.65 kcal/mol
+First disrupted adjacency,-delta,-5.0,ranking weight,as above
+Subsequent disrupted adjacencies,-delta^(n+1)/d,escalating,ranking weight,"penalty divisor d = 2, run capped at n_max"
+Penalty divisor,d,2,-,implementation (_scoring.py: self.d = 2)
+Penalty-run cap,n_max,12,-,"implementation (_scoring.py: min(n, 12))"
+Minimum arm window,L_win,8,bp,implementation
+Spacer-to-arm ratio bound,v,1.0,-,implementation
+Total score,-,"max(round(pairing+stacking,3),0)","ranking score, no physical units",clamped at zero

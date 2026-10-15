@@ -319,6 +319,56 @@ class Doc:
         self.log.append(f"after p{i} insert image {Path(png).name}"
                         f"{' · ' + label if label else ''}")
 
+    def insert_table_after(self, i: int, header: list[str], rows: list[list[str]],
+                           label: str = "") -> None:
+        """Insert a table after paragraph i as a tracked insertion."""
+        def cell(text: str, bold: bool) -> ET.Element:
+            tc = ET.Element(w("tc"))
+            tcpr = ET.SubElement(tc, w("tcPr"))
+            ET.SubElement(tcpr, w("tcW")).set(w("type"), "auto")
+            p = ET.SubElement(tc, w("p"))
+            ppr = ET.SubElement(p, w("pPr"))
+            rpr0 = ET.SubElement(ppr, w("rPr"))
+            rpr0.append(ET.Element(w("ins"), self._rev_attrs()))
+            r = ET.Element(w("r"))
+            if bold:
+                rpr = ET.SubElement(r, w("rPr"))
+                ET.SubElement(rpr, w("b"))
+            t = ET.SubElement(r, w("t"))
+            t.text = text
+            t.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
+            p.append(self._wrap_ins([r]))
+            return tc
+
+        tbl = ET.Element(w("tbl"))
+        pr = ET.SubElement(tbl, w("tblPr"))
+        ET.SubElement(pr, w("tblStyle")).set(w("val"), "TableGrid")
+        ET.SubElement(pr, w("tblW")).set(w("type"), "auto")
+        borders = ET.SubElement(pr, w("tblBorders"))
+        for edge in ("top", "left", "bottom", "right", "insideH", "insideV"):
+            e = ET.SubElement(borders, w(edge))
+            e.set(w("val"), "single"); e.set(w("sz"), "4")
+            e.set(w("space"), "0"); e.set(w("color"), "999999")
+        for ri, cells in enumerate([header] + rows):
+            tr = ET.SubElement(tbl, w("tr"))
+            trpr = ET.SubElement(tr, w("trPr"))
+            trpr.append(ET.Element(w("ins"), self._rev_attrs()))  # row inserted
+            for text in cells:
+                tr.append(cell(text, bold=(ri == 0)))
+
+        anchor = self.para(i)
+        parent = self._parent_map(self.tree)[anchor]
+        at = list(parent).index(anchor) + 1
+        parent.insert(at, tbl)
+        # Word requires a paragraph after a table
+        tail = ET.Element(w("p"))
+        ppr = ET.SubElement(tail, w("pPr"))
+        rpr = ET.SubElement(ppr, w("rPr"))
+        rpr.append(ET.Element(w("ins"), self._rev_attrs()))
+        parent.insert(at + 1, tail)
+        self.log.append(f"after p{i} insert table {len(rows)}x{len(header)}"
+                        f"{' · ' + label if label else ''}")
+
     # ---- save ------------------------------------------------------------
     def save(self, out: Path) -> None:
         out = Path(out)

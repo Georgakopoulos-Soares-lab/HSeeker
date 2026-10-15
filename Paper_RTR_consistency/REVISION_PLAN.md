@@ -363,39 +363,45 @@ the release tag. Every other comment has at least one tracked change attached to
 
 ---
 
-## 10. Implementation status (2026-10-15)
+## 10. Implementation status (second cycle, 2026-10-15)
 
-`HSeeker_revised_tracked.docx` is in this folder, produced by `apply_revision.py` from the
-submitted file. It is re-runnable: it always starts from the submitted document, so the edit list
-can be corrected and the output regenerated rather than patched.
-
-**59 tracked edits** — 67 insertions and 45 deletions, all attributed to `HSeeker revision`.
-
-Verified with `docx_verify.py`, which simulates both Word operations:
+`HSeeker_revised_tracked.docx`, produced by `apply_revision.py` from the submitted file and
+re-runnable from it. **78 tracked edits**, 178 insertions and 55 deletions, one author.
 
 | Check | Result |
 |---|---|
-| Reject All | Reproduces the submitted manuscript **exactly**, paragraph for paragraph |
-| Accept All | 189 paragraphs: 177 submitted, 13 inserted, 1 deleted |
-| Revision nesting | No insertion inside a deletion or the reverse; deleted runs all use `w:delText` |
-| Images | 3 replaced in place, 1 inserted with a new relationship and media part; all 96 image references resolve |
+| Reject All | Reproduces the submitted manuscript **exactly** |
+| Accept All | 237 paragraphs (the jump over 189 is the 44 table cells, each a paragraph) |
+| Images | 97, all references resolve; 5 replaced, 2 inserted |
+| Tables | 1 inserted, every row marked as a tracked insertion |
 | Zip and content types | Intact |
 
-Remember to set the colour once on opening: **Review → Tracking** dialog launcher **→ Advanced
-Options → Insertions: Light Blue**, and the same for Deletions.
+Set the colour once on opening: **Review → Tracking** dialog launcher **→ Advanced Options →
+Insertions: Light Blue**, and the same for Deletions.
 
-### Not yet done
+### Completed in this cycle
 
-1. **Figure 1** — panel A is redrawn and in the repository, but neither panel has been placed in
-   the document, because panel B still needs its three edits made in the original BioRender file
-   (§6.1). The figure in the document is still the submitted one.
-2. **Table 1** — the performance table is written into the Results text as prose; it has not been
-   inserted as a formatted Word table.
-3. **Algorithm panels** — the four corrected panels need re-rendering from `main.tex` and swapping
-   into paragraphs 71, 73 and 78, which currently hold the three superseded ones.
-4. **Supplementary Tables 2 to 5** — the in-text citations are updated, but the tables themselves
-   are separate files still to be assembled.
-5. **Figures 5 and 6** — renumbered in the captions and in-text citations; the screenshots
-   themselves are the submitted ones and should be retaken if they are to show the current
-   interface.
-6. **Terminology pass** (§4.8) — not yet applied.
+1. **Figure 1** rebuilt and placed. Panel A is the redrawn flowchart; panel B keeps the original
+   artwork with the withdrawn AUC inset, its orphaned checklist icon and the arrow that pointed at
+   it removed, the detection tree moved up into the space, and the stability label rewritten as
+   "Stability score (heuristic ranking)". Done on the raster, since no vector source exists
+   (`analysis/scripts/build_figure1.py`).
+2. **Algorithm panels** rendered from `main.tex` and swapped in. The submitted three become four:
+   a new pipeline panel states the stage order, and the other three are the corrected versions with
+   the optional prefilter, inward extension, deduplication, both overlap rules, the fallback window
+   and the clamp. No LaTeX is installed here, so `render_algorithm_panels.py` parses the
+   algorithmic subset that `main.tex` uses and typesets it directly.
+3. **Table 1** inserted as a real Word table with the three evaluation sets and all five metrics.
+4. **Supplementary Tables 1 to 5** written to `supplementary/`. Table 2 resolves the collision:
+   the scoring values move there and the benchmark keeps Table 1.
+5. **Terminology pass** applied, each substitution tracked separately.
+
+### Still outstanding
+
+1. **Figures 5 and 6** are the submitted web-interface screenshots, renumbered but not retaken.
+   They show presets that changed with the defaults and, in Figure 6, the withdrawn stable-sites
+   tile. Retaking them needs the running interface.
+2. **Figure 1 panel B** would be cleaner redone in BioRender than patched on the raster. The
+   current version is sound but the edit is visible if you look for it.
+3. **Reference list** — the four new comparator and data citations (NeSSie, nBMST, Kouzine et al.,
+   and the triplex package) need adding and numbering.
