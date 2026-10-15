@@ -173,3 +173,69 @@ step proves infeasible, the change and its reason are recorded here.
   option; ≥ 90 % purine or pyrimidine; loop ≤ 4 bp; motif ≤ 80 bp; ≥ 90 % matching; SINE-proximal
   motifs removed) differs from HSeeker's. P2 compares the two directly.
 
+
+**Deviation 5 (2026-10-09; fixed before any P4 number was computed, but after the hg19 `cli` P3
+result had been seen): P4, enrichment at HSeeker loci isolated from other sources of ssDNA.**
+- *Why.* ssDNA-seq detects unpaired DNA from any cause. The hg19 `cli` P3 result (ratio of means
+  0.968 asymmetry-matched, 0.574 GC-matched) does not say whether H-DNA contributes signal, for two
+  reasons: (1) P3 has no mappability matching, and 36 bp reads map poorly to repetitive purine
+  tracts; P2 showed this matters. (2) Loci and controls can also carry signal from G-quadruplexes,
+  Z-DNA, cruciforms, duplex melting (SIDD) and transcription bubbles. P4 removes these sources from
+  both loci and controls, then repeats the comparison. **P3 stays as specified and is reported as
+  computed; P4 is an added analysis, labelled as introduced after the P3 result was seen.**
+- *Isolation.* Two tiers, applied identically to loci and controls:
+  - **Tier A (mappable):** mean ENCODE CRG 36-mer mappability over the start positions of every
+    36 bp read overlapping the interval ≥ 0.5 (the P2 sensitivity's definition).
+  - **Tier B (isolated, primary):** Tier A, plus no overlap within ±100 bp (the authors' tag
+    extension) with any of the authors' *predicted* Quadruplex, Z-DNA, Cruciform or SIDD motifs
+    (sequence-based, so not circular with the ssDNA calls), plus no RefSeq (UCSC refGene) TSS
+    within ±2 kb.
+- *Controls.* For each sampled locus, 10 windows on the same chromosome with exactly the same
+  length, exactly the same A/T count, purine asymmetry max(A+G, C+T) within ±1 count, no N, no
+  overlap within ±100 bp with any HSeeker locus of the configuration or any of the authors'
+  predicted H-DNA motifs, and passing the locus's tier. Two neighbourhoods: **local** (start within
+  ±50 kb of the locus; same chromatin and transcriptional context; primary) and **chromosome**
+  (random positions on the chromosome). A second set matched on A/T count only ("G") is reported
+  alongside the asymmetry-matched set ("C", primary). Up to 30 sequence-matching candidates are
+  drawn, then filtered by the tier, and the first 10 that pass are kept.
+- *Sample.* A seeded (20261009) random sample of 20,000 loci per genome × configuration × tier,
+  drawn from the loci that pass the tier.
+- *Signal.* The authors' ssDNA wiggle (mm9: activated B, resting B; hg19: Raji), mean per 10 bp bin
+  over the interval, per million total signal (the P3 definition).
+- *Statistics.* Ratio of means (loci / their controls) with a 95 % bootstrap CI over loci (1,000
+  resamples); one-sided Wilcoxon signed-rank on locus − mean of its controls; share of loci above
+  their own controls.
+- *Structure dependence (secondary).* Melting, G4 and transcription do not depend on mirror
+  symmetry once composition is matched; H-DNA stability grows with arm length. The P4 ratio is
+  therefore also reported by arm-length class (8–9, 10–11, 12–14, 15–19, ≥ 20 nt) and by stability
+  score quartile, with Spearman's rho between arm length and locus − control difference.
+- *Pipeline checks.* (1) **Placebo:** each locus's first control is treated as a pseudo-locus and
+  compared with its remaining controls; the ratio must be close to 1, or the control construction
+  is biased. (2) **Positive control (circular, sanity only):** the authors' ssDNA+ H-DNA motifs
+  that pass Tier B, with controls built the same way; the ratio must be well above 1, or the
+  pipeline cannot detect enrichment.
+- *Configurations.* `cli` (primary) and `cli_minrep8`, on mm9 and hg19.
+- *Reading, fixed in advance.* Tier B, local, C, `cli`: a ratio above 1 with the CI excluding 1, a
+  placebo near 1 and a positive control above 1 is evidence that ssDNA signal at HSeeker loci is
+  not explained by composition, mappability, local context, the other predicted non-B structures
+  or promoter transcription. A ratio that also increases with arm length is evidence that the
+  extra signal depends on the mirror repeat, i.e. on H-DNA. A ratio at or below 1 is reported as no
+  evidence of enrichment beyond these sources. It remains association: unannotated transcription,
+  structures the authors' predictors miss, and the 100 bp tag extension are not controlled.
+- *Correction (2026-10-09, after a chr19-only smoke test of the pipeline and before any genome-wide
+  P4 number).* The smoke test's placebo showed that the paired Wilcoxon signed-rank on locus − mean
+  of its controls, and the share of loci above that mean, are biased for this signal. Most
+  intervals have zero signal, so a single locus is usually 0 while the mean of 10 controls is
+  usually above 0. On mm9 chr19 the placebo gave Wilcoxon p = 1.0 and a share of 0.13–0.14 where
+  the null value is about 0.5. Both are replaced by the **probability of superiority**: per locus,
+  the fraction of its own controls with lower signal, ties counting one half. Its mean over loci is
+  exactly 0.5 in expectation when loci and controls are exchangeable, for any distribution, and is
+  reported with a bootstrap CI and a one-sided one-sample t-test against 0.5. The arm-length
+  Spearman uses the same per-locus value. Ratio of means, tiers, controls, sample and reading are
+  unchanged. Smoke-test numbers (chr19 only) are not results and are not reported.
+
+**Deviation 6 (2026-10-11, author decision, before any genome-wide isolated-comparison result for
+`cli`): configurations.** The configuration freeze made minimum arm 8 the shipped default. The author
+decided that the signal comparisons (pre-planned and isolated) are run for `cli_minrep8` only;
+the `cli` (minimum arm 10) runs named in deviation 5 are not run. Recall and selectivity for `cli`, and
+the human pre-planned comparison for `cli` (2026-10-09), remain on record.

@@ -92,5 +92,75 @@
    "score_mannwhitney_p_greater": 3.426175767375515e-52
   }
  },
- "P3_enrichment_authors_signal": "pending: controls not yet sampled"
+ "P3_enrichment_authors_signal": {
+  "activated": {
+   "asymmetry_matched": {
+    "loci_used": 825749,
+    "locus_mean": 0.004157788930585573,
+    "control_mean": 0.0036569121627526304,
+    "ratio_of_means": 1.1369671311590726,
+    "ratio_ci95": [
+     1.127053373085229,
+     1.1473922387374078
+    ],
+    "mannwhitney_p_greater": 0.0
+   },
+   "gc_matched": {
+    "loci_used": 852227,
+    "locus_mean": 0.004096924274219459,
+    "control_mean": 0.01010553301199995,
+    "ratio_of_means": 0.405413971668245,
+    "ratio_ci95": [
+     0.4016055396697339,
+     0.40917440957498075
+    ],
+    "mannwhitney_p_greater": 1.0
+   }
+  },
+  "resting": {
+   "asymmetry_matched": {
+    "loci_used": 825749,
+    "locus_mean": 0.002226865076055701,
+    "control_mean": 0.0027085598550956437,
+    "ratio_of_means": 0.8221583406644212,
+    "ratio_ci95": [
+     0.8177880039135056,
+     0.8265467672782736
+    ],
+    "mannwhitney_p_greater": 1.0
+   },
+   "gc_matched": {
+    "loci_used": 852227,
+    "locus_mean": 0.0021755960097110134,
+    "control_mean": 0.0040265764694771425,
+    "ratio_of_means": 0.540309125184333,
+    "ratio_ci95": [
+     0.537324956298405,
+     0.5430522466044987
+    ],
+    "mannwhitney_p_greater": 1.0
+   }
+  },
+  "activated_over_resting_asymmetry_matched": 1.3829053053700593,
+  "activated_over_resting_gc_matched": 0.7503370807034456
+ },
+ "controls_meta": {
+  "method": "genome-wide pool; exact length + GC/purine counts for loci <= 60 bp, length classes + 0.02 bins above",
+  "exact_max": 60,
+  "long_classes": {
+   "(60, 100)": 72,
+   "(100, 200)": 117,
+   "(200, 1000000000)": 230
+  },
+  "loci": 852240,
+  "loci_with_N_excluded": 13,
+  "asymmetry_matched": 825749,
+  "asymmetry_unmatched": 26478,
+  "widened_by_1": 20374,
+  "widened_by_2": 11000,
+  "gc_matched": 852227,
+  "gc_unmatched": 0,
+  "pool_cells": 39024,
+  "pool_windows": 93183126
+ }
 }

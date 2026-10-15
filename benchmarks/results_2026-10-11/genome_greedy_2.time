@@ -1,0 +1,37 @@
+hseeker v0.1.0 — H-DNA / Triplex Mirror Repeat Detector
+  Input : /scratch/10899/kimopro/kouzine/dl/hg38/hg38.primary.fa
+  Parser: biopython
+  Output: /scratch/10899/kimopro/kouzine/runtime/out_genome_greedy_2_HDNA.tsv
+  minrep=8  maxrep=1000  maxspacer=10
+  purity=0.90  mismatch=0.10
+  at_threshold=0.80
+  overlap=greedy
+  workers=16
+
+Done.
+  Records processed : 25
+  Total hits written: 559601
+  Output: /scratch/10899/kimopro/kouzine/runtime/out_genome_greedy_2_HDNA.tsv
+	Command being timed: "/scratch/10899/kimopro/kouzine/env/bin/python -m hseeker -seq /scratch/10899/kimopro/kouzine/dl/hg38/hg38.primary.fa -out /scratch/10899/kimopro/kouzine/runtime/out_genome_greedy_2 -minrep 8 -maxrep 1000 -maxspacer 10 -purity 0.90 -mismatch 0.10 -at-threshold 0.80 -overlap-strategy greedy -workers 16 -purity-rmq"
+	User time (seconds): 2141.05
+	System time (seconds): 8.01
+	Percent of CPU this job got: 1058%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:23.01
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 2344920
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 305
+	Minor (reclaiming a frame) page faults: 2902984
+	Voluntary context switches: 50134
+	Involuntary context switches: 43861
+	Swaps: 0
+	File system inputs: 6223047
+	File system outputs: 205021
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

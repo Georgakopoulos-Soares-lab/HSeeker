@@ -1,0 +1,31 @@
+{
+  "frozen": "2026-10-11",
+  "benchmark": {
+    "balanced_csv": "hdna_benchmark_balanced_v3.csv",
+    "balanced_sha256": "c3f3b842464c7d881fb37c843cecdfc5c03d4c9a4052663191beb1c95ca9ed3e",
+    "experimental_csv": "hdna_benchmark_experimental_v3.csv",
+    "experimental_sha256": "bcaee4ef6877d4f04f1f3537ab4cd9d7895341fe8bcc2552f8b1ca0d69e801a0",
+    "records": {"balanced": 130, "forming": 65, "non_forming": 65, "experimental_kept": 70, "synthetic": 60},
+    "homopolymer_panel": "reported separately: analysis/results/homopolymer_panel/"
+  },
+  "hseeker": {
+    "minrep": 8,
+    "maxrep": 1000,
+    "maxspacer": 10,
+    "purity": 0.90,
+    "mismatch": 0.10,
+    "at_threshold": 0.80,
+    "filter_homopolymers": true,
+    "overlap_strategy": "greedy",
+    "score": true,
+    "note": "Shipped defaults since 2026-10-11 in the Python library, the CLI and the web app (minrep 10 -> 8; the library now also applies the AT and homopolymer filters by default, as the CLI and web app do)."
+  },
+  "comparators": {
+    "triplex": null,
+    "triplexator": null,
+    "nessie": null,
+    "nbmst": null,
+    "note": "To be pinned when the tool comparison is run (author instruction 2026-10-11). Settings seen so far: notebook figures used triplex min_score 15 / min_len 8 / max_len 50 / prokaryotic and Triplexator -l 10 -e 15 -fr off; the deposited scripts and chr1 timing used package defaults."
+  },
+  "evidence": "RTR/evidence/benchmark_and_configuration_freeze_2026-10-11.md"
+}

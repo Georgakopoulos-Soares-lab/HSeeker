@@ -1,0 +1,20 @@
+{
+ "date": "2026-10-11 11:37:30",
+ "params": {
+  "minrep": 8,
+  "maxrep": 1000,
+  "maxspacer": 10,
+  "purity": 0.9,
+  "mismatch": 0.1,
+  "at_threshold": 0.8,
+  "filter_homopolymers": true,
+  "score": true,
+  "overlap_strategy": "greedy"
+ },
+ "input_csv": "hdna_benchmark_balanced_v3.csv",
+ "input_csv_sha256": "02cdd769c382a84f687d41dfa80d1f70c1d37f778c8f38c685facd19985ea20b",
+ "n_records": 130,
+ "auroc_max_score": 0.9846,
+ "negatives_with_any_hit": 0,
+ "note": "With no negative carrying any hit, the AUROC equals (1 + sensitivity) / 2 and any threshold above the lowest positive score can only lose forming records."
+}

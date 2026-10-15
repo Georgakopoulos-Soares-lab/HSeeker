@@ -1,0 +1,7 @@
+scheme,TP,FN,TN,FP,sensitivity,specificity,MCC,MCC_ci95,threshold,thresholds_min_median_max
+"shipped rule: any hit, no threshold",63,2,65,0,0.9692,1.0,0.9697,"[0.9254, 1.0]",,
+"published threshold 76, fixed",63,2,65,0,0.9692,1.0,0.9697,"[0.9252, 1.0]",,
+"in-sample Youden threshold (circular, for reference)",63,2,65,0,0.9692,1.0,0.9697,"[0.9252, 1.0]",76.375,
+"out-of-fold Youden threshold, 5-fold x 20",1232,68,1300,0,0.9477,1.0,0.949,"[0.9373, 0.9608]",,"[76.375, 76.375, 92.03]"
+"out-of-fold Youden threshold, leave-one-family-out",62,3,65,0,0.9538,1.0,0.9549,"[0.8978, 1.0]",,"[76.375, 76.375, 77.665]"
+"out-of-fold Youden threshold, leave-one-study-out",62,3,65,0,0.9538,1.0,0.9549,"[0.8978, 1.0]",,"[76.375, 76.375, 77.665]"

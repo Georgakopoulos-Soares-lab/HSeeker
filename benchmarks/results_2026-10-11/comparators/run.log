@@ -1,0 +1,11 @@
+triplex run 1 exit 0 	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:05.14 	Maximum resident set size (kbytes): 676888 
+triplex run 2 exit 0 	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:05.65 	Maximum resident set size (kbytes): 674772 
+triplex run 3 exit 0 	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:03.24 	Maximum resident set size (kbytes): 676912 
+Triplexator run 1 exit 0 	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:47.77 	Maximum resident set size (kbytes): 1754880  hits 275476
+Triplexator run 2 exit 0 	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:43.71 	Maximum resident set size (kbytes): 1752644  hits 275476
+Triplexator run 3 exit 0 	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:43.54 	Maximum resident set size (kbytes): 1755712  hits 275476
+nBMST run 1 exit 0 	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:36.49 	Maximum resident set size (kbytes): 886548  MR 147222 triplex 33519
+nBMST run 2 exit 0 	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:36.24 	Maximum resident set size (kbytes): 886616  MR 147222 triplex 33519
+nBMST run 3 exit 0 	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:36.90 	Maximum resident set size (kbytes): 886656  MR 147222 triplex 33519
+NeSSie (k 16-20) exit 0 	Elapsed (wall clock) time (h:mm:ss or m:ss): 4:55.69 	Maximum resident set size (kbytes): 1081460 
+COMPARATORS_DONE

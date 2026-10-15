@@ -1,0 +1,23 @@
+{
+ "date": "2026-10-11 08:05:17",
+ "base": {
+  "minrep": 8,
+  "maxrep": 1000,
+  "maxspacer": 10,
+  "purity": 0.9,
+  "mismatch": 0.1
+ },
+ "at_threshold": 0.8,
+ "homopolymer_filter": true,
+ "input_csv": "hdna_benchmark_balanced_v3.csv",
+ "input_csv_sha256": "02cdd769c382a84f687d41dfa80d1f70c1d37f778c8f38c685facd19985ea20b",
+ "n_records": 130,
+ "n_forming": 65,
+ "git_commit": "0789549d1f89a1e1950cd700733bf5ee6858b668",
+ "git_dirty": true,
+ "notes": [
+  "AUROC values are within-cohort descriptions, not independent estimates.",
+  "The scorer exposes no separate mismatch-penalty switch; that penalty is not ablated on its own.",
+  "Joint 576-configuration grid: analysis/results/robustness_v3/."
+ ]
+}

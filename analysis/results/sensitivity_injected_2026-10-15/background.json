@@ -1,0 +1,9 @@
+{
+  "reference_accession": "NC_000913.3",
+  "reference_length_bp": 4641652,
+  "background_loci_unmodified_genome": 83,
+  "loci_per_mb": 17.881564580886288,
+  "injected_genome_total_hits": 147,
+  "inserted_sequences": 130,
+  "settings": "minrep 8, maxspacer 10, mismatch 0.10, purity 0.90, AT 0.80 + homopolymer filter, greedy overlap removal"
+}

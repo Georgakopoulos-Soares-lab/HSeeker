@@ -1,11 +1,11 @@
 {
-  "date": "2026-10-07 14:31:56",
+  "date": "2026-10-11 08:00:58",
   "status": "PROVISIONAL - benchmark not frozen (WS0-A1) and DEC-5 unresolved",
-  "input_csv": "hdna_benchmark_balanced_v3.csv",
-  "input_csv_sha256": "7bb495444e91709fb0e322f08e5c9737e3a9419f94d9c881059073f725907cf9",
-  "n_records": 128,
-  "n_forming": 64,
-  "n_non_forming": 64,
+  "input_csv": "/scratch/10899/kimopro/HSeeker/hdna_benchmark_balanced_v3.csv",
+  "input_csv_sha256": "02cdd769c382a84f687d41dfa80d1f70c1d37f778c8f38c685facd19985ea20b",
+  "n_records": 130,
+  "n_forming": 65,
+  "n_non_forming": 65,
   "split": {
     "level": "sequence (NOT family/study aware, by author instruction)",
     "stratified_by": [
@@ -14,7 +14,7 @@
     ],
     "train_frac": 0.7,
     "seed": 20260923,
-    "n_train": 88,
+    "n_train": 90,
     "n_eval": 40
   },
   "grid": {
@@ -56,21 +56,21 @@
     "maxspacer": 5,
     "filters": "none"
   },
-  "selected_train_MCC": 0.9775,
+  "selected_train_MCC": 0.978,
   "leakage": {
     "eval_n": 40,
-    "family_in_train": 25,
-    "synthetic_source_in_train": 7,
-    "near_duplicate_ge_0.90": 8
+    "family_in_train": 23,
+    "synthetic_source_in_train": 9,
+    "near_duplicate_ge_0.90": 7
   },
   "repeats": 200,
   "nested_cv": {
     "folds": 5,
     "cv_repeats": 20,
     "note": "PRIMARY estimate. Design fixed a priori; not tuned against the resulting metrics.",
-    "MCC_median": 0.938,
-    "MCC_p2.5": 0.9229,
-    "MCC_p97.5": 0.9692
+    "MCC_median": 0.9389,
+    "MCC_p2.5": 0.8526,
+    "MCC_p97.5": 0.9697
   },
   "hseeker_version": "0.1.0"
 }

@@ -1,11 +1,24 @@
 # RTR revision — session checkpoint
 
-**Date:** 2026-10-09 (previous checkpoints 2026-10-08, 2026-10-07, 2026-10-02, 2026-09-24)
-**Branch:** `RTR-merge-main`, committed (the merge of `origin/main` into `origin/RTR` is `cbb4713`). Code as of `8e781ca`: Nikol's `fix/hdna-maximal-representation-v3` merged in `94742b3` (DEC-11), webapp filters `013be97` (DEC-12), FXN citations `8e781ca` (DEC-2). Upstream PRs #19 (memory fix) and #20 (score-mode speed-up) are open; Nikol's branch is merged only here, not in `main`
-**Benchmark:** `hdna_benchmark_balanced_v3.csv` (128 records, 64 forming / 64 non-forming — 1:1 again after DEC-8; 69 experimental + 59 synthetic), sha256 `c5177b2479a5da4414aefa3c6ac6251f5645868260d2b5cefe9189de182f1ae4` since DEC-2 (2026-10-09; citation metadata of 4 FXN rows only). Superseded: `7bb49544…5907cf9` (still recorded in `analysis/results/*/metadata.json`, refreshed at the final freeze), `7f78555d…5bde89` (124 records at 64:60). Experimental CSV sha256 `dfa31654559e366fd666e98c0476349d9e6cb51c4e0fe36813f8caddbae0e273`
-**Overlap default:** greedy (longest arm) in the library, CLI and webapp, identical to Nikol's main (DEC-10, 2026-10-08; supersedes DEC-9's score-informed default). Score mode is an option (`overlap_strategy="score"` / `-overlap-strategy score`). The detector includes Nikol's inward extension and partition deduplication (DEC-11); hg38 chr1 greedy default 96,731 loci (published, pre-merge: 96,729)
-**Tests:** 349 passed, 3 skipped (2026-10-09) on the merged tree (chr1 regression tests skip without `benchmarks/data/chr1.fa`)
-**Configuration labels:** the MCC 0.969 result with no filters is the **benchmark/script configuration** (minrep 8, mismatch 0.10, no filters), not the software default. The shipped defaults (minrep 10) give MCC 0.882 (see §0, 2026-10-08)
+**Date:** 2026-10-11 (previous checkpoints 2026-10-09, 2026-10-08, 2026-10-07, 2026-10-02, 2026-09-24)
+**Branch:** `main` at `0789549` (PR #21 merged `RTR-merge-main` on 2026-10-09) **plus uncommitted work
+of 2026-10-11** (benchmark freeze, minrep 8 default, R3.9/R3.10 deposits, Kouzine on TACC). Upstream
+PRs #19 (memory fix) and #20 (score-mode speed-up) are still open.
+**Machine:** TACC Lonestar6. Kouzine data root `/scratch/10899/kimopro/kouzine` (set `KOUZINE_DIR`;
+the old `/workspaces/.hseeker-pr/kouzine` path was a different machine and is gone). Python env
+`/scratch/10899/kimopro/kouzine/env` (numpy 1.26: numpy 2 needs x86-64-v2, which the vm-small nodes do
+not report). Build the extension with `python setup.py build_ext --inplace`; run tests with
+`PYTHONPATH=src`. Job submission needs a login node (password + token), so long runs go on the
+interactive node.
+**Benchmark (frozen 2026-10-11):** `hdna_benchmark_balanced_v3.csv`, **130 records, 65 forming / 65
+non-forming** (70 experimental + 60 synthetic), sha256 `c3f3b842…a9ed3e`; experimental CSV sha256 `bcaee4ef…e801a0` (since the assay-condition columns were added; earlier the same day `02cdd769…` / `19418318…`, identical calls). Hanvey
+(TTC)8 added (HDNA0081) with matched negative SYN0064; citations corrected in place (originals in
+`original_*` columns); homopolymers reported as a separate panel.
+**Configuration (frozen 2026-10-11):** minrep **8** (shipped default changed from 10), mismatch 0.10,
+purity 0.90, maxspacer 10, AT 0.80 + homopolymer filters on in the CLI and web app (the library keeps
+them opt-in), greedy overlap removal. Pinned in `analysis/benchmark_config.json`. Benchmark: MCC 0.970
+(TP63 FN2 TN65 FP0) under nested CV, leave-one-family-out and leave-one-study-out.
+**Tests:** 355 passed (2026-10-11, final defaults, hg38 chr1 present so the chr1 regression tests run: 45,951 loci at the defaults with scoring off, 96,731 at the previous defaults).
 
 This file records where the revision stands so a fresh session can resume without
 re-deriving anything. The machine-readable state is
@@ -14,6 +27,82 @@ re-deriving anything. The machine-readable state is
 ---
 
 ## 0. Update log
+
+### 2026-10-11 — benchmark and configuration frozen; R3.9 and R3.10 regenerated; Kouzine on TACC
+
+Author instructions 2026-10-11, all applied (details:
+`RTR/evidence/benchmark_and_configuration_freeze_2026-10-11.md`):
+
+1. **Hanvey 1988 (TTC)8 added (DEC-3 resolved).** HDNA0081 `Hanvey1988_(TTC)8`, plus one matched
+   negative SYN0064 drawn from a separate RNG stream (`ADDED_SEED = 20261011`), so the 59 earlier
+   synthetic records are unchanged. Balanced 130 at 65:65.
+2. **Citation corrections applied (DEC-17).** 25 PMID and 9 DOI rows (the "22 + 2" of the audit
+   predates DEC-2 and the removals); `cited_paper`/`study_id` updated where they named the old paper;
+   originals kept. Study groups change (Rooney 1995; Potaman 2004 / Sakamoto 1999).
+3. **Homopolymers as a separate panel (DEC-16).** `analysis/results/homopolymer_panel/`: no filters
+   2/6 correct, AT filter 6/6, homopolymer filter (shipped CLI) 5/6 — it rejects poly-(dC)30, which
+   forms an Mg²⁺-dependent triplex. Disclose.
+4. **Configuration (DEC-5, DEC-15).** Re-run on 130 records: minrep 8 MCC 0.970 vs 0.884 for minrep 10
+   under every scheme, selected in every grouped fold → **shipped default minrep 10 → 8** (library,
+   CLI, web app, docs). Mismatch 0.10 (ties 0.15; 0.15 only adds the direct repeat HDNA0058 and the
+   false positive B-33). Purity 0.85 = 0.90 on every record, so 0.90 stays. minrep 7 rejected (its
+   only gain is HDNA0058; minrep 6 adds 10 false positives). hg38 chr1 at the new default: 106,481
+   loci (library defaults) / 45,927 (CLI defaults).
+5. **R3.9 regenerated** on 130 records: `analysis/scripts/run_ablation_comment9.py`,
+   `analysis/results/ablation_comment9/`, `analysis/hseeker_ablation_comment9.ipynb` (the files the
+   letter cited had never been committed). Detection alone MCC 0.864 (7 false positives: B-33, a G4,
+   two Z-DNA, three balanced perfect mirrors); purity removes all 7; nothing after it changes a call.
+   Response: `RTR/evidence/R3.9_ablation_response_2026-10-11.md`.
+6. **R3.10 corrected**: garbled paragraph rewritten, numbers regenerated, greedy default and
+   recommended for genome-wide annotation. `analysis/scripts/run_overlap_comparison.py` →
+   `analysis/results/overlap_selection/`. 0 of 74,880 grid calls differ between the rules; chr1 CLI
+   defaults 45,927 greedy / 47,217 score loci, 91.2 % identical, all greedy loci covered. Response:
+   `RTR/evidence/R3.10_overlap_response_2026-10-11.md`.
+7. **R2.11**: the author confirms the RTR now says Streamlit was removed; re-verified and final text
+   added to `RTR/evidence/WS1-A4_streamlit_removal.md`.
+8. **Kouzine (R2.3, R3.8).** Data staged on TACC; the four HSeeker genome scans reproduce the
+   committed locus counts exactly (mm9 801,282 / 852,240; hg19 508,864 / 555,753). The isolated
+   comparison was added to the design log before computing it (deviation 5, with a correction of
+   its paired statistic found by the chr19 smoke test's placebo). Author decision: minimum arm 8
+   only (deviation 6). **Results:** mouse activated B — first analysis 1.14 (1.13–1.15), isolated 1.25
+   (1.18–1.33) rising with arm length, absent in resting cells; human Raji — 0.98 and 1.02
+   (0.99–1.06, n.s.). Placebo calibrated; positive control 7.4× / 2.1×. Enrichment defended in mouse,
+   not in human; both reported. `RTR/evidence/X8_kouzine_results_2026-10-11_isolated.md`; answers
+   `RTR/evidence/R2.3_R3.8_kouzine_response_2026-10-11.md`.
+9. **Ledger:** DEC-3, DEC-5 resolved; DEC-15–17 added; WS0-A1, WS2-A3, WS4-A2, WS4-A3, WS4-A4 done;
+   WS2-A1 in progress (comparator arguments). Graph not yet resynchronised.
+
+### 2026-10-11 (evening) — tool comparison done
+
+Triplexator 1.3.2, NeSSie and nBMST rebuilt in `$WORK/tools` (`benchmarks/tools/build_comparators.sh`;
+Triplexator needs a two-line SeqAn patch and `-std=gnu++98`; all pass their own reference tests); triplex
+1.50.0 from the `r_triplex` conda env. Plan and settings committed before any run. Results on the
+130-record benchmark at default settings: HSeeker MCC 0.970, triplex 0.819, NeSSie 0.583, nBMST 0.449,
+Triplexator 0.024; HSeeker better than all four by the pre-specified rule; against triplex only through the
+designed negatives (comparable on the 70 experimental records). Speed on chr1, same node: HSeeker 16.3 s,
+Triplexator 45.0 s, triplex 64.7 s (16 cores); nBMST 96.5 s, NeSSie 295.7 s (1 core). Evidence
+`RTR/evidence/tool_comparison_2026-10-11.md`; the response letter has no placeholders left.
+
+### 2026-10-11 (afternoon) — filters, score threshold, Figure 3, runtime, assay conditions, letter
+
+1. **Library filters = CLI/web** (DEC-18); fixed `scan_fasta`/`scan_fasta_parallel` ignoring
+   `filter_homopolymers=False`. Default chr1 count 45,927 in every interface. Web app = CLI on all 130
+   benchmark sequences (FastAPI TestClient).
+2. **R3.3** (DEC-19): out-of-fold thresholds never help (MCC 0.949–0.955 vs 0.970); no cut-off; web tile
+   "Stable Sites (score ≥ 50)" removed. `RTR/evidence/R3.3_score_threshold_response_2026-10-11.md`.
+3. **New Figure 3** (Kouzine): `analysis/scripts/plot_figure3_kouzine.py` →
+   `analysis/results/plots/figure3_kouzine.{pdf,png,svg}` + data CSV; legend in the R2.3/R3.8 evidence.
+4. **Runtime/memory (R3.11)** on an AMD EPYC 7763 16-vCPU node (same as the manuscript's): chr1 173.8 s
+   (1 worker) / 16.3 s (16), 1.33 GB; score mode 23.9 s; **whole hg38 204.5 s, 2.35 GB, 559,601 loci**
+   (measured, three identical runs). `RTR/evidence/R3.11_runtime_memory_2026-10-11.md`,
+   `benchmarks/results_2026-10-11/`.
+5. **Assay conditions** added to both benchmark CSVs for all 70 kept records (28 curated from the papers
+   today, 42 from the original curation); 15 curation caveats listed (labels unchanged; HDNA0065 kept by
+   author decision). `RTR/evidence/assay_conditions_2026-10-11.md`. New sha256: balanced `c3f3b842…`,
+   experimental `bcaee4ef…` (metadata only).
+6. **Full response letter draft**: `RTR/RESPONSE_LETTER_DRAFT_2026-10-11.md` (every comment; only the
+   tool comparison is pending).
+7. chr1 regression tests updated to the new defaults; **355 tests pass**.
 
 ### 2026-10-09 — Nikol's detector branch merged (DEC-11); webapp filters (DEC-12); FXN citations (DEC-2); pCON kept (DEC-13); Kouzine replaces E. coli (DEC-14)
 
@@ -275,6 +364,11 @@ it, filter to `curation_decision == 'kept'`, accept
 
 ## 2. Status — 11 complete, 7 part-done, 14 pending, 2 dropped (2026-10-09, counted from the ledger; was 11 / 5 / 18 before WS4-A4 started on 2026-10-08 and DEC-14 on 2026-10-09; all complete items re-verified 2026-10-07)
 
+**2026-10-11:** WS0-A1 (benchmark freeze), WS2-A3 (grouped validation), WS4-A2 (ablation), WS4-A3
+(robustness) and WS4-A4 (overlap comparison) are now done; WS2-A1 is in progress (comparator
+arguments). The tables below are the 2026-10-09 state; the ledger is current.
+
+
 ### Complete and verified
 
 | action | item | outcome |
@@ -308,6 +402,15 @@ it, filter to `curation_decision == 'kept'`, accept
 ---
 
 ## 3. Headline result (regenerated 2026-10-07 on the final code and the 128-record set)
+
+**2026-10-11 update (130 records, frozen benchmark; supersedes the 128-record table below).** Fixed
+benchmark configuration (minrep 8, mismatch 0.10; now also the shipped default apart from the
+filters) TP63 FN2 TN65 FP0, MCC 0.970 under nested CV, LOFO and LOSO (record CI 0.925–1.000; family
+cluster 0.907–1.000; study cluster 0.901–1.000); manuscript configuration (mismatch 0.15) TP64 FN1 TN64
+FP1, 0.969; old shipped default (minrep 10) 0.884; per-fold tuned 0.939 (nested) / 0.924 (LOFO, LOSO);
+collapsed per family 0.862, per (family, class) 0.945. Tuning beats the fixed default in 0/200 random
+splits (tied 118). Sources: `analysis/results/robustness_v3/`, `grouped_validation_v3/`.
+
 
 Under **every** validation scheme the two **fixed** configurations beat per-fold tuning,
 and they tie with each other: the script default (`purity 0.90, mismatch 0.10, minrep 8,
@@ -381,93 +484,26 @@ answers R2.7, the cluster interval answers R3.2's "inflate apparent statistical 
 
 ---
 
-## 4. Blocked on two author decisions (DEC-2 resolved 2026-10-09)
+## 4. Author decisions (2026-10-11)
 
-| decision | blocks | evidence |
-|---|---|---|
-| ~~**DEC-2** FXN citation~~ | resolved 2026-10-09 | `RTR/evidence/DEC-2_fxn_citation.md` |
-| **DEC-3** add Hanvey 1988 `(TTC)8` | WS0-A1 → 21 actions | `RTR/evidence/DEC-3_pRW1406.md` |
-| **DEC-5** canonical parameters | WS2-A1 → 16 actions | **no longer settled by data** (§3: tie) |
+DEC-2, DEC-3, DEC-5 and the new DEC-15 (minrep 8), DEC-16 (homopolymer panel), DEC-17 (citations)
+are resolved; see §0 and `RTR/evidence/benchmark_and_configuration_freeze_2026-10-11.md`.
+Still open:
 
-- **DEC-2 (resolved 2026-10-09):** the cited PMID (Romney 2008, a *C. elegans* ferritin
-  paper — likely an FTN-1/FXN symbol confusion) and the cited DOI (Samuel 2007
-  innate-immunity minireview) were two *different* wrong papers. The records now cite primary
-  experimental studies: Potaman 2004 (PMID 14978261) for (GAA)10/20/33 and Sakamoto 1999
-  (PMID 10230399) for (GAA)66. They stay secondary, and the original identifiers stay in
-  `cited_*` as an audit trail. Potaman 2004 also supplies the primary support for the
-  `forming` label of the short tracts that the audit had found missing.
-- **DEC-3:** Hanvey 1988's abstract establishes both the sequence and the forming
-  label for `(TTC)8`. Recommend adding it as `Hanvey1988_(TTC)8` rather than
-  `pRW1406`, because the plasmid-number mapping comes from the document already shown
-  corrupted for this study. If added, the balanced set becomes 129 records at 65:64
-  (70 kept, 65/5), which breaks the 1:1 that DEC-8 restored; whether to add a matching
-  synthetic negative is an author choice.
-- **DEC-5:** on 130 records §3 showed the manuscript's values winning out-of-fold under
-  every scheme. On 128 records (as on 124) they **tie** the script default (mismatch
-  0.10, no filters) at MCC 0.969 (124: 0.968), and mismatch 0.10 and 0.15 have the same
-  median held-out MCC across the grid (0.838; 124: 0.788). `TODO(authors):` decide DEC-5 on consistency with the
-  reviewed manuscript. Benchmark performance no longer discriminates between the two.
-  Related `TODO(authors)` (2026-10-08, plan under WS2): which configuration the manuscript
-  reports, and whether the shipped default minrep changes from 10 to 8 (software defaults
-  MCC 0.882 vs 0.969 for both minrep-8 configurations).
+| decision | blocks |
+|---|---|
+| Comparator arguments for triplex / Triplexator / NeSSie / nBMST (deferred by the author to the run) | tool comparison (R2.1, R2.7, R3.1, R3.6) |
+| Score threshold for R3.3: drop it (recommended) or evaluate out of fold | R3.3; web app "Stable Sites (score ≥ 50)" tile |
+| Library filter defaults: align with the CLI/web app or state per interface | the "default" chr1 count (106,481 vs 45,927) |
 
-**WS0-A1 is not finished** even once decided: the 22 PMID and 2 DOI corrections sit
-in `corrected_*` columns without being applied to `cited_*` (for the 4 FXN rows DEC-2
-filled `corrected_*` and deliberately kept the original `cited_*` as an audit trail), and
-the `metadata.json` sha256s have to be refreshed at the freeze. pCON is **not** an open item:
-DEC-13 (2026-10-09) keeps HDNA0029 exactly as published (31 nt), so the audit's terminal-C
-correction (register D-9) is not applied and no text may claim it was.
+## 5. Next items
 
----
-
-## 5. Next steps (planned, not started)
-
-Four items needed no decision (item 4 was dropped 2026-10-09 by DEC-14, item 3 now has its final text). Two verified facts collapse the work:
-`pairing_score`/`stacking_score` are already emitted per hit (`total == pairing +
-stacking` exactly), and `--overlap-fraction` is consumed *after* the scan.
-
-| # | item | ask | new compute |
-|---|---|---|---|
-| 1 | Score threshold out-of-fold | R3.3 | ~0 — one 27 ms scan, reuse fold machinery |
-| 2 | Scoring ablation | R3.9 | **0** — re-threshold on components already returned |
-| 3 | Overlap-selection rule | R3.10 | chr1 comparison **re-measured 2026-10-09 on the merged code** (WS6-A4 evidence §5: score keeps all 96,731 greedy loci, 83.7 % identical, 1,075 score-only loci, 42.6 s vs 25.9 s; pre-merge 2026-10-07: 96,729 / +1.5 % / ~60 s vs 26.3 s); the final R3.10 text exists (`RTR/evidence/R3.10_overlap_response_2026-10-09.md`), and its two `TODO(authors)` are resolved; still to deposit as `overlap_selection_comparison.csv` (X7). 0/128 benchmark calls differ (0 of 73,728 across the WS4-A3 grid), though with the homopolymer filter on score can in general report near-homopolymer hits greedy does not |
-| 4 | ~~Overlap-threshold sweep~~ | R3.7 | **dropped 2026-10-09 (DEC-14):** the E. coli experiment leaves the manuscript, so there is nothing to sweep |
-
-**Item 1 is the priority** — it is the last live circularity, and the one R3.3 named.
-
-### WS5 data is fetched and validated (not committed — 208 MB)
-
-**Superseded 2026-10-09 (DEC-14):** WS5 now uses Kouzine et al. 2017 ssDNA-seq (SRA072844;
-mouse B cells on mm10 + human Raji on hg38), reprocessed from raw reads; the pipeline is
-running at `/workspaces/.hseeker-pr/kouzine` and the design is fixed in
-`RTR/evidence/X8_kouzine_analysis_design_2026-10-09.md`. The S1-END-seq KM12 plan below is
-kept for the record; it is optional and not pursued.
-
-In the session scratchpad: S1-END-seq KM12 rep1 (pos+neg) plus the **matched END-seq
-no-S1 control**, from GSE204808/GSE203632 (which are the same file set).
-
-Three decisions the data forced:
-
-1. **Everything is hg19**, verified on three files. Our chr1 predictions are hg38, so
-   the plan's "human, so no liftover" is wrong about build. → **Re-run chr1 on hg19**
-   rather than liftOver, which would distort exactly the repetitive regions H-DNA
-   occupies.
-2. **No called peaks exist** — only coverage tracks. → Use **continuous signal at
-   loci vs composition-matched controls**, avoiding an invented peak threshold. R3.8
-   explicitly accepts an enrichment analysis.
-3. **A paired END-seq control exists for KM12** → use it, isolating S1-specific
-   structural signal from DSB/accessibility background.
-
-Risks: the chr1 `remove_overlaps=False` run may exhaust memory (cf. the OOM fix in
-`cabf2f0`) — stream with `scan_fasta_iter`. Both rules are now public library options
-(`overlap_strategy="greedy"` / `"score"`), so the comparison no longer needs a Python
-re-implementation of the longest-arm rule. The existing chr1 output
-(`analysis/results/chr1/`, 96,729 loci) was produced under greedy, before DEC-9; greedy is
-the default again (DEC-10), and a fresh greedy run on 2026-10-07 reproduced 96,729 exactly.
-Since DEC-11 (2026-10-09) the merged code gives 96,731 loci with the same parameters; 96,729
-is the published, pre-merge count.
-
----
+The detailed, ordered list is in `RTR/REMAINING_WORK_PLAN_2026-10-07.md`, block "Update 2026-10-11",
+items A–L. In short: A Kouzine answer; B tool comparison (R env + Triplexator build on TACC); C NeSSie /
+nBMST or document; D score threshold; E runtime on a compute node (needs `sbatch` from a login node);
+F assay-condition columns (R3.4 promise); G Supplementary Table 1 and chr1 plot; H stale claims in
+code and docs; I library filter defaults; J remaining letter text; K manuscript edits (manuscript not
+in the repository); L commit, PR, release and bookkeeping.
 
 ## 6. Blocked on inputs we do not have
 

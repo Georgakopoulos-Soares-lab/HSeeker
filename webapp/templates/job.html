@@ -146,12 +146,6 @@
       <div class="stat-lbl">Mean Score</div>
       <div class="stat-sub">max {{ "{:.1f}".format(s.max_total_score) }}</div>
     </div>
-    {% if s.n_stable > 0 %}
-    <div class="stat-card">
-      <div class="stat-val">{{ "{:,}".format(s.n_stable) }}</div>
-      <div class="stat-lbl">Stable Sites (score ≥ 50)</div>
-    </div>
-    {% endif %}
   </div>
 
   {% if s.total_hits == 0 %}
@@ -235,15 +229,15 @@
       <div class="chart-row">
         <div class="chart-card">
           <p class="chart-desc">
-            Distribution of thermodynamic stability scores. The dashed line
-            marks the stable threshold (≥ 50).
+            Distribution of heuristic stability scores. The score ranks
+            candidates; it is not a calibrated free energy and has no validated cut-off.
           </p>
           <div id="chart-score-dist" class="chart-target"></div>
         </div>
         <div class="chart-card">
           <p class="chart-desc">
             Relationship between mirror identity and stability score —
-            higher scores indicate more stable triplex candidates.
+            higher scores rank candidates as more likely to form a stable triplex.
           </p>
           <div id="chart-score-vs-mirror" class="chart-target"></div>
         </div>

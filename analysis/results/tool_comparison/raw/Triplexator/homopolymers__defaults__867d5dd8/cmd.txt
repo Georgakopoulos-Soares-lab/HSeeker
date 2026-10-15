@@ -1,0 +1,1 @@
+/work/10899/kimopro/ls6/tools/triplexator/bin/triplexator -ds /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/homopolymers.fa -of 0 -od /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/Triplexator/homopolymers__defaults__867d5dd8 -o out

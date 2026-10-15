@@ -1,0 +1,2 @@
+>SYN0044
+selected kmin [-k] is longer than sequence length

@@ -62,6 +62,10 @@ def _assert_same_hits(got, expected):
 def _scan(path=GENOME, **kwargs):
     kwargs.setdefault("minrep", 10)
     kwargs.setdefault("maxspacer", 10)
+    # The golden outputs were generated with the filters off (the pre-2026-10-11 library default).
+    kwargs.setdefault("at_threshold", None)
+    kwargs.setdefault("min_g_rate", None)
+    kwargs.setdefault("filter_homopolymers", False)
     return hseeker.scan_fasta_parallel(str(path), **kwargs)
 
 

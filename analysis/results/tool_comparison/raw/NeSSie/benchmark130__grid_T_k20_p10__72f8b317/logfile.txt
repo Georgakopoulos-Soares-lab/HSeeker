@@ -1,0 +1,18 @@
+>HDNA0030
+selected kmin [-k] is longer than sequence length
+>HDNA0031
+selected kmin [-k] is longer than sequence length
+>HDNA0069
+selected kmin [-k] is longer than sequence length
+>SYN0008
+selected kmin [-k] is longer than sequence length
+>SYN0042
+selected kmin [-k] is longer than sequence length
+>SYN0043
+selected kmin [-k] is longer than sequence length
+>SYN0044
+selected kmin [-k] is longer than sequence length
+>SYN0045
+selected kmin [-k] is longer than sequence length
+>SYN0046
+selected kmin [-k] is longer than sequence length

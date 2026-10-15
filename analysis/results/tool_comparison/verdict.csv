@@ -1,0 +1,5 @@
+tool,dMCC_A,dMCC_A_ci95_family,dMCC_B,dMCC_C,verdict
+triplex,0.1508,"[0.0255, 0.2214]",0.1508,0.12,HSeeker better
+Triplexator,0.9456,"[0.707, 1.1068]",0.9378,0.419,HSeeker better
+NeSSie,0.3864,"[0.1783, 0.5531]",0.315,0.3919,HSeeker better
+nBMST,0.5208,"[0.4085, 0.6202]",0.4925,0.3422,HSeeker better

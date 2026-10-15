@@ -1,0 +1,8 @@
+##gff-version 3
+HDNA0054	ABCC	Mirror_Repeat	1	30	.	+	.	ID=HDNA0054_1_30_MR;spacer=0;repeat=15;perms=1;minloop=30;composition=0A/15C/0G/0T;sequence=cccccccccccccccccccccccccccccc;subset=0
+##gff-version 3
+SYN0054	ABCC	Mirror_Repeat	1	30	.	+	.	ID=SYN0054_1_30_MR;spacer=0;repeat=15;perms=1;minloop=30;composition=15A/0C/0G/0T;sequence=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;subset=1
+##gff-version 3
+SYN0055	ABCC	Mirror_Repeat	1	25	.	+	.	ID=SYN0055_1_25_MR;spacer=0;repeat=12;perms=3;minloop=2;composition=0A/0C/0G/12T;sequence=ttttttttttttttttttttttttt;subset=0
+##gff-version 3
+SYN0056	ABCC	Mirror_Repeat	1	35	.	+	.	ID=SYN0056_1_35_MR;spacer=0;repeat=17;perms=3;minloop=2;composition=0A/0C/0G/17T;sequence=ttttttttttttttttttttttttttttttttttt;subset=0

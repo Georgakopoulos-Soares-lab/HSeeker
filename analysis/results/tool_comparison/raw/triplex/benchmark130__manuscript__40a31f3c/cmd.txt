@@ -1,0 +1,1 @@
+/home1/10899/kimopro/WORK/miniconda3/envs/r_triplex/bin/Rscript /scratch/10899/kimopro/HSeeker/analysis/scripts/triplex_search_params.R /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/benchmark130.fa /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/triplex/benchmark130__manuscript__40a31f3c/hits.csv 15 0.05 8 50 prokaryotic

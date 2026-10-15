@@ -35,7 +35,7 @@ __all__ = (
 
 
 def detect_candidates(
-    seq: str, *, minrep: int = 10, maxrep: int = 1000,
+    seq: str, *, minrep: int = 8, maxrep: int = 1000,
     maxspacer: int = 10, purity: float = 0.90,
     mismatch: float = 0.10, seq_offset: int = 1,
     purity_rmq: bool = False,
@@ -104,7 +104,7 @@ def score_candidates(hits: list[dict], model: str = "complete") -> list[dict]:
 
 
 def scan_sequence_ablation(
-    seq: str, *, model: str = "complete", minrep: int = 10,
+    seq: str, *, model: str = "complete", minrep: int = 8,
     maxrep: int = 1000, maxspacer: int = 10, purity: float = 0.90,
     mismatch: float = 0.10, at_threshold: float | None = None,
     min_g_rate: float | None = 0.20,

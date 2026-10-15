@@ -1,5 +1,38 @@
 # Computational Benchmark: HSeeker, triplex, and Triplexator on Human Chromosome 1
 
+## Update 2026-10-11: HSeeker re-measured on the final code
+
+The HSeeker numbers below this section were measured in June 2026 with minimum arm length 10 and the
+code of that time. They were re-measured on 2026-10-11 on the same node type (AMD EPYC 7763, 16 vCPUs,
+32 GB, Rocky Linux 8.10) with the final code and the current defaults (minimum arm 8, AT and homopolymer
+filters, greedy overlap removal, scoring on, `-purity-rmq`), three runs per point:
+
+| Input | Workers | Wall (s) | Peak RSS (MB) | Loci |
+|---|---|---|---|---|
+| hg38 chr1 | 1 | 173.8 | 1,330 | 45,927 |
+| hg38 chr1 | 16 | 16.3 | 1,334 | 45,927 |
+| hg38 chr1, score-based overlap selection | 16 | 23.9 | 1,335 | 47,217 |
+| hg38 primary assembly (measured, not extrapolated) | 16 | 204.5 | 2,296 | 559,601 |
+
+Full sweep (1, 2, 4, 8, 16 workers), raw `/usr/bin/time -v` output, hardware description and input
+checksums: `benchmarks/results_2026-10-11/`.
+
+**All tools on chr1, re-measured on the same node on 2026-10-11** (the June table below is superseded):
+
+| Tool (version) | Cores | Wall time, s (mean of 3; range) | Peak RSS (MB) | Output on chr1 |
+|---|---|---|---|---|
+| HSeeker (final code, defaults) | 16 threads | **16.3** (16.3–16.4) | 1,334 | 45,927 loci |
+| Triplexator 1.3.2, defaults (`-ds -rm 1 -p 16`) | 16 threads (OpenMP) | 45.0 (43.5–47.8) | 1,714 | 275,476 target sites |
+| triplex 1.50.0, defaults (`benchmarks/triplex_benchmark.R`, 1-Mb windows) | 16 forked processes | 64.7 (63.2–65.7) | 660 per process | 81,906 hits |
+| nBMST / non-B_gfa `a891b59`, mirror-repeat module only | 1 (no parallel mode) | 96.5 (96.2–96.9) | 866 | 147,222 mirror repeats (33,519 classified triplex) |
+| NeSSie `dbe6cb2`, `-T`, k = 16–20 | 1 (no parallel mode) | 295.7 (one run) | 1,056 | 720,811 motif occurrences |
+
+Same node (AMD EPYC 7763, 16 vCPUs, Rocky Linux 8.10), same day, nothing else running; `/usr/bin/time -v`.
+Every tool gave identical output in each repeat; triplex and Triplexator reproduce the hit counts of the
+June 2026 measurement exactly (81,906 and 275,476). For triplex, `/usr/bin/time` reports the largest single
+forked process, not the sum over the 16 workers. Raw output: `benchmarks/results_2026-10-11/comparators/`.
+
+
 ## Benchmark Configuration
 
 All three tools were evaluated on the same input: the GRCh38 primary assembly of human chromosome 1

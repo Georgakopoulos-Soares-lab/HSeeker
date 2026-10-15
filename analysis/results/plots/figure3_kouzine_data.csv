@@ -1,0 +1,34 @@
+panel,group,value,ci_low,ci_high,n
+A recall,Mouse activated B,79.01,,,17109
+A recall,Human Raji,82.32,,,8356
+B selectivity odds ratio,Mouse: all motifs,1.645,1.585,1.708,428237
+B selectivity odds ratio,Mouse: mappable,1.681,1.603,1.764,238998
+B selectivity odds ratio,Human: all motifs,3.392,3.204,3.59,206902
+B selectivity odds ratio,Human: mappable,4.165,3.912,4.433,169963
+"C signal ratio, loci / matched controls",Mouse activated: all loci,1.137,1.1271,1.1474,
+"C signal ratio, loci / matched controls",Mouse activated: isolated loci,1.2543,1.179,1.3315,
+"C signal ratio, loci / matched controls",Mouse activated: authors' formed motifs,7.4399,5.8221,9.2703,
+"C signal ratio, loci / matched controls",Mouse activated: placebo,1.0726,0.9953,1.1552,
+"C signal ratio, loci / matched controls",Mouse resting: all loci,0.8222,0.8178,0.8265,
+"C signal ratio, loci / matched controls",Mouse resting: isolated loci,0.8582,0.8311,0.8852,
+"C signal ratio, loci / matched controls",Mouse resting: authors' formed motifs,0.6741,0.5991,0.7594,
+"C signal ratio, loci / matched controls",Mouse resting: placebo,1.0289,1.0035,1.0562,
+"C signal ratio, loci / matched controls",Human Raji: all loci,0.9767,0.969,0.9841,
+"C signal ratio, loci / matched controls",Human Raji: isolated loci,1.0226,0.9875,1.0611,
+"C signal ratio, loci / matched controls",Human Raji: authors' formed motifs,2.1015,1.9246,2.2832,
+"C signal ratio, loci / matched controls",Human Raji: placebo,1.0119,0.979,1.0461,
+D isolated loci by arm length,"Mouse activated B, arm 8-9 nt",1.1245,0.9252,1.3549,1724
+D isolated loci by arm length,"Mouse activated B, arm 10-11 nt",1.1955,1.1119,1.2953,11697
+D isolated loci by arm length,"Mouse activated B, arm 12-14 nt",1.5796,1.3387,1.8293,2049
+D isolated loci by arm length,"Mouse activated B, arm 15-19 nt",1.8399,1.0222,3.2761,240
+D isolated loci by arm length,"Mouse activated B, arm >=20 nt",1.6297,1.1095,2.4453,189
+D isolated loci by arm length,"Mouse resting B, arm 8-9 nt",0.8904,0.8092,0.9762,1724
+D isolated loci by arm length,"Mouse resting B, arm 10-11 nt",0.8763,0.8454,0.9084,11697
+D isolated loci by arm length,"Mouse resting B, arm 12-14 nt",0.7224,0.6508,0.7957,2049
+D isolated loci by arm length,"Mouse resting B, arm 15-19 nt",0.7972,0.5571,1.0943,240
+D isolated loci by arm length,"Mouse resting B, arm >=20 nt",0.8991,0.6464,1.2602,189
+D isolated loci by arm length,"Human Raji, arm 8-9 nt",1.0899,0.9822,1.2039,2041
+D isolated loci by arm length,"Human Raji, arm 10-11 nt",0.9992,0.9559,1.0464,13257
+D isolated loci by arm length,"Human Raji, arm 12-14 nt",1.0714,0.9575,1.2011,1978
+D isolated loci by arm length,"Human Raji, arm 15-19 nt",1.5211,0.693,3.0821,141
+D isolated loci by arm length,"Human Raji, arm >=20 nt",1.2427,0.6687,2.5138,39
