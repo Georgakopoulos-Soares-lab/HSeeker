@@ -341,7 +341,8 @@ python -m hseeker -seq <FASTA> -out <PREFIX> [options]
 | `-skipoverlap` | flag | *(off)* | **Skip overlap removal**. Keep distinct overlapping candidates after inward extension and removal of duplicate representations. |
 | `-overlap-strategy greedy\|score` | choice | `greedy` | Choose the longest arm before scoring (`greedy`, default) or score all candidates and retain the highest-scoring nonoverlapping hits (`score`). Score mode requires scoring to be enabled and is slower on genome-scale input (see Overlap removal behaviour). |
 | `-score` | flag | *(on)* | **Apply thermodynamic stability scoring**. Enables stacking and pairing score computation for each hit. Pass `-no-score` to disable and keep only the core detection columns. |
-| `-at-threshold FLOAT` | float | `0.80` | **AT-content filter**, applied before scoring. Hits whose full motif (both arms and the spacer) has AT content ≥ this value are dropped: triplex stability rests mainly on G/C-containing triplets, so A/T-dominated motifs are unlikely to fold into stable H-DNA. Raise it (e.g. `1.5`) to effectively disable it. |
+| `-min-g-rate FLOAT` | float | `0.20` | **Guanine-rate filter**, applied before scoring. For each arm, the fraction of G on the purine strand is computed (C is counted for a CT-rich arm, whose complement is the purine strand); the spacer is excluded. A hit is kept if the higher of the two arm rates is ≥ this value. This follows Triplexator's guanine rate, which avoids long A-tract duplexes that handicap triplex formation (Buske et al. 2012). Set `0` to disable it. |
+| `-at-threshold FLOAT` | float | *(off)* | **Optional AT-content filter**, applied before scoring. Hits whose full motif (both arms and the spacer) has AT content ≥ this value are dropped. Off by default; the G-rate filter covers the same A-tract case at arm level. |
 | `-workers INT` | int | *(all cores)* | **Parallel worker threads**. The CLI uses `scan_fasta_parallel` internally and defaults to all available CPU cores. Set this to a lower value to cap CPU usage. |
 | `-v` | flag | *(off)* | **Verbose mode**. Prints progress information to `stderr`. Useful for monitoring large jobs. |
 
@@ -472,14 +473,15 @@ The scoring pass also produces a `putative_triplex` field — the motif sequence
 
 Scoring can be disabled at the API level (`score=False`) or via the CLI flag `-no-score`, which removes the four scoring columns from the TSV output.
 
-### AT-content and homopolymer filtering
+### G-rate, AT-content and homopolymer filtering
 
-Two post-detection filters remove hits that are unlikely to form real H-DNA:
+Post-detection filters remove hits that are unlikely to form real H-DNA:
 
-- **AT-content filter** (before scoring, `at_threshold` / `-at-threshold`, default `0.80`): drops hits whose full detected motif — both arms and the spacer — is ≥ 80% A/T.
+- **Guanine-rate filter** (before overlap removal and scoring, `min_g_rate` / `-min-g-rate`, default `0.20`): computes the G fraction of the purine strand in each arm (C for a CT-rich arm) and drops the hit if both arms are below the threshold. The spacer is excluded. Taking the higher arm reflects that either arm can act as the duplex target, depending on which arm folds back. Because the arms share a purine strand, their rates differ by at most the mirror mismatch fraction (≤ 10 points at the default `-mismatch 0.10`). The 20% default keeps G-poor but experimentally forming repeats such as (GAAA)n (Hanvey et al. 1988; Matos-Rodrigues et al. 2022) and drops pure A-tracts. Triplexator uses 25% for intermolecular TFO–TTS searches.
+- **AT-content filter** (optional, before overlap removal and scoring, `at_threshold` / `-at-threshold`, off by default): drops hits whose full detected motif — both arms and the spacer — is at or above this A/T fraction.
 - **Homopolymer filter** (`filter_homopolymers`, default on; always on in the CLI): drops hits whose detected `full_sequence` is a single repeated base (poly-A, poly-G, ...). With scoring on, it also drops hits whose `putative_triplex` — arms plus spacer, brackets stripped — collapses to a single base. These carry no real mirror-repeat structure.
 
-Both filters are **on by default** in the Python API, the CLI and the web app, so all three give the same results for the same settings (changed in October 2026; version 0.1.0 left them off in the Python API). To turn them off in Python, pass `at_threshold=None, filter_homopolymers=False`; in the CLI, `-at-threshold 1.5` disables the AT filter (the homopolymer filter is always on in the CLI). Note that the homopolymer filter also removes poly-(dC)·(dG) tracts, which can form an Mg²⁺-dependent triplex (Kohwi & Kohwi-Shigematsu 1988).
+The Python API, the CLI and the web app use the same defaults (G-rate filter at `0.20`, AT filter off, homopolymer filter on), so all three give the same results for the same settings. Version 0.1.0 left the filters off in the Python API; an earlier October 2026 revision used an AT filter at `0.80` instead of the G-rate filter. To turn the filters off in Python, pass `min_g_rate=None, filter_homopolymers=False`; in the CLI, `-min-g-rate 0` disables the G-rate filter (the homopolymer filter is always on in the CLI). Note that the homopolymer filter also removes poly-(dC)·(dG) tracts, which can form an Mg²⁺-dependent triplex (Kohwi & Kohwi-Shigematsu 1988).
 
 ### Overlap removal behaviour
 

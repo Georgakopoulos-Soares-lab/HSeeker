@@ -67,7 +67,7 @@ def test_parsers_return_same_records_for_plain_and_gzip(tmp_path, compressed):
         assert list(hseeker.parse_fasta(path, parser=parser)) == expected
         hits = hseeker.scan_fasta(path, parser=parser, minrep=8,
                                   score=False, remove_overlaps=False,
-                                  at_threshold=None, filter_homopolymers=False)
+                                  at_threshold=None, min_g_rate=None, filter_homopolymers=False)
         assert hits
         assert {h["seq_id"] for h in hits} == {"chr1:101-130", "plain"}
         assert min(h["start"] for h in hits if h["seq_id"] == "chr1:101-130") == 101
