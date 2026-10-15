@@ -241,12 +241,13 @@ class Doc:
         self.log.append(f"after p{i} insert{' · ' + label if label else ''}: {text[:52]!r}")
 
     # ---- images ----------------------------------------------------------
-    def swap_image(self, i: int, png: Path, label: str = "") -> None:
-        """Point the first image in paragraph i at new bytes, keeping its size."""
+    def swap_image(self, i: int, png: Path, label: str = "", n: int = 1) -> None:
+        """Point the nth image in paragraph i at new bytes, keeping its size."""
         p = self.para(i)
-        blip = next(p.iter(f"{{{A}}}blip"), None)
-        if blip is None:
-            raise KeyError(f"p{i}: no image")
+        blips = list(p.iter(f"{{{A}}}blip"))
+        if len(blips) < n:
+            raise KeyError(f"p{i}: no image {n} (has {len(blips)})")
+        blip = blips[n - 1]
         rid = blip.get(f"{{{R}}}embed")
         target = None
         for rel in self.rels:

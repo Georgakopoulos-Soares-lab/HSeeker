@@ -20,6 +20,8 @@ REPO = HERE.parent
 SRC = HERE / "Revised HSeeker_ an algorithm for systematic H-DNA sequence identification .docx"
 OUT = HERE / "HSeeker_revised_tracked.docx"
 PLOTS = REPO / "analysis" / "results" / "plots"
+SCRATCH = Path("/tmp/claude-903286/-scratch-10899-kimopro-HSeeker/"
+              "2ace8cff-952f-44f6-83eb-34d39660be40/scratchpad")
 
 
 def main() -> None:
@@ -112,16 +114,17 @@ def main() -> None:
     # Methods
     # =====================================================================
     # candidate discovery: the two steps added since submission
+    # Appended after the prefilter sentence, not spliced into it.
     d.replace_text(
         42,
-        "It employs a center-outward heuristic to detect potential H-DNA-forming mirror "
-        "repeats in genomic sequences,",
-        "It employs a center-outward heuristic to detect potential H-DNA-forming mirror "
-        "repeats in genomic sequences, after which matching base pairs at the inner ends "
-        "of the spacer are absorbed into the arms where the purity criterion permits, so "
-        "that a motif is reported with its maximal arm representation, and candidates "
-        "arising from different centre and spacer combinations that normalise to the same "
-        "arm and spacer partition are reported once;", "panel consistency")
+        "eliminates center-spacer pairs whose right arm cannot satisfy the composition "
+        "constraint.",
+        "eliminates center-spacer pairs whose right arm cannot satisfy the composition "
+        "constraint. After enumeration, matching base pairs at the inner ends of the "
+        "spacer are absorbed into the arms where the purity criterion permits, so that a "
+        "motif is reported with its maximal arm representation, and candidates arising "
+        "from different centre and spacer combinations that normalise to the same arm "
+        "and spacer partition are reported once.", "panel consistency")
 
     # composition filters: the disclosure Reviewer 2 asked for
     d.replace_text(
@@ -139,12 +142,15 @@ def main() -> None:
         "and is presented in the Results.", "R2.6")
 
     # stability score: no longer a free energy
+    # Placed after the kcal/mol inputs are described, so it reads as a statement
+    # about the combined score rather than contradicting the sentence that follows.
     d.replace_text(
         47,
-        "To simplify the searching and scoring, we",
-        "The combination of these terms is a ranking score, not a free energy: it has no "
-        "validated physical units, and we do not report it in kcal/mol. To simplify the "
-        "searching and scoring, we", "R2.4/R3.4")
+        "Taken together, the HSeeker stability scoring was calculated as follows:",
+        "The combination of these terms is a ranking score, not a free energy: the inputs "
+        "are drawn from reported interaction energies, but the total has no validated "
+        "physical units and we do not report it in kcal/mol. Taken together, the HSeeker "
+        "stability scoring was calculated as follows:", "R2.4/R3.4")
 
     # spacer constraint: the text did not match the implementation
     d.replace_text(
@@ -155,6 +161,10 @@ def main() -> None:
         "However, H-DNA is thermodynamically unfavourable with very long spacer lengths; "
         "thus, we require that the spacer formed by folding the trimmed arm tails inward "
         "does not exceed the length of the selected arm window.", "correctness")
+
+    # The displayed constraint in this paragraph is an inline image still showing the
+    # superseded m <= min(20, L); replace it with the constraint the code applies.
+    d.swap_image(49, SCRATCH / "spacer_constraint.png", "spacer constraint", n=5)
 
     # The scoring-weights table and the benchmark both claimed "Supplementary
     # Table 1" in the submitted manuscript. The weights become Table 2.
@@ -231,17 +241,18 @@ def main() -> None:
         69,
         "randomly inserted each of the 79 sequences into it",
         "randomly inserted each of the 130 sequences into it", "R2.1")
+    # Appended after the existing justification, so that clause keeps its referent.
     d.replace_text(
         69,
         "a threshold chosen to accommodate cases where tools extend hits into flanking "
-        "sequence or detect only the triplex core within a longer insertio",
-        "and this criterion is varied from 0.50 to 0.95 as a sensitivity analysis. The "
+        "sequence or detect only the triplex core within a longer insertion.",
+        "a threshold chosen to accommodate cases where tools extend hits into flanking "
+        "sequence or detect only the triplex core within a longer insertion. The "
+        "criterion is varied from 0.50 to 0.95 as a sensitivity analysis, and the "
         "unmodified genome was scanned under the same settings to establish the "
         "background locus rate. This experiment measures recovery and the stability of a "
         "call across sequence context; it does not test whether H-DNA forms, and we draw "
-        "no biological conclusion from it. It accommodates cases where tools extend hits "
-        "into flanking sequence or detect only the triplex core within a longer insertio",
-        "R3.7")
+        "no biological conclusion from it.", "R3.7")
 
     # AUC-ROC is withdrawn; the interval methods are named
     d.replace_text(

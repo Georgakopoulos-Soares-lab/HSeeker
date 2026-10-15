@@ -405,6 +405,25 @@ Mg2+-dependent poly-(dC) triplex named in the new Limitations section. **Verify 
 before submission.** No other new citation was needed: the triplex algorithm (21), nBMST (23),
 NeSSie (24), Triplexator (25) and Kouzine et al. (4) were all already in the list.
 
+### Fixed in the fourth cycle (prose read-through)
+
+Reading the accepted prose at every edit boundary, rather than only checking numbers, turned up
+four faults that the automated checks could not see:
+
+1. **The candidate-discovery sentence was broken.** The new material on inward extension and
+   deduplication had been spliced into the middle of a clause, orphaning "augmented with an exact
+   purity-RMQ prefilter...". It is now appended after that sentence ends.
+2. **The stability-score paragraph contradicted itself.** The sentence saying the score is not
+   reported in kcal/mol sat immediately before the sentence describing a 5.0 kcal/mol stacking
+   term. It now follows it, and distinguishes the inputs from the combined total.
+3. **The spacer-constraint equation was stale.** The displayed formula in that paragraph is an
+   inline image reading m <= min(20, L), the constraint the manuscript described but the code does
+   not apply. It has been re-rendered as 2(a - R*) + l_s <= (R* - L*).v, matching the
+   implementation and the corrected algorithm panel.
+4. **A justifying clause lost its referent.** In the genomic-context Methods, "a threshold chosen
+   to accommodate cases where..." had been displaced from the threshold it explains. Restored, with
+   the sweep and the disclaimer following it.
+
 ### Fixed in this cycle
 
 Three ordering faults, all from the same cause: each `insert_after` places its element immediately
