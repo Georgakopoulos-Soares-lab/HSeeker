@@ -42,8 +42,8 @@ def main() -> None:
                         default="biopython",
                         help="FASTA parser implementation (default: biopython)")
     parser.add_argument("-out",         required=True,       help="Output prefix → <prefix>_HDNA.tsv")
-    parser.add_argument("-minrep",      type=int,   default=10,    metavar="INT",
-                        help="Minimum arm length (default: 10)")
+    parser.add_argument("-minrep",      type=int,   default=8,     metavar="INT",
+                        help="Minimum arm length (default: 8)")
     parser.add_argument("-maxrep",      type=int,   default=1000,  metavar="INT",
                         help="Maximum arm length (default: 1000)")
     parser.add_argument("-maxspacer",   type=int,   default=10,   metavar="INT",
@@ -53,7 +53,7 @@ def main() -> None:
     parser.add_argument("-mismatch",    type=float, default=0.10, metavar="FLOAT",
                         help="Max mismatch fraction in mirror (default: 0.10)")
     parser.add_argument("-skipoverlap", action="store_true",
-                        help="Skip overlap removal (keep all raw hits)")
+                        help="Skip overlap removal (keep inward-normalized hits)")
     parser.add_argument("-overlap-strategy", choices=("greedy", "score"),
                         default="greedy",
                         help="Select nonoverlapping hits by longest arm "
@@ -63,10 +63,14 @@ def main() -> None:
                         help="Apply stability scoring (default: on)")
     parser.add_argument("-no-score", action="store_false", dest="score",
                         help="Disable stability scoring")
-    parser.add_argument("-at-threshold", type=float, default=0.8, metavar="FLOAT",
-                        help="Drop hits whose full-motif AT content is >= this value, "
-                             "including the spacer, before scoring (default: 0.80). AT-rich motifs "
+    parser.add_argument("-min-g-rate", type=float, default=0.20, metavar="FLOAT",
+                        help="Drop hits whose purine-strand G fraction is below this value "
+                             "in both arms, before scoring (default: 0.20). The higher arm "
+                             "is used and the spacer is excluded; G-poor (A-tract) motifs "
                              "are unlikely to form stable H-DNA triplexes.")
+    parser.add_argument("-at-threshold", type=float, default=None, metavar="FLOAT",
+                        help="Optional: drop hits whose full-motif AT content is >= this "
+                             "value, including the spacer, before scoring (default: off).")
     parser.add_argument("-workers",     type=int,   default=None,  metavar="INT",
                         help="Parallel worker threads (default: all CPU cores)")
     parser.add_argument("-purity-rmq", action="store_true",
@@ -98,7 +102,9 @@ def main() -> None:
         f"  Output: {out_path}\n"
         f"  minrep={args.minrep}  maxrep={args.maxrep}  maxspacer={args.maxspacer}\n"
         f"  purity={args.purity:.2f}  mismatch={args.mismatch:.2f}\n"
-        f"  at_threshold={args.at_threshold:.2f}\n"
+        f"  min_g_rate={args.min_g_rate:.2f}  at_threshold="
+        f"{'off' if args.at_threshold is None else f'{args.at_threshold:.2f}'}\n"
+        f"  overlap={'off' if args.skipoverlap else args.overlap_strategy}\n"
         f"  workers={n_workers}",
         file=sys.stderr,
     )
@@ -117,6 +123,7 @@ def main() -> None:
         score=args.score,
         purity_rmq=args.purity_rmq,
         at_threshold=args.at_threshold,
+        min_g_rate=args.min_g_rate,
         filter_homopolymers=True,
     )
 

@@ -505,8 +505,86 @@ oom:
 }
 
 /* ------------------------------------------------------------------ */
-/*  Overlap removal                                                    */
+/*  Inward extension and overlap removal                               */
 /* ------------------------------------------------------------------ */
+
+/* Move exact-matching spacer-end pairs into both arms.  This never adds a
+ * mirror mismatch; the existing mismatch test in findHDNA_core is unchanged.
+ * Recheck arm purity and maxrep before each step, and leave the genomic span
+ * fixed.  A nonmatching inward pair stays in the spacer. */
+static void extend_inward_core(const char *dna, HDNA_HIT *hits, int nhits,
+                               int maxrep, float purity_thresh)
+{
+    int purity_thresh_int = (int)(purity_thresh * 100.0f + 0.5f);
+    for (int i = 0; i < nhits; i++) {
+        HDNA_HIT *h = &hits[i];
+        if (h->spacer_len < 2 || h->arm_len >= maxrep) continue;
+
+        int ga_count = 0, ct_count = 0, mismatch_count = 0;
+        for (int k = 0; k < h->arm_len; k++) {
+            unsigned char rb = (unsigned char)dna[h->right_start_idx + k];
+            if (BT[rb] == 1) ga_count++; else ct_count++;
+            if (dna[h->left_start_idx + h->arm_len - 1 - k] != (char)rb)
+                mismatch_count++;
+        }
+
+        while (h->spacer_len >= 2 && h->arm_len < maxrep) {
+            unsigned char left_base = (unsigned char)dna[h->spacer_start_idx];
+            unsigned char right_base = (unsigned char)dna[h->right_start_idx - 1];
+            unsigned char base_type = BT[right_base];
+            if (left_base != right_base || base_type == 0) break;
+
+            int new_arm_len = h->arm_len + 1;
+            int new_ga_count = ga_count + (base_type == 1);
+            int new_ct_count = ct_count + (base_type == 2);
+            if (new_ga_count * 100 < purity_thresh_int * new_arm_len &&
+                new_ct_count * 100 < purity_thresh_int * new_arm_len)
+                break;
+
+            h->arm_len = new_arm_len;
+            h->spacer_len -= 2;
+            h->spacer_start_idx++;
+            h->right_start_idx--;
+            ga_count = new_ga_count;
+            ct_count = new_ct_count;
+            float inv = 1.0f / new_arm_len;
+            h->ga_pct = (float)ga_count * inv * 100.0f;
+            h->ct_pct = (float)ct_count * inv * 100.0f;
+            h->mirror_id = (1.0f - (float)mismatch_count * inv) * 100.0f;
+            h->is_perfect = ((ga_count == new_arm_len || ct_count == new_arm_len)
+                             && mismatch_count == 0);
+        }
+    }
+}
+
+/* Several starting (center, spacer) searches may normalize to the same
+ * arm/spacer partition.  Emit that partition only once. */
+static int hit_cmp_geometry(const void *a, const void *b)
+{
+    const HDNA_HIT *ha = (const HDNA_HIT *)a;
+    const HDNA_HIT *hb = (const HDNA_HIT *)b;
+    if (ha->start < hb->start) return -1;
+    if (ha->start > hb->start) return 1;
+    if (ha->end < hb->end) return -1;
+    if (ha->end > hb->end) return 1;
+    if (ha->arm_len < hb->arm_len) return -1;
+    if (ha->arm_len > hb->arm_len) return 1;
+    return 0;
+}
+
+static int deduplicate_geometry_core(HDNA_HIT *hits, int nhits)
+{
+    if (nhits <= 1) return nhits;
+    qsort(hits, (size_t)nhits, sizeof(HDNA_HIT), hit_cmp_geometry);
+    int n = 0;
+    for (int i = 0; i < nhits; i++) {
+        if (n == 0 || hits[i].start != hits[n - 1].start ||
+            hits[i].end != hits[n - 1].end ||
+            hits[i].arm_len != hits[n - 1].arm_len)
+            hits[n++] = hits[i];
+    }
+    return n;
+}
 
 /*
  * remove_overlaps_core
@@ -694,7 +772,11 @@ py_scan_sequence(PyObject *self, PyObject *args, PyObject *kwargs)
                 seq_offset, &profile);
         }
 
-        if (nhits >= 0 && do_overlap && nhits > 1)
+        if (nhits > 0)
+            extend_inward_core(dna, hits, nhits, maxrep, (float)purity);
+        if (nhits > 1)
+            nhits = deduplicate_geometry_core(hits, nhits);
+        if (do_overlap && nhits > 1)
             nhits = remove_overlaps_core(hits, nhits);
     Py_END_ALLOW_THREADS
 
@@ -1077,6 +1159,10 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "ERROR: out of memory during scan of '%s'\n", sa_seq_id);
             fclose(fq); fclose(fo); free(sa_hits); return 5;
         }
+        if (nhits > 0)
+            extend_inward_core(sa_dna, sa_hits, nhits, maxrep, purity);
+        if (nhits > 1)
+            nhits = deduplicate_geometry_core(sa_hits, nhits);
         if (do_overlap && nhits > 1)
             nhits = remove_overlaps_core(sa_hits, nhits);
         if (verbose) fprintf(stderr, "  %d hits\n", nhits);

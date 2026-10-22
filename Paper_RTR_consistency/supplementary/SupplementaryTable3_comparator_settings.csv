@@ -1,0 +1,9 @@
+tool,version,setting,command_or_call,hit_rule
+HSeeker,1.1.0,defaults,hseeker -seq <fasta> -out <prefix>,at least one reported locus in the record
+triplex,1.50.0 (Bioconductor),defaults,triplex.search(DNAString(seq)),at least one triplex.search hit of any type
+Triplexator,1.3.2,defaults,triplexator -ds <fasta> -rm 1 -p 16,at least one duplex target site
+Triplexator,1.3.2,manuscript settings,triplexator -ds <fasta> -l 10 -L -1 -e 15 -fr off,at least one duplex target site
+NeSSie,dbe6cb2,defaults (-T),nessie -I <fasta> -O <out> -T -k <k>,at least one triplex-potential motif
+NeSSie,dbe6cb2,mirror (-M),nessie -I <fasta> -O <out> -M -k <k>,at least one mirror motif
+nBMST / non-B_gfa,a891b59,triplex subset,gfa -i <fasta> -o <out> --mirror,mirror repeat classified as triplex-forming
+nBMST / non-B_gfa,a891b59,any mirror repeat,gfa -i <fasta> -o <out> --mirror,any reported mirror repeat

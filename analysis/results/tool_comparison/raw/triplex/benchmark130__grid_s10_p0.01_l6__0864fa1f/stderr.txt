@@ -1,0 +1,155 @@
+Warning message:
+replacing previous import ‘grid::pattern’ by ‘Biostrings::pattern’ when loading ‘triplex’ 
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.
+NOTICE: There was no triplexes found with the given options.
+TIP: Try to modify search options (p_value, min_score, etc.),
+     for details see ?triplex.search.

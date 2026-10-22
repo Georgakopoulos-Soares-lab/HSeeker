@@ -1,0 +1,1 @@
+/work/10899/kimopro/ls6/tools/triplexator/bin/triplexator -ds /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/benchmark130.fa -l 12 -e 5 -fr on -of 0 -od /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/Triplexator/benchmark130__grid_l12_e5_fron__7946c7c2 -o out

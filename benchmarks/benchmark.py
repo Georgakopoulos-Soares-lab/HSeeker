@@ -167,6 +167,10 @@ def bench_cli(path: Path, *, minrep: int = 10) -> dict[str, Any] | None:
             "-seq", str(path),
             "-out", out_prefix,
             "-minrep", str(minrep),
+            # Every scan parameter pinned so a run records exactly what it measured
+            # (CLI defaults as of 2026-10-09; the CLI always applies the homopolymer filter).
+            "-maxrep", "1000", "-maxspacer", "10", "-purity", "0.90", "-mismatch", "0.10",
+            "-at-threshold", "0.80", "-overlap-strategy", "greedy",
         ]
         proc = subprocess.run(
             cmd, capture_output=True, text=True,

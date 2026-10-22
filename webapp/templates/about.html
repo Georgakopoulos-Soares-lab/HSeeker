@@ -167,7 +167,7 @@
     <p>The web app exposes the same scan controls used by the backend submission form:
       <code>minrep</code>, <code>maxrep</code>, <code>maxspacer</code>, <code>purity</code>, <code>mismatch</code>,
       <code>remove_overlaps</code>, and <code>score</code>. The defaults match the <code>hseeker</code> CLI and web form:
-      <code>minrep=10</code>, <code>maxrep=1000</code>, <code>maxspacer=10</code>, <code>purity=0.90</code>,
+      <code>minrep=8</code>, <code>maxrep=1000</code>, <code>maxspacer=10</code>, <code>purity=0.90</code>,
       <code>mismatch=0.10</code>, <code>remove_overlaps=on</code>, <code>score=on</code>.
       The underlying Python API also accepts <code>seq_offset</code> and <code>purity_rmq</code> for advanced use.
       Three curated presets cover the most common use cases:</p>
@@ -341,7 +341,7 @@
     <p>The <code>hseeker</code> CLI processes FASTA files and writes a TSV report. It parallelises
       automatically across all CPU cores:</p>
     <pre class="about-code">hseeker -seq genome.fa -out results
-hseeker -seq genome.fa -out results -minrep 10 -purity 0.90 -mismatch 0.10
+hseeker -seq genome.fa -out results -minrep 8 -purity 0.90 -mismatch 0.10
 hseeker -seq genome.fa -out results -no-score          # disable stability scoring
 hseeker -seq genome.fa -out results -workers 8         # limit to 8 threads</pre>
     <p>Output is written to <code>&lt;prefix&gt;_HDNA.tsv</code>. All CLI flags and their defaults:</p>
@@ -351,7 +351,7 @@ hseeker -seq genome.fa -out results -workers 8         # limit to 8 threads</pre
         <tbody>
           <tr><td><code>-seq</code></td><td>required</td><td>Input FASTA file</td></tr>
           <tr><td><code>-out</code></td><td>required</td><td>Output prefix (writes <code>&lt;prefix&gt;_HDNA.tsv</code>)</td></tr>
-          <tr><td><code>-minrep</code></td><td>10</td><td>Minimum arm length in bp</td></tr>
+          <tr><td><code>-minrep</code></td><td>8</td><td>Minimum arm length in bp</td></tr>
           <tr><td><code>-maxrep</code></td><td>1000</td><td>Maximum arm length cap</td></tr>
           <tr><td><code>-maxspacer</code></td><td>10</td><td>Maximum hinge/spacer loop length in bp</td></tr>
           <tr><td><code>-purity</code></td><td>0.90</td><td>Minimum GA or CT fraction in the right arm</td></tr>
@@ -367,7 +367,7 @@ hseeker -seq genome.fa -out results -workers 8         # limit to 8 threads</pre
     <pre class="about-code">import hseeker
 
 # Scan a raw sequence string
-hits = hseeker.scan_sequence(seq, minrep=10, maxrep=1000, maxspacer=10,
+hits = hseeker.scan_sequence(seq, minrep=8, maxrep=1000, maxspacer=10,
                               purity=0.90, mismatch=0.10)
 
 # Scan a FASTA file (serial)

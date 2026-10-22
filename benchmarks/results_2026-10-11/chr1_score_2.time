@@ -1,0 +1,37 @@
+hseeker v0.1.0 — H-DNA / Triplex Mirror Repeat Detector
+  Input : benchmarks/data/chr1.fa
+  Parser: biopython
+  Output: /scratch/10899/kimopro/kouzine/runtime/out_chr1_score_2_HDNA.tsv
+  minrep=8  maxrep=1000  maxspacer=10
+  purity=0.90  mismatch=0.10
+  at_threshold=0.80
+  overlap=score
+  workers=16
+
+Done.
+  Records processed : 1
+  Total hits written: 47217
+  Output: /scratch/10899/kimopro/kouzine/runtime/out_chr1_score_2_HDNA.tsv
+	Command being timed: "/scratch/10899/kimopro/kouzine/env/bin/python -m hseeker -seq benchmarks/data/chr1.fa -out /scratch/10899/kimopro/kouzine/runtime/out_chr1_score_2 -minrep 8 -maxrep 1000 -maxspacer 10 -purity 0.90 -mismatch 0.10 -at-threshold 0.80 -overlap-strategy score -workers 16 -purity-rmq"
+	User time (seconds): 177.16
+	System time (seconds): 2.73
+	Percent of CPU this job got: 754%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:23.83
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1367508
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 305
+	Minor (reclaiming a frame) page faults: 1188067
+	Voluntary context switches: 8328
+	Involuntary context switches: 3553
+	Swaps: 0
+	File system inputs: 566569
+	File system outputs: 17201
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

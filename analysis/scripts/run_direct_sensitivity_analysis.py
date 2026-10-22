@@ -1,15 +1,24 @@
 #!/usr/bin/env python3
-"""Primary HSeeker/Triplex sensitivity benchmark on experimental sequences.
+"""Primary HSeeker/Triplex sensitivity benchmark on benchmark v3.
 
 This is the main validation analysis: HSeeker and Triplex are run directly on
-the 54 experimentally curated sequences, without genomic insertion. The E. coli
+the curated benchmark sequences, without genomic insertion. The E. coli
 injection benchmark is kept separately as a secondary/context validation.
+
+The default input is the class-balanced benchmark v3
+(``hdna_benchmark_balanced_v3.csv``, 128 records at 64 forming : 64 non-forming:
+69 curated experimental records plus 59 synthetic negatives; pure homopolymers
+were removed on 2026-10-02 and four replacement negatives added on 2026-10-07).
+Use ``--subset experimental`` to reproduce the experimental-only composition
+(69 records, 64:5) and ``--subset synthetic`` for the synthetic stress panel
+alone; metrics are reported for both compositions.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import math
 import os
@@ -28,7 +37,7 @@ if str(SRC) not in sys.path:
 
 import hseeker  # noqa: E402
 
-DEFAULT_CSV = ROOT / "hdna_experimental_sequences_final.csv"
+DEFAULT_CSV = ROOT / "hdna_benchmark_balanced_v3.csv"
 DEFAULT_OUT = ROOT / "analysis" / "results" / "sensitivity_direct"
 TRIPLEX_R = ROOT / "analysis" / "scripts" / "triplex_fasta_search_defaults.R"
 
@@ -50,14 +59,51 @@ def write_csv(path: Path, rows: list[dict[str, Any]], fieldnames: list[str] | No
         writer.writerows(rows)
 
 
-def load_rows(path: Path) -> list[dict[str, Any]]:
+def sha256_of(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def select_benchmark_rows(
+    rows: list[dict[str, Any]], fieldnames: list[str], subset: str
+) -> list[dict[str, Any]]:
+    """Restrict a benchmark CSV to the records that belong in the analysis.
+
+    Benchmark v3 carries the provenance audit in the same file as the data:
+    ``curation_decision`` marks records the audit removed (untraceable) or
+    excluded (invalid as an ACGT record). Those are never benchmarked, so a file
+    carrying that column is filtered to ``kept`` rows before anything is scanned.
+
+    ``record_type`` separates curated experimental records from synthetic
+    negatives, so the experimental-only and balanced compositions can both be
+    reported from one frozen file.
+    """
+    selected = rows
+    if "curation_decision" in fieldnames:
+        kept = [r for r in selected if (r.get("curation_decision") or "").strip() == "kept"]
+        dropped = len(selected) - len(kept)
+        if dropped:
+            print(f"Excluding {dropped} record(s) with curation_decision != 'kept'.")
+        selected = kept
+    if subset != "all":
+        if "record_type" not in fieldnames:
+            raise RuntimeError(f"--subset {subset} requires a 'record_type' column in the CSV")
+        selected = [r for r in selected if (r.get("record_type") or "").strip() == subset]
+        if not selected:
+            raise RuntimeError(f"No records with record_type == {subset!r}")
+        print(f"Subset '{subset}': {len(selected)} record(s).")
+    return selected
+
+
+def load_rows(path: Path, subset: str = "all") -> list[dict[str, Any]]:
     with path.open(newline="", encoding="utf-8-sig") as handle:
         reader = csv.DictReader(handle)
         rows = list(reader)
     required = {"record_id", "sequence_name", "sequence_5to3", "label"}
-    missing = required.difference(reader.fieldnames or [])
+    fieldnames = list(reader.fieldnames or [])
+    missing = required.difference(fieldnames)
     if missing:
         raise RuntimeError(f"Missing required CSV columns: {sorted(missing)}")
+    rows = select_benchmark_rows(rows, fieldnames, subset)
 
     out: list[dict[str, Any]] = []
     invalid: list[dict[str, str]] = []
@@ -320,6 +366,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--csv", type=Path, default=DEFAULT_CSV)
     parser.add_argument("--outdir", type=Path, default=DEFAULT_OUT)
+    parser.add_argument(
+        "--subset",
+        choices=["all", "experimental", "synthetic"],
+        default="all",
+        help="Benchmark composition to evaluate (default: all = class-balanced v3)",
+    )
     args = parser.parse_args()
 
     out = args.outdir
@@ -327,7 +379,7 @@ def main() -> None:
     out.mkdir(parents=True, exist_ok=True)
     plots.mkdir(parents=True, exist_ok=True)
 
-    rows = load_rows(args.csv)
+    rows = load_rows(args.csv, subset=args.subset)
     fasta = out / "direct_sequences.fasta"
     write_fasta(fasta, rows)
 
@@ -373,6 +425,8 @@ def main() -> None:
     metadata = {
         "date": time.strftime("%Y-%m-%d %H:%M:%S"),
         "input_csv": str(args.csv),
+        "input_csv_sha256": sha256_of(args.csv),
+        "subset": args.subset,
         "dataset_size": len(rows),
         "forming_count": sum(1 for r in rows if r["label"] == "forming"),
         "nonforming_count": sum(1 for r in rows if r["label"] == "non-forming"),
@@ -396,7 +450,8 @@ def main() -> None:
         "",
         "## Dataset",
         "",
-        f"- Experimental sequences: {len(rows)} ({metadata['forming_count']} forming, {metadata['nonforming_count']} non-forming).",
+        f"- Benchmark sequences: {len(rows)} ({metadata['forming_count']} forming, {metadata['nonforming_count']} non-forming).",
+        f"- Input: `{args.csv.name}` (subset: `{args.subset}`, SHA-256 `{metadata['input_csv_sha256'][:16]}…`).",
         "- HSeeker and Triplex were run directly on each curated sequence. No genomic insertion or flanking sequence was used in this primary analysis.",
         "",
         "## Methods",

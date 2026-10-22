@@ -82,8 +82,9 @@ $$\text{purity} = \max\!\left(\frac{\text{GA count}}{k},\ \frac{\text{CT count}}
 
 If both $\text{mirror identity} \geq 1 - \texttt{mismatch}$ and $\text{purity} \geq \texttt{purity}$, the current arm length is recorded as a valid candidate.
 
-4. **Longest-arm retention** — For each `(ctr, sp)` pair, only the longest valid arm is kept. This ensures no redundant shorter arms at the same position.
-5. **Overlap removal** — After scanning the full sequence, overlapping hits are resolved by keeping the **longest arm first**; ties are broken by **shorter spacer**.
+4. **Longest-arm retention** — For each `(ctr, sp)` pair, only the longest valid arm is kept.
+5. **Inward extension** — Matching bases at both ends of a spacer move into the arms while purity and `maxrep` still permit it. Duplicate representations of the same arm and spacer are removed. A nonmatching pair remains in the spacer; the mirror mismatch rule is unchanged.
+6. **Overlap removal** — After inward extension, overlapping hits are resolved by keeping the **longest arm first**; ties are broken by **shorter spacer**.
 
 ### `is_perfect` classification
 
@@ -113,6 +114,22 @@ pip install .
 
 A C compiler (GCC, Clang, or MSVC) is required when building from source. The C extension compiles automatically during `pip install`.
 
+#### Optional: CPU-native optimization
+
+By default the extension is compiled **portably**, so the result can be copied to
+or shared with any machine of the same platform. To tune the binary to the CPU of
+the machine you are building on, opt in explicitly:
+
+```bash
+HSEEKER_NATIVE_BUILD=1 pip install .
+```
+
+This adds `-march=native`. The resulting binary is **not portable** — running it on
+a host lacking the same instruction-set extensions can abort with an illegal
+instruction — so use it only for a build that stays on the machine that produced
+it, never for a wheel you intend to distribute. The build fails with an error if
+`ARCHFLAGS` targets a different macOS architecture.
+
 ### Development install
 
 ```bash
@@ -140,7 +157,7 @@ import hseeker
 # Scan a raw sequence string
 hits = hseeker.scan_sequence(
     "GGGAAAGGGTTTTCCCAAACCC",
-    minrep=10,
+    minrep=8,
     maxspacer=10,
     purity=0.90,
     mismatch=0.10,
@@ -149,15 +166,15 @@ for h in hits:
     print(h["start"], h["end"], h["arm_length"], h["is_perfect"], h["total_score"])
 
 # Scan an entire FASTA file (all hits collected into a list)
-hits = hseeker.scan_fasta("genome.fa", minrep=10, purity=0.90)
+hits = hseeker.scan_fasta("genome.fa", minrep=8, purity=0.90)
 
 # Memory-efficient streaming alternative — yields one hit at a time
-for hit in hseeker.scan_fasta_iter("genome.fa", minrep=10, purity=0.90):
+for hit in hseeker.scan_fasta_iter("genome.fa", minrep=8, purity=0.90):
     print(hit["seq_id"], hit["start"], hit["end"])
 
 # Multi-core parallel scan — all chromosomes scanned concurrently
-hits = hseeker.scan_fasta_parallel("genome.fa", minrep=10, purity=0.90)
-hits = hseeker.scan_fasta_parallel("genome.fa", minrep=10, workers=4)
+hits = hseeker.scan_fasta_parallel("genome.fa", minrep=8, purity=0.90)
+hits = hseeker.scan_fasta_parallel("genome.fa", minrep=8, workers=4)
 ```
 
 ### From the command line
@@ -176,6 +193,17 @@ hseeker -seq genome.fa -out relaxed -purity 0.90 -mismatch 0.10
 hseeker -seq genome.fa -out long -minrep 10 -maxrep 1000 -v
 ```
 
+### Web interface
+
+There is a single web front-end: the **FastAPI** application in `webapp/main.py`,
+which serves the online tool and is what the Docker image runs.
+
+```bash
+uvicorn webapp.main:app --host 0.0.0.0 --port 8000
+```
+
+It is not required to use the library or the CLI.
+
 ---
 
 ## 5. Python API
@@ -186,7 +214,7 @@ hseeker -seq genome.fa -out long -minrep 10 -maxrep 1000 -v
 hseeker.scan_sequence(
     seq: str,
     *,
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -212,7 +240,7 @@ Scan a single DNA string for H-DNA mirror repeat motifs. The C core runs with th
 hseeker.scan_fasta(
     path: str | Path,
     *,
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -233,7 +261,7 @@ Scan every record in a FASTA file. Adds a `seq_id` key to each hit dict. Genomic
 hseeker.scan_fasta_iter(
     path: str | Path,
     *,
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -254,7 +282,7 @@ Streaming alternative to `scan_fasta`. Yields one hit dict at a time, keeping on
 hseeker.scan_fasta_parallel(
     path: str | Path,
     *,
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -305,15 +333,16 @@ python -m hseeker -seq <FASTA> -out <PREFIX> [options]
 
 | Argument | Type | Default | Description |
 |---|---|---|---|
-| `-minrep INT` | int | `10` | **Minimum arm length** in base pairs. Arms shorter than this are not reported, even if they satisfy all other criteria. Increasing this value reduces noise and focuses on longer, likely more stable motifs. |
+| `-minrep INT` | int | `8` | **Minimum arm length** in base pairs. Arms shorter than this are not reported, even if they satisfy all other criteria. Increasing this value reduces noise and focuses on longer, likely more stable motifs. |
 | `-maxrep INT` | int | `1000` | **Maximum arm length** cap. The algorithm stops extending an arm beyond this length. Set higher for repetitive regions; setting it very high increases runtime without improving signal in most genomes. |
 | `-maxspacer INT` | int | `10` | **Maximum spacer / hinge loop length** in base pairs. The spacer is the single-stranded loop between the two mirror arms. H-DNA with spacers > 10 bp is thermodynamically unfavoured. |
 | `-purity FLOAT` | float | `0.90` | **Minimum compositional purity** of each arm (0.0–1.0). The arm must be ≥ `purity` fraction GA (purine) **or** ≥ `purity` fraction CT (pyrimidine). Set to 1.0 for perfect purine or pyrimidine tracts. |
 | `-mismatch FLOAT` | float | `0.10` | **Maximum mirror mismatch fraction** (0.0–1.0). Fraction of base positions in the arm where `dna[left] ≠ dna[right]` (i.e. the mirror is broken). `0.0` requires perfect mirror symmetry; `0.10` allows up to 10 % divergence. |
-| `-skipoverlap` | flag | *(off)* | **Skip overlap removal**. By default, overlapping hits are collapsed to the longest arm (ties broken by shortest spacer). Pass this flag to disable overlap removal (useful for downstream ML or analysis). |
-| `-overlap-strategy greedy\|score` | choice | `greedy` | Choose the longest arm before scoring (`greedy`) or score all candidates and retain the highest-scoring nonoverlapping hits (`score`). Score mode requires scoring to be enabled. |
+| `-skipoverlap` | flag | *(off)* | **Skip overlap removal**. Keep distinct overlapping candidates after inward extension and removal of duplicate representations. |
+| `-overlap-strategy greedy\|score` | choice | `greedy` | Choose the longest arm before scoring (`greedy`, default) or score all candidates and retain the highest-scoring nonoverlapping hits (`score`). Score mode requires scoring to be enabled and is slower on genome-scale input (see Overlap removal behaviour). |
 | `-score` | flag | *(on)* | **Apply thermodynamic stability scoring**. Enables stacking and pairing score computation for each hit. Pass `-no-score` to disable and keep only the core detection columns. |
-| `-at-threshold FLOAT` | float | `0.80` | **Left-arm AT-content filter**, applied before scoring. Hits whose left arm has AT content ≥ this value are dropped — AT-rich arms are dominated by weak A·A stacking and are unlikely to fold into stable H-DNA. Raise it (e.g. `1.5`) to effectively disable it. |
+| `-min-g-rate FLOAT` | float | `0.20` | **Guanine-rate filter**, applied before scoring. For each arm, the fraction of G on the purine strand is computed (C is counted for a CT-rich arm, whose complement is the purine strand); the spacer is excluded. A hit is kept if the higher of the two arm rates is ≥ this value. This follows Triplexator's guanine rate, which avoids long A-tract duplexes that handicap triplex formation (Buske et al. 2012). Set `0` to disable it. |
+| `-at-threshold FLOAT` | float | *(off)* | **Optional AT-content filter**, applied before scoring. Hits whose full motif (both arms and the spacer) has AT content ≥ this value are dropped. Off by default; the G-rate filter covers the same A-tract case at arm level. |
 | `-workers INT` | int | *(all cores)* | **Parallel worker threads**. The CLI uses `scan_fasta_parallel` internally and defaults to all available CPU cores. Set this to a lower value to cap CPU usage. |
 | `-v` | flag | *(off)* | **Verbose mode**. Prints progress information to `stderr`. Useful for monitoring large jobs. |
 
@@ -329,7 +358,7 @@ hseeker -seq genome.fa -out strict -purity 1.0 -mismatch 0.0
 # 3. Whole-genome scan with minimum arm length 10 for high confidence
 hseeker -seq hg38.fa -out hg38_hdna -minrep 10 -purity 0.85 -v
 
-# 4. Exploratory scan — very permissive, keep all raw hits
+# 4. Exploratory scan — very permissive, keep overlapping candidates
 hseeker -seq region.fa -out explore -purity 0.80 -mismatch 0.20 \
             -minrep 8 -maxspacer 10 -skipoverlap
 
@@ -385,22 +414,22 @@ chr1    findHDNA  1001   1020  7           6              20            85.71   
 
 | Parameter | API name | CLI flag | Type | Default | Valid range | Notes |
 |---|---|---|---|---|---|---|
-| Minimum arm length | `minrep` | `-minrep` | int | 10 | ≥ 1 | Arms shorter than this are discarded entirely |
+| Minimum arm length | `minrep` | `-minrep` | int | 8 | ≥ 1 | Arms shorter than this are discarded entirely |
 | Maximum arm length | `maxrep` | `-maxrep` | int | 1000 | ≥ `minrep` | Hard cap on extension; rarely needs changing |
 | Maximum spacer | `maxspacer` | `-maxspacer` | int | 10 | ≥ 0 | Set to 0 for zero-loop (adjacent arms) only |
 | Purity threshold | `purity` | `-purity` | float | 0.90 | 0.0–1.0 | Fraction GA or CT required in arm |
 | Mismatch tolerance | `mismatch` | `-mismatch` | float | 0.10 | 0.0–1.0 | Fraction of arm positions allowed to mismatch the mirror |
 | Overlap removal | `remove_overlaps` | `-skipoverlap` (inverts) | bool | True | — | When True, filters overlapping hits using `overlap_strategy` |
-| Overlap strategy | `overlap_strategy` | `-overlap-strategy` | str | `greedy` | `greedy`, `score` | Greedy preserves the original arm-length rule; score mode filters after scoring all candidates |
+| Overlap strategy | `overlap_strategy` | `-overlap-strategy` | str | `greedy` | `greedy`, `score` | Greedy keeps the original arm-length rule; score mode filters after scoring all candidates |
 | Sequence offset | `seq_offset` | *(automatic in CLI)* | int | 1 | ≥ 1 | 1-based start coordinate of `seq[0]`; used for correct genomic coordinates |
 | Worker threads | *(CLI only)* | `-workers` | int | all cores | ≥ 1 | Number of parallel threads used by the CLI (via `scan_fasta_parallel`) |
 | Stability scoring | `score` | `-score` / `-no-score` | bool | True | — | When True, computes stacking and pairing scores and an optimised triplex sequence for each hit. Scoring adds `stacking_score`, `pairing_score`, `total_score`, and `putative_triplex` columns. |
 
 ### Choosing parameters for your use case
 
-**Genome-wide survey (high confidence)**
+**Genome-wide survey (defaults)**
 ```
-minrep=10, maxrep=1000, maxspacer=10, purity=0.90, mismatch=0.10
+minrep=8, maxrep=1000, maxspacer=10, purity=0.90, mismatch=0.10
 ```
 
 **Exploratory / maximum sensitivity**
@@ -408,7 +437,7 @@ minrep=10, maxrep=1000, maxspacer=10, purity=0.90, mismatch=0.10
 minrep=8, maxrep=1000, maxspacer=10, purity=0.80, mismatch=0.20
 ```
 
-**Downstream ML or statistical analysis (all raw candidates)**
+**Downstream ML or statistical analysis (overlapping candidates)**
 ```
 remove_overlaps=False, skipoverlap (CLI)
 ```
@@ -444,18 +473,21 @@ The scoring pass also produces a `putative_triplex` field — the motif sequence
 
 Scoring can be disabled at the API level (`score=False`) or via the CLI flag `-no-score`, which removes the four scoring columns from the TSV output.
 
-### AT-content and homopolymer filtering
+### G-rate, AT-content and homopolymer filtering
 
-Two post-detection filters remove hits that are unlikely to form real H-DNA:
+Post-detection filters remove hits that are unlikely to form real H-DNA:
 
-- **AT-content filter** (before scoring, `at_threshold` / `-at-threshold`, default `0.80`): drops hits whose left arm is ≥ 80% A/T. Since the right arm of a mirror repeat is the same bases in reverse, checking the left arm alone is sufficient.
-- **Homopolymer filter** (after scoring, `filter_homopolymers`, always on in the CLI): drops hits whose `putative_triplex` — arms plus spacer, brackets stripped — collapses to a single repeated base (poly-A, poly-G, ...). These carry no real mirror-repeat structure.
+- **Guanine-rate filter** (before overlap removal and scoring, `min_g_rate` / `-min-g-rate`, default `0.20`): computes the G fraction of the purine strand in each arm (C for a CT-rich arm) and drops the hit if both arms are below the threshold. The spacer is excluded. Taking the higher arm reflects that either arm can act as the duplex target, depending on which arm folds back. Because the arms share a purine strand, their rates differ by at most the mirror mismatch fraction (≤ 10 points at the default `-mismatch 0.10`). The 20% default keeps G-poor but experimentally forming repeats such as (GAAA)n (Hanvey et al. 1988; Matos-Rodrigues et al. 2022) and drops pure A-tracts. Triplexator uses 25% for intermolecular TFO–TTS searches.
+- **AT-content filter** (optional, before overlap removal and scoring, `at_threshold` / `-at-threshold`, off by default): drops hits whose full detected motif — both arms and the spacer — is at or above this A/T fraction.
+- **Homopolymer filter** (`filter_homopolymers`, default on; always on in the CLI): drops hits whose detected `full_sequence` is a single repeated base (poly-A, poly-G, ...). With scoring on, it also drops hits whose `putative_triplex` — arms plus spacer, brackets stripped — collapses to a single base. These carry no real mirror-repeat structure.
 
-Both are opt-in at the Python API level (`hseeker.scan_fasta(...)`, off by default) so existing integrations are unaffected; the CLI enables the AT filter by default at `0.80` and always applies the homopolymer filter when scoring is on.
+The Python API, the CLI and the web app use the same defaults (G-rate filter at `0.20`, AT filter off, homopolymer filter on), so all three give the same results for the same settings. Version 0.1.0 left the filters off in the Python API; an earlier October 2026 revision used an AT filter at `0.80` instead of the G-rate filter. To turn the filters off in Python, pass `min_g_rate=None, filter_homopolymers=False`; in the CLI, `-min-g-rate 0` disables the G-rate filter (the homopolymer filter is always on in the CLI). Note that the homopolymer filter also removes poly-(dC)·(dG) tracts, which can form an Mg²⁺-dependent triplex (Kohwi & Kohwi-Shigematsu 1988).
 
 ### Overlap removal behaviour
 
-When `remove_overlaps=True` (default), two hits overlap if their 1-based, inclusive genomic ranges share at least one base. The default `overlap_strategy="greedy"` keeps the longer arm, breaking ties by shorter spacer, before scoring. Set `overlap_strategy="score"` (CLI: `-overlap-strategy score`) to score all candidates first, then accept hits in descending `total_score` order when they do not overlap a previously accepted hit. Score ties favor longer arms, shorter spacers, then earlier coordinates. `remove_overlaps=False` (CLI: `-skipoverlap`) retains all candidates regardless of strategy. Score mode can be substantially slower and use more memory on repetitive or chromosome-scale inputs because every raw candidate must be scored.
+Inward extension runs first, even when overlap removal is disabled. This keeps only one copy of an identical arm/spacer representation while allowing distinct overlapping candidates to remain.
+
+When `remove_overlaps=True` (default), two hits overlap if their 1-based, inclusive genomic ranges share at least one base. The default `overlap_strategy="greedy"` keeps the longer arm, breaking ties by shorter spacer, before scoring. Set `overlap_strategy="score"` (CLI: `-overlap-strategy score`) to keep, instead, the highest-scoring candidate of each overlapping group: candidates are visited in descending `total_score` order and a hit is accepted when it does not overlap a previously accepted hit (ties favor longer arms, shorter spacers, then earlier coordinates); this requires scoring. `remove_overlaps=False` (CLI: `-skipoverlap`) retains every distinct candidate (after inward extension and removal of duplicate representations) regardless of strategy. Score mode is slower on genome-scale input because it has to consider every raw candidate rather than only the overlap-free set: on hg38 chromosome 1 with 16 workers it took about 60 s versus 26 s for greedy (AMD EPYC 7763), and it reports 1.5% more loci, all greedy loci being retained.
 
 ---
 

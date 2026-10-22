@@ -74,6 +74,10 @@ def _run_once(fa: Path, workers: int, minrep: int) -> dict[str, Any]:
             "-seq", str(fa),
             "-out", out_prefix,
             "-minrep", str(minrep),
+            # Every scan parameter pinned so a run records exactly what it measured
+            # (CLI defaults as of 2026-10-09; the CLI always applies the homopolymer filter).
+            "-maxrep", "1000", "-maxspacer", "10", "-purity", "0.90", "-mismatch", "0.10",
+            "-at-threshold", "0.80", "-overlap-strategy", "greedy",
             "-workers", str(workers),
             "-purity-rmq",
         ]

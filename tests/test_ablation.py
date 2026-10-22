@@ -6,6 +6,7 @@ import hseeker
 from hseeker.ablation import (
     MODELS,
     filter_at_content,
+    filter_g_rate,
     filter_homopolymers,
     remove_overlaps,
     scan_fasta_ablation,
@@ -20,7 +21,7 @@ OPTIONS = dict(minrep=8, maxrep=20, maxspacer=4)
 
 def test_complete_matches_public_api_with_same_options():
     expected = hseeker.scan_sequence(
-        SEQ, remove_overlaps=False, at_threshold=0.80,
+        SEQ, remove_overlaps=False, min_g_rate=0.20,
         filter_homopolymers=True, **OPTIONS,
     )
     assert scan_sequence_ablation(SEQ, **OPTIONS) == expected
@@ -56,6 +57,7 @@ def test_public_stage_helpers_do_not_mutate_candidates():
     assert "total_score" not in raw[0]
     assert "total_score" in scored[0]
     assert filter_at_content(raw, 1.0) == raw
+    assert filter_g_rate(raw, 0.0) == raw
     assert filter_homopolymers(scored) == scored
     assert len(remove_overlaps(scored)) < len(scored)
 

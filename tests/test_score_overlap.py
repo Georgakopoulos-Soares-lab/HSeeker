@@ -198,7 +198,9 @@ def test_real_sequence_score_selection_can_beat_greedy():
 @pytest.mark.parametrize("sequence, expected_raw, greedy_winner, score_winner", [
     (
         "GAGAAAAGAGGGAGAAAAAGGAA",
-        [(1, 21, 10, 1, 53.635), (3, 19, 7, 3, 41.035)],
+        # (3, 19) was arm 7 / spacer 3 / 41.035 before inward extension moved
+        # the matching spacer ends into the arms.
+        [(1, 21, 10, 1, 53.635), (3, 19, 8, 1, 53.635)],
         (1, 21), (1, 21),
     ),
     (
@@ -317,6 +319,31 @@ def test_greedy_remains_the_default_in_public_api():
     assert scan_sequence(sequence, **options) == scan_sequence(
         sequence, overlap_strategy="greedy", **options
     )
+
+
+def test_default_reports_the_longest_arm_where_score_would_differ():
+    sequence = "GAAGGAAAGAAAGAAAGGG"
+    options = dict(minrep=8, maxrep=22, maxspacer=5, purity=0.9, mismatch=0.15)
+    assert [(h["start"], h["end"]) for h in scan_sequence(sequence, **options)] == [(1, 17)]
+    assert [(h["start"], h["end"]) for h in scan_sequence(
+        sequence, overlap_strategy="score", **options)] == [(3, 19)]
+
+
+def test_cli_default_is_greedy(tmp_path):
+    path = tmp_path / "motif.fa"
+    path.write_text(">m\nGAAGGAAAGAAAGAAAGGG\n")
+    options = ["-minrep", "8", "-maxrep", "22", "-maxspacer", "5",
+               "-purity", "0.9", "-mismatch", "0.15", "-at-threshold", "1.0"]
+    spans = {}
+    for name, extra in (("default", []), ("score", ["-overlap-strategy", "score"])):
+        prefix = tmp_path / name
+        subprocess.run([sys.executable, "-m", "hseeker", "-seq", str(path),
+                        "-out", str(prefix), *options, *extra],
+                       check=True, capture_output=True)
+        with (tmp_path / f"{name}_HDNA.tsv").open() as fh:
+            spans[name] = [(int(r["start"]), int(r["end"]))
+                           for r in csv.DictReader(fh, delimiter="\t")]
+    assert spans == {"default": [(1, 17)], "score": [(3, 19)]}
 
 
 def _score_everything_then_select(hits, filter_homopolymers):

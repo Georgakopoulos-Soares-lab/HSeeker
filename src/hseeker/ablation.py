@@ -11,6 +11,7 @@ from pathlib import Path
 
 from hseeker import (
     _filter_at_content,
+    _filter_g_rate,
     _filter_homopolymer_triplex,
     _filter_overlapping_hits,
     parse_fasta,
@@ -24,6 +25,7 @@ __all__ = (
     "MODELS",
     "detect_candidates",
     "filter_at_content",
+    "filter_g_rate",
     "filter_homopolymers",
     "remove_overlaps",
     "score_candidates",
@@ -33,7 +35,7 @@ __all__ = (
 
 
 def detect_candidates(
-    seq: str, *, minrep: int = 10, maxrep: int = 1000,
+    seq: str, *, minrep: int = 8, maxrep: int = 1000,
     maxspacer: int = 10, purity: float = 0.90,
     mismatch: float = 0.10, seq_offset: int = 1,
     purity_rmq: bool = False,
@@ -47,13 +49,18 @@ def detect_candidates(
         seq, minrep=minrep, maxrep=maxrep, maxspacer=maxspacer,
         purity=purity, mismatch=mismatch, seq_offset=seq_offset,
         purity_rmq=purity_rmq, remove_overlaps=False, score=False,
-        at_threshold=None, filter_homopolymers=False,
+        at_threshold=None, min_g_rate=None, filter_homopolymers=False,
     )
 
 
 def filter_at_content(hits: list[dict], threshold: float) -> list[dict]:
-    """Return candidates below the left-arm AT fraction threshold."""
+    """Return candidates whose full-motif AT fraction is below the threshold."""
     return _filter_at_content(hits, threshold)
+
+
+def filter_g_rate(hits: list[dict], min_rate: float) -> list[dict]:
+    """Return candidates whose higher arm purine-strand G rate is >= min_rate."""
+    return _filter_g_rate(hits, min_rate)
 
 
 def filter_homopolymers(hits: list[dict], *, mode: str = "POST") -> list[dict]:
@@ -97,9 +104,10 @@ def score_candidates(hits: list[dict], model: str = "complete") -> list[dict]:
 
 
 def scan_sequence_ablation(
-    seq: str, *, model: str = "complete", minrep: int = 10,
+    seq: str, *, model: str = "complete", minrep: int = 8,
     maxrep: int = 1000, maxspacer: int = 10, purity: float = 0.90,
-    mismatch: float = 0.10, at_threshold: float | None = 0.80,
+    mismatch: float = 0.10, at_threshold: float | None = None,
+    min_g_rate: float | None = 0.20,
     filter_homopolymers_enabled: bool = True,
     remove_overlaps_enabled: bool = False,
     overlap_strategy: str = "greedy", seq_offset: int = 1,
@@ -108,7 +116,7 @@ def scan_sequence_ablation(
 
     ``detection`` uses the C mirror scanner with purity=0 and no composition
     or score filter. ``composition`` adds the requested C purity threshold
-    and AT filter. ``pairing`` adds full-arm pairing energies including
+    and the G-rate and optional AT filters. ``pairing`` adds full-arm pairing energies including
     mismatch penalties. ``pairing_stacking`` also adds stacking energies.
     ``complete`` enables boundary optimization and optional homopolymer
     filtering. Overlap removal is controlled separately for every model;
@@ -135,6 +143,8 @@ def scan_sequence_ablation(
     )
     if model != "detection" and at_threshold is not None:
         hits = filter_at_content(hits, at_threshold)
+    if model != "detection" and min_g_rate is not None:
+        hits = filter_g_rate(hits, min_g_rate)
     if model in ("pairing", "pairing_stacking", "complete"):
         hits = score_candidates(hits, model=model)
     if model == "complete" and filter_homopolymers_enabled:

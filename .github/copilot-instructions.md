@@ -106,7 +106,7 @@ The inner loop has been hand-tuned for throughput. Do not regress these:
 
 ### Compiler flags
 
-Compiled with `-O3 -march=native -Wall` (declared in `setup.py`).
+Compiled with `-O3 -Wall` (declared in `setup.py`); `-march=native` is added only when building with `HSEEKER_NATIVE_BUILD=1`.
 Previously used `-O2`.
 
 ---
@@ -116,16 +116,16 @@ Previously used `-O2`.
 ### Public surface
 
 ```python
-scan_sequence(seq, *, minrep=10, maxrep=1000, maxspacer=10,
+scan_sequence(seq, *, minrep=8, maxrep=1000, maxspacer=10,
               purity=0.90, mismatch=0.10,
               remove_overlaps=True, seq_offset=1,
               score=True) -> list[dict]
 
-scan_fasta(path, *, minrep=10, ..., score=True) -> list[dict]
+scan_fasta(path, *, minrep=8, ..., score=True) -> list[dict]
 
-scan_fasta_iter(path, *, minrep=10, ..., score=True) -> Generator[dict, None, None]
+scan_fasta_iter(path, *, minrep=8, ..., score=True) -> Generator[dict, None, None]
 
-scan_fasta_parallel(path, *, minrep=10, ..., workers=None,
+scan_fasta_parallel(path, *, minrep=8, ..., workers=None,
                     chunk_size=1_000_000, score=True) -> list[dict]
 ```
 
@@ -236,7 +236,7 @@ hseeker -seq genome.fa -out results -no-score
 
 ```python
 import hseeker
-print(hseeker.scan_sequence("YOUR_SEQ", minrep=10, remove_overlaps=False))
+print(hseeker.scan_sequence("YOUR_SEQ", minrep=8, remove_overlaps=False))
 ```
 
 ### Critical known values (do not change without re-running diagnostics)
@@ -611,4 +611,4 @@ The Docker image will pick up the new versions automatically on the next `docker
 
 ### Updating the `[app]` extra in `pyproject.toml`
 
-The `[project.optional-dependencies]` section has an `app` extra (currently `streamlit` and `plotly`) that is used by the Dockerfile's first stage (`pip install ".[app]"`). This is separate from `webapp/requirements.txt`. If you add a new Python import to `webapp/main.py`, add the package to **both** `webapp/requirements.txt` (for local dev) and the `[app]` extra in `pyproject.toml` (for Docker builds).
+The `[project.optional-dependencies]` section has an `app` extra (currently `pandas` and `plotly`) that is used by the Dockerfile's first stage (`pip install ".[app]"`). This is separate from `webapp/requirements.txt`. If you add a new Python import to `webapp/main.py`, add the package to **both** `webapp/requirements.txt` (for local dev) and the `[app]` extra in `pyproject.toml` (for Docker builds).

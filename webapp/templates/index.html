@@ -104,7 +104,7 @@
             <label class="param-label" for="minrep">Min arm length
               <span class="param-code">minrep</span>
             </label>
-            <input id="minrep" type="number" name="minrep" value="10"
+            <input id="minrep" type="number" name="minrep" value="8"
                    min="4" max="100" class="param-input">
             <span class="param-hint">Minimum arm length in bp (≥ 4)</span>
           </div>
@@ -140,6 +140,22 @@
                    min="0.0" max="1.0" step="0.05" class="param-input">
             <span class="param-hint">Max mirror-position mismatch fraction</span>
           </div>
+          <div class="param-group">
+            <label class="param-label" for="min_g_rate">Minimum G rate
+              <span class="param-code">min_g_rate</span>
+            </label>
+            <input id="min_g_rate" type="number" name="min_g_rate" value="0.20"
+                   min="0.0" max="1.0" step="0.05" class="param-input">
+            <span class="param-hint">Drop motifs whose purine-strand G fraction is below this in both arms; single-base homopolymers are always dropped, as in the CLI</span>
+          </div>
+          <div class="param-group">
+            <label class="param-label" for="at_threshold">AT-content filter (optional)
+              <span class="param-code">at_threshold</span>
+            </label>
+            <input id="at_threshold" type="number" name="at_threshold" value=""
+                   min="0.0" max="1.5" step="0.05" placeholder="off" class="param-input">
+            <span class="param-hint">Leave empty to disable; otherwise drop motifs (arms + spacer) with AT fraction at or above this</span>
+          </div>
           <div class="param-group param-group--check">
             <label class="param-check-label">
               <input type="checkbox" name="score" value="1" checked class="param-check-input">
@@ -172,11 +188,11 @@
         <div class="presets">
           <span class="presets-label">Presets:</span>
           <button type="button" class="preset-btn"
-                  @click="applyPreset({minrep:10,maxrep:1000,maxspacer:10,purity:0.90,mismatch:0.10})">
+                  @click="applyPreset({minrep:8,maxrep:1000,maxspacer:10,purity:0.90,mismatch:0.10})">
             Default
           </button>
           <button type="button" class="preset-btn"
-                  @click="applyPreset({minrep:10,maxrep:1000,maxspacer:10,purity:1.0,mismatch:0.0})">
+                  @click="applyPreset({minrep:8,maxrep:1000,maxspacer:10,purity:1.0,mismatch:0.0})">
             Strict (100% pure)
           </button>
           <button type="button" class="preset-btn"

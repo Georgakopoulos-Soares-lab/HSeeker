@@ -1,0 +1,1 @@
+/home1/10899/kimopro/WORK/miniconda3/envs/r_triplex/bin/Rscript /scratch/10899/kimopro/HSeeker/analysis/scripts/triplex_search_params.R /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/benchmark130.fa /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/triplex/benchmark130__grid_s10_p0.01_l6__0864fa1f/hits.csv 10 0.01 6 25 eukaryotic

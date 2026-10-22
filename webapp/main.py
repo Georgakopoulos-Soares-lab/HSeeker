@@ -364,13 +364,6 @@ def generate_charts(
                 marker=dict(color=_TEAL, line_width=0),
                 hovertemplate="score <b>%{{x:.1f}}</b>: %{{y:,}} sites<extra></extra>",
             ))
-            fig.add_vline(
-                x=50.0,
-                line_dash="dash", line_color=_ORANGE, line_width=1.5,
-                annotation_text="stable ≥ 50",
-                annotation_font=dict(color=_ORANGE, size=10),
-                annotation_position="top right",
-            )
             fig.update_layout(
                 **_base_layout(height=310),
                 title=_title("Total Score Distribution"),
@@ -515,7 +508,6 @@ def compute_stats(hits: list[dict]) -> dict:
     scored_count = len(scores)
     mean_score = round(float(np.mean(scores)), 1) if scores else 0.0
     max_score = round(float(np.max(scores)), 1) if scores else 0.0
-    n_stable = sum(1 for s in scores if s >= 50)
     return dict(
         total_hits=len(hits),
         n_perfect=n_perfect,
@@ -530,7 +522,6 @@ def compute_stats(hits: list[dict]) -> dict:
         mean_total_score=mean_score,
         max_total_score=max_score,
         n_scored=scored_count,
-        n_stable=n_stable,
     )
 
 
@@ -580,6 +571,10 @@ def _run_job(job_id: str, fasta_path: str) -> None:
                 mismatch=params["mismatch"],
                 remove_overlaps=params["remove_overlaps"],
                 overlap_strategy=params["overlap_strategy"],
+                # Same composition filters as the CLI (__main__.py).
+                at_threshold=params.get("at_threshold"),
+                min_g_rate=params.get("min_g_rate", 0.20),
+                filter_homopolymers=params.get("filter_homopolymers", True),
                 seq_offset=offset,
                 score=params.get("score", True),
             )
@@ -626,7 +621,7 @@ async def submit(
     request: Request,
     file: Optional[UploadFile] = File(None),
     seq_text: str = Form(""),
-    minrep: int = Form(10),
+    minrep: int = Form(8),
     maxrep: int = Form(1000),
     maxspacer: int = Form(10),
     purity: float = Form(0.90),
@@ -634,7 +629,18 @@ async def submit(
     remove_overlaps: int = Form(1),
     overlap_strategy: str = Form("greedy"),
     score: int = Form(0),
+    min_g_rate: float = Form(0.20),
+    at_threshold: str = Form(""),
 ):
+    if not 0.0 <= min_g_rate <= 1.0:
+        raise HTTPException(400, "Minimum G rate must be between 0 and 1")
+    # The AT filter is optional: an empty field turns it off.
+    try:
+        at_value = float(at_threshold) if at_threshold.strip() else None
+    except ValueError:
+        raise HTTPException(400, "AT threshold must be a number or empty") from None
+    if at_value is not None and not 0.0 <= at_value <= 1.5:
+        raise HTTPException(400, "AT threshold must be between 0 and 1.5")
     if overlap_strategy not in ("greedy", "score"):
         raise HTTPException(400, "Choose greedy or score overlap strategy")
     if remove_overlaps and overlap_strategy == "score" and not score:
@@ -694,6 +700,9 @@ async def submit(
         remove_overlaps=bool(remove_overlaps),
         overlap_strategy=overlap_strategy,
         score=bool(score),
+        at_threshold=at_value,
+        min_g_rate=min_g_rate,
+        filter_homopolymers=True,  # always on, as in the CLI
     )
     job_id = _new_job(filename, params)
     threading.Thread(target=_run_job, args=(job_id, tmp_path), daemon=True).start()

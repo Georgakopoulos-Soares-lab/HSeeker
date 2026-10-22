@@ -1,0 +1,79 @@
+tool,setting,record_id,sequence,label,call
+HSeeker,defaults,HDNA0053,Ax20,non_forming,no hit
+HSeeker,defaults,HDNA0054,Cx30,forming,no hit
+HSeeker,defaults,SYN0053,Ax15,non_forming,no hit
+HSeeker,defaults,SYN0054,Ax30,non_forming,no hit
+HSeeker,defaults,SYN0055,Tx25,non_forming,no hit
+HSeeker,defaults,SYN0056,Tx35,non_forming,no hit
+triplex,defaults,HDNA0053,Ax20,non_forming,hit
+triplex,defaults,HDNA0054,Cx30,forming,hit
+triplex,defaults,SYN0053,Ax15,non_forming,no hit
+triplex,defaults,SYN0054,Ax30,non_forming,hit
+triplex,defaults,SYN0055,Tx25,non_forming,hit
+triplex,defaults,SYN0056,Tx35,non_forming,hit
+triplex,matched,HDNA0053,Ax20,non_forming,hit
+triplex,matched,HDNA0054,Cx30,forming,hit
+triplex,matched,SYN0053,Ax15,non_forming,no hit
+triplex,matched,SYN0054,Ax30,non_forming,hit
+triplex,matched,SYN0055,Tx25,non_forming,hit
+triplex,matched,SYN0056,Tx35,non_forming,hit
+Triplexator,defaults,HDNA0053,Ax20,non_forming,no hit
+Triplexator,defaults,HDNA0054,Cx30,forming,no hit
+Triplexator,defaults,SYN0053,Ax15,non_forming,no hit
+Triplexator,defaults,SYN0054,Ax30,non_forming,no hit
+Triplexator,defaults,SYN0055,Tx25,non_forming,no hit
+Triplexator,defaults,SYN0056,Tx35,non_forming,no hit
+Triplexator,matched,HDNA0053,Ax20,non_forming,no hit
+Triplexator,matched,HDNA0054,Cx30,forming,no hit
+Triplexator,matched,SYN0053,Ax15,non_forming,no hit
+Triplexator,matched,SYN0054,Ax30,non_forming,no hit
+Triplexator,matched,SYN0055,Tx25,non_forming,no hit
+Triplexator,matched,SYN0056,Tx35,non_forming,no hit
+NeSSie,T_defaults,HDNA0053,Ax20,non_forming,hit
+NeSSie,T_defaults,HDNA0054,Cx30,forming,hit
+NeSSie,T_defaults,SYN0053,Ax15,non_forming,no hit
+NeSSie,T_defaults,SYN0054,Ax30,non_forming,hit
+NeSSie,T_defaults,SYN0055,Tx25,non_forming,hit
+NeSSie,T_defaults,SYN0056,Tx35,non_forming,hit
+NeSSie,T_matched,HDNA0053,Ax20,non_forming,hit
+NeSSie,T_matched,HDNA0054,Cx30,forming,hit
+NeSSie,T_matched,SYN0053,Ax15,non_forming,no hit
+NeSSie,T_matched,SYN0054,Ax30,non_forming,hit
+NeSSie,T_matched,SYN0055,Tx25,non_forming,hit
+NeSSie,T_matched,SYN0056,Tx35,non_forming,hit
+NeSSie,M_defaults,HDNA0053,Ax20,non_forming,hit
+NeSSie,M_defaults,HDNA0054,Cx30,forming,hit
+NeSSie,M_defaults,SYN0053,Ax15,non_forming,no hit
+NeSSie,M_defaults,SYN0054,Ax30,non_forming,hit
+NeSSie,M_defaults,SYN0055,Tx25,non_forming,hit
+NeSSie,M_defaults,SYN0056,Tx35,non_forming,hit
+NeSSie,M_matched,HDNA0053,Ax20,non_forming,hit
+NeSSie,M_matched,HDNA0054,Cx30,forming,hit
+NeSSie,M_matched,SYN0053,Ax15,non_forming,no hit
+NeSSie,M_matched,SYN0054,Ax30,non_forming,hit
+NeSSie,M_matched,SYN0055,Tx25,non_forming,hit
+NeSSie,M_matched,SYN0056,Tx35,non_forming,hit
+nBMST,triplex_defaults,HDNA0053,Ax20,non_forming,no hit
+nBMST,triplex_defaults,HDNA0054,Cx30,forming,no hit
+nBMST,triplex_defaults,SYN0053,Ax15,non_forming,no hit
+nBMST,triplex_defaults,SYN0054,Ax30,non_forming,hit
+nBMST,triplex_defaults,SYN0055,Tx25,non_forming,no hit
+nBMST,triplex_defaults,SYN0056,Tx35,non_forming,no hit
+nBMST,triplex_matched,HDNA0053,Ax20,non_forming,hit
+nBMST,triplex_matched,HDNA0054,Cx30,forming,no hit
+nBMST,triplex_matched,SYN0053,Ax15,non_forming,no hit
+nBMST,triplex_matched,SYN0054,Ax30,non_forming,hit
+nBMST,triplex_matched,SYN0055,Tx25,non_forming,no hit
+nBMST,triplex_matched,SYN0056,Tx35,non_forming,no hit
+nBMST,MR_defaults,HDNA0053,Ax20,non_forming,no hit
+nBMST,MR_defaults,HDNA0054,Cx30,forming,hit
+nBMST,MR_defaults,SYN0053,Ax15,non_forming,no hit
+nBMST,MR_defaults,SYN0054,Ax30,non_forming,hit
+nBMST,MR_defaults,SYN0055,Tx25,non_forming,hit
+nBMST,MR_defaults,SYN0056,Tx35,non_forming,hit
+nBMST,MR_matched,HDNA0053,Ax20,non_forming,hit
+nBMST,MR_matched,HDNA0054,Cx30,forming,hit
+nBMST,MR_matched,SYN0053,Ax15,non_forming,no hit
+nBMST,MR_matched,SYN0054,Ax30,non_forming,hit
+nBMST,MR_matched,SYN0055,Tx25,non_forming,hit
+nBMST,MR_matched,SYN0056,Tx35,non_forming,hit

@@ -1,0 +1,36 @@
+{
+ "date": "2026-10-11 08:16:45",
+ "base": {
+  "minrep": 8,
+  "maxrep": 1000,
+  "maxspacer": 10,
+  "purity": 0.9,
+  "mismatch": 0.1,
+  "score": false
+ },
+ "filters": {
+  "none": {
+   "at_threshold": null,
+   "filter_homopolymers": false
+  },
+  "AT_only": {
+   "at_threshold": 0.8,
+   "filter_homopolymers": false
+  },
+  "homopolymer_only": {
+   "at_threshold": null,
+   "filter_homopolymers": true
+  },
+  "both (shipped CLI)": {
+   "at_threshold": 0.8,
+   "filter_homopolymers": true
+  }
+ },
+ "summary": {
+  "none": "2/6 correct",
+  "AT_only": "6/6 correct",
+  "homopolymer_only": "5/6 correct",
+  "both (shipped CLI)": "5/6 correct"
+ },
+ "experimental_csv_sha256": "19418318b28b0e4c07ed635b5abe6b65ddf22689ab3751abd541bed35d1dfee0"
+}

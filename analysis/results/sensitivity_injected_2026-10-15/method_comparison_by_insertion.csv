@@ -1,0 +1,131 @@
+sequence_id,sequence_name,label,insert_start,insert_end,insert_length,hseeker_overlap_pred,hseeker_score,hseeker_score_pred_youden,triplex_overlap_pred,triplex_score,hseeker_best_hit_start,hseeker_best_hit_end,triplex_best_hit_start,triplex_best_hit_end
+HDNA0001,pAA32,forming,28224,28255,32,True,148.78,True,True,28.0,28224,28255,28224,28255
+HDNA0002,pGG32,forming,55548,55579,32,True,152.55,True,True,29.0,55542,55585,55547,55580
+HDNA0003,pAG32,forming,97374,97405,32,True,119.235,True,True,27.0,97374,97405,97374,97405
+HDNA0004,pTG32,forming,210902,210933,32,True,119.235,True,False,nan,210902,210933,,
+HDNA0005,pAC32,forming,223728,223759,32,True,119.235,True,False,nan,223728,223759,,
+HDNA0006,pGT32,forming,251118,251149,32,True,119.235,True,False,nan,251118,251149,,
+HDNA0007,pGC32,forming,267805,267836,32,True,119.235,True,False,nan,267805,267836,,
+HDNA0008,pCG32,forming,270501,270532,32,True,119.235,True,False,nan,270501,270532,,
+HDNA0009,pCT32,forming,365745,365776,32,True,119.235,True,False,nan,365745,365776,,
+HDNA0010,pAT32,forming,385691,385722,32,True,119.235,True,False,nan,385691,385722,,
+HDNA0011,pTA32,forming,396561,396592,32,True,119.235,True,False,nan,396561,396592,,
+HDNA0012,pTT32,forming,470594,470625,32,True,119.235,True,False,nan,470594,470625,,
+HDNA0013,pCC32,forming,534294,534325,32,True,119.235,True,False,nan,534294,534325,,
+HDNA0014,pGA32,forming,556647,556678,32,True,119.235,True,True,27.0,556647,556678,556647,556678
+HDNA0015,pCA32,forming,584919,584950,32,True,119.235,True,False,nan,584917,584952,,
+HDNA0016,pTC32,forming,600448,600479,32,True,131.835,True,False,nan,600447,600480,,
+HDNA0017,Con-2,forming,662536,662588,53,True,136.18,True,False,nan,662543,662571,,
+HDNA0018,H/CT,forming,670909,670961,53,True,132.41,True,False,nan,670916,670944,,
+HDNA0019,H/Ri,forming,730914,730966,53,True,132.41,True,False,nan,730921,730949,,
+HDNA0020,GA/CT,non-forming,764275,764327,53,False,nan,False,False,nan,,,,
+HDNA0021,ΔCT/Ri,non-forming,779733,779782,50,False,nan,False,False,nan,,,,
+HDNA0022,R1 (H-DNA buffer),forming,787747,787782,36,True,92.03,True,False,nan,787747,787769,,
+HDNA0023,R2 (H-DNA buffer),forming,813126,813161,36,True,92.03,True,False,nan,813139,813161,,
+HDNA0024,R2-3′ (H-DNA buffer),forming,849108,849153,46,True,92.03,True,False,nan,849121,849143,,
+HDNA0025,R2-5′ (H-DNA buffer),forming,859294,859339,46,True,92.03,True,False,nan,859317,859339,,
+HDNA0027,H-33,forming,861730,861762,33,True,92.03,True,False,nan,861737,861759,,
+HDNA0028,B-33,non-forming,894610,894642,33,False,nan,False,False,nan,,,,
+HDNA0029,"pCON (S1, pH 4.5)",non-forming,921808,921838,31,False,nan,False,False,nan,,,,
+HDNA0030,"pcMyc (S1, pH 4.5)",forming,935948,935970,23,True,104.63,True,False,nan,935947,935971,,
+HDNA0031,"pMycAG (S1, pH 4.5)",non-forming,937826,937848,23,False,nan,False,False,nan,,,,
+HDNA0038,GA-rich_Lyamichev-Mirkin-Frank-Kamenetskii,forming,963011,963053,43,True,175.41,True,True,38.0,963008,963052,963011,963053
+HDNA0040,TC18/AG18_Htun-Dahlberg,forming,1049242,1049299,58,True,175.985,True,True,37.0,1049248,1049290,1049249,1049289
+HDNA0041,pRW1704,forming,1162593,1162619,27,True,124.87,True,False,nan,1162593,1162620,,
+HDNA0042,pRW1412,forming,1172738,1172764,27,True,86.495,True,False,nan,1172737,1172766,,
+HDNA0043,pRW1415,forming,1173541,1173567,27,True,107.925,True,False,nan,1173541,1173568,,
+HDNA0044,pRW1402,forming,1200757,1200780,24,True,90.265,True,False,nan,1200757,1200781,,
+HDNA0045,pRW1702 (also pRW1701),forming,1284413,1284439,27,True,103.44,True,False,nan,1284414,1284439,,
+HDNA0046,pRW1712,forming,1306571,1306599,29,True,103.44,True,False,nan,1306572,1306599,,
+HDNA0047,pRW1713,forming,1329067,1329097,31,True,103.44,True,False,nan,1329068,1329097,,
+HDNA0048,pRW1714,forming,1341694,1341726,33,True,103.44,True,False,nan,1341695,1341726,,
+HDNA0049,pRW1404,forming,1344434,1344457,24,True,110.98,True,False,nan,1344433,1344457,,
+HDNA0050,pRW1411,forming,1366873,1366896,24,True,131.12,True,False,nan,1366870,1366897,,
+HDNA0051,pRW1408,forming,1373175,1373198,24,True,123.58,True,False,nan,1373175,1373200,,
+HDNA0052,pRW1410,forming,1438095,1438118,24,True,112.27,True,False,nan,1438094,1438120,,
+HDNA0055,GA32,forming,1501144,1501173,30,True,106.635,True,True,26.0,1501144,1501173,1501143,1501174
+HDNA0056,AA32,forming,1615567,1615596,30,True,136.18,True,True,26.0,1615567,1615596,1615567,1615596
+HDNA0057,cMYC_NHE_Hisey2024,forming,1670535,1670558,24,True,76.375,True,False,nan,1670536,1670556,,
+HDNA0058,cMYC_NSE_ACCCTCCCC4,forming,1671175,1671210,36,False,nan,False,False,nan,,,,
+HDNA0059,BCL6_ClusterII_Pu,forming,1760096,1760119,24,True,165.15,True,True,26.0,1760092,1760123,1760093,1760122
+HDNA0060,FXN_GAA10,forming,1772500,1772529,30,True,137.47,True,True,26.0,1772499,1772528,1772501,1772529
+HDNA0061,FXN_GAA20,forming,1786318,1786377,60,True,297.6,True,True,58.0,1786314,1786382,1786318,1786378
+HDNA0062,FXN_GAA33,forming,1808920,1809018,99,True,487.99,True,True,58.0,1808914,1809025,1808920,1808980
+HDNA0063,FXN_GAA66,forming,1836905,1837102,198,True,984.75,True,True,58.0,1836891,1837120,1836905,1836965
+HDNA0064,CANVAS_AAGGG10,forming,1842830,1842879,50,True,272.3,True,True,48.0,1842826,1842885,1842828,1842878
+HDNA0065,XDP_CCCTCT10,forming,1845350,1845409,60,True,313.87,True,True,54.0,1845346,1845410,1845350,1845406
+HDNA0066,CTC20_mouse,forming,1852334,1852374,41,True,201.185,True,True,42.0,1852332,1852378,1852333,1852377
+HDNA0067,CTC16_mouse,forming,1875613,1875645,33,True,166.44,True,True,33.0,1875610,1875646,1875611,1875649
+HDNA0068,TCCTC10_mouse,forming,1914968,1915017,50,True,272.3,True,True,51.0,1914965,1915024,1914969,1915025
+HDNA0069,AG11_model,forming,1924663,1924684,22,True,102.15,True,False,nan,1924662,1924684,,
+HDNA0070,GA20_SV40,forming,1954992,1955031,40,True,196.7,True,True,40.0,1954990,1955034,1954990,1955032
+HDNA0071,PKD1_PyRE_CT44,forming,1956122,1956209,88,True,414.77,True,True,58.0,1956110,1956212,1956122,1956182
+HDNA0072,GA16_sea_urchin_histone,forming,2057041,2057072,32,True,166.44,True,True,30.0,2057040,2057074,2057039,2057073
+HDNA0073,GAAA10_human,forming,2057752,2057791,40,True,172.79,True,True,40.0,2057746,2057794,2057745,2057791
+HDNA0074,GGAA10_human,forming,2072352,2072391,40,True,200.47,True,True,34.0,2072348,2072393,2072352,2072389
+HDNA0075,SV40_GACT22,forming,2112545,2112588,44,True,218.845,True,True,43.0,2112544,2112594,2112544,2112590
+HDNA0076,TC17_Glover,forming,2207611,2207644,34,True,166.44,True,True,31.0,2207610,2207646,2207611,2207645
+HDNA0077,TTCCC20_avian,forming,2213076,2213175,100,True,524.4,True,True,58.0,2213067,2213181,2213076,2213137
+HDNA0078,gamma_globin_228_189,forming,2222670,2222706,37,False,nan,False,False,nan,,,,
+HDNA0079,PKD1_46bp_mirror,forming,2225721,2225766,46,True,221.9,True,True,43.0,2225718,2225766,2225720,2225766
+HDNA0081,Hanvey1988_(TTC)8,forming,2242083,2242106,24,True,103.44,True,False,nan,2242081,2242107,,
+SYN0001,R2-5′ (H-DNA buffer)_mirrordisrupted,non-forming,2243388,2243433,46,False,nan,False,False,nan,,,,
+SYN0002,pCG32_mirrordisrupted,non-forming,2249835,2249866,32,False,nan,False,False,nan,,,,
+SYN0003,pGT32_mirrordisrupted,non-forming,2268380,2268411,32,False,nan,False,False,nan,,,,
+SYN0004,pTT32_mirrordisrupted,non-forming,2311039,2311070,32,False,nan,False,False,nan,,,,
+SYN0005,pRW1712_mirrordisrupted,non-forming,2334911,2334939,29,False,nan,False,False,nan,,,,
+SYN0006,pCC32_mirrordisrupted,non-forming,2335798,2335829,32,False,nan,False,False,nan,,,,
+SYN0007,AA32_mirrordisrupted,non-forming,2337651,2337680,30,False,nan,False,False,nan,,,,
+SYN0008,"pcMyc (S1, pH 4.5)_mirrordisrupted",non-forming,2431611,2431633,23,False,nan,False,False,nan,,,,
+SYN0009,pAT32_mirrordisrupted,non-forming,2463429,2463460,32,False,nan,False,False,nan,,,,
+SYN0010,H/Ri_mirrordisrupted,non-forming,2466161,2466213,53,False,nan,False,False,nan,,,,
+SYN0011,pRW1713_mirrordisrupted,non-forming,2507693,2507723,31,False,nan,False,False,nan,,,,
+SYN0012,pTC32_mirrordisrupted,non-forming,2643897,2643928,32,False,nan,False,False,nan,,,,
+SYN0013,pTA32_mirrordisrupted,non-forming,2650431,2650462,32,False,nan,False,False,nan,,,,
+SYN0014,pCT32_mirrordisrupted,non-forming,2724532,2724563,32,False,nan,False,False,nan,,,,
+SYN0015,pTG32_mirrordisrupted,non-forming,2827843,2827874,32,False,nan,False,False,nan,,,,
+SYN0016,pRW1714_mirrordisrupted,non-forming,2857914,2857946,33,False,nan,False,False,nan,,,,
+SYN0017,cMYC_NSE_ACCCTCCCC4_mirrordisrupted,non-forming,2858577,2858612,36,False,nan,False,False,nan,,,,
+SYN0018,pRW1415_mirrordisrupted,non-forming,2889694,2889720,27,False,nan,False,False,nan,,,,
+SYN0019,pRW1412_mirrordisrupted,non-forming,2984638,2984664,27,False,nan,False,False,nan,,,,
+SYN0020,pGA32_mirrordisrupted,non-forming,3015776,3015807,32,False,nan,False,False,nan,,,,
+SYN0021,pCA32_dinucshuffle,non-forming,3038085,3038116,32,False,nan,False,False,nan,,,,
+SYN0022,R1 (H-DNA buffer)_dinucshuffle,non-forming,3041149,3041184,36,False,nan,False,False,nan,,,,
+SYN0023,R2-3′ (H-DNA buffer)_dinucshuffle,non-forming,3064973,3065018,46,False,nan,False,False,nan,,,,
+SYN0024,pRW1702 (also pRW1701)_dinucshuffle,non-forming,3109888,3109914,27,False,nan,False,False,nan,,,,
+SYN0025,pAG32_dinucshuffle,non-forming,3179988,3180019,32,False,nan,False,False,nan,,,,
+SYN0026,pGG32_dinucshuffle,non-forming,3187746,3187777,32,False,nan,False,False,nan,,,,
+SYN0027,gamma_globin_228_189_dinucshuffle,non-forming,3191737,3191773,37,False,nan,False,False,nan,,,,
+SYN0028,R2 (H-DNA buffer)_dinucshuffle,non-forming,3193442,3193477,36,False,nan,False,False,nan,,,,
+SYN0029,pAC32_dinucshuffle,non-forming,3206003,3206034,32,False,nan,False,False,nan,,,,
+SYN0030,cMYC_NHE_Hisey2024_dinucshuffle,non-forming,3232443,3232466,24,False,nan,False,False,nan,,,,
+SYN0031,random_matched_to_HDNA0042,non-forming,3323605,3323631,27,False,nan,False,False,nan,,,,
+SYN0032,random_matched_to_HDNA0014,non-forming,3355246,3355277,32,False,nan,False,False,nan,,,,
+SYN0033,random_matched_to_HDNA0064,non-forming,3370078,3370127,50,False,nan,False,False,nan,,,,
+SYN0034,random_matched_to_HDNA0009,non-forming,3524101,3524132,32,False,nan,False,False,nan,,,,
+SYN0035,random_matched_to_HDNA0075,non-forming,3544282,3544325,44,False,nan,False,False,nan,,,,
+SYN0036,random_matched_to_HDNA0057,non-forming,3546324,3546347,24,False,nan,False,False,nan,,,,
+SYN0037,random_matched_to_HDNA0059,non-forming,3550160,3550183,24,False,nan,False,False,nan,,,,
+SYN0038,random_matched_to_HDNA0005,non-forming,3599001,3599032,32,False,nan,False,False,nan,,,,
+SYN0039,random_matched_to_HDNA0079,non-forming,3652145,3652190,46,False,nan,False,False,nan,,,,
+SYN0040,random_matched_to_HDNA0010,non-forming,3773354,3773385,32,False,nan,False,False,nan,,,,
+SYN0041,telomeric_(TTAGGG)4,non-forming,3808629,3808652,24,False,nan,False,False,nan,,,,
+SYN0042,G4_G3-tracts_TT-loops,non-forming,3811282,3811299,18,False,nan,False,False,nan,,,,
+SYN0043,c-kit21_G4,non-forming,3854318,3854339,22,False,nan,False,False,nan,,,,
+SYN0044,thrombin_aptamer_G4,non-forming,3859147,3859161,15,False,nan,False,False,nan,,,,
+SYN0045,Z-DNA_(CG)8,non-forming,3882946,3882961,16,False,nan,False,False,nan,,,,
+SYN0046,Z-DNA_(CG)10,non-forming,3931530,3931549,20,False,nan,False,False,nan,,,,
+SYN0047,Z-DNA_(CG)12,non-forming,4145173,4145196,24,False,nan,False,False,nan,,,,
+SYN0048,B-DNA_random_1,non-forming,4193142,4193171,30,False,nan,False,False,nan,,,,
+SYN0049,B-DNA_random_2,non-forming,4204537,4204581,45,False,nan,False,False,nan,,,,
+SYN0050,B-DNA_random_3,non-forming,4244589,4244613,25,False,nan,False,False,nan,,,,
+SYN0051,B-DNA_random_4,non-forming,4264129,4264173,45,False,nan,False,False,nan,,,,
+SYN0052,B-DNA_random_5,non-forming,4279648,4279682,35,False,nan,False,False,nan,,,,
+SYN0057,perfect_mirror_balancedGC_1,non-forming,4443999,4444024,26,False,nan,False,False,nan,,,,
+SYN0058,perfect_mirror_balancedGC_2,non-forming,4486183,4486210,28,False,nan,False,False,nan,,,,
+SYN0059,perfect_mirror_balancedGC_3,non-forming,4503728,4503753,26,False,nan,False,False,nan,,,,
+SYN0060,pAA32_mirrordisrupted,non-forming,4509980,4510011,32,False,nan,False,False,nan,,,,
+SYN0061,GA32_mirrordisrupted,non-forming,4526848,4526877,30,False,nan,False,False,nan,,,,
+SYN0062,pGC32_dinucshuffle,non-forming,4576909,4576940,32,False,nan,False,False,nan,,,,
+SYN0063,random_matched_to_HDNA0004,non-forming,4580507,4580538,32,False,nan,False,False,nan,,,,
+SYN0064,random_matched_to_HDNA0081,non-forming,4636525,4636548,24,False,nan,False,False,nan,,,,

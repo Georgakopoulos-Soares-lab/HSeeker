@@ -1,0 +1,21 @@
+#Command -I /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/homopolymers.fa -O /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/NeSSie/homopolymers__T_matched__9dc396f3/out_k19 -T -k 19 -p 10 -m 10 
+>HDNA0053
+$|19|AAAAAAAAAAAAAAAAAAA
+@counts: 2
+@indexes: 0|1|
+>HDNA0054
+$|19|CCCCCCCCCCCCCCCCCCC
+@counts: 12
+@indexes: 0|1|2|3|4|5|6|7|8|9|10|11|
+>SYN0054
+$|19|AAAAAAAAAAAAAAAAAAA
+@counts: 12
+@indexes: 0|1|2|3|4|5|6|7|8|9|10|11|
+>SYN0055
+$|19|TTTTTTTTTTTTTTTTTTT
+@counts: 7
+@indexes: 0|1|2|3|4|5|6|
+>SYN0056
+$|19|TTTTTTTTTTTTTTTTTTT
+@counts: 17
+@indexes: 0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|

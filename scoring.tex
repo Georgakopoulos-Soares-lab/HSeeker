@@ -1,0 +1,93 @@
+\begin{algorithm}
+\caption{HSeeker Phase 3: Thermodynamic Stability Scoring}
+\label{alg:mirror-phase3}
+\scriptsize
+\begin{algorithmic}[1]
+\Require Full motif $s = s_1 \cdot s_3 \cdot s_2$ (left arm $s_1$, spacer $s_3$,
+         right arm $s_2$, each arm of length $a$);
+         scoring constants: pairing energies $w_G$, $w_A$, stacking bonus $\delta$,
+         penalty divisor $d$, penalty-run cap $n_{\max}$,
+         minimum window $L_{\mathrm{win}}$, spacer-to-arm ratio bound $v$
+\Ensure Stacking score, pairing score, total score, putative triplex
+        $s_l[s_{\mathrm{spacer}}]s_r$, or $\bot$ if the arms contain a non-ACGT base
+
+\Statex \textit{$\triangleright$ Orientation and alignment}
+\State $s_1 \leftarrow s[{:}a]$;\; $s_3 \leftarrow s[a{:}-a]$;\; $s_2 \leftarrow s[-a{:}]$
+\If{$|CT(s_1)| > |GA(s_1)|$}
+    \State $s \leftarrow \mathrm{revcomp}(s)$; recompute $s_1, s_3, s_2$
+    \Comment{score on the purine strand}
+\EndIf
+\State $s_2 \leftarrow \mathrm{reverse}(s_2)$
+    \Comment{now $s_1[j]$ pairs with $s_2[j]$}
+\If{$s_1 \cdot s_2$ contains a non-ACGT base} \State \Return $\bot$ \EndIf
+\State $\ell_s \leftarrow |s_3|$
+
+\Statex \textit{$\triangleright$ Per-position pairing score and match indicator}
+\For{$j \leftarrow 0$ \textbf{to} $a - 1$}
+    \State $P[j] \leftarrow
+        \begin{cases}
+            w_G   & \text{if } s_1[j] = s_2[j] = G\\
+            w_A   & \text{if } s_1[j] = s_2[j] = A\\
+            -(w_G + w_A)/2 & \text{otherwise}
+        \end{cases}$
+    \State $B[j] \leftarrow 1$ if $s_1[j] = s_2[j] \in \{G,A\}$ else $0$
+\EndFor
+
+\Statex \textit{$\triangleright$ Stacking score of a window $B[L{:}R]$}
+\Procedure{CalcStacking}{$B[L{:}R]$}
+    \State $K[0] \leftarrow 0$;\; $c \leftarrow 0$
+        \Comment{$c$: current run of non-stacked positions}
+    \For{$j \leftarrow 1$ \textbf{to} $R - L - 1$}
+        \If{$B[L{+}j{-}1] = B[L{+}j] = 1$}
+            \State $K[j] \leftarrow +\delta$;\; $c \leftarrow 0$
+        \Else
+            \State $n \leftarrow \min(\max(c - 1,\, 0),\, n_{\max})$
+            \State $K[j] \leftarrow -\bigl(\delta \text{ if } n = 0 \text{ else }
+                   \delta^{\,n+1}/d\bigr)$;\; $c \leftarrow c + 1$
+        \EndIf
+    \EndFor
+    \State \Return $K$
+\EndProcedure
+
+\Statex \textit{$\triangleright$ Optimal arm window $[L, R)$ under the spacer constraint}
+\State $\mathit{best} \leftarrow -\infty$;\; $(L^*, R^*) \leftarrow \mathrm{None}$
+\For{$L \leftarrow 0$ \textbf{to} $a - 1$}
+    \For{$R \leftarrow L + \min(L_{\mathrm{win}},\, a)$ \textbf{to} $a$}
+        \If{$2(a - R) + \ell_s \;\le\; (R - L)\cdot v$}
+            \Comment{new spacer length $\le$ window length $\times\, v$}
+            \State $K \leftarrow \textsc{CalcStacking}(B[L{:}R])$
+            \State $\mathit{cur} \leftarrow
+                   \mathrm{round}\!\bigl(\textstyle\sum_{j=L}^{R-1} P[j]
+                   + \sum_j K[j],\; 3\bigr)$
+            \If{$\mathit{cur} > \mathit{best}$}
+                \Comment{strict: first maximum in $(L,R)$ order wins}
+                \State $\mathit{best} \leftarrow \mathit{cur}$;\;
+                       $(L^*, R^*) \leftarrow (L, R)$
+            \EndIf
+        \EndIf
+    \EndFor
+\EndFor
+\If{$(L^*, R^*) = \mathrm{None}$}
+    \State $(L^*, R^*) \leftarrow (0, a)$
+    \Comment{no window fits: score the detected arms as they are}
+\EndIf
+
+\Statex \textit{$\triangleright$ Final scores and putative triplex}
+\State $K \leftarrow \textsc{CalcStacking}(B[L^*{:}R^*])$
+\State $\mathit{stacking\_score} \leftarrow \textstyle\sum_j K[j]$;\;
+       $\mathit{pairing\_score} \leftarrow \textstyle\sum_{j=L^*}^{R^*-1} P[j]$
+\State $\mathit{total\_score} \leftarrow
+       \max\bigl(\mathrm{round}(\mathit{stacking\_score} + \mathit{pairing\_score},\; 3),\; 0\bigr)$
+\State $s_{\mathrm{spacer}} \leftarrow
+       s_1[R^*{:}] \;+\; s_3 \;+\; \mathrm{reverse}(s_2[R^*{:}])$
+    \Comment{right tail of $s_1$ + spacer + left tail of the original right arm}
+\State $s_l \leftarrow s_1[L^*{:}R^*]$;\;
+       $s_r \leftarrow \mathrm{reverse}(s_2[L^*{:}R^*])$
+\State $\mathit{putative\_triplex} \leftarrow
+       s_l + \text{``[''} + s_{\mathrm{spacer}} + \text{``]''} + s_r$
+\State \Return $\{\mathit{stacking\_score},\;
+                  \mathit{pairing\_score},\;
+                  \mathit{total\_score},\;
+                  \mathit{putative\_triplex}\}$
+\end{algorithmic}
+\end{algorithm}

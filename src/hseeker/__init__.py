@@ -7,8 +7,8 @@ Fast C core wrapped in a clean Python API.
 Quick start
 -----------
 >>> import hseeker
->>> hits = hseeker.scan_sequence("GAGAGAGAGAGAGAGAGAGAGAGAGAGA", minrep=10)
->>> hits = hseeker.scan_fasta("genome.fa", minrep=10, purity=0.90)
+>>> hits = hseeker.scan_sequence("GAGAGAGAGAGAGAGAGAGAGAGAGAGA", minrep=8)
+>>> hits = hseeker.scan_fasta("genome.fa", minrep=8, purity=0.90)
 """
 
 from __future__ import annotations
@@ -47,6 +47,7 @@ __all__ = [
     "ABLATION_MODELS",
     "detect_candidates",
     "filter_at_content",
+    "filter_g_rate",
     "filter_homopolymers",
     "remove_overlaps",
     "score_candidates",
@@ -80,6 +81,39 @@ def _filter_at_content(hits: list[dict], threshold: float) -> list[dict]:
             continue
         at_count = sum(1 for b in h["full_sequence"] if b in ("a", "t", "A", "T"))
         if (at_count / sequence_length) < threshold:
+            kept.append(h)
+    return kept
+
+
+def _arm_g_rate(arm: str, purine_is_ga: bool) -> float:
+    """Guanine fraction of the purine strand over one arm.
+
+    For a GA-rich arm the purine strand is the arm itself, so G is counted;
+    for a CT-rich arm it is the complementary strand, so C is counted.
+    """
+    if not arm:
+        return 0.0
+    base = "g" if purine_is_ga else "c"
+    return sum(1 for b in arm if b in (base, base.upper())) / len(arm)
+
+
+def _filter_g_rate(hits: list[dict], min_rate: float) -> list[dict]:
+    """Drop hits whose purine-strand guanine rate is < *min_rate* in both arms.
+
+    Applied before scoring. Following Triplexator's guanine rate (Buske et
+    al. 2012), the G fraction is measured on the purine strand of each arm;
+    the spacer is excluded because it is the single-stranded loop. Either arm
+    can be the duplex target depending on which arm folds back (H-y3 vs.
+    H-y5), so a hit is kept when the higher of the two arm rates passes. The
+    arms share a purine strand, so with mirror mismatch fraction m their
+    rates differ by at most m.
+    """
+    kept = []
+    for h in hits:
+        purine_is_ga = h["ga_pct"] >= h["ct_pct"]
+        rate = max(_arm_g_rate(h["left_arm"], purine_is_ga),
+                   _arm_g_rate(h["right_arm"], purine_is_ga))
+        if rate >= min_rate:
             kept.append(h)
     return kept
 
@@ -311,7 +345,7 @@ def _apply_scoring(hits: list[dict]) -> list[dict]:
 def scan_sequence(
     seq: str,
     *,
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -322,7 +356,8 @@ def scan_sequence(
     score: bool = True,
     purity_rmq: bool = False,
     at_threshold: float | None = None,
-    filter_homopolymers: bool = False,
+    min_g_rate: float | None = 0.20,
+    filter_homopolymers: bool = True,
 ) -> list[dict]:
     """Scan a raw DNA string for H-DNA / triplex mirror repeat motifs.
 
@@ -334,7 +369,7 @@ def scan_sequence(
     seq : str
         DNA sequence (ACGTN; case-insensitive).  'N' bases break arm extension.
     minrep : int
-        Minimum arm length in bases (default 10).
+        Minimum arm length in bases (default 8).
     maxrep : int
         Maximum arm length in bases (default 1000).
     maxspacer : int
@@ -365,11 +400,17 @@ def scan_sequence(
         (default False). This preserves output semantics while skipping
         center/spacer pairs that cannot satisfy the purity rule.
     at_threshold : float | None
-        Drop hits whose left-arm AT content is >= this value (default None,
-        i.e. no filtering). Applied before scoring. AT-rich arms are
-        unlikely to form stable H-DNA triplexes.
+        Drop hits whose AT fraction over the full motif (both arms and the
+        spacer) is >= this value (default None, i.e. no filtering, as in the
+        CLI and web app). Applied before overlap removal and scoring.
+    min_g_rate : float | None
+        Drop hits whose purine-strand guanine fraction is below this value in
+        both arms (default 0.20, as in the CLI and web app; pass None to
+        disable). The higher of the two arm rates is used and the spacer is
+        excluded. For a CT-rich arm the purine strand is the complement, so C
+        is counted. Applied before overlap removal and scoring.
     filter_homopolymers : bool
-        Drop homopolymer hits (default False). Always inspect the detected
+        Drop homopolymer hits (default True, as in the CLI and web app). Always inspect the detected
         ``full_sequence``; with scoring, also inspect ``putative_triplex``.
 
     Returns
@@ -381,10 +422,16 @@ def scan_sequence(
         ``right_arm``, ``full_sequence``, and (if ``score=True``)
         ``stacking_score``, ``pairing_score``, ``total_score``,
         ``putative_triplex``.
-        Coordinates are 1-based and inclusive.
+        Coordinates are 1-based and inclusive. All sequence fields, including
+        ``putative_triplex``, are lowercase regardless of input case.
     """
     _check_overlap_strategy(remove_overlaps, score, overlap_strategy)
     score_overlap = remove_overlaps and overlap_strategy in ("score", "stability")
+    # Composition filters must see every candidate: if greedy overlap removal
+    # ran first, a longer hit that fails a filter could hide a shorter
+    # overlapping hit that passes. Defer the greedy sweep to Python then.
+    composition = at_threshold is not None or min_g_rate is not None
+    greedy_overlap = remove_overlaps and not score_overlap
     hits = _hdna.scan_sequence(
         seq,
         minrep=minrep,
@@ -392,12 +439,16 @@ def scan_sequence(
         maxspacer=maxspacer,
         purity=purity,
         mismatch=mismatch,
-        remove_overlaps=remove_overlaps and not score_overlap,
+        remove_overlaps=greedy_overlap and not composition,
         seq_offset=seq_offset,
         purity_rmq=purity_rmq,
     )
     if at_threshold is not None and hits:
         hits = _filter_at_content(hits, at_threshold)
+    if min_g_rate is not None and hits:
+        hits = _filter_g_rate(hits, min_g_rate)
+    if greedy_overlap and composition and hits:
+        hits = _filter_overlapping_hits(hits, strategy="greedy")
     if score_overlap and hits:
         return _score_and_select(hits, filter_homopolymers)
     if score and hits:
@@ -415,8 +466,9 @@ def parse_fasta(
     """Yield ``(seq_id, sequence, offset)`` tuples from a FASTA file.
 
     Handles multi-record FASTA files.  The genomic offset is parsed from
-    headers of the form ``>seqid:start-end`` (UCSC / Ensembl region
-    extracts). All other headers default to offset 1.
+    seqIDs of the form ``>seqid:start-end`` (UCSC / Ensembl region
+    extracts); the header description is never used. All other headers
+    default to offset 1.
 
     Parameters
     ----------
@@ -436,12 +488,15 @@ def parse_fasta(
         raise ValueError(f"Invalid FASTA parser {parser!r}; choose 'biopython' or 'inhouse'")
 
     _header_re = re.compile(r"^(\S+)")
-    _offset_re = re.compile(r":(\d+)[-–]")
+    _offset_re = re.compile(r":(\d+)[-–]\d+$")
 
     def record_info(header: str) -> tuple[str, int]:
         match = _header_re.match(header)
         seq_id = match.group(1) if match else "unknown"
-        region = _offset_re.search(header)
+        # Only the seqID can carry a region (">chr1:1000-2000"); NCBI descriptions
+        # often contain scaffold names like "scf..._ld:7665500-7674800" that must
+        # not shift coordinates.
+        region = _offset_re.search(seq_id)
         return seq_id, int(region.group(1)) if region else 1
 
     if parser == "biopython":
@@ -496,7 +551,7 @@ def scan_fasta(
     path: str | Path,
     *,
     parser: str = "biopython",
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -506,7 +561,8 @@ def scan_fasta(
     score: bool = True,
     purity_rmq: bool = False,
     at_threshold: float | None = None,
-    filter_homopolymers: bool = False,
+    min_g_rate: float | None = 0.20,
+    filter_homopolymers: bool = True,
 ) -> list[dict]:
     """Scan every record in a FASTA file for H-DNA motifs.
 
@@ -525,7 +581,7 @@ def scan_fasta(
         FASTA parser implementation (default "biopython").
     minrep, maxrep, maxspacer, purity, mismatch, remove_overlaps,
     overlap_strategy, score,
-    at_threshold, filter_homopolymers :
+    at_threshold, min_g_rate, filter_homopolymers :
         Same as :func:`scan_sequence`.
 
     Returns
@@ -550,6 +606,8 @@ def scan_fasta(
             score=False,  # defer scoring to collect phase
             purity_rmq=purity_rmq,
             at_threshold=at_threshold,
+            min_g_rate=min_g_rate,
+            filter_homopolymers=False,  # applied once in the collect phase
         )
         for h in hits:
             h["seq_id"] = seq_id
@@ -569,7 +627,7 @@ def scan_fasta_iter(
     path: str | Path,
     *,
     parser: str = "biopython",
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -579,7 +637,8 @@ def scan_fasta_iter(
     score: bool = True,
     purity_rmq: bool = False,
     at_threshold: float | None = None,
-    filter_homopolymers: bool = False,
+    min_g_rate: float | None = 0.20,
+    filter_homopolymers: bool = True,
 ) -> Generator[dict, None, None]:
     """Scan a FASTA file and yield hits one at a time (streaming).
 
@@ -607,6 +666,7 @@ def scan_fasta_iter(
             score=score,  # score per-record for streaming
             purity_rmq=purity_rmq,
             at_threshold=at_threshold,
+            min_g_rate=min_g_rate,
             filter_homopolymers=filter_homopolymers,
         )
         for h in hits:
@@ -618,7 +678,7 @@ def scan_fasta_parallel(
     path: str | Path,
     *,
     parser: str = "biopython",
-    minrep: int = 10,
+    minrep: int = 8,
     maxrep: int = 1000,
     maxspacer: int = 10,
     purity: float = 0.90,
@@ -630,7 +690,8 @@ def scan_fasta_parallel(
     score: bool = True,
     purity_rmq: bool = False,
     at_threshold: float | None = None,
-    filter_homopolymers: bool = False,
+    min_g_rate: float | None = 0.20,
+    filter_homopolymers: bool = True,
 ) -> list[dict]:
     """Scan a FASTA file using a thread pool with intra-record chunk parallelism.
 
@@ -718,6 +779,8 @@ def scan_fasta_parallel(
             score=False,
             purity_rmq=purity_rmq,
             at_threshold=at_threshold,
+            min_g_rate=min_g_rate,
+            filter_homopolymers=False,  # applied once in _post_process
         )
         for h in hits:
             h["seq_id"] = seq_id
@@ -751,13 +814,16 @@ def scan_fasta_parallel(
         tasks: list[tuple[str, str, int, int | None, bool]] = []
         bases = 0
         for seq_id, seq, offset in parse_fasta(path, parser=parser):
-            tasks.extend(_build_tasks(seq_id, seq, offset))
-            bases += len(seq)
-            del seq
+            # Flush a full batch only once the parser has moved on, so the
+            # parser no longer holds the previous record's full sequence
+            # while its chunks are scanned. Batch contents are unchanged.
             if bases >= batch_bases:
                 hits = [hit for chunk in executor.map(_scan_chunk, tasks) for hit in chunk]
                 results.extend(_post_process(hits))
                 tasks, bases = [], 0
+            tasks.extend(_build_tasks(seq_id, seq, offset))
+            bases += len(seq)
+            del seq
         if tasks:
             hits = [hit for chunk in executor.map(_scan_chunk, tasks) for hit in chunk]
             results.extend(_post_process(hits))
@@ -775,6 +841,7 @@ from hseeker.ablation import (  # noqa: E402
     MODELS as ABLATION_MODELS,
     detect_candidates,
     filter_at_content,
+    filter_g_rate,
     filter_homopolymers,
     remove_overlaps,
     score_candidates,

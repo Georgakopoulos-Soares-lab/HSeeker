@@ -1,0 +1,1 @@
+/work/10899/kimopro/ls6/tools/triplexator/bin/triplexator -ss /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/benchmark130.fa -ds /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/benchmark130.fa -of 0 -od /scratch/10899/kimopro/HSeeker/analysis/results/tool_comparison/raw/Triplexator/benchmark130__tfo_tts_same_molecule__2ecfcf24 -o out
